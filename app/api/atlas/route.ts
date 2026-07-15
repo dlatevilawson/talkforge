@@ -7,14 +7,6 @@ type ChatMessage = {
   content: string;
 };
 
-function getClient() {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return null;
-  }
-  return new OpenAI({ apiKey });
-}
-
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -35,28 +27,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const client = getClient();
-    if (!client) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
       return NextResponse.json(
         { error: "OPENAI_API_KEY is not configured." },
         { status: 503 }
       );
     }
 
-    const completion = await client.responses.create({
+    const client = new OpenAI({ apiKey });
+
+    const response = await client.responses.create({
       model: "gpt-5",
-      instructions: `${ATLAS_FOUNDING_CHARTER}
-
-⸻
-
-Operational reminder for this interface:
-
-You are responding inside the Atlas dashboard (Ask Atlas).
-Apply the Founding Charter above as your identity without rewriting it.
-Use the Decision Standard for significant recommendations.
-State confidence when recommending.
-Do not present recommendations as final decisions.
-Keep responses calm, concise, and analytically useful.`,
+      instructions: ATLAS_FOUNDING_CHARTER,
       input: [
         ...history.map((item) => ({
           role: item.role,
@@ -69,7 +52,7 @@ Keep responses calm, concise, and analytically useful.`,
       ],
     });
 
-    const reply = completion.output_text?.trim();
+    const reply = response.output_text?.trim();
 
     if (!reply) {
       return NextResponse.json(
@@ -81,6 +64,22 @@ Keep responses calm, concise, and analytically useful.`,
     return NextResponse.json({ reply });
   } catch (error) {
     console.error(error);
+
+    const status =
+      typeof error === "object" &&
+      error !== null &&
+      "status" in error &&
+      typeof (error as { status: unknown }).status === "number"
+        ? (error as { status: number }).status
+        : 500;
+
+    if (status === 401) {
+      return NextResponse.json(
+        { error: "Invalid OPENAI_API_KEY." },
+        { status: 401 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Atlas could not respond." },
       { status: 500 }
