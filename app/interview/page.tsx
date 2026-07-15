@@ -1,8 +1,18 @@
 import TrainingArena from "@/app/components/TrainingArena";
 
-export default function InterviewPage() {
+export default async function InterviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mission?: string | string[] }>;
+}) {
+  const params = await searchParams;
+
   return (
     <TrainingArena
+      missionStarted={
+        params.mission === "1" ||
+        (Array.isArray(params.mission) && params.mission.includes("1"))
+      }
       title="Interview Forge"
       headline="Land The Opportunity."
       description="Great interviews aren't about perfect answers. They're about clear thinking and authentic communication."

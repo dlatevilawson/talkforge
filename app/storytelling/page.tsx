@@ -1,8 +1,18 @@
 import TrainingArena from "@/app/components/TrainingArena";
 
-export default function StorytellingPage() {
+export default async function StorytellingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mission?: string | string[] }>;
+}) {
+  const params = await searchParams;
+
   return (
     <TrainingArena
+      missionStarted={
+        params.mission === "1" ||
+        (Array.isArray(params.mission) && params.mission.includes("1"))
+      }
       title="Storytelling Forge"
       headline="Stories People Remember."
       description="Facts inform. Stories inspire."

@@ -1,8 +1,18 @@
 import TrainingArena from "@/app/components/TrainingArena";
 
-export default function DifficultConversationsPage() {
+export default async function DifficultConversationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mission?: string | string[] }>;
+}) {
+  const params = await searchParams;
+
   return (
     <TrainingArena
+      missionStarted={
+        params.mission === "1" ||
+        (Array.isArray(params.mission) && params.mission.includes("1"))
+      }
       title="Difficult Conversations"
       headline="Lead With Courage."
       description="The hardest conversations often create the strongest relationships."
