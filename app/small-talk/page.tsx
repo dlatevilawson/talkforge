@@ -1,8 +1,18 @@
 import TrainingArena from "@/app/components/TrainingArena";
 
-export default function SmallTalkPage() {
+export default async function SmallTalkPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mission?: string | string[] }>;
+}) {
+  const params = await searchParams;
+
   return (
     <TrainingArena
+      missionStarted={
+        params.mission === "1" ||
+        (Array.isArray(params.mission) && params.mission.includes("1"))
+      }
       title="Small Talk Forge"
       headline="Every Conversation Starts Somewhere."
       description="Confidence grows one conversation at a time."

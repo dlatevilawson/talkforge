@@ -1,8 +1,18 @@
 import TrainingArena from "@/app/components/TrainingArena";
 
-export default function NegotiationPage() {
+export default async function NegotiationPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mission?: string | string[] }>;
+}) {
+  const params = await searchParams;
+
   return (
     <TrainingArena
+      missionStarted={
+        params.mission === "1" ||
+        (Array.isArray(params.mission) && params.mission.includes("1"))
+      }
       title="Negotiation Forge"
       headline="Create Win-Win Outcomes."
       description="The best negotiators seek understanding before agreement."

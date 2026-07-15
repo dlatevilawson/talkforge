@@ -16,6 +16,8 @@ type TrainingArenaProps = {
   coachMessage: string;
   missionPrompt: string;
   placeholder: string;
+  /** When true (e.g. ?mission=1), render the active mission view from the server. */
+  missionStarted?: boolean;
 };
 
 type ForgeCoaching = {
@@ -164,13 +166,12 @@ export default function TrainingArena({
   coachMessage,
   missionPrompt,
   placeholder,
+  missionStarted = false,
 }: TrainingArenaProps) {
-  const [missionStarted, setMissionStarted] = useState(false);
   const [message, setMessage] = useState("");
   const [conversation, setConversation] = useState<ConversationMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [turnCount, setTurnCount] = useState(0);
 
   async function handleContinue() {
     if (!message.trim()) return;
@@ -212,8 +213,6 @@ export default function TrainingArena({
           coaching,
         },
       ]);
-
-      setTurnCount((count) => count + 1);
 
       setMessage("");
     } catch (err) {
@@ -257,6 +256,7 @@ export default function TrainingArena({
           />
 
           <button
+            type="button"
             onClick={handleContinue}
             disabled={loading}
             className="mt-8 w-full rounded-full bg-blue-500 px-8 py-4 font-semibold transition hover:bg-blue-400 disabled:cursor-not-allowed disabled:opacity-50"
@@ -361,12 +361,13 @@ export default function TrainingArena({
               {coachMessage}
             </p>
 
-            <button
-              onClick={() => setMissionStarted(true)}
-              className="mt-10 rounded-full bg-blue-500 px-8 py-4 font-semibold transition hover:bg-blue-400"
+            <Link
+              href="?mission=1"
+              scroll={true}
+              className="mt-10 inline-flex rounded-full bg-blue-500 px-8 py-4 font-semibold transition hover:bg-blue-400"
             >
               Start Mission
-            </button>
+            </Link>
           </div>
         </div>
       </div>
