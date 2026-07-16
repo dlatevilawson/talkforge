@@ -1,0 +1,88 @@
+{
+  "version": "1.0",
+  "updatedAt": "2026-07-16T13:30:00.000Z",
+  "product": {
+    "name": "TalkForge",
+    "phase": "MVP",
+    "status": "in_progress"
+  },
+  "sprint": {
+    "id": "001",
+    "name": "Sprint 001",
+    "goal": "Deliver a complete end-to-end communication coaching experience.",
+    "status": "active",
+    "focus": [
+      "Keep the practice → coach → reflect loop reliable",
+      "Raise coaching quality and founder confidence in Forge",
+      "Operate Atlas as the founder control center"
+    ]
+  },
+  "priorities": [
+    {
+      "rank": 1,
+      "title": "Protect the communication loop",
+      "detail": "Guest → mission → coaching → reflection → progress must stay green.",
+      "status": "in_progress"
+    },
+    {
+      "rank": 2,
+      "title": "Improve coaching quality",
+      "detail": "Make Forge feedback sharper, warmer, and more actionable.",
+      "status": "open"
+    },
+    {
+      "rank": 3,
+      "title": "Increase stability",
+      "detail": "Reduce silent failures across continue, persist, and reflect.",
+      "status": "open"
+    },
+    {
+      "rank": 4,
+      "title": "Improve user experience",
+      "detail": "Polish the practice surface without expanding scope.",
+      "status": "open"
+    }
+  ],
+  "bugs": [
+    {
+      "id": "BUG-001",
+      "title": "Supabase Auth not connected",
+      "detail": "Guest identity uses a browser session pointer. Real auth is still deferred.",
+      "severity": "medium",
+      "status": "open"
+    },
+    {
+      "id": "BUG-002",
+      "title": "UI polish incomplete",
+      "detail": "Practice and progress surfaces still need visual refinement.",
+      "severity": "low",
+      "status": "open"
+    }
+  ],
+  "quickActions": [
+    {
+      "id": "practice",
+      "label": "Run a practice session",
+      "href": "/training",
+      "description": "Verify the coaching loop end-to-end"
+    },
+    {
+      "id": "progress",
+      "label": "Review progress",
+      "href": "/progress",
+      "description": "Check sessions, scores, and reflections"
+    },
+    {
+      "id": "dashboard",
+      "label": "Open product dashboard",
+      "href": "/dashboard",
+      "description": "See what users see first"
+    },
+    {
+      "id": "profile",
+      "label": "Check guest profile",
+      "href": "/profile",
+      "description": "Confirm Supabase profile sync"
+    }
+  ]
+}
