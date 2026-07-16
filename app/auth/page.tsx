@@ -45,6 +45,8 @@ export default function AuthPage() {
           <label className="block">
             <span className="text-sm text-zinc-300">Display name</span>
             <input
+              id="display-name"
+              name="displayName"
               key={existingName}
               ref={nameRef}
               type="text"

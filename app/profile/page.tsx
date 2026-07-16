@@ -3,8 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import AppShell from "@/app/components/AppShell";
-import { ensureGuestUser, updateDisplayName } from "@/lib/auth";
+import { updateDisplayName } from "@/lib/auth";
 import { clearAllTalkForgeData, getProgressSummary, getUser } from "@/lib/storage";
+import PersistenceStatus from "@/app/components/PersistenceStatus";
 import { useLocalData } from "@/lib/use-local-data";
 
 export default function ProfilePage() {
@@ -13,10 +14,10 @@ export default function ProfilePage() {
   const [saved, setSaved] = useState(false);
 
   const getClientValue = useCallback(() => {
-    const user = ensureGuestUser();
+    const user = getUser();
     return {
       user,
-      progress: getProgressSummary(user.id),
+      progress: getProgressSummary(user?.id),
     };
   }, []);
 
@@ -42,6 +43,9 @@ export default function ProfilePage() {
 
   return (
     <AppShell>
+      <div className="mb-6 max-w-xl">
+        <PersistenceStatus />
+      </div>
       <section className="max-w-xl">
         <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
           User Profile

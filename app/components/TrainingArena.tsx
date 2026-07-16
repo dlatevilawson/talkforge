@@ -204,7 +204,12 @@ export default function TrainingArena({
 
   async function handleContinue() {
     const text = textareaRef.current?.value.trim() ?? "";
-    if (!text || loading || !session) return;
+    if (!text || loading) return;
+
+    if (!session) {
+      setError("Session is still starting. Please try Continue again.");
+      return;
+    }
 
     const history = conversation
       .filter(
@@ -365,9 +370,11 @@ export default function TrainingArena({
           )}
 
           <div className="sticky bottom-0 mt-4 border-t border-white/10 bg-gradient-to-t from-black via-black to-transparent pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-            <label className="block">
+            <label className="block" htmlFor="mission-reply">
               <span className="sr-only">Your reply</span>
               <textarea
+                id="mission-reply"
+                name="message"
                 ref={textareaRef}
                 rows={3}
                 placeholder={placeholder}

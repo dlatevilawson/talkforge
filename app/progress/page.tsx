@@ -3,20 +3,21 @@
 import { useCallback } from "react";
 import Link from "next/link";
 import AppShell from "@/app/components/AppShell";
-import { ensureGuestUser } from "@/lib/auth";
-import { getProgressSummary, listReflections, listSessions } from "@/lib/storage";
+import PersistenceStatus from "@/app/components/PersistenceStatus";
+import { getProgressSummary, getUser, listReflections, listSessions } from "@/lib/storage";
 import { useLocalData } from "@/lib/use-local-data";
 
 export default function ProgressPage() {
   const getClientValue = useCallback(() => {
-    const user = ensureGuestUser();
+    const user = getUser();
     return {
-      progress: getProgressSummary(user.id),
+      progress: getProgressSummary(user?.id),
       sessions: listSessions().filter(
-        (session) => session.userId === user.id && session.completedAt
+        (session) =>
+          session.completedAt && (!user || session.userId === user.id)
       ),
       reflections: listReflections().filter(
-        (reflection) => reflection.userId === user.id
+        (reflection) => !user || reflection.userId === user.id
       ),
     };
   }, []);
@@ -34,6 +35,9 @@ export default function ProgressPage() {
 
   return (
     <AppShell>
+      <div className="mb-6">
+        <PersistenceStatus />
+      </div>
       <section>
         <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
           Progress Screen

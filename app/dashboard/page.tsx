@@ -4,8 +4,8 @@ import { useCallback } from "react";
 import Link from "next/link";
 import AppShell from "@/app/components/AppShell";
 import MissionPicker from "@/app/components/MissionPicker";
-import { ensureGuestUser } from "@/lib/auth";
-import { getProgressSummary, listSessions } from "@/lib/storage";
+import PersistenceStatus from "@/app/components/PersistenceStatus";
+import { getProgressSummary, getUser, listSessions } from "@/lib/storage";
 import { useLocalData } from "@/lib/use-local-data";
 
 function formatDate(value: string | null): string {
@@ -19,13 +19,17 @@ function formatDate(value: string | null): string {
 }
 
 export default function DashboardPage() {
+  // Read-only snapshot: never create/write users inside useLocalData getters.
   const getClientValue = useCallback(() => {
-    const user = ensureGuestUser();
+    const user = getUser();
     return {
       user,
-      progress: getProgressSummary(user.id),
+      progress: getProgressSummary(user?.id),
       recent: listSessions()
-        .filter((session) => session.userId === user.id && session.completedAt)
+        .filter(
+          (session) =>
+            session.completedAt && (!user || session.userId === user.id)
+        )
         .slice(0, 3),
     };
   }, []);
@@ -43,6 +47,9 @@ export default function DashboardPage() {
 
   return (
     <AppShell>
+      <div className="mb-6">
+        <PersistenceStatus />
+      </div>
       <section className="rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-8">
         <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
           Home Dashboard

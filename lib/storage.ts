@@ -5,13 +5,21 @@ import type {
   TalkForgeUser,
 } from "./types";
 import { notifyTalkForgeStorage } from "./storage-events";
+import {
+  persistReflectionToSupabase,
+  persistSessionToSupabase,
+  persistUserToSupabase,
+} from "./supabase/persist";
 
 const USER_KEY = "talkforge:user";
 const SESSIONS_KEY = "talkforge:sessions";
 const REFLECTIONS_KEY = "talkforge:reflections";
 
 function canUseStorage(): boolean {
-  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+  return (
+    typeof window !== "undefined" &&
+    typeof window.localStorage !== "undefined"
+  );
 }
 
 function readJson<T>(key: string, fallback: T): T {
@@ -37,6 +45,7 @@ export function getUser(): TalkForgeUser | null {
 
 export function saveUser(user: TalkForgeUser): void {
   writeJson(USER_KEY, user);
+  void persistUserToSupabase(user);
 }
 
 export function clearAllTalkForgeData(): void {
@@ -64,6 +73,7 @@ export function saveSession(session: PracticeSession): void {
     sessions.unshift(session);
   }
   writeJson(SESSIONS_KEY, sessions);
+  void persistSessionToSupabase(session);
 }
 
 export function listReflections(): Reflection[] {
@@ -83,6 +93,7 @@ export function saveReflection(reflection: Reflection): void {
   );
   reflections.unshift(reflection);
   writeJson(REFLECTIONS_KEY, reflections);
+  void persistReflectionToSupabase(reflection);
 }
 
 export function getProgressSummary(userId?: string): ProgressSummary {

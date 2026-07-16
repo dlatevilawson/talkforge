@@ -21,7 +21,6 @@ export default function ReflectPage() {
   const [satisfaction, setSatisfaction] = useState(4);
 
   const getClientValue = useCallback(() => {
-    ensureGuestUser();
     return {
       session: getSession(params.sessionId),
       reflection: getReflection(params.sessionId),

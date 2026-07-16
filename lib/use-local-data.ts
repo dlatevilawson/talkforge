@@ -1,28 +1,36 @@
 "use client";
 
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 import { useSyncExternalStore } from "react";
+import { withStorageNotificationsSuppressed } from "./storage-events";
 
 /**
  * Read client-only localStorage-backed data without setState-in-effect.
- * Server snapshot keeps SSR/hydration stable.
+ * Snapshot reads are notification-suppressed so accidental writes inside
+ * getters cannot re-enter useSyncExternalStore and freeze the app.
  */
 export function useLocalData<T>(getClientValue: () => T, serverValue: T): T {
-  const cachedSnapshot = useRef<T | undefined>(undefined);
+  const cachedSnapshot = useRef<{ raw: string; value: T } | undefined>(
+    undefined
+  );
 
-  const getSnapshot = () => {
-    const newValue = getClientValue();
-    // Cache the snapshot to avoid infinite loop from new object references
-    if (cachedSnapshot.current === undefined || JSON.stringify(cachedSnapshot.current) !== JSON.stringify(newValue)) {
-      cachedSnapshot.current = newValue;
+  const getSnapshot = useCallback(() => {
+    const newValue = withStorageNotificationsSuppressed(() => getClientValue());
+    const raw = JSON.stringify(newValue);
+
+    if (cachedSnapshot.current?.raw === raw) {
+      return cachedSnapshot.current.value;
     }
-    return cachedSnapshot.current;
-  };
+
+    cachedSnapshot.current = { raw, value: newValue };
+    return newValue;
+  }, [getClientValue]);
+
+  const getServerSnapshot = useCallback(() => serverValue, [serverValue]);
 
   return useSyncExternalStore(
     (onStoreChange) => {
       const handler = () => {
-        // Clear cache on storage change so next getSnapshot returns fresh value
         cachedSnapshot.current = undefined;
         onStoreChange();
       };
@@ -30,10 +38,13 @@ export function useLocalData<T>(getClientValue: () => T, serverValue: T): T {
       window.addEventListener("talkforge:storage", handler as EventListener);
       return () => {
         window.removeEventListener("storage", handler);
-        window.removeEventListener("talkforge:storage", handler as EventListener);
+        window.removeEventListener(
+          "talkforge:storage",
+          handler as EventListener
+        );
       };
     },
     getSnapshot,
-    () => serverValue
+    getServerSnapshot
   );
 }
