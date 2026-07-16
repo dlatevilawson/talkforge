@@ -9,6 +9,7 @@ export default async function LeadershipPage({
 
   return (
     <TrainingArena
+      scenarioId="leadership"
       missionStarted={
         params.mission === "1" ||
         (Array.isArray(params.mission) && params.mission.includes("1"))

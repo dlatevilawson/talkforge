@@ -9,6 +9,7 @@ export default async function InterviewPage({
 
   return (
     <TrainingArena
+      scenarioId="interview"
       missionStarted={
         params.mission === "1" ||
         (Array.isArray(params.mission) && params.mission.includes("1"))

@@ -9,6 +9,7 @@ export default async function NegotiationPage({
 
   return (
     <TrainingArena
+      scenarioId="negotiation"
       missionStarted={
         params.mission === "1" ||
         (Array.isArray(params.mission) && params.mission.includes("1"))

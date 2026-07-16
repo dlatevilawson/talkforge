@@ -9,6 +9,7 @@ export default async function SmallTalkPage({
 
   return (
     <TrainingArena
+      scenarioId="small-talk"
       missionStarted={
         params.mission === "1" ||
         (Array.isArray(params.mission) && params.mission.includes("1"))
