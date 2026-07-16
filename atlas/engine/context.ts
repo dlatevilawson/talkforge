@@ -3,10 +3,12 @@
  * All company knowledge for Atlas must come from loaded documents — never hardcoded.
  */
 export type AtlasContext = {
-  founderBrief: string;
   constitution: string;
+  founderBrief: string;
   forgeLaws: string;
   philosophy: string;
-  projects: unknown;
-  decisions: unknown;
+  projects: string;
+  decisions: string;
+  roadmap: string;
+  metrics: string;
 };
