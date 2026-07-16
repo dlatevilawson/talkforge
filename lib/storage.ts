@@ -1,94 +1,226 @@
+import { clearCurrentUserId, getCurrentUserId } from "./identity";
+import { getSupabaseClient } from "./supabase/client";
 import type {
+  ConversationTurn,
   PracticeSession,
   ProgressSummary,
   Reflection,
   TalkForgeUser,
 } from "./types";
-import { notifyTalkForgeStorage } from "./storage-events";
 
-const USER_KEY = "talkforge:user";
-const SESSIONS_KEY = "talkforge:sessions";
-const REFLECTIONS_KEY = "talkforge:reflections";
-
-function canUseStorage(): boolean {
-  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+function requireSupabase() {
+  const client = getSupabaseClient();
+  if (!client) {
+    throw new Error(
+      "Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+    );
+  }
+  return client;
 }
 
-function readJson<T>(key: string, fallback: T): T {
-  if (!canUseStorage()) return fallback;
-  try {
-    const raw = window.localStorage.getItem(key);
-    if (!raw) return fallback;
-    return JSON.parse(raw) as T;
-  } catch {
-    return fallback;
+function mapProfile(row: {
+  id: string;
+  display_name: string;
+  created_at: string;
+}): TalkForgeUser {
+  return {
+    id: row.id,
+    displayName: row.display_name,
+    createdAt: row.created_at,
+  };
+}
+
+function mapSession(row: {
+  id: string;
+  user_id: string;
+  scenario_id: string;
+  scenario_title: string;
+  mission_prompt: string;
+  started_at: string;
+  completed_at: string | null;
+  average_score: number | null;
+  turns: ConversationTurn[] | null;
+}): PracticeSession {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    scenarioId: row.scenario_id,
+    scenarioTitle: row.scenario_title,
+    missionPrompt: row.mission_prompt,
+    startedAt: row.started_at,
+    completedAt: row.completed_at ?? undefined,
+    averageScore: row.average_score ?? undefined,
+    turns: Array.isArray(row.turns) ? row.turns : [],
+  };
+}
+
+function mapReflection(row: {
+  session_id: string;
+  user_id: string;
+  went_well: string;
+  improve_next: string;
+  coach_satisfaction: number | null;
+  created_at: string;
+}): Reflection {
+  return {
+    sessionId: row.session_id,
+    userId: row.user_id,
+    wentWell: row.went_well,
+    improveNext: row.improve_next,
+    coachSatisfaction: row.coach_satisfaction ?? undefined,
+    createdAt: row.created_at,
+  };
+}
+
+export async function getUser(): Promise<TalkForgeUser | null> {
+  const id = getCurrentUserId();
+  if (!id) return null;
+
+  const supabase = requireSupabase();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, display_name, created_at")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load profile: ${error.message}`);
+  }
+  if (!data) return null;
+  return mapProfile(data);
+}
+
+export async function saveUser(user: TalkForgeUser): Promise<void> {
+  const supabase = requireSupabase();
+  const { error } = await supabase.from("profiles").upsert({
+    id: user.id,
+    display_name: user.displayName,
+    created_at: user.createdAt,
+  });
+
+  if (error) {
+    throw new Error(`Failed to save profile: ${error.message}`);
   }
 }
 
-function writeJson<T>(key: string, value: T): void {
-  if (!canUseStorage()) return;
-  window.localStorage.setItem(key, JSON.stringify(value));
-  notifyTalkForgeStorage();
-}
+export async function listSessions(userId?: string): Promise<PracticeSession[]> {
+  const supabase = requireSupabase();
+  let query = supabase
+    .from("practice_sessions")
+    .select(
+      "id, user_id, scenario_id, scenario_title, mission_prompt, started_at, completed_at, average_score, turns"
+    )
+    .order("started_at", { ascending: false });
 
-export function getUser(): TalkForgeUser | null {
-  return readJson<TalkForgeUser | null>(USER_KEY, null);
-}
-
-export function saveUser(user: TalkForgeUser): void {
-  writeJson(USER_KEY, user);
-}
-
-export function clearAllTalkForgeData(): void {
-  if (!canUseStorage()) return;
-  window.localStorage.removeItem(USER_KEY);
-  window.localStorage.removeItem(SESSIONS_KEY);
-  window.localStorage.removeItem(REFLECTIONS_KEY);
-  notifyTalkForgeStorage();
-}
-
-export function listSessions(): PracticeSession[] {
-  return readJson<PracticeSession[]>(SESSIONS_KEY, []);
-}
-
-export function getSession(sessionId: string): PracticeSession | null {
-  return listSessions().find((session) => session.id === sessionId) ?? null;
-}
-
-export function saveSession(session: PracticeSession): void {
-  const sessions = listSessions();
-  const index = sessions.findIndex((item) => item.id === session.id);
-  if (index >= 0) {
-    sessions[index] = session;
-  } else {
-    sessions.unshift(session);
+  if (userId) {
+    query = query.eq("user_id", userId);
   }
-  writeJson(SESSIONS_KEY, sessions);
+
+  const { data, error } = await query;
+  if (error) {
+    throw new Error(`Failed to list sessions: ${error.message}`);
+  }
+  return (data ?? []).map(mapSession);
 }
 
-export function listReflections(): Reflection[] {
-  return readJson<Reflection[]>(REFLECTIONS_KEY, []);
+export async function getSession(
+  sessionId: string
+): Promise<PracticeSession | null> {
+  const supabase = requireSupabase();
+  const { data, error } = await supabase
+    .from("practice_sessions")
+    .select(
+      "id, user_id, scenario_id, scenario_title, mission_prompt, started_at, completed_at, average_score, turns"
+    )
+    .eq("id", sessionId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load session: ${error.message}`);
+  }
+  if (!data) return null;
+  return mapSession(data);
 }
 
-export function getReflection(sessionId: string): Reflection | null {
-  return (
-    listReflections().find((reflection) => reflection.sessionId === sessionId) ??
-    null
-  );
+export async function saveSession(session: PracticeSession): Promise<void> {
+  const supabase = requireSupabase();
+  const { error } = await supabase.from("practice_sessions").upsert({
+    id: session.id,
+    user_id: session.userId,
+    scenario_id: session.scenarioId,
+    scenario_title: session.scenarioTitle,
+    mission_prompt: session.missionPrompt,
+    started_at: session.startedAt,
+    completed_at: session.completedAt ?? null,
+    average_score: session.averageScore ?? null,
+    turns: session.turns,
+  });
+
+  if (error) {
+    throw new Error(`Failed to save session: ${error.message}`);
+  }
 }
 
-export function saveReflection(reflection: Reflection): void {
-  const reflections = listReflections().filter(
-    (item) => item.sessionId !== reflection.sessionId
-  );
-  reflections.unshift(reflection);
-  writeJson(REFLECTIONS_KEY, reflections);
+export async function listReflections(userId?: string): Promise<Reflection[]> {
+  const supabase = requireSupabase();
+  let query = supabase
+    .from("reflections")
+    .select(
+      "session_id, user_id, went_well, improve_next, coach_satisfaction, created_at"
+    )
+    .order("created_at", { ascending: false });
+
+  if (userId) {
+    query = query.eq("user_id", userId);
+  }
+
+  const { data, error } = await query;
+  if (error) {
+    throw new Error(`Failed to list reflections: ${error.message}`);
+  }
+  return (data ?? []).map(mapReflection);
 }
 
-export function getProgressSummary(userId?: string): ProgressSummary {
-  const sessions = listSessions().filter(
-    (session) =>
-      session.completedAt && (!userId || session.userId === userId)
+export async function getReflection(
+  sessionId: string
+): Promise<Reflection | null> {
+  const supabase = requireSupabase();
+  const { data, error } = await supabase
+    .from("reflections")
+    .select(
+      "session_id, user_id, went_well, improve_next, coach_satisfaction, created_at"
+    )
+    .eq("session_id", sessionId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to load reflection: ${error.message}`);
+  }
+  if (!data) return null;
+  return mapReflection(data);
+}
+
+export async function saveReflection(reflection: Reflection): Promise<void> {
+  const supabase = requireSupabase();
+  const { error } = await supabase.from("reflections").upsert({
+    session_id: reflection.sessionId,
+    user_id: reflection.userId,
+    went_well: reflection.wentWell,
+    improve_next: reflection.improveNext,
+    coach_satisfaction: reflection.coachSatisfaction ?? null,
+    created_at: reflection.createdAt,
+  });
+
+  if (error) {
+    throw new Error(`Failed to save reflection: ${error.message}`);
+  }
+}
+
+export async function getProgressSummary(
+  userId?: string
+): Promise<ProgressSummary> {
+  const sessions = (await listSessions(userId)).filter(
+    (session) => session.completedAt
   );
 
   if (sessions.length === 0) {
@@ -121,4 +253,17 @@ export function getProgressSummary(userId?: string): ProgressSummary {
     lastSessionAt: latest.completedAt ?? null,
     lastScenarioTitle: latest.scenarioTitle,
   };
+}
+
+export async function clearAllTalkForgeData(): Promise<void> {
+  const userId = getCurrentUserId();
+  clearCurrentUserId();
+  if (!userId) return;
+
+  const supabase = requireSupabase();
+  // Cascades to practice_sessions and reflections via schema FKs.
+  const { error } = await supabase.from("profiles").delete().eq("id", userId);
+  if (error) {
+    throw new Error(`Failed to clear profile data: ${error.message}`);
+  }
 }

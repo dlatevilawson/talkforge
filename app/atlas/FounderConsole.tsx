@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState } from "react";
+import PersistenceStatus from "@/app/components/PersistenceStatus";
 
 export default function FounderConsole() {
   // Uncontrolled textarea: text typed before hydration stays in the DOM and is
@@ -54,6 +56,21 @@ export default function FounderConsole() {
 
   return (
     <div className="mx-auto w-full max-w-2xl px-6 py-16">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+        <Link
+          href="/dashboard"
+          className="text-sm text-zinc-400 underline-offset-4 hover:text-zinc-200 hover:underline"
+        >
+          ← Back to Dashboard
+        </Link>
+        <Link
+          href="/training"
+          className="text-sm text-zinc-400 underline-offset-4 hover:text-zinc-200 hover:underline"
+        >
+          Practice
+        </Link>
+      </div>
+
       <header className="border-b border-white/10 pb-10">
         <h1 className="text-4xl font-semibold tracking-[0.28em] text-zinc-100">
           ATLAS
@@ -61,10 +78,16 @@ export default function FounderConsole() {
         <p className="mt-4 text-sm text-zinc-500">Founder console</p>
       </header>
 
+      <div className="mt-6">
+        <PersistenceStatus />
+      </div>
+
       <form onSubmit={handleAsk} className="mt-10 space-y-5">
-        <label className="block">
+        <label className="block" htmlFor="atlas-message">
           <span className="text-sm text-zinc-400">Ask Atlas...</span>
           <textarea
+            id="atlas-message"
+            name="message"
             ref={textareaRef}
             rows={4}
             placeholder="What should we prioritize this week?"
@@ -88,7 +111,9 @@ export default function FounderConsole() {
         </h2>
 
         {error ? (
-          <p className="mt-4 text-sm leading-6 text-red-300">{error}</p>
+          <p className="mt-4 text-sm leading-6 text-red-300" role="alert">
+            {error}
+          </p>
         ) : response ? (
           <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-zinc-200">
             {response}

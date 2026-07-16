@@ -185,13 +185,35 @@ export default function TrainingArena({
   useEffect(() => {
     if (!missionStarted || sessionInitialized.current) return;
     sessionInitialized.current = true;
-    const next = createPracticeSession({
-      scenarioId,
-      scenarioTitle: title,
-      missionPrompt,
-    });
-    setSession(next);
-    persistActiveSession(next, []);
+
+    let cancelled = false;
+
+    async function startSession() {
+      try {
+        const next = await createPracticeSession({
+          scenarioId,
+          scenarioTitle: title,
+          missionPrompt,
+        });
+        if (!cancelled) {
+          setSession(next);
+        }
+      } catch (err) {
+        console.error(err);
+        if (!cancelled) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Could not start practice session in Supabase."
+          );
+        }
+      }
+    }
+
+    void startSession();
+    return () => {
+      cancelled = true;
+    };
   }, [missionStarted, scenarioId, title, missionPrompt]);
 
   useEffect(() => {
@@ -204,7 +226,12 @@ export default function TrainingArena({
 
   async function handleContinue() {
     const text = textareaRef.current?.value.trim() ?? "";
-    if (!text || loading || !session) return;
+    if (!text || loading) return;
+
+    if (!session) {
+      setError("Session is still starting. Please try Continue again.");
+      return;
+    }
 
     const history = conversation
       .filter(
@@ -255,8 +282,8 @@ export default function TrainingArena({
         { role: "forge", coaching },
       ];
 
+      const updated = await persistActiveSession(session, nextTurns);
       setConversation(nextTurns);
-      const updated = persistActiveSession(session, nextTurns);
       setSession(updated);
 
       if (textareaRef.current) {
@@ -264,13 +291,17 @@ export default function TrainingArena({
       }
     } catch (err) {
       console.error(err);
-      setError("Forge couldn't respond right now. Please try again.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Forge couldn't respond right now. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   }
 
-  function handleEndMission() {
+  async function handleEndMission() {
     if (!session || ending) return;
 
     if (conversation.length === 0) {
@@ -279,8 +310,20 @@ export default function TrainingArena({
     }
 
     setEnding(true);
-    const completed = completePracticeSession(session, conversation);
-    router.push(`/reflect/${completed.id}`);
+    setError("");
+
+    try {
+      const completed = await completePracticeSession(session, conversation);
+      router.push(`/reflect/${completed.id}`);
+    } catch (err) {
+      console.error(err);
+      setEnding(false);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not complete session in Supabase."
+      );
+    }
   }
 
   if (missionStarted) {
@@ -365,9 +408,11 @@ export default function TrainingArena({
           )}
 
           <div className="sticky bottom-0 mt-4 border-t border-white/10 bg-gradient-to-t from-black via-black to-transparent pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-            <label className="block">
+            <label className="block" htmlFor="mission-reply">
               <span className="sr-only">Your reply</span>
               <textarea
+                id="mission-reply"
+                name="message"
                 ref={textareaRef}
                 rows={3}
                 placeholder={placeholder}
