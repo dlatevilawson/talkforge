@@ -176,16 +176,28 @@ export default function TrainingArena({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // After Continue, You / Other Person / Forge render below the tall textarea
-  // and sit under the fold unless we scroll the latest exchange into view.
+  // Keep the latest exchange in view after each successful turn.
   useEffect(() => {
     if (conversation.length === 0) return;
-    conversationRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    conversationRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
   }, [conversation]);
 
   async function handleContinue() {
     const text = textareaRef.current?.value.trim() ?? "";
-    if (!text) return;
+    if (!text || loading) return;
+
+    const history = conversation
+      .filter(
+        (item): item is { role: "user" | "npc"; text: string } =>
+          item.role === "user" || item.role === "npc"
+      )
+      .map((item) => ({
+        role: item.role,
+        text: item.text,
+      }));
 
     setLoading(true);
     setError("");
@@ -198,6 +210,7 @@ export default function TrainingArena({
         },
         body: JSON.stringify({
           message: text,
+          history,
         }),
       });
 
@@ -205,6 +218,10 @@ export default function TrainingArena({
 
       if (!response.ok) {
         throw new Error(data.error || "Something went wrong.");
+      }
+
+      if (typeof data.npc !== "string" || !data.npc.trim()) {
+        throw new Error("Forge returned an empty reply.");
       }
 
       const coaching = normalizeForge(data.forge);
@@ -217,7 +234,7 @@ export default function TrainingArena({
         },
         {
           role: "npc",
-          text: data.npc,
+          text: data.npc.trim(),
         },
         {
           role: "forge",
@@ -240,7 +257,7 @@ export default function TrainingArena({
   if (missionStarted) {
     return (
       <main className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black px-6 text-white">
-        <div className="mx-auto max-w-3xl py-10">
+        <div className="mx-auto flex min-h-screen max-w-3xl flex-col py-10">
           <Link
             href="/training"
             className="inline-flex items-center text-gray-400 transition hover:text-white"
@@ -260,31 +277,15 @@ export default function TrainingArena({
             {missionPrompt}
           </p>
 
-          <textarea
-            ref={textareaRef}
-            rows={6}
-            placeholder={placeholder}
-            className="mt-10 w-full rounded-2xl border border-white/10 bg-white/5 p-6 text-white outline-none placeholder:text-gray-500"
-          />
-
-          <button
-            type="button"
-            onClick={handleContinue}
-            disabled={loading}
-            className="mt-8 w-full rounded-full bg-blue-500 px-8 py-4 font-semibold transition hover:bg-blue-400 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {loading ? "Forge is thinking..." : "Continue"}
-          </button>
-
-          {error && (
-            <div className="mt-8 rounded-2xl border border-red-500/20 bg-red-500/10 p-6">
-              <p className="text-red-300">{error}</p>
-            </div>
-          )}
-
-          {conversation.length > 0 && (
-            <div ref={conversationRef} className="mt-10 space-y-6">
-              {conversation.map((item, index) =>
+          {/* Transcript above composer so replies are never hidden under the fold. */}
+          <div ref={conversationRef} className="mt-10 flex-1 space-y-6">
+            {conversation.length === 0 ? (
+              <p className="text-center text-sm text-gray-500">
+                Your conversation with the other person and Forge coaching will
+                appear here.
+              </p>
+            ) : (
+              conversation.map((item, index) =>
                 item.role === "forge" ? (
                   <ForgeCoachCard key={index} coaching={item.coaching} />
                 ) : (
@@ -305,9 +306,34 @@ export default function TrainingArena({
                     </p>
                   </div>
                 )
-              )}
+              )
+            )}
+          </div>
+
+          {error && (
+            <div className="mt-8 rounded-2xl border border-red-500/20 bg-red-500/10 p-6">
+              <p className="text-red-300">{error}</p>
             </div>
           )}
+
+          <div className="sticky bottom-0 mt-8 border-t border-white/10 bg-gradient-to-t from-black via-black to-transparent pt-6 pb-4">
+            <textarea
+              ref={textareaRef}
+              rows={4}
+              placeholder={placeholder}
+              disabled={loading}
+              className="w-full rounded-2xl border border-white/10 bg-white/5 p-6 text-white outline-none placeholder:text-gray-500 disabled:cursor-not-allowed disabled:opacity-60"
+            />
+
+            <button
+              type="button"
+              onClick={handleContinue}
+              disabled={loading}
+              className="mt-6 w-full rounded-full bg-blue-500 px-8 py-4 font-semibold transition hover:bg-blue-400 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {loading ? "Forge is thinking..." : "Continue"}
+            </button>
+          </div>
         </div>
       </main>
     );
