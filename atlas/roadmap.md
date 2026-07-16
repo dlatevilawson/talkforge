@@ -52,6 +52,8 @@ Achievements
 
 Atlas Operating System
 
+Founder Operating System Dashboard ← started
+
 Department Agents
 
 Executive Dashboard

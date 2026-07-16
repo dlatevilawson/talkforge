@@ -1,5 +1,5 @@
 # TALKFORGE PROJECTS
-Version 1.0
+Version 1.1
 
 ---
 
@@ -19,13 +19,26 @@ Critical
 
 ---
 
+## Project
+Atlas Founder Operating System
+
+Status:
+🟢 In Progress
+
+Purpose:
+Turn Atlas from a chat interface into the TalkForge founder control center.
+
+Priority:
+Critical
+
+---
+
 ## Current Objectives
 
-- Complete onboarding experience
-- Finish conversation engine
-- Improve Forge Coach
-- Build user dashboard
-- Implement progress tracking
+- Operate Atlas as the founder operating system
+- Keep the practice → coach → reflect loop reliable
+- Improve Forge Coach quality
+- Prepare real authentication after guest MVP
 - Launch MVP
 
 ---
@@ -42,7 +55,7 @@ Deliver a complete end-to-end communication coaching experience.
 ## Current Priorities
 
 Priority 1
-Finish the communication loop.
+Protect the communication loop.
 
 Priority 2
 Improve coaching quality.
@@ -58,19 +71,21 @@ Improve user experience.
 ## Completed
 
 - Atlas Engine
-- Founder Dashboard
+- Founder Dashboard (chat)
 - OpenAI Integration
 - Forge Coach v1
 - Mission Screen
 - Start Mission Flow
+- Supabase persistence for profiles, sessions, and reflections
+- Atlas Founder OS dashboard v1
 
 ---
 
 ## Known Issues
 
-- Supabase authentication not yet connected (guest/local persistence in use)
+- Supabase authentication not yet connected (guest session pointer still in use)
 - UI polish ongoing
-- Cloud sync for progress not yet available
+- GitHub activity depends on public API rate limits unless GITHUB_TOKEN is set
 
 ---
 
@@ -101,3 +116,5 @@ Users complete practice sessions.
 Users become more confident.
 
 Mission remains aligned.
+
+Founder always knows the next move.
