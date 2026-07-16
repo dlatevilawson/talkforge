@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import type { FounderOpsSnapshot } from "@/atlas/engine/ops-types";
 import AskAtlasPanel from "./components/AskAtlasPanel";
+import FounderNotesPanel from "./components/FounderNotesPanel";
 import {
   formatWhen,
   severityClasses,
@@ -20,13 +21,18 @@ function Panel({
   title,
   children,
   action,
+  id,
 }: {
   title: string;
   children: React.ReactNode;
   action?: React.ReactNode;
+  id?: string;
 }) {
   return (
-    <section className="flex min-h-0 flex-col border border-white/10 bg-[#0f1115]/40">
+    <section
+      id={id}
+      className="flex min-h-0 flex-col border border-white/10 bg-[#0f1115]/40"
+    >
       <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
         <h2 className="text-[11px] font-medium uppercase tracking-[0.22em] text-zinc-500">
           {title}
@@ -38,10 +44,31 @@ function Panel({
   );
 }
 
+function Metric({
+  label,
+  value,
+  detail,
+}: {
+  label: string;
+  value: string | number;
+  detail?: string;
+}) {
+  return (
+    <div>
+      <p className="text-[11px] uppercase tracking-[0.16em] text-zinc-500">
+        {label}
+      </p>
+      <p className="mt-2 text-2xl font-semibold tracking-tight text-zinc-50">
+        {value}
+      </p>
+      {detail ? <p className="mt-1 text-xs text-zinc-500">{detail}</p> : null}
+    </div>
+  );
+}
+
 export default function FounderOS({ snapshot }: FounderOSProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [mountedAt] = useState(() => snapshot.generatedAt);
   const [pulse, setPulse] = useState(false);
 
   useEffect(() => {
@@ -55,8 +82,14 @@ export default function FounderOS({ snapshot }: FounderOSProps) {
     });
   }
 
-  const { nextAction, sprint, productHealth, database, aiUsage, github } =
-    snapshot;
+  const {
+    missionControl,
+    companyHealth,
+    founderMetrics,
+    brief,
+    quickActions,
+    nextAction,
+  } = snapshot;
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
@@ -110,45 +143,52 @@ export default function FounderOS({ snapshot }: FounderOSProps) {
             </h1>
           </div>
           <p className="max-w-sm text-right text-xs leading-5 text-zinc-500">
-            Generated {formatWhen(snapshot.generatedAt)}
+            Daily brief {brief.date}
             <br />
-            Snapshot seed {formatWhen(mountedAt)}
+            Snapshot {formatWhen(snapshot.generatedAt)}
           </p>
         </div>
       </header>
 
+      {/* Founder Brief — auto on open */}
       <section
-        className={`mt-8 border border-white/10 bg-[radial-gradient(1200px_circle_at_0%_0%,rgba(59,130,246,0.14),transparent_45%),linear-gradient(180deg,#12151c,#0d0f14)] px-5 py-6 transition duration-700 delay-150 sm:px-7 sm:py-7 ${
+        className={`mt-8 border border-white/10 bg-[radial-gradient(1200px_circle_at_0%_0%,rgba(59,130,246,0.16),transparent_45%),linear-gradient(180deg,#12151c,#0d0f14)] px-5 py-6 transition duration-700 delay-100 sm:px-7 sm:py-7 ${
           pulse ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"
         }`}
-        aria-labelledby="next-action-heading"
+        aria-labelledby="founder-brief-heading"
       >
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-3xl">
             <p className="text-[11px] uppercase tracking-[0.24em] text-blue-300/80">
-              What should the founder do next?
+              Daily Founder Brief · {brief.source}
             </p>
             <h2
-              id="next-action-heading"
+              id="founder-brief-heading"
               className="mt-3 text-2xl font-semibold tracking-tight text-zinc-50 sm:text-3xl"
             >
-              {nextAction.title}
+              Company state & next three priorities
             </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
-              {nextAction.reason}
+            <p className="mt-4 text-sm leading-7 text-zinc-300">
+              {brief.summary}
             </p>
           </div>
-          <div className="flex flex-col items-end gap-3">
-            <span
-              className={`text-[11px] uppercase tracking-[0.2em] ${severityClasses(
-                nextAction.urgency
-              )}`}
-            >
-              {nextAction.urgency} urgency
-            </span>
+          <div className="min-w-[220px]">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-zinc-500">
+              Next three
+            </p>
+            <ol className="mt-3 space-y-3">
+              {brief.priorities.map((item, index) => (
+                <li key={item} className="flex gap-3 text-sm text-zinc-200">
+                  <span className="font-mono text-zinc-500">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ol>
             <Link
               href={nextAction.href}
-              className="border border-zinc-100 bg-zinc-100 px-5 py-2.5 text-sm font-medium text-zinc-950 transition hover:bg-white"
+              className="mt-5 inline-flex border border-zinc-100 bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-950 transition hover:bg-white"
             >
               {nextAction.cta}
             </Link>
@@ -156,231 +196,320 @@ export default function FounderOS({ snapshot }: FounderOSProps) {
         </div>
       </section>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-4">
-        <Panel title="Current sprint">
-          <p className="text-lg font-medium text-zinc-100">{sprint.name}</p>
-          <p className="mt-2 text-sm leading-6 text-zinc-400">{sprint.goal}</p>
-          <ul className="mt-4 space-y-2">
-            {sprint.focus.map((item) => (
-              <li key={item} className="flex gap-2 text-sm text-zinc-300">
-                <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-zinc-500" />
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </Panel>
+      {/* 1. Mission Control */}
+      <div className="mt-6">
+        <p className="mb-3 text-[11px] uppercase tracking-[0.22em] text-zinc-600">
+          1 · Mission Control
+        </p>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <Panel title="Current Sprint">
+            <p className="text-lg font-medium text-zinc-100">
+              {missionControl.sprint.name}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">
+              {missionControl.sprint.goal}
+            </p>
+            <p className="mt-4 text-[11px] uppercase tracking-[0.16em] text-zinc-500">
+              {missionControl.sprint.status}
+            </p>
+          </Panel>
 
-        <Panel title="Product health">
-          <div className="flex items-center gap-2">
-            <span
-              className={`h-2 w-2 rounded-full ${toneDot(productHealth.tone)}`}
+          <Panel title="Today's Mission">
+            <p className="text-lg font-medium text-zinc-100">
+              {missionControl.todayMission.title}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">
+              {missionControl.todayMission.detail}
+            </p>
+          </Panel>
+
+          <Panel title="Top Priority">
+            {missionControl.topPriority ? (
+              <>
+                <p className="font-mono text-xs text-zinc-500">
+                  P{missionControl.topPriority.rank}
+                </p>
+                <p className="mt-2 text-lg font-medium text-zinc-100">
+                  {missionControl.topPriority.title}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">
+                  {missionControl.topPriority.detail}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-zinc-500">No open priorities.</p>
+            )}
+          </Panel>
+
+          <Panel title="Current Milestone">
+            <p className="text-lg font-medium text-zinc-100">
+              {missionControl.milestone.title}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">
+              {missionControl.milestone.detail}
+            </p>
+            <div className="mt-4">
+              <div className="mb-2 flex justify-between text-xs text-zinc-500">
+                <span>{missionControl.milestone.id}</span>
+                <span>{missionControl.milestone.progress}%</span>
+              </div>
+              <div className="h-1.5 overflow-hidden bg-white/10">
+                <div
+                  className="h-full bg-blue-400 transition-all duration-700"
+                  style={{
+                    width: `${Math.min(100, missionControl.milestone.progress)}%`,
+                  }}
+                />
+              </div>
+            </div>
+          </Panel>
+        </div>
+      </div>
+
+      {/* 2. Company Health */}
+      <div className="mt-8">
+        <p className="mb-3 text-[11px] uppercase tracking-[0.22em] text-zinc-600">
+          2 · Company Health
+        </p>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <Panel title="Product Health">
+            <div className="flex items-center gap-2">
+              <span
+                className={`h-2 w-2 rounded-full ${toneDot(
+                  companyHealth.productHealth.tone
+                )}`}
+              />
+              <p className="text-sm text-zinc-200">
+                {companyHealth.productHealth.summary}
+              </p>
+            </div>
+            <dl className="mt-5 grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <dt className="text-zinc-500">Completed</dt>
+                <dd className="mt-1 text-xl text-zinc-100">
+                  {companyHealth.productHealth.sessionsCompleted}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-zinc-500">Avg score</dt>
+                <dd className="mt-1 text-xl text-zinc-100">
+                  {companyHealth.productHealth.averageScore}
+                </dd>
+              </div>
+            </dl>
+          </Panel>
+
+          <Panel
+            title="Open Bugs"
+            action={
+              <span className="text-[11px] uppercase tracking-[0.16em] text-zinc-600">
+                {companyHealth.openBugCount} open
+              </span>
+            }
+          >
+            {companyHealth.openBugs.length === 0 ? (
+              <p className="text-sm text-zinc-500">No open bugs.</p>
+            ) : (
+              <ul className="space-y-3">
+                {companyHealth.openBugs.map((bug) => (
+                  <li key={bug.id}>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-mono text-xs text-zinc-500">
+                        {bug.id}
+                      </span>
+                      <span
+                        className={`text-[11px] uppercase tracking-[0.14em] ${severityClasses(
+                          bug.severity
+                        )}`}
+                      >
+                        {bug.severity}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm text-zinc-100">{bug.title}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+
+          <Panel title="Database Status">
+            <p
+              className={`inline-flex border px-2.5 py-1 text-xs uppercase tracking-[0.16em] ${toneClasses(
+                companyHealth.database.tone
+              )}`}
+            >
+              {companyHealth.database.backend}
+            </p>
+            <p className="mt-4 text-sm leading-6 text-zinc-300">
+              {companyHealth.database.message}
+            </p>
+          </Panel>
+
+          <Panel title="GitHub Status">
+            <p
+              className={`inline-flex border px-2.5 py-1 text-xs uppercase tracking-[0.16em] ${toneClasses(
+                companyHealth.github.tone
+              )}`}
+            >
+              {companyHealth.github.available ? "Connected" : "Unavailable"}
+            </p>
+            <p className="mt-4 text-sm leading-6 text-zinc-300">
+              {companyHealth.github.message}
+            </p>
+            <p className="mt-3 text-xs text-zinc-500">
+              {companyHealth.github.openPullRequests} open PRs ·{" "}
+              {companyHealth.github.repo}
+            </p>
+          </Panel>
+
+          <Panel title="AI Cost">
+            <p className="text-3xl font-semibold text-zinc-50">
+              ${companyHealth.aiCost.estimatedCostUsd.toFixed(2)}
+            </p>
+            <p className="mt-2 text-sm text-zinc-400">
+              {companyHealth.aiCost.currency} est. recent usage
+            </p>
+            <p className="mt-4 text-sm leading-6 text-zinc-300">
+              {companyHealth.aiCost.message}
+            </p>
+          </Panel>
+
+          <Panel title="Deployment Status">
+            <p
+              className={`inline-flex border px-2.5 py-1 text-xs uppercase tracking-[0.16em] ${toneClasses(
+                companyHealth.deployment.tone
+              )}`}
+            >
+              {companyHealth.deployment.status}
+            </p>
+            <p className="mt-4 text-sm font-medium text-zinc-100">
+              {companyHealth.deployment.provider} ·{" "}
+              {companyHealth.deployment.environment}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">
+              {companyHealth.deployment.message}
+            </p>
+          </Panel>
+        </div>
+      </div>
+
+      {/* 3. Founder Metrics */}
+      <div className="mt-8">
+        <p className="mb-3 text-[11px] uppercase tracking-[0.22em] text-zinc-600">
+          3 · Founder Metrics
+        </p>
+        <Panel title="Operating metrics">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            <Metric
+              label="Practice Sessions"
+              value={founderMetrics.practiceSessions}
             />
-            <p className="text-sm text-zinc-200">{productHealth.summary}</p>
+            <Metric
+              label="Average Coaching Score"
+              value={founderMetrics.averageCoachingScore}
+            />
+            <Metric label="Users" value={founderMetrics.users} />
+            <Metric
+              label="Growth"
+              value={founderMetrics.growth.sessions7d}
+              detail={founderMetrics.growth.label}
+            />
+            <Metric
+              label="Retention"
+              value={`${founderMetrics.retention.rate}%`}
+              detail={founderMetrics.retention.label}
+            />
           </div>
-          <dl className="mt-5 grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <dt className="text-zinc-500">Completed</dt>
-              <dd className="mt-1 text-xl text-zinc-100">
-                {productHealth.sessionsCompleted}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-zinc-500">Avg score</dt>
-              <dd className="mt-1 text-xl text-zinc-100">
-                {productHealth.averageScore}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-zinc-500">Reflections</dt>
-              <dd className="mt-1 text-xl text-zinc-100">
-                {productHealth.reflectionsSaved}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-zinc-500">Users</dt>
-              <dd className="mt-1 text-xl text-zinc-100">
-                {productHealth.uniqueUsers}
-              </dd>
-            </div>
-          </dl>
-          <p className="mt-4 text-xs text-zinc-500">
-            Last: {productHealth.lastScenarioTitle ?? "None"} ·{" "}
-            {formatWhen(productHealth.lastSessionAt)}
-          </p>
-        </Panel>
-
-        <Panel title="Database status">
-          <p
-            className={`inline-flex border px-2.5 py-1 text-xs uppercase tracking-[0.16em] ${toneClasses(
-              database.tone
-            )}`}
-          >
-            {database.backend}
-          </p>
-          <p className="mt-4 text-sm leading-6 text-zinc-300">
-            {database.message}
-          </p>
-          <dl className="mt-5 space-y-2 text-sm">
-            <div className="flex justify-between gap-3">
-              <dt className="text-zinc-500">Configured</dt>
-              <dd>{database.configured ? "Yes" : "No"}</dd>
-            </div>
-            <div className="flex justify-between gap-3">
-              <dt className="text-zinc-500">Reachable</dt>
-              <dd>{database.reachable ? "Yes" : "No"}</dd>
-            </div>
-            <div className="flex justify-between gap-3">
-              <dt className="text-zinc-500">Profiles</dt>
-              <dd>{database.profileCount ?? "—"}</dd>
-            </div>
-          </dl>
-        </Panel>
-
-        <Panel title="AI usage">
-          <p
-            className={`inline-flex border px-2.5 py-1 text-xs uppercase tracking-[0.16em] ${toneClasses(
-              aiUsage.tone
-            )}`}
-          >
-            {aiUsage.openaiConfigured ? "OpenAI ready" : "OpenAI missing"}
-          </p>
-          <p className="mt-4 text-sm leading-6 text-zinc-300">
-            {aiUsage.message}
-          </p>
-          <dl className="mt-5 space-y-2 text-sm">
-            <div className="flex justify-between gap-3">
-              <dt className="text-zinc-500">Forge turns</dt>
-              <dd>{aiUsage.forgeTurnsRecent}</dd>
-            </div>
-            <div className="flex justify-between gap-3">
-              <dt className="text-zinc-500">Coached sessions</dt>
-              <dd>{aiUsage.sessionsWithCoaching}</dd>
-            </div>
-            <div className="flex justify-between gap-3">
-              <dt className="text-zinc-500">Avg coach score</dt>
-              <dd>{aiUsage.averageCoachScore || "—"}</dd>
-            </div>
-          </dl>
         </Panel>
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <Panel
-          title="Founder priorities"
-          action={
-            <span className="text-[11px] uppercase tracking-[0.16em] text-zinc-600">
-              Ranked
-            </span>
-          }
-        >
-          <ol className="space-y-4">
-            {snapshot.priorities.map((item) => (
-              <li key={item.rank} className="flex gap-3">
-                <span className="mt-0.5 w-6 shrink-0 font-mono text-sm text-zinc-500">
-                  {String(item.rank).padStart(2, "0")}
-                </span>
-                <div>
+      {/* 4. Quick Actions */}
+      <div className="mt-8">
+        <p className="mb-3 text-[11px] uppercase tracking-[0.22em] text-zinc-600">
+          4 · Quick Actions
+        </p>
+        <Panel title="Move now">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            {quickActions.map((action) =>
+              action.external ? (
+                <a
+                  key={action.id}
+                  href={action.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="border border-white/10 px-4 py-4 transition hover:border-white/25 hover:bg-white/[0.03]"
+                >
                   <p className="text-sm font-medium text-zinc-100">
-                    {item.title}
+                    {action.label}
                   </p>
-                  <p className="mt-1 text-sm leading-6 text-zinc-500">
-                    {item.detail}
+                  <p className="mt-2 text-xs leading-5 text-zinc-500">
+                    {action.description}
                   </p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </Panel>
-
-        <Panel
-          title="Open bugs"
-          action={
-            <span className="text-[11px] uppercase tracking-[0.16em] text-zinc-600">
-              {snapshot.openBugCount} open
-            </span>
-          }
-        >
-          {snapshot.bugs.length === 0 ? (
-            <p className="text-sm text-zinc-500">No open bugs in ops state.</p>
-          ) : (
-            <ul className="space-y-4">
-              {snapshot.bugs.map((bug) => (
-                <li key={bug.id}>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-xs text-zinc-500">
-                      {bug.id}
-                    </span>
-                    <span
-                      className={`text-[11px] uppercase tracking-[0.14em] ${severityClasses(
-                        bug.severity
-                      )}`}
-                    >
-                      {bug.severity}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-sm font-medium text-zinc-100">
-                    {bug.title}
+                </a>
+              ) : (
+                <Link
+                  key={action.id}
+                  href={action.href}
+                  className="border border-white/10 px-4 py-4 transition hover:border-white/25 hover:bg-white/[0.03]"
+                >
+                  <p className="text-sm font-medium text-zinc-100">
+                    {action.label}
                   </p>
-                  <p className="mt-1 text-sm leading-6 text-zinc-500">
-                    {bug.detail}
+                  <p className="mt-2 text-xs leading-5 text-zinc-500">
+                    {action.description}
                   </p>
-                </li>
-              ))}
-            </ul>
-          )}
+                </Link>
+              )
+            )}
+          </div>
         </Panel>
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      {/* 5. Founder Notes */}
+      <div className="mt-8">
+        <p className="mb-3 text-[11px] uppercase tracking-[0.22em] text-zinc-600">
+          5 · Founder Notes
+        </p>
+        <div className="border border-white/10 bg-[#0f1115]/40">
+          <FounderNotesPanel initialNotes={snapshot.notes} />
+        </div>
+      </div>
+
+      {/* Recent activity strip */}
+      <div className="mt-8 grid gap-4 lg:grid-cols-2">
         <Panel title="Recent practice sessions">
           {snapshot.recentSessions.length === 0 ? (
-            <p className="text-sm text-zinc-500">
-              No sessions in Supabase yet.
-            </p>
+            <p className="text-sm text-zinc-500">No sessions in Supabase yet.</p>
           ) : (
             <ul className="divide-y divide-white/5">
-              {snapshot.recentSessions.map((session) => (
+              {snapshot.recentSessions.slice(0, 5).map((session) => (
                 <li
                   key={session.id}
-                  className="flex flex-wrap items-start justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                  className="flex justify-between gap-3 py-3 first:pt-0 last:pb-0"
                 >
                   <div>
-                    <p className="text-sm font-medium text-zinc-100">
+                    <p className="text-sm text-zinc-100">
                       {session.scenarioTitle}
                     </p>
                     <p className="mt-1 text-xs text-zinc-500">
-                      {session.completedAt ? "Completed" : "In progress"} ·{" "}
                       {formatWhen(session.completedAt ?? session.startedAt)}
                     </p>
                   </div>
-                  <div className="text-right text-sm">
-                    <p className="text-zinc-200">
-                      {session.averageScore ?? "—"}
-                    </p>
-                    <p className="mt-1 text-xs text-zinc-500">
-                      {session.turnCount} turns
-                    </p>
-                  </div>
+                  <p className="text-sm text-zinc-300">
+                    {session.averageScore ?? "—"}
+                  </p>
                 </li>
               ))}
             </ul>
           )}
         </Panel>
 
-        <Panel
-          title="GitHub activity"
-          action={
-            <span className="text-[11px] uppercase tracking-[0.16em] text-zinc-600">
-              {github.repo}
-            </span>
-          }
-        >
-          <p className="mb-4 text-sm text-zinc-400">{github.message}</p>
-          {github.items.length === 0 ? (
+        <Panel title="GitHub activity">
+          {companyHealth.github.items.length === 0 ? (
             <p className="text-sm text-zinc-500">No recent GitHub events.</p>
           ) : (
             <ul className="divide-y divide-white/5">
-              {github.items.map((item) => (
+              {companyHealth.github.items.slice(0, 5).map((item) => (
                 <li key={item.id} className="py-3 first:pt-0 last:pb-0">
                   <a
                     href={item.url}
@@ -388,20 +517,13 @@ export default function FounderOS({ snapshot }: FounderOSProps) {
                     rel="noreferrer"
                     className="group block"
                   >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">
-                        {item.kind === "pull_request" ? "PR" : "Commit"}
-                      </span>
-                      <span className="text-xs text-zinc-600">
-                        {formatWhen(item.at)}
-                      </span>
-                    </div>
+                    <p className="text-[11px] uppercase tracking-[0.14em] text-zinc-500">
+                      {item.kind === "pull_request" ? "PR" : "Commit"} ·{" "}
+                      {formatWhen(item.at)}
+                    </p>
                     <p className="mt-1 text-sm text-zinc-200 group-hover:text-white">
                       {item.title}
                     </p>
-                    {item.author && (
-                      <p className="mt-1 text-xs text-zinc-500">{item.author}</p>
-                    )}
                   </a>
                 </li>
               ))}
@@ -410,28 +532,11 @@ export default function FounderOS({ snapshot }: FounderOSProps) {
         </Panel>
       </div>
 
-      <div className="mt-4">
-        <Panel title="Quick actions">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {snapshot.quickActions.map((action) => (
-              <Link
-                key={action.id}
-                href={action.href}
-                className="border border-white/10 px-4 py-4 transition hover:border-white/25 hover:bg-white/[0.03]"
-              >
-                <p className="text-sm font-medium text-zinc-100">
-                  {action.label}
-                </p>
-                <p className="mt-2 text-xs leading-5 text-zinc-500">
-                  {action.description}
-                </p>
-              </Link>
-            ))}
-          </div>
-        </Panel>
-      </div>
-
+      {/* 7. Ask Atlas */}
       <div className="mt-10">
+        <p className="mb-3 text-[11px] uppercase tracking-[0.22em] text-zinc-600">
+          7 · Ask Atlas
+        </p>
         <AskAtlasPanel />
       </div>
     </div>

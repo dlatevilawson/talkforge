@@ -52,7 +52,7 @@ Achievements
 
 Atlas Operating System
 
-Founder Operating System Dashboard ← started
+Founder Operating System Dashboard ← Phase 3 executive dashboard
 
 Department Agents
 
