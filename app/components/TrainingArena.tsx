@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type TrainingArenaProps = {
   title: string;
@@ -171,9 +171,17 @@ export default function TrainingArena({
   // Uncontrolled textarea: text typed before hydration stays in the DOM and is
   // readable on Continue (controlled `message` state stayed "" → silent no-op).
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const conversationRef = useRef<HTMLDivElement>(null);
   const [conversation, setConversation] = useState<ConversationMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // After Continue, You / Other Person / Forge render below the tall textarea
+  // and sit under the fold unless we scroll the latest exchange into view.
+  useEffect(() => {
+    if (conversation.length === 0) return;
+    conversationRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [conversation]);
 
   async function handleContinue() {
     const text = textareaRef.current?.value.trim() ?? "";
@@ -275,7 +283,7 @@ export default function TrainingArena({
           )}
 
           {conversation.length > 0 && (
-            <div className="mt-10 space-y-6">
+            <div ref={conversationRef} className="mt-10 space-y-6">
               {conversation.map((item, index) =>
                 item.role === "forge" ? (
                   <ForgeCoachCard key={index} coaching={item.coaching} />
@@ -292,7 +300,7 @@ export default function TrainingArena({
                       {item.role === "user" ? "You" : "Other Person"}
                     </p>
 
-                    <p className="whitespace-pre-wrap text-lg leading-8">
+                    <p className="whitespace-pre-wrap text-lg leading-8 text-white">
                       {item.text}
                     </p>
                   </div>
