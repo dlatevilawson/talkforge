@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export default function FounderConsole() {
-  const [input, setInput] = useState("");
+  // Uncontrolled textarea: text typed before hydration stays in the DOM and is
+  // readable on Ask Atlas (controlled `input` state stayed "" → disabled button /
+  // silent no-op).
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [response, setResponse] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -11,7 +14,7 @@ export default function FounderConsole() {
   async function handleAsk(e: React.FormEvent) {
     e.preventDefault();
 
-    const message = input.trim();
+    const message = textareaRef.current?.value.trim() ?? "";
     if (!message || loading) return;
 
     setError("");
@@ -36,6 +39,10 @@ export default function FounderConsole() {
       }
 
       setResponse(data.response);
+
+      if (textareaRef.current) {
+        textareaRef.current.value = "";
+      }
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Atlas could not respond."
@@ -58,8 +65,7 @@ export default function FounderConsole() {
         <label className="block">
           <span className="text-sm text-zinc-400">Ask Atlas...</span>
           <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
+            ref={textareaRef}
             rows={4}
             placeholder="What should we prioritize this week?"
             disabled={loading}
@@ -69,7 +75,7 @@ export default function FounderConsole() {
 
         <button
           type="submit"
-          disabled={loading || !input.trim()}
+          disabled={loading}
           className="rounded-md border border-white/15 bg-zinc-100 px-5 py-2.5 text-sm font-medium text-zinc-950 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {loading ? "Asking Atlas..." : "Ask Atlas"}
