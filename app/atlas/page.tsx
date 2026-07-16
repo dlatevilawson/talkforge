@@ -5,7 +5,7 @@ import FounderOS from "./FounderOS";
 export const metadata: Metadata = {
   title: "Atlas | TalkForge Founder OS",
   description:
-    "Atlas Founder Operating System — sprint, product health, priorities, and next actions for TalkForge.",
+    "Atlas Founder Operating System — mission control, company health, founder metrics, notes, and daily brief.",
 };
 
 export const dynamic = "force-dynamic";

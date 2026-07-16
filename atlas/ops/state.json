@@ -1,6 +1,6 @@
 {
-  "version": "1.0",
-  "updatedAt": "2026-07-16T13:30:00.000Z",
+  "version": "3.0",
+  "updatedAt": "2026-07-16T16:40:00.000Z",
   "product": {
     "name": "TalkForge",
     "phase": "MVP",
@@ -16,6 +16,30 @@
       "Raise coaching quality and founder confidence in Forge",
       "Operate Atlas as the founder control center"
     ]
+  },
+  "todayMission": {
+    "title": "Stabilize the founder control loop",
+    "detail": "Ship Atlas Phase 3 executive dashboard, prove notes + daily brief, keep the practice loop green."
+  },
+  "milestone": {
+    "id": "M1",
+    "title": "MVP coaching loop live on Supabase",
+    "detail": "Guests can practice, get coached, reflect, and persist progress in the cloud.",
+    "status": "in_progress",
+    "progress": 72
+  },
+  "deployment": {
+    "provider": "Vercel",
+    "environment": "production-ready branch",
+    "status": "healthy",
+    "url": "https://github.com/dlatevilawson/talkforge",
+    "message": "Main is shipping Atlas Founder OS + Supabase MVP persistence."
+  },
+  "links": {
+    "github": "https://github.com/dlatevilawson/talkforge",
+    "githubPulls": "https://github.com/dlatevilawson/talkforge/pulls",
+    "supabase": "https://supabase.com/dashboard/project/wudjmxqbsozreepgjvef",
+    "continueBuilding": "/training"
   },
   "priorities": [
     {
@@ -59,30 +83,47 @@
       "status": "open"
     }
   ],
+  "aiCost": {
+    "currency": "USD",
+    "estimatedPerForgeTurn": 0.02,
+    "estimatedPerAtlasBrief": 0.05,
+    "note": "Heuristic estimate until OpenAI usage billing is wired."
+  },
   "quickActions": [
     {
-      "id": "practice",
-      "label": "Run a practice session",
+      "id": "continue",
+      "label": "Continue Building",
       "href": "/training",
-      "description": "Verify the coaching loop end-to-end"
+      "description": "Jump back into the product loop",
+      "external": false
     },
     {
-      "id": "progress",
-      "label": "Review progress",
-      "href": "/progress",
-      "description": "Check sessions, scores, and reflections"
+      "id": "prs",
+      "label": "Review PRs",
+      "href": "https://github.com/dlatevilawson/talkforge/pulls",
+      "description": "Open pull requests on GitHub",
+      "external": true
     },
     {
-      "id": "dashboard",
-      "label": "Open product dashboard",
-      "href": "/dashboard",
-      "description": "See what users see first"
+      "id": "github",
+      "label": "Open GitHub",
+      "href": "https://github.com/dlatevilawson/talkforge",
+      "description": "Repository home",
+      "external": true
     },
     {
-      "id": "profile",
-      "label": "Check guest profile",
-      "href": "/profile",
-      "description": "Confirm Supabase profile sync"
+      "id": "supabase",
+      "label": "Open Supabase",
+      "href": "https://supabase.com/dashboard/project/wudjmxqbsozreepgjvef",
+      "description": "Database and auth console",
+      "external": true
+    },
+    {
+      "id": "note",
+      "label": "Add Founder Note",
+      "href": "#founder-notes",
+      "description": "Capture a categorized founder note",
+      "external": false
     }
   ]
 }

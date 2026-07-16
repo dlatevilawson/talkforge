@@ -26,10 +26,13 @@ Status:
 🟢 In Progress
 
 Purpose:
-Turn Atlas from a chat interface into the TalkForge founder control center.
+Turn Atlas into the TalkForge Founder Operating System — mission control, company health, notes, and daily brief.
 
 Priority:
 Critical
+
+Phase:
+3 — Executive Dashboard
 
 ---
 
@@ -78,6 +81,7 @@ Improve user experience.
 - Start Mission Flow
 - Supabase persistence for profiles, sessions, and reflections
 - Atlas Founder OS dashboard v1
+- Atlas Phase 3 executive dashboard (mission control, health, metrics, notes, daily brief)
 
 ---
 

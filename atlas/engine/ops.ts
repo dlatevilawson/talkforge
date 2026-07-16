@@ -2,12 +2,19 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { getSupabaseClient, getSupabaseConfigStatus } from "@/lib/supabase/client";
 import type { ConversationTurn, PracticeSession } from "@/lib/types";
+import { loadDailyFounderBrief } from "./brief";
+import { listFounderNotes } from "./notes";
 import type {
   AiUsage,
+  CompanyHealth,
   DatabaseStatus,
+  DeploymentStatus,
+  FounderMetrics,
   FounderOpsSnapshot,
   GithubActivityItem,
   GithubStatus,
+  HealthTone,
+  MissionControl,
   NextAction,
   OpsStateFile,
   ProductHealth,
@@ -27,6 +34,12 @@ function countForgeTurns(turns: ConversationTurn[]): number {
   return turns.filter((turn) => turn.role === "forge").length;
 }
 
+function daysAgo(days: number): Date {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return date;
+}
+
 async function loadPracticeSessions(): Promise<PracticeSession[]> {
   const supabase = getSupabaseClient();
   if (!supabase) return [];
@@ -37,21 +50,27 @@ async function loadPracticeSessions(): Promise<PracticeSession[]> {
       "id, user_id, scenario_id, scenario_title, mission_prompt, started_at, completed_at, average_score, turns"
     )
     .order("started_at", { ascending: false })
-    .limit(50);
+    .limit(100);
 
   if (error || !data) return [];
 
-  return data.map((row) => ({
-    id: row.id,
-    userId: row.user_id,
-    scenarioId: row.scenario_id,
-    scenarioTitle: row.scenario_title,
-    missionPrompt: row.mission_prompt,
-    startedAt: row.started_at,
-    completedAt: row.completed_at ?? undefined,
-    averageScore: row.average_score ?? undefined,
-    turns: Array.isArray(row.turns) ? (row.turns as ConversationTurn[]) : [],
-  }));
+  return data
+    .filter(
+      (row) =>
+        typeof row.scenario_id === "string" &&
+        !row.scenario_id.startsWith("atlas-founder")
+    )
+    .map((row) => ({
+      id: row.id,
+      userId: row.user_id,
+      scenarioId: row.scenario_id,
+      scenarioTitle: row.scenario_title,
+      missionPrompt: row.mission_prompt,
+      startedAt: row.started_at,
+      completedAt: row.completed_at ?? undefined,
+      averageScore: row.average_score ?? undefined,
+      turns: Array.isArray(row.turns) ? (row.turns as ConversationTurn[]) : [],
+    }));
 }
 
 async function loadReflectionCount(): Promise<number> {
@@ -66,16 +85,18 @@ async function loadReflectionCount(): Promise<number> {
   return count ?? 0;
 }
 
-async function loadProfileCount(): Promise<number | null> {
+async function loadProfiles(): Promise<Array<{ id: string; created_at: string }>> {
   const supabase = getSupabaseClient();
-  if (!supabase) return null;
+  if (!supabase) return [];
 
-  const { count, error } = await supabase
+  const { data, error } = await supabase
     .from("profiles")
-    .select("id", { count: "exact", head: true });
+    .select("id, created_at")
+    .order("created_at", { ascending: false })
+    .limit(200);
 
-  if (error) return null;
-  return count ?? 0;
+  if (error || !data) return [];
+  return data.filter((row) => row.id !== "atlas-founder-os");
 }
 
 async function pingDatabase(): Promise<DatabaseStatus> {
@@ -104,14 +125,14 @@ async function pingDatabase(): Promise<DatabaseStatus> {
   }
 
   const { error } = await supabase.from("profiles").select("id").limit(1);
-  const profileCount = await loadProfileCount();
+  const profiles = await loadProfiles();
 
   if (error) {
     return {
       configured: true,
       reachable: false,
       backend: "supabase",
-      profileCount,
+      profileCount: null,
       message: `Supabase configured but query failed: ${error.message}`,
       tone: "bad",
     };
@@ -121,15 +142,16 @@ async function pingDatabase(): Promise<DatabaseStatus> {
     configured: true,
     reachable: true,
     backend: "supabase",
-    profileCount,
-    message: `Supabase reachable · ${profileCount ?? 0} profiles`,
+    profileCount: profiles.length,
+    message: `Supabase reachable · ${profiles.length} profiles`,
     tone: "good",
   };
 }
 
 function buildProductHealth(
   sessions: PracticeSession[],
-  reflectionsSaved: number
+  reflectionsSaved: number,
+  uniqueUsers: number
 ): ProductHealth {
   const completed = sessions.filter((session) => session.completedAt);
   const scored = completed.filter(
@@ -142,10 +164,9 @@ function buildProductHealth(
           scored.reduce((sum, session) => sum + (session.averageScore ?? 0), 0) /
             scored.length
         );
-  const uniqueUsers = new Set(sessions.map((session) => session.userId)).size;
   const latest = completed[0] ?? sessions[0] ?? null;
 
-  let tone: ProductHealth["tone"] = "neutral";
+  let tone: HealthTone = "neutral";
   let summary = "No practice data yet. Run the loop.";
 
   if (completed.length === 0 && sessions.length === 0) {
@@ -178,7 +199,10 @@ function buildProductHealth(
   };
 }
 
-function buildAiUsage(sessions: PracticeSession[]): AiUsage {
+function buildAiUsage(
+  sessions: PracticeSession[],
+  state: OpsStateFile
+): AiUsage {
   const openaiConfigured = Boolean(process.env.OPENAI_API_KEY?.trim());
   const recent = sessions.slice(0, 20);
   let forgeTurnsRecent = 0;
@@ -199,12 +223,18 @@ function buildAiUsage(sessions: PracticeSession[]): AiUsage {
       ? 0
       : Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
 
+  const estimatedCostUsd =
+    forgeTurnsRecent * state.aiCost.estimatedPerForgeTurn +
+    state.aiCost.estimatedPerAtlasBrief;
+
   if (!openaiConfigured) {
     return {
       openaiConfigured: false,
       forgeTurnsRecent,
       sessionsWithCoaching,
       averageCoachScore,
+      estimatedCostUsd,
+      currency: state.aiCost.currency,
       message: "OPENAI_API_KEY missing. Forge and Atlas chat are unavailable.",
       tone: "bad",
     };
@@ -215,11 +245,74 @@ function buildAiUsage(sessions: PracticeSession[]): AiUsage {
     forgeTurnsRecent,
     sessionsWithCoaching,
     averageCoachScore,
+    estimatedCostUsd,
+    currency: state.aiCost.currency,
     message:
       forgeTurnsRecent === 0
-        ? "OpenAI ready. No recent Forge coaching turns yet."
-        : `${forgeTurnsRecent} Forge turns across ${sessionsWithCoaching} recent sessions.`,
+        ? `OpenAI ready. Est. brief cost ~$${state.aiCost.estimatedPerAtlasBrief.toFixed(2)}.`
+        : `${forgeTurnsRecent} Forge turns · est. $${estimatedCostUsd.toFixed(2)} ${state.aiCost.currency}`,
     tone: forgeTurnsRecent > 0 ? "good" : "warn",
+  };
+}
+
+function buildFounderMetrics(
+  sessions: PracticeSession[],
+  profiles: Array<{ id: string; created_at: string }>
+): FounderMetrics {
+  const completed = sessions.filter((session) => session.completedAt);
+  const scored = completed.filter(
+    (session) => typeof session.averageScore === "number"
+  );
+  const averageCoachingScore =
+    scored.length === 0
+      ? 0
+      : Math.round(
+          scored.reduce((sum, session) => sum + (session.averageScore ?? 0), 0) /
+            scored.length
+        );
+
+  const cutoff = daysAgo(7).getTime();
+  const newUsers7d = profiles.filter(
+    (profile) => new Date(profile.created_at).getTime() >= cutoff
+  ).length;
+  const sessions7d = sessions.filter(
+    (session) => new Date(session.startedAt).getTime() >= cutoff
+  ).length;
+
+  const sessionsByUser = new Map<string, number>();
+  for (const session of sessions) {
+    sessionsByUser.set(
+      session.userId,
+      (sessionsByUser.get(session.userId) ?? 0) + 1
+    );
+  }
+  const returningUsers = [...sessionsByUser.values()].filter(
+    (count) => count > 1
+  ).length;
+  const users = profiles.length || sessionsByUser.size;
+  const retentionRate =
+    users === 0 ? 0 : Math.round((returningUsers / users) * 100);
+
+  return {
+    practiceSessions: completed.length || sessions.length,
+    averageCoachingScore,
+    users,
+    growth: {
+      newUsers7d,
+      sessions7d,
+      label:
+        newUsers7d > 0 || sessions7d > 0
+          ? `+${newUsers7d} users / ${sessions7d} sessions (7d)`
+          : "No 7-day growth signal yet",
+    },
+    retention: {
+      returningUsers,
+      rate: retentionRate,
+      label:
+        users === 0
+          ? "No users yet"
+          : `${retentionRate}% returning (${returningUsers}/${users})`,
+    },
   };
 }
 
@@ -235,12 +328,14 @@ function toRecentRows(sessions: PracticeSession[]): RecentSessionRow[] {
   }));
 }
 
-async function loadGithubActivity(): Promise<GithubStatus> {
+async function loadGithubActivity(state: OpsStateFile): Promise<GithubStatus> {
   const repo =
     process.env.GITHUB_REPO?.trim() ||
     process.env.NEXT_PUBLIC_GITHUB_REPO?.trim() ||
     DEFAULT_REPO;
   const token = process.env.GITHUB_TOKEN?.trim();
+  const repoUrl = state.links.github;
+  const pullsUrl = state.links.githubPulls;
 
   const headers: HeadersInit = {
     Accept: "application/vnd.github+json",
@@ -269,13 +364,17 @@ async function loadGithubActivity(): Promise<GithubStatus> {
       return {
         available: false,
         repo,
+        openPullRequests: 0,
         message: `GitHub unavailable (${commitsRes.status}).`,
         items: [],
         tone: "warn",
+        pullsUrl,
+        repoUrl,
       };
     }
 
     const items: GithubActivityItem[] = [];
+    let openPullRequests = 0;
 
     if (pullsRes.ok) {
       const pulls = (await pullsRes.json()) as Array<{
@@ -285,6 +384,7 @@ async function loadGithubActivity(): Promise<GithubStatus> {
         user?: { login?: string };
         updated_at: string;
       }>;
+      openPullRequests = pulls.length;
       for (const pull of pulls.slice(0, 3)) {
         items.push({
           id: `pr-${pull.id}`,
@@ -324,19 +424,25 @@ async function loadGithubActivity(): Promise<GithubStatus> {
     return {
       available: true,
       repo,
+      openPullRequests,
       message: items.length
-        ? `${items.length} recent events from ${repo}`
-        : `Connected to ${repo}, no recent events.`,
+        ? `${openPullRequests} open PRs · ${items.length} recent events`
+        : `Connected to ${repo}`,
       items: items.slice(0, 8),
       tone: items.length ? "good" : "neutral",
+      pullsUrl,
+      repoUrl,
     };
   } catch {
     return {
       available: false,
       repo,
+      openPullRequests: 0,
       message: "Could not reach GitHub.",
       items: [],
       tone: "warn",
+      pullsUrl,
+      repoUrl,
     };
   }
 }
@@ -352,6 +458,14 @@ function severityRank(severity: Severity): number {
     case "low":
       return 3;
   }
+}
+
+function deploymentTone(
+  status: DeploymentStatus["status"]
+): HealthTone {
+  if (status === "healthy") return "good";
+  if (status === "degraded") return "warn";
+  return "neutral";
 }
 
 function decideNextAction(input: {
@@ -370,8 +484,8 @@ function decideNextAction(input: {
     return {
       title: "Restore Supabase connectivity",
       reason: database.message,
-      href: "/profile",
-      cta: "Check persistence",
+      href: state.links.supabase,
+      cta: "Open Supabase",
       urgency: "critical",
     };
   }
@@ -386,7 +500,10 @@ function decideNextAction(input: {
     };
   }
 
-  if (criticalBug && (criticalBug.severity === "critical" || criticalBug.severity === "high")) {
+  if (
+    criticalBug &&
+    (criticalBug.severity === "critical" || criticalBug.severity === "high")
+  ) {
     return {
       title: `Clear ${criticalBug.id}: ${criticalBug.title}`,
       reason: criticalBug.detail,
@@ -414,7 +531,7 @@ function decideNextAction(input: {
   if (topPriority) {
     return {
       title: topPriority.title,
-      reason: `${topPriority.detail} Sprint ${state.sprint.id}: ${state.sprint.goal}`,
+      reason: `${topPriority.detail} Today: ${state.todayMission.title}`,
       href: topPriority.rank <= 2 ? "/training" : "/dashboard",
       cta: topPriority.rank <= 2 ? "Inspect the loop" : "Open dashboard",
       urgency: topPriority.rank === 1 ? "high" : "medium",
@@ -422,8 +539,8 @@ function decideNextAction(input: {
   }
 
   return {
-    title: "Advance Sprint 001",
-    reason: state.sprint.goal,
+    title: state.todayMission.title,
+    reason: state.todayMission.detail,
     href: "/dashboard",
     cta: "Review product",
     urgency: "medium",
@@ -434,17 +551,24 @@ function decideNextAction(input: {
  * Aggregate institutional ops state with live product, database, AI, and GitHub signals.
  */
 export async function loadFounderOpsSnapshot(): Promise<FounderOpsSnapshot> {
-  const [state, sessions, reflectionsSaved, database, github] =
+  const state = await loadOpsState();
+  const [sessions, reflectionsSaved, database, githubStatus, notes, profiles] =
     await Promise.all([
-      loadOpsState(),
       loadPracticeSessions(),
       loadReflectionCount(),
       pingDatabase(),
-      loadGithubActivity(),
+      loadGithubActivity(state),
+      listFounderNotes(12),
+      loadProfiles(),
     ]);
 
-  const productHealth = buildProductHealth(sessions, reflectionsSaved);
-  const aiUsage = buildAiUsage(sessions);
+  const founderMetrics = buildFounderMetrics(sessions, profiles);
+  const productHealth = buildProductHealth(
+    sessions,
+    reflectionsSaved,
+    founderMetrics.users
+  );
+  const aiUsage = buildAiUsage(sessions, state);
   const recentSessions = toRecentRows(sessions);
   const openBugs = state.bugs.filter(
     (bug) => bug.status === "open" || bug.status === "in_progress"
@@ -456,20 +580,66 @@ export async function loadFounderOpsSnapshot(): Promise<FounderOpsSnapshot> {
     productHealth,
   });
 
-  return {
-    generatedAt: new Date().toISOString(),
+  const topPriority =
+    [...state.priorities]
+      .sort((a, b) => a.rank - b.rank)
+      .find((item) => item.status !== "done") ?? null;
+
+  const missionControl: MissionControl = {
     sprint: state.sprint,
-    priorities: [...state.priorities].sort((a, b) => a.rank - b.rank),
-    bugs: [...openBugs].sort(
+    todayMission: state.todayMission,
+    topPriority,
+    milestone: state.milestone,
+  };
+
+  const deployment: DeploymentStatus = {
+    ...state.deployment,
+    tone: deploymentTone(state.deployment.status),
+  };
+
+  const companyHealth: CompanyHealth = {
+    productHealth,
+    openBugs: [...openBugs].sort(
       (a, b) => severityRank(a.severity) - severityRank(b.severity)
     ),
+    openBugCount: openBugs.length,
+    database,
+    github: githubStatus,
+    aiCost: {
+      estimatedCostUsd: aiUsage.estimatedCostUsd,
+      currency: aiUsage.currency,
+      forgeTurnsRecent: aiUsage.forgeTurnsRecent,
+      message: aiUsage.message,
+      tone: aiUsage.tone,
+    },
+    deployment,
+  };
+
+  const brief = await loadDailyFounderBrief({
+    missionControl,
+    companyHealth,
+    founderMetrics,
+    nextAction,
+  });
+
+  return {
+    generatedAt: new Date().toISOString(),
+    missionControl,
+    companyHealth,
+    founderMetrics,
+    quickActions: state.quickActions,
+    links: state.links,
+    notes,
+    brief,
+    sprint: state.sprint,
+    priorities: [...state.priorities].sort((a, b) => a.rank - b.rank),
+    bugs: companyHealth.openBugs,
     openBugCount: openBugs.length,
     productHealth,
     database,
     aiUsage,
     recentSessions,
-    github,
-    quickActions: state.quickActions,
+    github: githubStatus,
     nextAction,
   };
 }

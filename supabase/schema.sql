@@ -54,3 +54,38 @@ create policy "reflections_anon_all"
   to anon, authenticated
   using (true)
   with check (true);
+
+-- Atlas Founder OS (Phase 3)
+create table if not exists public.founder_notes (
+  id text primary key,
+  body text not null,
+  category text not null check (
+    category in ('Product', 'Marketing', 'Engineering', 'Company', 'Future Ideas')
+  ),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.founder_briefs (
+  id text primary key,
+  summary text not null,
+  priorities jsonb not null default '[]'::jsonb,
+  generated_at timestamptz not null default now(),
+  source text not null default 'deterministic'
+);
+
+alter table public.founder_notes enable row level security;
+alter table public.founder_briefs enable row level security;
+
+drop policy if exists "founder_notes_anon_all" on public.founder_notes;
+create policy "founder_notes_anon_all"
+  on public.founder_notes for all
+  to anon, authenticated
+  using (true)
+  with check (true);
+
+drop policy if exists "founder_briefs_anon_all" on public.founder_briefs;
+create policy "founder_briefs_anon_all"
+  on public.founder_briefs for all
+  to anon, authenticated
+  using (true)
+  with check (true);
