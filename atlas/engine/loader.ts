@@ -10,44 +10,38 @@ async function readTextDocument(filename: string): Promise<string> {
   return contents.trim();
 }
 
-async function readJsonDocument(filename: string): Promise<unknown> {
-  const filePath = path.join(ATLAS_DIR, filename);
-  const contents = await readFile(filePath, "utf8");
-  const trimmed = contents.trim();
-
-  if (!trimmed) {
-    return [];
-  }
-
-  return JSON.parse(trimmed) as unknown;
-}
-
 /**
- * Load Atlas institutional documents into memory and return one AtlasContext.
+ * Load every Atlas institutional document into memory and return one AtlasContext.
  */
 export async function loadAtlasContext(): Promise<AtlasContext> {
   const [
-    founderBrief,
     constitution,
+    founderBrief,
     forgeLaws,
     philosophy,
     projects,
     decisions,
+    roadmap,
+    metrics,
   ] = await Promise.all([
-    readTextDocument("founder-brief.md"),
     readTextDocument("constitution.md"),
+    readTextDocument("founder-brief.md"),
     readTextDocument("forge-laws.md"),
     readTextDocument("philosophy.md"),
-    readJsonDocument("projects.json"),
-    readJsonDocument("decisions.json"),
+    readTextDocument("projects.md"),
+    readTextDocument("decisions.md"),
+    readTextDocument("roadmap.md"),
+    readTextDocument("metrics.md"),
   ]);
 
   return {
-    founderBrief,
     constitution,
+    founderBrief,
     forgeLaws,
     philosophy,
     projects,
     decisions,
+    roadmap,
+    metrics,
   };
 }
