@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
+import { buildMockCoachResponse } from "@/lib/coach/mock";
 
 function getClient() {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -12,6 +13,13 @@ function getClient() {
 type HistoryItem = {
   role: "user" | "npc";
   text: string;
+};
+
+type Scenario = {
+  id?: string;
+  title?: string;
+  mission?: string;
+  missionPrompt?: string;
 };
 
 function parseCoachOutput(raw: string): { npc: string; forge: unknown } {
@@ -66,6 +74,8 @@ export async function POST(req: Request) {
             item.text.trim()
         )
       : [];
+    const scenario: Scenario =
+      body.scenario && typeof body.scenario === "object" ? body.scenario : {};
 
     if (!message) {
       return NextResponse.json(
@@ -77,17 +87,23 @@ export async function POST(req: Request) {
     const client = getClient();
     if (!client) {
       return NextResponse.json(
-        { error: "OPENAI_API_KEY is not configured." },
-        { status: 503 }
+        buildMockCoachResponse(message, history, scenario)
       );
     }
+
+    const scenarioBlock = `
+Scenario title: ${scenario.title ?? "Communication practice"}
+Mission: ${scenario.mission ?? "Practice deliberate communication."}
+Mission prompt: ${scenario.missionPrompt ?? "Continue the conversation."}
+`;
 
     const completion = await client.responses.create({
       model: "gpt-5",
       input: `
 You are Forge, the AI coach inside TalkForge.
 
-The user is practicing a communication scenario.
+The user is practicing this communication scenario:
+${scenarioBlock}
 
 Your job is to return TWO things:
 
@@ -96,7 +112,7 @@ Your job is to return TWO things:
 
 Conversation rules (do not change the flow):
 
-- Stay inside the scenario.
+- Stay inside the scenario above.
 - Continue the conversation naturally from the prior turns.
 - The other person should sound realistic.
 - Never restart the scenario.

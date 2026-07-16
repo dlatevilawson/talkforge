@@ -9,6 +9,7 @@ export default async function StorytellingPage({
 
   return (
     <TrainingArena
+      scenarioId="storytelling"
       missionStarted={
         params.mission === "1" ||
         (Array.isArray(params.mission) && params.mission.includes("1"))

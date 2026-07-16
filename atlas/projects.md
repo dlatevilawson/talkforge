@@ -68,9 +68,9 @@ Improve user experience.
 
 ## Known Issues
 
-- Conversation rendering
-- UI polish
-- Progress tracking incomplete
+- Supabase authentication not yet connected (guest/local persistence in use)
+- UI polish ongoing
+- Cloud sync for progress not yet available
 
 ---
 
