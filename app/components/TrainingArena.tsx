@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type TrainingArenaProps = {
   title: string;
@@ -168,13 +168,16 @@ export default function TrainingArena({
   placeholder,
   missionStarted = false,
 }: TrainingArenaProps) {
-  const [message, setMessage] = useState("");
+  // Uncontrolled textarea: text typed before hydration stays in the DOM and is
+  // readable on Continue (controlled `message` state stayed "" → silent no-op).
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [conversation, setConversation] = useState<ConversationMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   async function handleContinue() {
-    if (!message.trim()) return;
+    const text = textareaRef.current?.value.trim() ?? "";
+    if (!text) return;
 
     setLoading(true);
     setError("");
@@ -186,7 +189,7 @@ export default function TrainingArena({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message,
+          message: text,
         }),
       });
 
@@ -202,7 +205,7 @@ export default function TrainingArena({
         ...previous,
         {
           role: "user",
-          text: message,
+          text,
         },
         {
           role: "npc",
@@ -214,7 +217,9 @@ export default function TrainingArena({
         },
       ]);
 
-      setMessage("");
+      if (textareaRef.current) {
+        textareaRef.current.value = "";
+      }
     } catch (err) {
       console.error(err);
 
@@ -248,8 +253,7 @@ export default function TrainingArena({
           </p>
 
           <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            ref={textareaRef}
             rows={6}
             placeholder={placeholder}
             className="mt-10 w-full rounded-2xl border border-white/10 bg-white/5 p-6 text-white outline-none placeholder:text-gray-500"
