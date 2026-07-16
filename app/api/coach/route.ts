@@ -1,13 +1,86 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+function getClient() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return null;
+  }
+  return new OpenAI({ apiKey });
+}
+
+type HistoryItem = {
+  role: "user" | "npc";
+  text: string;
+};
+
+function parseCoachOutput(raw: string): { npc: string; forge: unknown } {
+  const cleaned = raw
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+
+  const data = JSON.parse(cleaned) as {
+    npc?: unknown;
+    forge?: unknown;
+  };
+
+  if (typeof data.npc !== "string" || !data.npc.trim()) {
+    throw new Error("Invalid coach response: missing npc.");
+  }
+
+  if (data.forge === undefined || data.forge === null) {
+    throw new Error("Invalid coach response: missing forge.");
+  }
+
+  return {
+    npc: data.npc.trim(),
+    forge: data.forge,
+  };
+}
+
+function formatHistory(history: HistoryItem[]): string {
+  if (history.length === 0) {
+    return "(No prior turns.)";
+  }
+
+  return history
+    .map((item) => {
+      const speaker = item.role === "user" ? "User" : "Other Person";
+      return `${speaker}: ${item.text}`;
+    })
+    .join("\n");
+}
 
 export async function POST(req: Request) {
   try {
-    const { message } = await req.json();
+    const body = await req.json();
+    const message = typeof body.message === "string" ? body.message.trim() : "";
+    const history: HistoryItem[] = Array.isArray(body.history)
+      ? body.history.filter(
+          (item: HistoryItem) =>
+            item &&
+            (item.role === "user" || item.role === "npc") &&
+            typeof item.text === "string" &&
+            item.text.trim()
+        )
+      : [];
+
+    if (!message) {
+      return NextResponse.json(
+        { error: "A message is required." },
+        { status: 400 }
+      );
+    }
+
+    const client = getClient();
+    if (!client) {
+      return NextResponse.json(
+        { error: "OPENAI_API_KEY is not configured." },
+        { status: 503 }
+      );
+    }
 
     const completion = await client.responses.create({
       model: "gpt-5",
@@ -24,7 +97,7 @@ Your job is to return TWO things:
 Conversation rules (do not change the flow):
 
 - Stay inside the scenario.
-- Continue the conversation naturally.
+- Continue the conversation naturally from the prior turns.
 - The other person should sound realistic.
 - Never restart the scenario.
 - Never repeat the mission prompt.
@@ -57,6 +130,10 @@ Return ONLY valid JSON with this exact shape:
   }
 }
 
+Prior turns:
+
+${formatHistory(history)}
+
 User's latest message:
 
 "${message}"
@@ -64,10 +141,14 @@ User's latest message:
     });
 
     const text = completion.output_text;
+    if (!text?.trim()) {
+      return NextResponse.json(
+        { error: "Forge couldn't respond." },
+        { status: 502 }
+      );
+    }
 
-    const data = JSON.parse(text);
-
-    console.log(data);
+    const data = parseCoachOutput(text);
 
     return NextResponse.json(data);
   } catch (error) {
