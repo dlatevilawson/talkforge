@@ -13,6 +13,11 @@ const links = [
   { href: "/profile", label: "Profile" },
 ];
 
+const navLinks =
+  process.env.NODE_ENV === "development"
+    ? [...links, { href: "/atlas", label: "Atlas" }]
+    : links;
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
@@ -32,7 +37,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
 
           <nav aria-label="Primary" className="flex flex-wrap items-center gap-1 sm:gap-2">
-            {links.map((link) => {
+            {navLinks.map((link) => {
               const active =
                 pathname === link.href || pathname.startsWith(`${link.href}/`);
               return (
