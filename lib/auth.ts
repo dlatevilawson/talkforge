@@ -1,3 +1,4 @@
+import { getCurrentUserId, setCurrentUserId } from "./identity";
 import { getUser, saveUser } from "./storage";
 import type { TalkForgeUser } from "./types";
 
@@ -8,10 +9,15 @@ function createId(): string {
   return `user_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
-export function ensureGuestUser(displayName = "Guest"): TalkForgeUser {
-  const existing = getUser();
-  if (existing) {
-    return existing;
+export async function ensureGuestUser(
+  displayName = "Guest"
+): Promise<TalkForgeUser> {
+  const existingId = getCurrentUserId();
+  if (existingId) {
+    const existing = await getUser();
+    if (existing) {
+      return existing;
+    }
   }
 
   const user: TalkForgeUser = {
@@ -20,16 +26,20 @@ export function ensureGuestUser(displayName = "Guest"): TalkForgeUser {
     createdAt: new Date().toISOString(),
   };
 
-  saveUser(user);
+  await saveUser(user);
+  setCurrentUserId(user.id);
   return user;
 }
 
-export function updateDisplayName(displayName: string): TalkForgeUser {
-  const current = ensureGuestUser();
+export async function updateDisplayName(
+  displayName: string
+): Promise<TalkForgeUser> {
+  const current = await ensureGuestUser();
   const updated: TalkForgeUser = {
     ...current,
     displayName: displayName.trim() || current.displayName,
   };
-  saveUser(updated);
+  await saveUser(updated);
+  setCurrentUserId(updated.id);
   return updated;
 }

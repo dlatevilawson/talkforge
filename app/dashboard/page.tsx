@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback } from "react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import AppShell from "@/app/components/AppShell";
 import MissionPicker from "@/app/components/MissionPicker";
 import PersistenceStatus from "@/app/components/PersistenceStatus";
 import { getProgressSummary, getUser, listSessions } from "@/lib/storage";
-import { useLocalData } from "@/lib/use-local-data";
+import type { PracticeSession, ProgressSummary, TalkForgeUser } from "@/lib/types";
 
 function formatDate(value: string | null): string {
   if (!value) return "No sessions yet";
@@ -19,31 +19,50 @@ function formatDate(value: string | null): string {
 }
 
 export default function DashboardPage() {
-  // Read-only snapshot: never create/write users inside useLocalData getters.
-  const getClientValue = useCallback(() => {
-    const user = getUser();
-    return {
-      user,
-      progress: getProgressSummary(user?.id),
-      recent: listSessions()
-        .filter(
-          (session) =>
-            session.completedAt && (!user || session.userId === user.id)
-        )
-        .slice(0, 3),
-    };
-  }, []);
-
-  const data = useLocalData(getClientValue, null);
-
-  const user = data?.user ?? null;
-  const progress = data?.progress ?? {
+  const [user, setUser] = useState<TalkForgeUser | null>(null);
+  const [progress, setProgress] = useState<ProgressSummary>({
     sessionsCompleted: 0,
     averageScore: 0,
     lastSessionAt: null,
     lastScenarioTitle: null,
-  };
-  const recent = data?.recent ?? [];
+  });
+  const [recent, setRecent] = useState<PracticeSession[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const currentUser = await getUser();
+        const summary = await getProgressSummary(currentUser?.id);
+        const sessions = currentUser
+          ? (await listSessions(currentUser.id)).filter(
+              (session) => session.completedAt
+            )
+          : [];
+
+        if (cancelled) return;
+        setUser(currentUser);
+        setProgress(summary);
+        setRecent(sessions.slice(0, 3));
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof Error ? err.message : "Failed to load dashboard."
+          );
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <AppShell>
@@ -62,27 +81,39 @@ export default function DashboardPage() {
           measured by conversations outside the app.
         </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-            <p className="text-sm text-zinc-500">Sessions completed</p>
-            <p className="mt-2 text-3xl font-semibold">
-              {progress.sessionsCompleted}
-            </p>
+        {error && (
+          <p className="mt-4 text-sm text-red-300" role="alert">
+            {error}
+          </p>
+        )}
+
+        {loading ? (
+          <p className="mt-8 text-sm text-zinc-500">Loading stats from Supabase…</p>
+        ) : (
+          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+              <p className="text-sm text-zinc-500">Sessions completed</p>
+              <p className="mt-2 text-3xl font-semibold">
+                {progress.sessionsCompleted}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+              <p className="text-sm text-zinc-500">Average score</p>
+              <p className="mt-2 text-3xl font-semibold">
+                {progress.averageScore}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+              <p className="text-sm text-zinc-500">Last session</p>
+              <p className="mt-2 text-lg font-medium">
+                {progress.lastScenarioTitle ?? "None yet"}
+              </p>
+              <p className="mt-1 text-sm text-zinc-500">
+                {formatDate(progress.lastSessionAt)}
+              </p>
+            </div>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-            <p className="text-sm text-zinc-500">Average score</p>
-            <p className="mt-2 text-3xl font-semibold">{progress.averageScore}</p>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-            <p className="text-sm text-zinc-500">Last session</p>
-            <p className="mt-2 text-lg font-medium">
-              {progress.lastScenarioTitle ?? "None yet"}
-            </p>
-            <p className="mt-1 text-sm text-zinc-500">
-              {formatDate(progress.lastSessionAt)}
-            </p>
-          </div>
-        </div>
+        )}
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
@@ -97,6 +128,14 @@ export default function DashboardPage() {
           >
             View progress
           </Link>
+          {!user && (
+            <Link
+              href="/auth"
+              className="rounded-full border border-white/15 px-5 py-3 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
+            >
+              Continue as Guest
+            </Link>
+          )}
         </div>
       </section>
 

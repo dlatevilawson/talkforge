@@ -9,14 +9,14 @@ function createId(): string {
   return `session_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 }
 
-export function createPracticeSession(input: {
+export async function createPracticeSession(input: {
   scenarioId: string;
   scenarioTitle: string;
   missionPrompt: string;
-}): PracticeSession {
-  const user = ensureGuestUser();
+}): Promise<PracticeSession> {
+  const user = await ensureGuestUser();
 
-  return {
+  const session: PracticeSession = {
     id: createId(),
     userId: user.id,
     scenarioId: input.scenarioId,
@@ -25,9 +25,14 @@ export function createPracticeSession(input: {
     startedAt: new Date().toISOString(),
     turns: [],
   };
+
+  await saveSession(session);
+  return session;
 }
 
-export function averageForgeScore(turns: ConversationTurn[]): number | undefined {
+export function averageForgeScore(
+  turns: ConversationTurn[]
+): number | undefined {
   const scores = turns
     .filter(
       (turn): turn is { role: "forge"; coaching: ForgeCoaching } =>
@@ -37,13 +42,15 @@ export function averageForgeScore(turns: ConversationTurn[]): number | undefined
 
   if (scores.length === 0) return undefined;
 
-  return Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
+  return Math.round(
+    scores.reduce((sum, score) => sum + score, 0) / scores.length
+  );
 }
 
-export function completePracticeSession(
+export async function completePracticeSession(
   session: PracticeSession,
   turns: ConversationTurn[]
-): PracticeSession {
+): Promise<PracticeSession> {
   const completed: PracticeSession = {
     ...session,
     turns,
@@ -51,19 +58,19 @@ export function completePracticeSession(
     averageScore: averageForgeScore(turns),
   };
 
-  saveSession(completed);
+  await saveSession(completed);
   return completed;
 }
 
-export function persistActiveSession(
+export async function persistActiveSession(
   session: PracticeSession,
   turns: ConversationTurn[]
-): PracticeSession {
+): Promise<PracticeSession> {
   const next: PracticeSession = {
     ...session,
     turns,
     averageScore: averageForgeScore(turns),
   };
-  saveSession(next);
+  await saveSession(next);
   return next;
 }

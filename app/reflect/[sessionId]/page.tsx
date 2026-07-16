@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AppShell from "@/app/components/AppShell";
 import { ensureGuestUser } from "@/lib/auth";
 import {
@@ -10,7 +10,7 @@ import {
   getSession,
   saveReflection,
 } from "@/lib/storage";
-import { useLocalData } from "@/lib/use-local-data";
+import type { PracticeSession, Reflection } from "@/lib/types";
 
 export default function ReflectPage() {
   const params = useParams<{ sessionId: string }>();
@@ -19,20 +19,42 @@ export default function ReflectPage() {
   const improveRef = useRef<HTMLTextAreaElement>(null);
   const [error, setError] = useState("");
   const [satisfaction, setSatisfaction] = useState(4);
+  const [session, setSession] = useState<PracticeSession | null>(null);
+  const [existing, setExisting] = useState<Reflection | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-  const getClientValue = useCallback(() => {
-    return {
-      session: getSession(params.sessionId),
-      reflection: getReflection(params.sessionId),
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const current = await getSession(params.sessionId);
+        const reflection = await getReflection(params.sessionId);
+        if (cancelled) return;
+        setSession(current);
+        setExisting(reflection);
+        if (reflection?.coachSatisfaction) {
+          setSatisfaction(reflection.coachSatisfaction);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(
+            err instanceof Error ? err.message : "Failed to load session."
+          );
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void load();
+    return () => {
+      cancelled = true;
     };
   }, [params.sessionId]);
 
-  const data = useLocalData(getClientValue, null);
-
-  const session = data?.session ?? null;
-  const existing = data?.reflection ?? null;
-
-  function handleSave(event: React.FormEvent) {
+  async function handleSave(event: React.FormEvent) {
     event.preventDefault();
     if (!session) return;
 
@@ -44,17 +66,34 @@ export default function ReflectPage() {
       return;
     }
 
-    const user = ensureGuestUser();
-    saveReflection({
-      sessionId: session.id,
-      userId: user.id,
-      wentWell,
-      improveNext,
-      coachSatisfaction: satisfaction,
-      createdAt: new Date().toISOString(),
-    });
+    setSaving(true);
+    setError("");
 
-    router.push("/progress");
+    try {
+      const user = await ensureGuestUser();
+      await saveReflection({
+        sessionId: session.id,
+        userId: user.id,
+        wentWell,
+        improveNext,
+        coachSatisfaction: satisfaction,
+        createdAt: new Date().toISOString(),
+      });
+      router.push("/progress");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to save reflection."
+      );
+      setSaving(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <AppShell>
+        <p className="text-sm text-zinc-500">Loading session from Supabase…</p>
+      </AppShell>
+    );
   }
 
   if (!session) {
@@ -63,8 +102,13 @@ export default function ReflectPage() {
         <section className="rounded-3xl border border-white/10 bg-white/5 p-8">
           <h1 className="text-2xl font-semibold">Session not found</h1>
           <p className="mt-3 text-sm text-zinc-400">
-            This practice session is missing or was cleared from local storage.
+            This practice session could not be loaded from Supabase.
           </p>
+          {error && (
+            <p className="mt-3 text-sm text-red-300" role="alert">
+              {error}
+            </p>
+          )}
           <Link
             href="/dashboard"
             className="mt-6 inline-flex rounded-full bg-white px-5 py-3 text-sm font-semibold text-black"
@@ -104,28 +148,34 @@ export default function ReflectPage() {
       </section>
 
       <form onSubmit={handleSave} className="mt-8 max-w-2xl space-y-6">
-        <label className="block">
+        <label className="block" htmlFor="went-well">
           <span className="text-sm text-zinc-300">What did you do well?</span>
           <textarea
+            id="went-well"
+            name="wentWell"
             key={`went-${existing?.createdAt ?? "new"}`}
             ref={wentWellRef}
             rows={4}
             defaultValue={existing?.wentWell ?? ""}
-            className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm leading-6 text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
+            disabled={saving}
+            className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm leading-6 text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 disabled:opacity-60"
             placeholder="Name one specific strength from this conversation."
           />
         </label>
 
-        <label className="block">
+        <label className="block" htmlFor="improve-next">
           <span className="text-sm text-zinc-300">
             What will you improve next time?
           </span>
           <textarea
+            id="improve-next"
+            name="improveNext"
             key={`improve-${existing?.createdAt ?? "new"}`}
             ref={improveRef}
             rows={4}
             defaultValue={existing?.improveNext ?? ""}
-            className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm leading-6 text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
+            disabled={saving}
+            className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm leading-6 text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 disabled:opacity-60"
             placeholder="Choose one concrete improvement to practice outside the app."
           />
         </label>
@@ -140,12 +190,8 @@ export default function ReflectPage() {
                 key={value}
                 type="button"
                 onClick={() => setSatisfaction(value)}
-                aria-pressed={
-                  satisfaction === value ||
-                  (!!existing?.coachSatisfaction &&
-                    existing.coachSatisfaction === value &&
-                    satisfaction === existing.coachSatisfaction)
-                }
+                aria-pressed={satisfaction === value}
+                disabled={saving}
                 className={`rounded-full px-4 py-2 text-sm ${
                   satisfaction === value
                     ? "bg-blue-500 text-white"
@@ -167,9 +213,10 @@ export default function ReflectPage() {
         <div className="flex flex-wrap gap-3">
           <button
             type="submit"
-            className="rounded-full bg-blue-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-400"
+            disabled={saving}
+            className="rounded-full bg-blue-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-400 disabled:opacity-60"
           >
-            Save reflection
+            {saving ? "Saving to Supabase..." : "Save reflection"}
           </button>
           <Link
             href="/dashboard"

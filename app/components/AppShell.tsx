@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { getUser } from "@/lib/storage";
-import { useLocalData } from "@/lib/use-local-data";
 
 const links = [
   { href: "/dashboard", label: "Dashboard" },
@@ -20,13 +19,29 @@ const navLinks =
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [name, setName] = useState("Guest");
 
-  const getClientValue = useCallback(
-    () => getUser()?.displayName ?? "Guest",
-    []
-  );
+  useEffect(() => {
+    let cancelled = false;
 
-  const name = useLocalData(getClientValue, "Guest");
+    async function loadName() {
+      try {
+        const user = await getUser();
+        if (!cancelled) {
+          setName(user?.displayName ?? "Guest");
+        }
+      } catch {
+        if (!cancelled) {
+          setName("Guest");
+        }
+      }
+    }
+
+    void loadName();
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname]);
 
   return (
     <div className="min-h-screen bg-[var(--tf-bg)] font-sans text-[var(--tf-fg)]">
@@ -36,7 +51,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             TalkForge
           </Link>
 
-          <nav aria-label="Primary" className="flex flex-wrap items-center gap-1 sm:gap-2">
+          <nav
+            aria-label="Primary"
+            className="flex flex-wrap items-center gap-1 sm:gap-2"
+          >
             {navLinks.map((link) => {
               const active =
                 pathname === link.href || pathname.startsWith(`${link.href}/`);

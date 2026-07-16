@@ -2,31 +2,57 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ensureGuestUser, updateDisplayName } from "@/lib/auth";
 import { getUser } from "@/lib/storage";
-import { useLocalData } from "@/lib/use-local-data";
 
 export default function AuthPage() {
   const router = useRouter();
   const nameRef = useRef<HTMLInputElement>(null);
+  const [existingName, setExistingName] = useState("Guest");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  const getClientValue = useCallback(
-    () => getUser()?.displayName ?? "Guest",
-    []
-  );
+  useEffect(() => {
+    let cancelled = false;
 
-  const existingName = useLocalData(getClientValue, "Guest");
+    async function load() {
+      try {
+        const user = await getUser();
+        if (!cancelled && user?.displayName) {
+          setExistingName(user.displayName);
+        }
+      } catch {
+        // Ignore — guest can still continue.
+      }
+    }
 
-  function continueAsGuest(event: React.FormEvent) {
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function continueAsGuest(event: React.FormEvent) {
     event.preventDefault();
     const name = nameRef.current?.value.trim() || "Guest";
-    if (getUser()) {
-      updateDisplayName(name);
-    } else {
-      ensureGuestUser(name);
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const existing = await getUser();
+      if (existing) {
+        await updateDisplayName(name);
+      } else {
+        await ensureGuestUser(name);
+      }
+      router.push("/dashboard");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Could not create guest profile."
+      );
+      setSubmitting(false);
     }
-    router.push("/dashboard");
   }
 
   return (
@@ -37,12 +63,12 @@ export default function AuthPage() {
         </p>
         <h1 className="mt-3 text-3xl font-semibold">Continue practicing</h1>
         <p className="mt-4 text-sm leading-6 text-zinc-400">
-          Guest mode keeps your sessions on this device so you can complete the
-          full practice loop now. Full authentication can replace this later.
+          Guest mode creates your profile in Supabase so practice sessions and
+          reflections sync across this browser session.
         </p>
 
         <form onSubmit={continueAsGuest} className="mt-8 space-y-5">
-          <label className="block">
+          <label className="block" htmlFor="display-name">
             <span className="text-sm text-zinc-300">Display name</span>
             <input
               id="display-name"
@@ -51,15 +77,23 @@ export default function AuthPage() {
               ref={nameRef}
               type="text"
               defaultValue={existingName}
-              className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
+              disabled={submitting}
+              className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 disabled:opacity-60"
             />
           </label>
 
+          {error && (
+            <p className="text-sm text-red-300" role="alert">
+              {error}
+            </p>
+          )}
+
           <button
             type="submit"
-            className="w-full rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
+            disabled={submitting}
+            className="w-full rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200 disabled:opacity-60"
           >
-            Continue as Guest
+            {submitting ? "Starting..." : "Continue as Guest"}
           </button>
         </form>
 
