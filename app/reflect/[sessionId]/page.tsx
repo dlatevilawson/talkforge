@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import AppShell from "@/app/components/AppShell";
 import { ensureGuestUser } from "@/lib/auth";
 import {
@@ -20,13 +20,15 @@ export default function ReflectPage() {
   const [error, setError] = useState("");
   const [satisfaction, setSatisfaction] = useState(4);
 
-  const data = useLocalData(() => {
+  const getClientValue = useCallback(() => {
     ensureGuestUser();
     return {
       session: getSession(params.sessionId),
       reflection: getReflection(params.sessionId),
     };
-  }, null);
+  }, [params.sessionId]);
+
+  const data = useLocalData(getClientValue, null);
 
   const session = data?.session ?? null;
   const existing = data?.reflection ?? null;

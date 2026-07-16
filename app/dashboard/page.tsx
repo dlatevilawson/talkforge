@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import Link from "next/link";
 import AppShell from "@/app/components/AppShell";
 import MissionPicker from "@/app/components/MissionPicker";
@@ -18,7 +19,7 @@ function formatDate(value: string | null): string {
 }
 
 export default function DashboardPage() {
-  const data = useLocalData(() => {
+  const getClientValue = useCallback(() => {
     const user = ensureGuestUser();
     return {
       user,
@@ -27,7 +28,9 @@ export default function DashboardPage() {
         .filter((session) => session.userId === user.id && session.completedAt)
         .slice(0, 3),
     };
-  }, null);
+  }, []);
+
+  const data = useLocalData(getClientValue, null);
 
   const user = data?.user ?? null;
   const progress = data?.progress ?? {

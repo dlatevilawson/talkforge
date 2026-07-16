@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 import { ensureGuestUser, updateDisplayName } from "@/lib/auth";
 import { getUser } from "@/lib/storage";
 import { useLocalData } from "@/lib/use-local-data";
@@ -10,10 +10,13 @@ import { useLocalData } from "@/lib/use-local-data";
 export default function AuthPage() {
   const router = useRouter();
   const nameRef = useRef<HTMLInputElement>(null);
-  const existingName = useLocalData(
+
+  const getClientValue = useCallback(
     () => getUser()?.displayName ?? "Guest",
-    "Guest"
+    []
   );
+
+  const existingName = useLocalData(getClientValue, "Guest");
 
   function continueAsGuest(event: React.FormEvent) {
     event.preventDefault();

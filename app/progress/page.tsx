@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import Link from "next/link";
 import AppShell from "@/app/components/AppShell";
 import { ensureGuestUser } from "@/lib/auth";
@@ -7,7 +8,7 @@ import { getProgressSummary, listReflections, listSessions } from "@/lib/storage
 import { useLocalData } from "@/lib/use-local-data";
 
 export default function ProgressPage() {
-  const data = useLocalData(() => {
+  const getClientValue = useCallback(() => {
     const user = ensureGuestUser();
     return {
       progress: getProgressSummary(user.id),
@@ -18,7 +19,9 @@ export default function ProgressPage() {
         (reflection) => reflection.userId === user.id
       ),
     };
-  }, null);
+  }, []);
+
+  const data = useLocalData(getClientValue, null);
 
   const progress = data?.progress ?? {
     sessionsCompleted: 0,

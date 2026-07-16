@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getUser } from "@/lib/storage";
@@ -14,10 +15,13 @@ const links = [
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const name = useLocalData(
+
+  const getClientValue = useCallback(
     () => getUser()?.displayName ?? "Guest",
-    "Guest"
+    []
   );
+
+  const name = useLocalData(getClientValue, "Guest");
 
   return (
     <div className="min-h-screen bg-[var(--tf-bg)] font-sans text-[var(--tf-fg)]">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import AppShell from "@/app/components/AppShell";
 import { ensureGuestUser, updateDisplayName } from "@/lib/auth";
 import { clearAllTalkForgeData, getProgressSummary, getUser } from "@/lib/storage";
@@ -11,13 +11,16 @@ export default function ProfilePage() {
   const router = useRouter();
   const nameRef = useRef<HTMLInputElement>(null);
   const [saved, setSaved] = useState(false);
-  const data = useLocalData(() => {
+
+  const getClientValue = useCallback(() => {
     const user = ensureGuestUser();
     return {
       user,
       progress: getProgressSummary(user.id),
     };
-  }, null);
+  }, []);
+
+  const data = useLocalData(getClientValue, null);
 
   const user = data?.user ?? null;
   const progress = data?.progress ?? null;
