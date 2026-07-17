@@ -179,28 +179,46 @@ export default function TrainingArena({
   const [loading, setLoading] = useState(false);
   const [ending, setEnding] = useState(false);
   const [error, setError] = useState("");
+  const [sessionReady, setSessionReady] = useState(false);
 
-  const sessionInitialized = useRef(false);
+  // Keep the latest session in a ref so Continue can await startup without races.
+  const sessionRef = useRef<PracticeSession | null>(null);
+  const startingSessionRef = useRef<Promise<PracticeSession> | null>(null);
 
   useEffect(() => {
-    if (!missionStarted || sessionInitialized.current) return;
-    sessionInitialized.current = true;
+    sessionRef.current = session;
+  }, [session]);
+
+  useEffect(() => {
+    if (!missionStarted) return;
 
     let cancelled = false;
 
     async function startSession() {
-      try {
-        const next = await createPracticeSession({
+      if (sessionRef.current) {
+        setSessionReady(true);
+        return;
+      }
+
+      if (!startingSessionRef.current) {
+        startingSessionRef.current = createPracticeSession({
           scenarioId,
           scenarioTitle: title,
           missionPrompt,
         });
-        if (!cancelled) {
-          setSession(next);
-        }
+      }
+
+      try {
+        const next = await startingSessionRef.current;
+        if (cancelled) return;
+        sessionRef.current = next;
+        setSession(next);
+        setSessionReady(true);
       } catch (err) {
         console.error(err);
+        startingSessionRef.current = null;
         if (!cancelled) {
+          setSessionReady(false);
           setError(
             err instanceof Error
               ? err.message
@@ -224,12 +242,31 @@ export default function TrainingArena({
     });
   }, [conversation]);
 
-  async function handleContinue() {
-    const text = textareaRef.current?.value.trim() ?? "";
-    if (!text || loading) return;
+  async function ensureSession(): Promise<PracticeSession> {
+    if (sessionRef.current) return sessionRef.current;
 
-    if (!session) {
-      setError("Session is still starting. Please try Continue again.");
+    if (!startingSessionRef.current) {
+      startingSessionRef.current = createPracticeSession({
+        scenarioId,
+        scenarioTitle: title,
+        missionPrompt,
+      });
+    }
+
+    const next = await startingSessionRef.current;
+    sessionRef.current = next;
+    setSession(next);
+    setSessionReady(true);
+    return next;
+  }
+
+  async function handleContinue(event?: React.FormEvent | React.MouseEvent) {
+    event?.preventDefault();
+    if (loading || ending) return;
+
+    const message = textareaRef.current?.value.trim() ?? "";
+    if (!message) {
+      setError("Type a reply before continuing.");
       return;
     }
 
@@ -247,13 +284,15 @@ export default function TrainingArena({
     setError("");
 
     try {
+      const activeSession = await ensureSession();
+
       const response = await fetch("/api/coach", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: text,
+          message,
           history,
           scenario: {
             id: scenarioId,
@@ -277,12 +316,13 @@ export default function TrainingArena({
       const coaching = normalizeForge(data.forge);
       const nextTurns: ConversationTurn[] = [
         ...conversation,
-        { role: "user", text },
+        { role: "user", text: message },
         { role: "npc", text: data.npc.trim() },
         { role: "forge", coaching },
       ];
 
-      const updated = await persistActiveSession(session, nextTurns);
+      const updated = await persistActiveSession(activeSession, nextTurns);
+      sessionRef.current = updated;
       setConversation(nextTurns);
       setSession(updated);
 
@@ -407,7 +447,10 @@ export default function TrainingArena({
             </div>
           )}
 
-          <div className="sticky bottom-0 mt-4 border-t border-white/10 bg-gradient-to-t from-black via-black to-transparent pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <form
+            onSubmit={handleContinue}
+            className="sticky bottom-0 mt-4 border-t border-white/10 bg-gradient-to-t from-black via-black to-transparent pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]"
+          >
             <label className="block" htmlFor="mission-reply">
               <span className="sr-only">Your reply</span>
               <textarea
@@ -423,14 +466,17 @@ export default function TrainingArena({
             </label>
 
             <button
-              type="button"
-              onClick={handleContinue}
+              type="submit"
               disabled={loading || ending}
               className="mt-4 w-full rounded-full bg-blue-500 px-8 py-4 font-semibold transition hover:bg-blue-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loading ? "Forge is thinking..." : "Continue"}
+              {loading
+                ? "Forge is thinking..."
+                : sessionReady
+                  ? "Continue"
+                  : "Starting session..."}
             </button>
-          </div>
+          </form>
         </div>
       </main>
     );
