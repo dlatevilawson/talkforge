@@ -32,6 +32,8 @@ type CoachResponse = {
   npc: string;
   forge: ForgeCoaching | string;
   error?: string;
+  reason?: string;
+  details?: string | { name?: string; message?: string; status?: number | null; code?: string | null };
 };
 
 function clampScore(value: unknown, fallback = 50): number {
@@ -371,7 +373,20 @@ export default function TrainingArena({
       const data: CoachResponse = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Something went wrong.");
+        const detailMessage =
+          typeof data.details === "string"
+            ? data.details
+            : data.details?.message;
+        const composed = [data.error, detailMessage, data.reason]
+          .filter(Boolean)
+          .join(" — ");
+        console.error("[Forge/Continue] /api/coach failed", {
+          status: response.status,
+          error: data.error,
+          reason: data.reason,
+          details: data.details,
+        });
+        throw new Error(composed || "Something went wrong.");
       }
 
       if (typeof data.npc !== "string" || !data.npc.trim()) {

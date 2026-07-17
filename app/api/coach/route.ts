@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { buildMockCoachResponse } from "@/lib/coach/mock";
 
 function getClient() {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY?.trim();
   if (!apiKey) {
     return null;
   }
@@ -61,6 +61,35 @@ function formatHistory(history: HistoryItem[]): string {
     .join("\n");
 }
 
+function errorDetails(error: unknown) {
+  if (!(error instanceof Error)) {
+    return {
+      name: typeof error,
+      message: String(error),
+      stack: null as string | null,
+      status: null as number | null,
+      code: null as string | null,
+    };
+  }
+
+  const withExtras = error as Error & {
+    status?: number;
+    code?: string;
+    type?: string;
+    error?: unknown;
+  };
+
+  return {
+    name: withExtras.name,
+    message: withExtras.message,
+    stack: withExtras.stack ?? null,
+    status: typeof withExtras.status === "number" ? withExtras.status : null,
+    code: typeof withExtras.code === "string" ? withExtras.code : null,
+    type: typeof withExtras.type === "string" ? withExtras.type : null,
+    openaiError: withExtras.error ?? null,
+  };
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -86,6 +115,9 @@ export async function POST(req: Request) {
 
     const client = getClient();
     if (!client) {
+      console.warn(
+        "[Forge/coach] OPENAI_API_KEY missing — returning mock coach response."
+      );
       return NextResponse.json(
         buildMockCoachResponse(message, history, scenario)
       );
@@ -96,6 +128,13 @@ Scenario title: ${scenario.title ?? "Communication practice"}
 Mission: ${scenario.mission ?? "Practice deliberate communication."}
 Mission prompt: ${scenario.missionPrompt ?? "Continue the conversation."}
 `;
+
+    console.log("[Forge/coach] Calling OpenAI responses.create", {
+      model: "gpt-5",
+      messageLength: message.length,
+      historyLength: history.length,
+      scenarioId: scenario.id ?? null,
+    });
 
     const completion = await client.responses.create({
       model: "gpt-5",
@@ -157,22 +196,74 @@ User's latest message:
     });
 
     const text = completion.output_text;
+    console.log("[Forge/coach] OpenAI returned", {
+      hasText: Boolean(text?.trim()),
+      textLength: text?.length ?? 0,
+      textPreview: text?.slice(0, 160) ?? null,
+    });
+
     if (!text?.trim()) {
       return NextResponse.json(
-        { error: "Forge couldn't respond." },
+        { error: "Forge couldn't respond.", reason: "empty_output_text" },
         { status: 502 }
       );
     }
 
-    const data = parseCoachOutput(text);
-
-    return NextResponse.json(data);
+    try {
+      const data = parseCoachOutput(text);
+      return NextResponse.json(data);
+    } catch (parseError) {
+      const details = errorDetails(parseError);
+      console.error("[Forge/coach] Failed to parse OpenAI JSON", {
+        ...details,
+        rawText: text.slice(0, 2000),
+      });
+      return NextResponse.json(
+        {
+          error: "Forge couldn't respond.",
+          reason: "invalid_coach_json",
+          details:
+            process.env.NODE_ENV === "development" ? details.message : undefined,
+        },
+        { status: 502 }
+      );
+    }
   } catch (error) {
-    console.error(error);
+    const details = errorDetails(error);
+    console.error("[Forge/coach] Unhandled exception", details);
+
+    if (details.status === 401 || details.code === "invalid_api_key") {
+      return NextResponse.json(
+        {
+          error: "Invalid OPENAI_API_KEY.",
+          reason: "invalid_api_key",
+          details:
+            process.env.NODE_ENV === "development"
+              ? {
+                  name: details.name,
+                  message: details.message,
+                  status: details.status,
+                  code: details.code,
+                }
+              : undefined,
+        },
+        { status: 401 }
+      );
+    }
 
     return NextResponse.json(
       {
         error: "Forge couldn't respond.",
+        reason: "openai_or_server_exception",
+        details:
+          process.env.NODE_ENV === "development"
+            ? {
+                name: details.name,
+                message: details.message,
+                status: details.status,
+                code: details.code,
+              }
+            : undefined,
       },
       {
         status: 500,
