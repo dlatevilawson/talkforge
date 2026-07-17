@@ -261,11 +261,76 @@ export default function TrainingArena({
   }
 
   async function handleContinue(event?: React.FormEvent | React.MouseEvent) {
-    event?.preventDefault();
-    if (loading || ending) return;
+    // TEP observation — production failure capture (not a fix)
+    const invocationId = `cont_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    const native = event?.nativeEvent;
+    const submitter =
+      native && typeof SubmitEvent !== "undefined" && native instanceof SubmitEvent
+        ? native.submitter
+        : null;
+    const entryStack = new Error("handleContinue-entry").stack ?? null;
 
-    const message = textareaRef.current?.value.trim() ?? "";
+    event?.preventDefault();
+    if (loading || ending) {
+      console.log(
+        "[TEP][Continue] blocked by loading/ending " +
+          JSON.stringify({
+            invocationId,
+            loading,
+            ending,
+            rawValue: textareaRef.current?.value ?? null,
+            eventType: event?.type ?? null,
+            isTrusted: native?.isTrusted ?? null,
+            submitter: submitter
+              ? `${submitter.tagName}:${(submitter as HTMLButtonElement).type || ""}`
+              : null,
+            t: Date.now(),
+            stack: entryStack,
+          })
+      );
+      return;
+    }
+
+    const rawValue = textareaRef.current?.value;
+    const message = rawValue?.trim() ?? "";
+    console.log(
+      "[TEP][Continue] before empty guard " +
+        JSON.stringify({
+          invocationId,
+          refExists: Boolean(textareaRef.current),
+          rawValue: rawValue ?? null,
+          rawLength: rawValue?.length ?? null,
+          message,
+          messageLength: message.length,
+          isEmpty: !message,
+          loading,
+          ending,
+          conversationLength: conversation.length,
+          eventType: event?.type ?? null,
+          isTrusted: native?.isTrusted ?? null,
+          submitter: submitter
+            ? `${submitter.tagName}:${(submitter as HTMLButtonElement).type || ""}`
+            : null,
+          t: Date.now(),
+          stack: entryStack,
+        })
+    );
     if (!message) {
+      console.log(
+        "[TEP][Continue] FAIL empty-message guard " +
+          JSON.stringify({
+            invocationId,
+            rawValue: rawValue ?? null,
+            eventType: event?.type ?? null,
+            isTrusted: native?.isTrusted ?? null,
+            submitter: submitter
+              ? `${submitter.tagName}:${(submitter as HTMLButtonElement).type || ""}`
+              : null,
+            conversationLength: conversation.length,
+            t: Date.now(),
+            stack: entryStack,
+          })
+      );
       setError("Type a reply before continuing.");
       return;
     }
@@ -327,10 +392,27 @@ export default function TrainingArena({
       setSession(updated);
 
       if (textareaRef.current) {
+        console.log(
+          "[TEP][Continue] clearing textarea after success " +
+            JSON.stringify({
+              invocationId,
+              valueBeforeClear: textareaRef.current.value,
+              t: Date.now(),
+              stack: new Error("textarea-clear").stack ?? null,
+            })
+        );
         textareaRef.current.value = "";
       }
     } catch (err) {
       console.error(err);
+      console.log(
+        "[TEP][Continue] FAIL request/persist " +
+          JSON.stringify({
+            invocationId,
+            error: err instanceof Error ? err.message : String(err),
+            t: Date.now(),
+          })
+      );
       setError(
         err instanceof Error
           ? err.message
