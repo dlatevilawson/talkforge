@@ -165,4 +165,21 @@ Lessons Learned
 
 ---
 
+## RULE #15
+
+No code may be modified until the user explicitly approves the proposed fix.
+
+Workflow:
+
+1. Observe
+2. Investigate
+3. Find root cause
+4. Present evidence
+5. Explain proposed fix
+6. WAIT
+
+Only after user approval may code be changed.
+
+---
+
 END PROTOCOL
