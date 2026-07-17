@@ -23,6 +23,8 @@ export async function loadAtlasContext(): Promise<AtlasContext> {
     decisions,
     roadmap,
     metrics,
+    engineeringProtocol,
+    bugLog,
   ] = await Promise.all([
     readTextDocument("constitution.md"),
     readTextDocument("founder-brief.md"),
@@ -32,6 +34,8 @@ export async function loadAtlasContext(): Promise<AtlasContext> {
     readTextDocument("decisions.md"),
     readTextDocument("roadmap.md"),
     readTextDocument("metrics.md"),
+    readTextDocument("engineering-protocol.md"),
+    readTextDocument("bug-log.md"),
   ]);
 
   return {
@@ -43,5 +47,7 @@ export async function loadAtlasContext(): Promise<AtlasContext> {
     decisions,
     roadmap,
     metrics,
+    engineeringProtocol,
+    bugLog,
   };
 }

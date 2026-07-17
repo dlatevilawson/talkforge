@@ -11,4 +11,6 @@ export type AtlasContext = {
   decisions: string;
   roadmap: string;
   metrics: string;
+  engineeringProtocol: string;
+  bugLog: string;
 };
