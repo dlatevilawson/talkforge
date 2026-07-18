@@ -33,7 +33,9 @@ alter table public.profiles enable row level security;
 alter table public.practice_sessions enable row level security;
 alter table public.reflections enable row level security;
 
--- Guest MVP policies (tighten once real auth is enabled).
+-- Guest + GitHub Auth policies.
+-- profiles.id is either a guest uuid (sessionStorage pointer) or auth.users.id (GitHub).
+-- Tighten to auth.uid()::text = id once guest mode is retired.
 drop policy if exists "profiles_anon_all" on public.profiles;
 create policy "profiles_anon_all"
   on public.profiles for all

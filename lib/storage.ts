@@ -1,4 +1,8 @@
-import { clearCurrentUserId, getCurrentUserId } from "./identity";
+import {
+  clearCurrentUserId,
+  getCurrentUserId,
+  setCurrentUserId,
+} from "./identity";
 import { getSupabaseClient } from "./supabase/client";
 import type {
   ConversationTurn,
@@ -73,10 +77,19 @@ function mapReflection(row: {
 }
 
 export async function getUser(): Promise<TalkForgeUser | null> {
-  const id = getCurrentUserId();
+  const supabase = requireSupabase();
+
+  // Prefer a live Supabase Auth session (GitHub) over the guest pointer.
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
+  const id = authUser?.id ?? getCurrentUserId();
   if (!id) return null;
 
-  const supabase = requireSupabase();
+  if (authUser?.id) {
+    setCurrentUserId(authUser.id);
+  }
+
   const { data, error } = await supabase
     .from("profiles")
     .select("id, display_name, created_at")
