@@ -10,9 +10,9 @@
 | **Human Approver** | Founder |
 | **Review Cycle** | Each milestone |
 | **Dependencies** | RES-001, ADR-0001 |
-| **Related Documents** | `authority-model.md`, `metadata-framework.md`, `registry-framework.md` |
+| **Related Documents** | `authority-model.md`, `metadata-framework.md`, `registry-framework.md`, `../NAVIGATION.md`, SPEC-001…SPEC-006 |
 | **Approval History** | 2026-07-18 — M0 Draft |
-| **Change Log** | 2026-07-18 — Initial repository governance for ATOS v1.0 |
+| **Change Log** | 2026-07-18 — Initial repository governance for ATOS v1.0; 2026-07-18 — M1 cross-links to navigation and Specs |
 
 ---
 

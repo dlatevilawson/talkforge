@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATOS-ROOT |
-| **Version** | 1.0.0-m0 |
+| **Version** | 1.0.0-m1 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas (Chief of Staff) |
 | **Human Approver** | Founder |
 | **Review Cycle** | Per milestone / on governance change |
 | **Dependencies** | RES-001 |
-| **Related Documents** | `atos/governance/*`, `atos/registries/*` |
+| **Related Documents** | `atos/NAVIGATION.md`, `atos/governance/*`, `atos/registries/*`, SPEC-001…SPEC-006, STD-001…STD-006 |
 | **Approval History** | Authorized for v1.0 implementation by RES-001 (Founder approved) |
-| **Change Log** | 2026-07-18 — M0 entrypoint created |
+| **Change Log** | 2026-07-18 — M0 entrypoint created; 2026-07-18 — M1 navigation + Spec/Standard links |
 
 ---
 
@@ -75,16 +75,18 @@ Every governed document **must** declare one of:
 
 ## Quick Navigation
 
-1. [Repository Governance](atos/governance/repository-governance.md)
-2. [Authority Model](atos/governance/authority-model.md)
-3. [Metadata Framework](atos/governance/metadata-framework.md)
-4. [Registry Framework](atos/governance/registry-framework.md)
-5. [ADR-0001 Repository Layout](atos/governance/ADR-0001-repository-layout.md)
-6. [Pre-ATOS Compatibility](atos/governance/compatibility-atlas-pre-atos.md)
-7. [ID Namespace Quarantine](atos/governance/id-namespace-quarantine.md)
-8. [ATOS Registry](atos/registries/atos-registry.yaml)
-9. [Repository Index](atos/registries/repository-index.yaml)
-10. [RES-001](atos/resolutions/RES-001-atos-v1-implementation.md)
+1. [Repository Navigation](atos/NAVIGATION.md)
+2. [RES-001](atos/resolutions/RES-001-atos-v1-implementation.md)
+3. [Specifications](atos/specifications/README.md) (Draft)
+4. [Standards](atos/standards/README.md) (Draft)
+5. [Repository Governance](atos/governance/repository-governance.md)
+6. [Authority Model](atos/governance/authority-model.md)
+7. [Metadata Framework](atos/governance/metadata-framework.md)
+8. [Registry Framework](atos/governance/registry-framework.md)
+9. [ADR-0001 Repository Layout](atos/governance/ADR-0001-repository-layout.md)
+10. [Pre-ATOS Compatibility](atos/governance/compatibility-atlas-pre-atos.md)
+11. [Document Registry](atos/registries/document-registry.yaml)
+12. [ATOS Registry](atos/registries/atos-registry.yaml)
 
 ---
 
@@ -92,8 +94,8 @@ Every governed document **must** declare one of:
 
 | Milestone | Focus | Status |
 |---|---|---|
-| M0 | Governance Foundation | Complete — awaiting Founder approval |
-| M1 | Repository Organization | Pending |
+| M0 | Governance Foundation | Complete — Founder approved |
+| M1 | Repository Organization | Complete — awaiting Founder approval |
 | M2 | Registry Infrastructure | Pending |
 | M3 | Metadata Framework (applied) | Pending |
 | M4 | Knowledge Governance | Pending |

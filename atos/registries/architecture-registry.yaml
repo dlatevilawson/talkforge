@@ -39,3 +39,43 @@ storage_planes:
     state: planned
     holds: [workflow_logs, execution_history]
     notes: Must not default to git; amend ADR-0001 before implementation
+
+specifications:
+  - id: SPEC-001
+    path: atos/specifications/SPEC-001-core-architecture.md
+    state: draft
+  - id: SPEC-002
+    path: atos/specifications/SPEC-002-identity.md
+    state: draft
+  - id: SPEC-003
+    path: atos/specifications/SPEC-003-knowledge-governance.md
+    state: draft
+  - id: SPEC-004
+    path: atos/specifications/SPEC-004-operations.md
+    state: draft
+  - id: SPEC-005
+    path: atos/specifications/SPEC-005-runtime-infrastructure.md
+    state: draft
+  - id: SPEC-006
+    path: atos/specifications/SPEC-006-executive-systems.md
+    state: draft
+
+standards:
+  - id: STD-001
+    path: atos/standards/STD-001-architecture-decision-standard.md
+    state: draft
+  - id: STD-002
+    path: atos/standards/STD-002-knowledge-promotion-standard.md
+    state: draft
+  - id: STD-003
+    path: atos/standards/STD-003-executive-decision-standard.md
+    state: draft
+  - id: STD-004
+    path: atos/standards/STD-004-project-governance-standard.md
+    state: draft
+  - id: STD-005
+    path: atos/standards/STD-005-incident-investigation-standard.md
+    state: draft
+  - id: STD-006
+    path: atos/standards/STD-006-runtime-workflow-standard.md
+    state: draft

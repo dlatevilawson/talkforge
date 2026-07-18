@@ -135,103 +135,159 @@ documents:
     ai_steward: Sentinel
     layer: governance
 
-  # Level 1 — planned (files in later milestones)
+  - id: SCRIPT-ATOS-M1
+    title: ATOS M1 Integrity Check Script
+    path: scripts/atos-check-m1.mjs
+    state: draft
+    version: 1.0.0-m1
+    owner: Founder
+    ai_steward: Sentinel
+    layer: governance
+
+  # Level 1 — Specifications (Draft files present as of M1)
   - id: SPEC-001
     title: Core Architecture Specification
-    path: null
-    state: planned
+    ai_steward: Atlas
+    owner: Founder
+    version: 1.0.0
+    state: draft
+    path: atos/specifications/SPEC-001-core-architecture.md
     layer: specifications
   - id: SPEC-002
     title: Identity Specification
-    path: null
-    state: planned
+    ai_steward: Atlas
+    owner: Founder
+    version: 1.0.0
+    state: draft
+    path: atos/specifications/SPEC-002-identity.md
     layer: specifications
   - id: SPEC-003
     title: Knowledge Governance Specification
-    path: null
-    state: planned
+    ai_steward: Atlas
+    owner: Founder
+    version: 1.0.0
+    state: draft
+    path: atos/specifications/SPEC-003-knowledge-governance.md
     layer: specifications
   - id: SPEC-004
     title: Operations Specification
-    path: null
-    state: planned
+    ai_steward: Atlas
+    owner: Founder
+    version: 1.0.0
+    state: draft
+    path: atos/specifications/SPEC-004-operations.md
     layer: specifications
   - id: SPEC-005
     title: Runtime Infrastructure Specification
-    path: null
-    state: planned
+    ai_steward: Sentinel
+    owner: Founder
+    version: 1.0.0
+    state: draft
+    path: atos/specifications/SPEC-005-runtime-infrastructure.md
     layer: specifications
   - id: SPEC-006
     title: Executive Systems Specification
-    path: null
-    state: planned
+    ai_steward: Atlas
+    owner: Founder
+    version: 1.0.0
+    state: draft
+    path: atos/specifications/SPEC-006-executive-systems.md
     layer: specifications
 
-  # Level 2 — planned
+  # Level 2 — Standards (Draft files present as of M1)
   - id: STD-001
     title: Architecture Decision Standard (ADS)
-    path: null
-    state: planned
+    ai_steward: Atlas
+    owner: Founder
+    version: 1.0.0
+    state: draft
+    path: atos/standards/STD-001-architecture-decision-standard.md
     layer: standards
   - id: STD-002
     title: Knowledge Promotion Standard (KPS)
-    path: null
-    state: planned
+    ai_steward: Atlas
+    owner: Founder
+    version: 1.0.0
+    state: draft
+    path: atos/standards/STD-002-knowledge-promotion-standard.md
     layer: standards
   - id: STD-003
     title: Executive Decision Standard (EDS)
-    path: null
-    state: planned
+    ai_steward: Atlas
+    owner: Founder
+    version: 1.0.0
+    state: draft
+    path: atos/standards/STD-003-executive-decision-standard.md
     layer: standards
   - id: STD-004
     title: Project Governance Standard (PGS)
-    path: null
-    state: planned
+    ai_steward: Atlas
+    owner: Founder
+    version: 1.0.0
+    state: draft
+    path: atos/standards/STD-004-project-governance-standard.md
     layer: standards
   - id: STD-005
     title: Incident and Investigation Standard (IIS)
-    path: null
-    state: planned
+    ai_steward: Sentinel
+    owner: Founder
+    version: 1.0.0
+    state: draft
+    path: atos/standards/STD-005-incident-investigation-standard.md
     layer: standards
   - id: STD-006
     title: Runtime Workflow Standard (RWS)
-    path: null
-    state: planned
+    ai_steward: Atlas
+    owner: Founder
+    version: 1.0.0
+    state: draft
+    path: atos/standards/STD-006-runtime-workflow-standard.md
     layer: standards
 
   # Core manuals — planned (RES-001 priority set)
   - id: MAN-001
     title: Founder Operating Manual
     path: null
-    state: planned
     layer: manuals
   - id: MAN-002
     title: Atlas Operating Manual
     path: null
-    state: planned
     layer: manuals
   - id: MAN-003
     title: Sentinel Operating Manual
     path: null
-    state: planned
     layer: manuals
   - id: MAN-004
     title: Product Executive Manual
     path: null
-    state: planned
     layer: manuals
   - id: MAN-009
     title: Engineering Manual
     path: null
-    state: planned
     layer: manuals
   - id: MAN-012
     title: Knowledge Management Manual
     path: null
-    state: planned
     layer: manuals
   - id: MAN-013
     title: Runtime Operations Manual
     path: null
-    state: planned
     layer: manuals
+
+  - id: ATOS-NAV
+    title: ATOS Repository Navigation
+    path: atos/NAVIGATION.md
+    state: draft
+    version: 1.0.0-m1
+    owner: Founder
+    ai_steward: Atlas
+    layer: governance
+
+  - id: MS-M1
+    title: Milestone Record — M1 Repository Organization
+    path: atos/milestones/M1-repository-organization.md
+    state: draft
+    version: 1.0.0
+    owner: Founder
+    ai_steward: Atlas
+    layer: governance

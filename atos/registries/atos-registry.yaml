@@ -14,15 +14,15 @@ layers:
   - id: L1
     name: Specifications
     path: atos/specifications
-    state: scaffold
+    state: draft
     planned_count: 6
-    implemented_count: 0
+    implemented_count:  6
   - id: L2
     name: Standards
     path: atos/standards
-    state: scaffold
+    state: draft
     planned_count: 6
-    implemented_count: 0
+    implemented_count:  6
   - id: L3
     name: Operating Manuals
     path: atos/manuals
@@ -65,5 +65,5 @@ systems:
     state: draft
 
 milestones:
-  current: M0
+  current: M1
   sequence: [M0, M1, M2, M3, M4, M5, M6, M7, M8, M9]

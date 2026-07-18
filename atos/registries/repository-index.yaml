@@ -13,6 +13,8 @@ entrypoint: ATOS.md
 atos_tree:
   - path: ATOS.md
     role: entrypoint
+  - path: atos/NAVIGATION.md
+    role: human_navigation
   - path: atos/
     role: package_root
   - path: atos/governance/
@@ -25,10 +27,10 @@ atos_tree:
     role: machine_registries
   - path: atos/specifications/
     role: level_1
-    state: scaffold
+    state: draft
   - path: atos/standards/
     role: level_2
-    state: scaffold
+    state: draft
   - path: atos/manuals/
     role: level_3
     state: scaffold

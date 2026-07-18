@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "atos:check:m0": "node scripts/atos-check-m0.mjs"
+    "atos:check:m0": "node scripts/atos-check-m0.mjs",
+    "atos:check:m1": "node scripts/atos-check-m1.mjs",
+    "atos:check": "node scripts/atos-check-m0.mjs && node scripts/atos-check-m1.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.6",
