@@ -1,14 +1,49 @@
 # ATOS Registry — master index
 # Document ID: REG-ATOS
-# Version: 1.0.0-m0
+# Version: 1.0.0-m2
 # Status: Draft
 # Owner: Founder
 # AI Steward: Atlas
 
-version: 1.0.0-m0
+version: 1.0.0-m2
 updated_at: "2026-07-18"
+milestone: M2
 authorization: RES-001
 entrypoint: ATOS.md
+navigation: atos/NAVIGATION.md
+registry_operations: atos/governance/registry-operations.md
+
+registries:
+  core:
+    - id: REG-ATOS
+      file: atos/registries/atos-registry.yaml
+      role: master_index
+      state: draft
+    - id: REG-DOC
+      file: atos/registries/document-registry.yaml
+      role: document_index
+      state: draft
+    - id: REG-EXEC
+      file: atos/registries/executive-registry.yaml
+      role: executive_index
+      state: draft
+    - id: REG-PROJ
+      file: atos/registries/project-registry.yaml
+      role: project_index
+      state: draft
+  supporting:
+    - id: REG-KNOW
+      file: atos/registries/knowledge-registry.yaml
+      state: draft
+    - id: REG-ARCH
+      file: atos/registries/architecture-registry.yaml
+      state: draft
+    - id: REG-REPO
+      file: atos/registries/repository-index.yaml
+      state: draft
+    - id: REG-INDEX
+      file: atos/registries/INDEX.md
+      state: draft
 
 layers:
   - id: L1
@@ -16,25 +51,28 @@ layers:
     path: atos/specifications
     state: draft
     planned_count: 6
-    implemented_count:  6
+    implemented_count: 6
+    authoritative_count: 0
+    note: Draft pending Founder ratification
   - id: L2
     name: Standards
     path: atos/standards
     state: draft
     planned_count: 6
-    implemented_count:  6
+    implemented_count: 6
+    authoritative_count: 0
   - id: L3
     name: Operating Manuals
     path: atos/manuals
     state: scaffold
     planned_core:
-      - MAN-001 # Founder
-      - MAN-002 # Atlas
-      - MAN-003 # Sentinel
-      - MAN-004 # Product
-      - MAN-009 # Engineering
-      - MAN-012 # Knowledge Management
-      - MAN-013 # Runtime Operations
+      - MAN-001
+      - MAN-002
+      - MAN-003
+      - MAN-004
+      - MAN-009
+      - MAN-012
+      - MAN-013
     implemented_count: 0
   - id: L4
     name: Reference Documents
@@ -51,6 +89,7 @@ systems:
     name: Registries
     path: atos/registries
     state: draft
+    note: M2 operationalized core registries
   - id: SYS-SCH
     name: Schemas
     path: atos/schemas
@@ -65,5 +104,7 @@ systems:
     state: draft
 
 milestones:
-  current: M1
+  current: M2
   sequence: [M0, M1, M2, M3, M4, M5, M6, M7, M8, M9]
+  completed: [M0, M1]
+  in_progress: M2

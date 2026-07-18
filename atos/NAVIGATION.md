@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATOS-NAV |
-| **Version** | 1.0.0-m1 |
+| **Version** | 1.0.0-m2 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Review Cycle** | Each milestone |
 | **Dependencies** | RES-001, ATOS-ROOT, ADR-0001 |
-| **Related Documents** | `atos/registries/repository-index.yaml`, `atos/registries/document-registry.yaml` |
+| **Related Documents** | `atos/registries/INDEX.md`, `atos/governance/registry-operations.md` |
 | **Approval History** | 2026-07-18 — M1 Draft |
-| **Change Log** | 2026-07-18 — Initial navigation after Spec/Standard organization |
+| **Change Log** | 2026-07-18 — Initial navigation; 2026-07-18 — M2 registry index links |
 
 ---
 
@@ -85,15 +85,18 @@ See [`references/README.md`](references/README.md).
 
 ## Registries
 
-| Registry | Path |
-|---|---|
-| ATOS | [registries/atos-registry.yaml](registries/atos-registry.yaml) |
-| Documents | [registries/document-registry.yaml](registries/document-registry.yaml) |
-| Knowledge | [registries/knowledge-registry.yaml](registries/knowledge-registry.yaml) |
-| Executives | [registries/executive-registry.yaml](registries/executive-registry.yaml) |
-| Projects | [registries/project-registry.yaml](registries/project-registry.yaml) |
-| Architecture | [registries/architecture-registry.yaml](registries/architecture-registry.yaml) |
-| Repository Index | [registries/repository-index.yaml](registries/repository-index.yaml) |
+Human index: [registries/INDEX.md](registries/INDEX.md)  
+Operations: [governance/registry-operations.md](governance/registry-operations.md)
+
+| Registry | Path | M2 core |
+|---|---|---|
+| ATOS | [registries/atos-registry.yaml](registries/atos-registry.yaml) | Yes |
+| Documents | [registries/document-registry.yaml](registries/document-registry.yaml) | Yes |
+| Executives | [registries/executive-registry.yaml](registries/executive-registry.yaml) | Yes |
+| Projects | [registries/project-registry.yaml](registries/project-registry.yaml) | Yes |
+| Knowledge | [registries/knowledge-registry.yaml](registries/knowledge-registry.yaml) | Supporting |
+| Architecture | [registries/architecture-registry.yaml](registries/architecture-registry.yaml) | Supporting |
+| Repository Index | [registries/repository-index.yaml](registries/repository-index.yaml) | Supporting |
 
 ---
 

@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | GOV-REG |
-| **Version** | 1.0.0-m0 |
+| **Version** | 1.0.0-m2 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Review Cycle** | Each milestone |
 | **Dependencies** | RES-001, ADR-0001, GOV-META |
-| **Related Documents** | `atos/registries/*`, `atos/schemas/registry-entry.schema.yaml` |
+| **Related Documents** | `registry-operations.md`, `atos/registries/*`, `atos/schemas/registry-entry.schema.yaml`, `atos/schemas/registry-core.schema.yaml` |
 | **Approval History** | 2026-07-18 — M0 Draft |
-| **Change Log** | 2026-07-18 — Initial registry framework |
+| **Change Log** | 2026-07-18 — Initial registry framework; 2026-07-18 — M2 links to registry-operations |
 
 ---
 
@@ -63,5 +63,10 @@ Registry completeness means every **known ID** is listed — not that every ID h
 | Milestone | Registry work |
 |---|---|
 | M0 | Framework + skeletal YAML registries |
-| M2 | Populate and operationalize registry infrastructure |
+| M2 | Populate and operationalize registry infrastructure — see **GOV-REGOPS** |
 | M4+ | Knowledge/ops registries gain promotion and SoT semantics |
+
+## See also
+
+- [Registry Operations (GOV-REGOPS)](registry-operations.md)
+- [Registry Index](../registries/INDEX.md)

@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATOS-ROOT |
-| **Version** | 1.0.0-m1 |
+| **Version** | 1.0.0-m2 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas (Chief of Staff) |
@@ -12,7 +12,7 @@
 | **Dependencies** | RES-001 |
 | **Related Documents** | `atos/NAVIGATION.md`, `atos/governance/*`, `atos/registries/*`, SPEC-001…SPEC-006, STD-001…STD-006 |
 | **Approval History** | Authorized for v1.0 implementation by RES-001 (Founder approved) |
-| **Change Log** | 2026-07-18 — M0 entrypoint created; 2026-07-18 — M1 navigation + Spec/Standard links |
+| **Change Log** | 2026-07-18 — M0 entrypoint; M1 Specs/Standards; M2 registry infrastructure |
 
 ---
 
@@ -95,8 +95,8 @@ Every governed document **must** declare one of:
 | Milestone | Focus | Status |
 |---|---|---|
 | M0 | Governance Foundation | Complete — Founder approved |
-| M1 | Repository Organization | Complete — awaiting Founder approval |
-| M2 | Registry Infrastructure | Pending |
+| M1 | Repository Organization | Complete — Founder approved |
+| M2 | Registry Infrastructure | Complete — awaiting Founder approval |
 | M3 | Metadata Framework (applied) | Pending |
 | M4 | Knowledge Governance | Pending |
 | M5 | Runtime Infrastructure | Pending |

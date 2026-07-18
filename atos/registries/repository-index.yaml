@@ -5,7 +5,7 @@
 # Owner: Founder
 # AI Steward: Atlas
 
-version: 1.0.0-m0
+version: 1.0.0-m2
 updated_at: "2026-07-18"
 
 entrypoint: ATOS.md
@@ -19,12 +19,16 @@ atos_tree:
     role: package_root
   - path: atos/governance/
     role: governance_frameworks_and_adrs
+  - path: atos/governance/registry-operations.md
+    role: registry_operations
   - path: atos/resolutions/
     role: founder_resolutions
   - path: atos/schemas/
     role: machine_schemas
   - path: atos/registries/
     role: machine_registries
+  - path: atos/registries/INDEX.md
+    role: registry_human_index
   - path: atos/specifications/
     role: level_1
     state: draft

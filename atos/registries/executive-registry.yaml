@@ -1,27 +1,57 @@
 # Executive Registry
 # Document ID: REG-EXEC
-# Version: 1.0.0-m0
+# Version: 1.0.0-m2
 # Status: Draft
 # Owner: Founder
 # AI Steward: Atlas
 
-version: 1.0.0-m0
+version: 1.0.0-m2
 updated_at: "2026-07-18"
+milestone: M2
+governing_spec: SPEC-006
+governing_resolution: RES-001
+operations: atos/governance/registry-operations.md
+
+hierarchy:
+  - EXEC-FOUNDER
+  - EXEC-ATLAS
+  - EXEC-SENTINEL
+  - EXEC-PRODUCT
+  - EXEC-CIO
 
 executives:
   - id: EXEC-FOUNDER
     title: Founder
     status: active
     authority: constitutional
+    reports_to: null
     manual: MAN-001
     charter_state: planned
+    interfaces:
+      - Identity
+      - Knowledge Governance
+      - Operations
+      - Executive Systems
+    responsibilities:
+      - Constitutional approval
+      - Specification and Standard ratification
+      - Executive appointment
+      - Version release authority
+    may_not:
+      - Delegated away (exclusive Founder authorities per RES-001)
 
   - id: EXEC-ATLAS
     title: Atlas — Chief of Staff
     status: active
     authority: delegated
+    reports_to: EXEC-FOUNDER
     manual: MAN-002
     charter_state: planned
+    interfaces:
+      - Founder briefings
+      - Project coordination
+      - Executive reporting
+      - Ask Atlas / Founder OS (legacy runtime)
     may:
       - coordinate_implementation
       - recommend_priorities
@@ -30,13 +60,19 @@ executives:
       - produce_reports
     may_not:
       - alter_constitutional_governance
+      - create_institutional_knowledge_without_governance
 
   - id: EXEC-SENTINEL
     title: Sentinel — Chief Engineering Officer
     status: active
     authority: delegated
+    reports_to: EXEC-FOUNDER
     manual: MAN-003
     charter_state: planned
+    interfaces:
+      - Engineering Manual (MAN-009)
+      - Incident investigation (STD-005 / TEP)
+      - Architecture reviews (STD-001)
     may:
       - review_engineering
       - protect_architecture
@@ -49,28 +85,55 @@ executives:
     title: Product Executive
     status: planned
     authority: delegated
+    reports_to: EXEC-FOUNDER
     manual: MAN-004
     charter_state: planned
+    notes: RES-001 core manual priority; executive activation planned
 
   - id: EXEC-MARKETING
     title: Marketing Executive
     status: deferred
-    notes: Out of scope for ATOS v1.0 core per RES-001 incremental manuals
+    authority: delegated
+    reports_to: EXEC-FOUNDER
+    notes: Out of scope for ATOS v1.0 core per RES-001
 
   - id: EXEC-GROWTH
     title: Growth Executive
     status: deferred
+    authority: delegated
+    reports_to: EXEC-FOUNDER
 
   - id: EXEC-CUSTOMER
     title: Customer Executive
     status: deferred
+    authority: delegated
+    reports_to: EXEC-FOUNDER
 
   - id: EXEC-FINANCE
     title: Finance Executive
     status: deferred
+    authority: delegated
+    reports_to: EXEC-FOUNDER
 
   - id: EXEC-CIO
     title: Chief Implementation Officer (implementation agent)
     status: active
     authority: delegated-implementation
-    notes: Executes RES-001 milestones; cannot approve Specs/Standards
+    reports_to: EXEC-FOUNDER
+    manual: null
+    charter_state: governed_by_RES-001
+    may:
+      - execute_approved_milestones
+      - create_draft_and_scaffold_artifacts
+      - maintain_registries
+      - validate_repository_integrity
+    may_not:
+      - approve_specifications_or_standards
+      - alter_identity
+      - bypass_milestone_gates
+    notes: Temporary implementation role for ATOS v1.0 delivery under RES-001
+
+counts:
+  active: 4
+  planned: 1
+  deferred: 4

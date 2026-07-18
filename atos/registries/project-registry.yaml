@@ -1,44 +1,130 @@
 # Project Registry (ATOS index)
 # Document ID: REG-PROJ
-# Version: 1.0.0-m0
+# Version: 1.0.0-m2
 # Status: Draft
 # Owner: Founder
 # AI Steward: Atlas
-# Note: Operational SoT consolidation is a later milestone. This index tracks ATOS-recognized projects only.
 
-version: 1.0.0-m0
+version: 1.0.0-m2
 updated_at: "2026-07-18"
-source_of_truth: pending_consolidation
+milestone: M2
+governing_standard: STD-004
+operations: atos/governance/registry-operations.md
+
+# ATOS-facing project index. Legacy markdown/JSON are sources pending SoT consolidation.
+source_of_truth: atos_registry_index
+source_of_truth_note: >
+  REG-PROJ is the ATOS project index for governance and executive coordination.
+  Legacy atlas/projects.md and atlas/ops/state.json remain operational inputs until
+  a later milestone consolidates a single operational SoT. Do not invent a second
+  ATOS project ID for the same initiative.
+
 legacy_sources:
-  - atlas/projects.md
-  - atlas/projects.json
-  - atlas/ops/state.json
+  - path: atlas/projects.md
+    role: legacy_narrative
+  - path: atlas/projects.json
+    role: empty_stub
+    state: quarantined
+  - path: atlas/ops/state.json
+    role: live_ops_snapshot
 
 projects:
   - id: PROJ-ATOS-V1
     title: ATOS Version 1.0 Implementation
     purpose: Implement ATOS governance system per RES-001
-    owner: Founder
-    steward: Atlas
+    owner: EXEC-FOUNDER
+    steward: EXEC-ATLAS
+    engineering_steward: EXEC-SENTINEL
     priority: critical
     status: in_progress
-    milestone: M0
+    milestone: M2
     success_criteria: RES-001 MVI conditions met
+    dependencies:
+      - RES-001
+      - SPEC-001
+    related_documents:
+      - atos/milestones/M0-governance-foundation.md
+      - atos/milestones/M1-repository-organization.md
 
   - id: PROJ-TALKFORGE-MVP
     title: TalkForge MVP
-    purpose: End-to-end communication coaching loop
-    owner: Founder
-    steward: Atlas
+    purpose: Build the world's best AI communication gym; deliver end-to-end coaching loop
+    owner: EXEC-FOUNDER
+    steward: EXEC-ATLAS
     priority: critical
-    status: active_legacy
-    notes: Tracked pre-ATOS in atlas/projects.md; not migrated in M0
+    status: in_progress
+    legacy_name: TalkForge MVP
+    legacy_sources:
+      - atlas/projects.md
+      - atlas/ops/state.json
+    objectives:
+      - Keep practice → coach → reflect loop reliable
+      - Improve Forge Coach quality
+      - Prepare real authentication after guest MVP
+      - Launch MVP
+    known_issues:
+      - BUG-001-AUTH
+      - BUG-001-CONTINUE
 
   - id: PROJ-ATLAS-FOUNDER-OS
     title: Atlas Founder Operating System
-    purpose: Founder control center
-    owner: Founder
-    steward: Atlas
-    priority: high
-    status: active_legacy
-    notes: Product/Atlas runtime; ATOS M7 addresses Founder Workspace governance
+    purpose: Founder control center — mission control, company health, notes, daily brief
+    owner: EXEC-FOUNDER
+    steward: EXEC-ATLAS
+    priority: critical
+    status: in_progress
+    phase: "3 — Executive Dashboard"
+    legacy_name: Atlas Founder Operating System
+    legacy_sources:
+      - atlas/projects.md
+    notes: Product/Atlas runtime; ATOS M7 addresses Founder Workspace governance alignment
+
+  # Long-term (planned) — indexed without hollow project files
+  - id: PROJ-ATLAS-OS-LONGTERM
+    title: Atlas Operating System (long-term)
+    purpose: Long-term organizational OS beyond v1.0
+    owner: EXEC-FOUNDER
+    steward: EXEC-ATLAS
+    priority: deferred
+    status: planned
+    legacy_name: Atlas Operating System
+
+  - id: PROJ-COMMUNITY
+    title: Community Platform
+    status: planned
+    priority: deferred
+    owner: EXEC-FOUNDER
+    steward: null
+
+  - id: PROJ-CERTIFICATION
+    title: Communication Certification
+    status: planned
+    priority: deferred
+    owner: EXEC-FOUNDER
+    steward: null
+
+  - id: PROJ-ENTERPRISE
+    title: Enterprise Platform
+    status: planned
+    priority: deferred
+    owner: EXEC-FOUNDER
+    steward: null
+
+  - id: PROJ-VOICE
+    title: Voice Conversations
+    status: planned
+    priority: deferred
+    owner: EXEC-FOUNDER
+    steward: null
+
+  - id: PROJ-REALTIME-COACHING
+    title: Real-time AI Coaching
+    status: planned
+    priority: deferred
+    owner: EXEC-FOUNDER
+    steward: null
+
+counts:
+  in_progress: 3
+  planned: 6
+  total: 9
