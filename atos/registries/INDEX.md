@@ -8,6 +8,7 @@
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
+| **Review Cycle** | Each milestone |
 | **Dependencies** | GOV-REGOPS, RES-001 |
 | **Related Documents** | All `*.yaml` in this directory |
 | **Approval History** | 2026-07-18 — M2 |
@@ -26,6 +27,7 @@
 
 | Registry | File |
 |---|---|
+| Ownership Registry | [ownership-registry.yaml](ownership-registry.yaml) |
 | Knowledge Registry | [knowledge-registry.yaml](knowledge-registry.yaml) |
 | Architecture Registry | [architecture-registry.yaml](architecture-registry.yaml) |
 | Repository Index | [repository-index.yaml](repository-index.yaml) |

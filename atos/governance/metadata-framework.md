@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | GOV-META |
-| **Version** | 1.0.0-m0 |
+| **Version** | 1.0.0-m3 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Review Cycle** | Each milestone |
 | **Dependencies** | RES-001, GOV-AUTH |
-| **Related Documents** | `atos/schemas/document-metadata.schema.yaml` |
+| **Related Documents** | `metadata-application.md`, `atos/schemas/document-metadata.schema.yaml`, `atos/references/templates/REF-R1100-document-metadata-template.md` |
 | **Approval History** | 2026-07-18 — M0 Draft |
-| **Change Log** | 2026-07-18 — Initial metadata framework |
+| **Change Log** | 2026-07-18 — Initial metadata framework; 2026-07-18 — M3 application + template links |
 
 ---
 
@@ -48,8 +48,13 @@ Machine schema: `atos/schemas/document-metadata.schema.yaml`.
 | Milestone | Expectation |
 |---|---|
 | M0 | Framework + schema exist; all M0 docs include metadata |
-| M3 | Metadata applied/verified across all governed artifacts created to date |
+| M3 | Metadata applied/verified across all governed artifacts created to date — see **GOV-META-APP** |
 | Ongoing | No new governed doc without metadata |
+
+## See also
+
+- [Metadata Application (GOV-META-APP)](metadata-application.md)
+- [Metadata Template (REF-R1100)](../references/templates/REF-R1100-document-metadata-template.md)
 
 ## Template
 

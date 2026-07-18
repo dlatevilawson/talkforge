@@ -8,6 +8,11 @@
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
+| **Review Cycle** | Each milestone |
+| **Dependencies** | GOV-REG, GOV-REGOPS |
+| **Related Documents** | INDEX.md, ../governance/registry-operations.md |
+| **Approval History** | 2026-07-18 — M3 metadata completion |
+| **Change Log** | 2026-07-18 — Metadata fields completed in M3 |
 
 Machine-readable indexes for ATOS. See [INDEX.md](INDEX.md) and [../governance/registry-operations.md](../governance/registry-operations.md).
 

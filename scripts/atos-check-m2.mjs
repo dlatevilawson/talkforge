@@ -33,7 +33,13 @@ for (const rel of core) {
 }
 
 const atosReg = read("atos/registries/atos-registry.yaml");
-if (!atosReg.includes("milestone: M2")) fail("REG-ATOS milestone must be M2");
+// M2+ forward compatible: current milestone may advance after M2 approval
+if (
+  !/milestone:\s*M[2-9]/.test(atosReg) &&
+  !atosReg.includes("completed: [M0, M1, M2")
+) {
+  fail("REG-ATOS must reflect M2 completion or later milestone");
+}
 if (!atosReg.includes("id: REG-DOC")) fail("REG-ATOS must index REG-DOC");
 if (!atosReg.includes("id: REG-EXEC")) fail("REG-ATOS must index REG-EXEC");
 if (!atosReg.includes("id: REG-PROJ")) fail("REG-ATOS must index REG-PROJ");

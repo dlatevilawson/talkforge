@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATOS-NAV |
-| **Version** | 1.0.0-m2 |
+| **Version** | 1.0.0-m3 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -12,7 +12,7 @@
 | **Dependencies** | RES-001, ATOS-ROOT, ADR-0001 |
 | **Related Documents** | `atos/registries/INDEX.md`, `atos/governance/registry-operations.md` |
 | **Approval History** | 2026-07-18 — M1 Draft |
-| **Change Log** | 2026-07-18 — Initial navigation; 2026-07-18 — M2 registry index links |
+| **Change Log** | 2026-07-18 — Initial navigation; M2 registry index; M3 metadata links |
 
 ---
 
@@ -77,6 +77,9 @@ See [`references/README.md`](references/README.md).
 | GOV-REPO | Repository Governance | [governance/repository-governance.md](governance/repository-governance.md) |
 | GOV-AUTH | Authority Model | [governance/authority-model.md](governance/authority-model.md) |
 | GOV-META | Metadata Framework | [governance/metadata-framework.md](governance/metadata-framework.md) |
+| GOV-META-APP | Metadata Application | [governance/metadata-application.md](governance/metadata-application.md) |
+| REF-R1100 | Metadata Template | [references/templates/REF-R1100-document-metadata-template.md](references/templates/REF-R1100-document-metadata-template.md) |
+| REG-OWN | Ownership Registry | [registries/ownership-registry.yaml](registries/ownership-registry.yaml) |
 | GOV-REG | Registry Framework | [governance/registry-framework.md](governance/registry-framework.md) |
 | GOV-COMPAT | Pre-ATOS Compatibility | [governance/compatibility-atlas-pre-atos.md](governance/compatibility-atlas-pre-atos.md) |
 | GOV-IDQ | ID Namespace Quarantine | [governance/id-namespace-quarantine.md](governance/id-namespace-quarantine.md) |

@@ -8,6 +8,7 @@
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
+| **Review Cycle** | On Standard ratification or amendment |
 | **Dependencies** | SPEC-001…SPEC-006 |
 | **Related Documents** | STD-001…STD-006, ATOS-NAV |
 | **Approval History** | 2026-07-18 — M1 updated with live documents |

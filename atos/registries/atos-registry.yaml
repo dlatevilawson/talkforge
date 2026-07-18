@@ -4,10 +4,14 @@
 # Status: Draft
 # Owner: Founder
 # AI Steward: Atlas
+# Human Approver: Founder
+# Review Cycle: Each milestone
+# Approval History: 2026-07-18 — M3 header completion
+# Change Log: 2026-07-18 — Metadata headers completed in M3
 
 version: 1.0.0-m2
 updated_at: "2026-07-18"
-milestone: M2
+milestone: M3
 authorization: RES-001
 entrypoint: ATOS.md
 navigation: atos/NAVIGATION.md
@@ -43,6 +47,9 @@ registries:
       state: draft
     - id: REG-INDEX
       file: atos/registries/INDEX.md
+      state: draft
+    - id: REG-OWN
+      file: atos/registries/ownership-registry.yaml
       state: draft
 
 layers:
@@ -104,7 +111,7 @@ systems:
     state: draft
 
 milestones:
-  current: M2
+  current: M3
   sequence: [M0, M1, M2, M3, M4, M5, M6, M7, M8, M9]
-  completed: [M0, M1]
-  in_progress: M2
+  completed: [M0, M1, M2]
+  in_progress: M3

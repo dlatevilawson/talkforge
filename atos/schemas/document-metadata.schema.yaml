@@ -1,6 +1,13 @@
 # ATOS Document Metadata Schema (M0)
 # Document ID: SCH-META-001
+# Version: 1.0.0-m3
 # Status: Draft
+# Owner: Founder
+# AI Steward: Sentinel
+# Human Approver: Founder
+# Review Cycle: Each milestone
+# Approval History: 2026-07-18 — M3 header completion
+# Change Log: 2026-07-18 — Metadata headers completed in M3
 
 $schema: "https://json-schema.org/draft/2020-12/schema"
 $id: "atos/schemas/document-metadata.schema.yaml"

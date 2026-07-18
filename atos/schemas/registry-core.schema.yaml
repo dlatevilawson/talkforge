@@ -3,7 +3,11 @@
 # Version: 1.0.0-m2
 # Status: Draft
 # Owner: Founder
-# AI Steward: Atlas
+# AI Steward: Sentinel
+# Human Approver: Founder
+# Review Cycle: Each milestone
+# Approval History: 2026-07-18 — M3 header completion
+# Change Log: 2026-07-18 — Metadata headers completed in M3
 
 description: >
   Structural expectations for the four M2 core registries.

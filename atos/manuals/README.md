@@ -8,6 +8,11 @@
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
+| **Review Cycle** | Each milestone |
+| **Dependencies** | RES-001, SPEC-006 |
+| **Related Documents** | ../NAVIGATION.md, REG-EXEC |
+| **Approval History** | 2026-07-18 — M3 metadata completion |
+| **Change Log** | 2026-07-18 — Metadata fields completed in M3 |
 
 RES-001 core manuals (priority):
 
