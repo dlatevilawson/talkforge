@@ -1,0 +1,41 @@
+# Architecture Registry
+# Document ID: REG-ARCH
+# Version: 1.0.0-m0
+# Status: Draft
+# Owner: Founder
+# AI Steward: Sentinel
+
+version: 1.0.0-m0
+updated_at: "2026-07-18"
+
+adrs:
+  - id: ADR-0001
+    title: ATOS Repository Layout
+    path: atos/governance/ADR-0001-repository-layout.md
+    state: draft
+
+systems:
+  - id: ARCH-PRODUCT
+    title: TalkForge Product Application
+    roots: [app/, lib/, supabase/]
+    state: active
+  - id: ARCH-ATLAS-ENGINE
+    title: Atlas Engine (pre-ATOS runtime precursor)
+    roots: [atlas/engine/]
+    state: active_legacy
+    notes: Not ATOS Hub/Context/Memory/Sandbox; alignment is Founder-gated later
+  - id: ARCH-ATOS
+    title: ATOS Governance Tree
+    roots: [atos/, ATOS.md]
+    state: draft
+
+storage_planes:
+  - id: STORE-GIT
+    title: Git-canonical governance
+    state: active
+    holds: [specifications, standards, manuals, foundational_references, registries, adrs, resolutions]
+  - id: STORE-RUNTIME-NON-GIT
+    title: High-volume runtime records
+    state: planned
+    holds: [workflow_logs, execution_history]
+    notes: Must not default to git; amend ADR-0001 before implementation

@@ -1,0 +1,237 @@
+# Document Registry
+# Document ID: REG-DOC
+# Version: 1.0.0-m0
+# Status: Draft
+# Owner: Founder
+# AI Steward: Atlas
+
+version: 1.0.0-m0
+updated_at: "2026-07-18"
+
+documents:
+  - id: ATOS-ROOT
+    title: Atlas TalkForge Operating System (entrypoint)
+    path: ATOS.md
+    state: draft
+    version: 1.0.0-m0
+    owner: Founder
+    ai_steward: Atlas
+    layer: root
+
+  - id: ATOS-PKG
+    title: ATOS Package Root
+    path: atos/README.md
+    state: scaffold
+    version: 1.0.0-m0
+    owner: Founder
+    ai_steward: Atlas
+    layer: root
+
+  - id: RES-001
+    title: Founder Resolution for Version 1.0 Implementation
+    path: atos/resolutions/RES-001-atos-v1-implementation.md
+    state: authoritative
+    version: "1.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: resolutions
+
+  - id: ADR-0001
+    title: ATOS Repository Layout
+    path: atos/governance/ADR-0001-repository-layout.md
+    state: draft
+    version: 1.0.0
+    owner: Founder
+    ai_steward: Sentinel
+    layer: governance
+
+  - id: GOV-REPO
+    title: ATOS Repository Governance
+    path: atos/governance/repository-governance.md
+    state: draft
+    version: 1.0.0-m0
+    owner: Founder
+    ai_steward: Atlas
+    layer: governance
+
+  - id: GOV-AUTH
+    title: ATOS Authority Model
+    path: atos/governance/authority-model.md
+    state: draft
+    version: 1.0.0-m0
+    owner: Founder
+    ai_steward: Atlas
+    layer: governance
+
+  - id: GOV-META
+    title: ATOS Metadata Framework
+    path: atos/governance/metadata-framework.md
+    state: draft
+    version: 1.0.0-m0
+    owner: Founder
+    ai_steward: Atlas
+    layer: governance
+
+  - id: GOV-REG
+    title: ATOS Registry Framework
+    path: atos/governance/registry-framework.md
+    state: draft
+    version: 1.0.0-m0
+    owner: Founder
+    ai_steward: Atlas
+    layer: governance
+
+  - id: GOV-COMPAT
+    title: Pre-ATOS Compatibility Contract
+    path: atos/governance/compatibility-atlas-pre-atos.md
+    state: draft
+    version: 1.0.0-m0
+    owner: Founder
+    ai_steward: Atlas
+    layer: governance
+
+  - id: GOV-IDQ
+    title: ID Namespace Quarantine
+    path: atos/governance/id-namespace-quarantine.md
+    state: draft
+    version: 1.0.0-m0
+    owner: Founder
+    ai_steward: Sentinel
+    layer: governance
+
+  - id: SCH-META-001
+    title: Document Metadata Schema
+    path: atos/schemas/document-metadata.schema.yaml
+    state: draft
+    version: 1.0.0-m0
+    owner: Founder
+    ai_steward: Atlas
+    layer: governance
+
+  - id: SCH-REG-001
+    title: Registry Entry Schema
+    path: atos/schemas/registry-entry.schema.yaml
+    state: draft
+    version: 1.0.0-m0
+    owner: Founder
+    ai_steward: Atlas
+    layer: governance
+
+  - id: MS-M0
+    title: Milestone Record — M0 Governance Foundation
+    path: atos/milestones/M0-governance-foundation.md
+    state: draft
+    version: 1.0.0
+    owner: Founder
+    ai_steward: Atlas
+    layer: governance
+
+  - id: SCRIPT-ATOS-M0
+    title: ATOS M0 Integrity Check Script
+    path: scripts/atos-check-m0.mjs
+    state: draft
+    version: 1.0.0-m0
+    owner: Founder
+    ai_steward: Sentinel
+    layer: governance
+
+  # Level 1 — planned (files in later milestones)
+  - id: SPEC-001
+    title: Core Architecture Specification
+    path: null
+    state: planned
+    layer: specifications
+  - id: SPEC-002
+    title: Identity Specification
+    path: null
+    state: planned
+    layer: specifications
+  - id: SPEC-003
+    title: Knowledge Governance Specification
+    path: null
+    state: planned
+    layer: specifications
+  - id: SPEC-004
+    title: Operations Specification
+    path: null
+    state: planned
+    layer: specifications
+  - id: SPEC-005
+    title: Runtime Infrastructure Specification
+    path: null
+    state: planned
+    layer: specifications
+  - id: SPEC-006
+    title: Executive Systems Specification
+    path: null
+    state: planned
+    layer: specifications
+
+  # Level 2 — planned
+  - id: STD-001
+    title: Architecture Decision Standard (ADS)
+    path: null
+    state: planned
+    layer: standards
+  - id: STD-002
+    title: Knowledge Promotion Standard (KPS)
+    path: null
+    state: planned
+    layer: standards
+  - id: STD-003
+    title: Executive Decision Standard (EDS)
+    path: null
+    state: planned
+    layer: standards
+  - id: STD-004
+    title: Project Governance Standard (PGS)
+    path: null
+    state: planned
+    layer: standards
+  - id: STD-005
+    title: Incident and Investigation Standard (IIS)
+    path: null
+    state: planned
+    layer: standards
+  - id: STD-006
+    title: Runtime Workflow Standard (RWS)
+    path: null
+    state: planned
+    layer: standards
+
+  # Core manuals — planned (RES-001 priority set)
+  - id: MAN-001
+    title: Founder Operating Manual
+    path: null
+    state: planned
+    layer: manuals
+  - id: MAN-002
+    title: Atlas Operating Manual
+    path: null
+    state: planned
+    layer: manuals
+  - id: MAN-003
+    title: Sentinel Operating Manual
+    path: null
+    state: planned
+    layer: manuals
+  - id: MAN-004
+    title: Product Executive Manual
+    path: null
+    state: planned
+    layer: manuals
+  - id: MAN-009
+    title: Engineering Manual
+    path: null
+    state: planned
+    layer: manuals
+  - id: MAN-012
+    title: Knowledge Management Manual
+    path: null
+    state: planned
+    layer: manuals
+  - id: MAN-013
+    title: Runtime Operations Manual
+    path: null
+    state: planned
+    layer: manuals

@@ -1,0 +1,44 @@
+# Project Registry (ATOS index)
+# Document ID: REG-PROJ
+# Version: 1.0.0-m0
+# Status: Draft
+# Owner: Founder
+# AI Steward: Atlas
+# Note: Operational SoT consolidation is a later milestone. This index tracks ATOS-recognized projects only.
+
+version: 1.0.0-m0
+updated_at: "2026-07-18"
+source_of_truth: pending_consolidation
+legacy_sources:
+  - atlas/projects.md
+  - atlas/projects.json
+  - atlas/ops/state.json
+
+projects:
+  - id: PROJ-ATOS-V1
+    title: ATOS Version 1.0 Implementation
+    purpose: Implement ATOS governance system per RES-001
+    owner: Founder
+    steward: Atlas
+    priority: critical
+    status: in_progress
+    milestone: M0
+    success_criteria: RES-001 MVI conditions met
+
+  - id: PROJ-TALKFORGE-MVP
+    title: TalkForge MVP
+    purpose: End-to-end communication coaching loop
+    owner: Founder
+    steward: Atlas
+    priority: critical
+    status: active_legacy
+    notes: Tracked pre-ATOS in atlas/projects.md; not migrated in M0
+
+  - id: PROJ-ATLAS-FOUNDER-OS
+    title: Atlas Founder Operating System
+    purpose: Founder control center
+    owner: Founder
+    steward: Atlas
+    priority: high
+    status: active_legacy
+    notes: Product/Atlas runtime; ATOS M7 addresses Founder Workspace governance

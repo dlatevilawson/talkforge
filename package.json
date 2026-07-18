@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "atos:check:m0": "node scripts/atos-check-m0.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.6",

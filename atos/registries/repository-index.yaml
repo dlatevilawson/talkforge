@@ -1,0 +1,60 @@
+# Repository Index
+# Document ID: REG-REPO
+# Version: 1.0.0-m0
+# Status: Draft
+# Owner: Founder
+# AI Steward: Atlas
+
+version: 1.0.0-m0
+updated_at: "2026-07-18"
+
+entrypoint: ATOS.md
+
+atos_tree:
+  - path: ATOS.md
+    role: entrypoint
+  - path: atos/
+    role: package_root
+  - path: atos/governance/
+    role: governance_frameworks_and_adrs
+  - path: atos/resolutions/
+    role: founder_resolutions
+  - path: atos/schemas/
+    role: machine_schemas
+  - path: atos/registries/
+    role: machine_registries
+  - path: atos/specifications/
+    role: level_1
+    state: scaffold
+  - path: atos/standards/
+    role: level_2
+    state: scaffold
+  - path: atos/manuals/
+    role: level_3
+    state: scaffold
+  - path: atos/references/
+    role: level_4
+    state: scaffold
+  - path: atos/references/templates/
+    role: templates
+    state: scaffold
+  - path: atos/references/historical/
+    role: historical_archive
+    state: scaffold
+  - path: atos/history/
+    role: governance_history
+    state: scaffold
+  - path: atos/milestones/
+    role: milestone_records
+    state: draft
+
+legacy_and_product:
+  - path: atlas/
+    role: pre_atos_corpus_and_engine
+    note: Frozen load set for Ask Atlas (GOV-COMPAT)
+  - path: app/
+    role: product_ui_and_api
+  - path: lib/
+    role: product_libraries
+  - path: supabase/
+    role: database_schema

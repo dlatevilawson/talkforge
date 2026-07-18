@@ -1,5 +1,13 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Atlas TalkForge Operating System (ATOS)
+
+Organizational governance for TalkForge lives under ATOS (Version 1.0 implementation authorized by RES-001).
+
+- **Entrypoint:** [`ATOS.md`](./ATOS.md)
+- **Tree:** [`atos/`](./atos/)
+- **Pre-ATOS Atlas corpus** (live Ask Atlas load set) remains in [`atlas/`](./atlas/) until an approved cutover.
+
 ## Getting Started
 
 First, run the development server:

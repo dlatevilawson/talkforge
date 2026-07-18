@@ -1,0 +1,69 @@
+# ATOS Registry — master index
+# Document ID: REG-ATOS
+# Version: 1.0.0-m0
+# Status: Draft
+# Owner: Founder
+# AI Steward: Atlas
+
+version: 1.0.0-m0
+updated_at: "2026-07-18"
+authorization: RES-001
+entrypoint: ATOS.md
+
+layers:
+  - id: L1
+    name: Specifications
+    path: atos/specifications
+    state: scaffold
+    planned_count: 6
+    implemented_count: 0
+  - id: L2
+    name: Standards
+    path: atos/standards
+    state: scaffold
+    planned_count: 6
+    implemented_count: 0
+  - id: L3
+    name: Operating Manuals
+    path: atos/manuals
+    state: scaffold
+    planned_core:
+      - MAN-001 # Founder
+      - MAN-002 # Atlas
+      - MAN-003 # Sentinel
+      - MAN-004 # Product
+      - MAN-009 # Engineering
+      - MAN-012 # Knowledge Management
+      - MAN-013 # Runtime Operations
+    implemented_count: 0
+  - id: L4
+    name: Reference Documents
+    path: atos/references
+    state: scaffold
+    note: Sparse — registry completeness does not require all REF files
+
+systems:
+  - id: SYS-GOV
+    name: Governance Frameworks
+    path: atos/governance
+    state: draft
+  - id: SYS-REG
+    name: Registries
+    path: atos/registries
+    state: draft
+  - id: SYS-SCH
+    name: Schemas
+    path: atos/schemas
+    state: draft
+  - id: SYS-HIST
+    name: Historical Archive
+    path: atos/history
+    state: scaffold
+  - id: SYS-RES
+    name: Resolutions
+    path: atos/resolutions
+    state: draft
+
+milestones:
+  current: M0
+  sequence: [M0, M1, M2, M3, M4, M5, M6, M7, M8, M9]

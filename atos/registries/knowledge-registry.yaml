@@ -1,0 +1,47 @@
+# Knowledge Registry
+# Document ID: REG-KNOW
+# Version: 1.0.0-m0
+# Status: Draft
+# Owner: Founder
+# AI Steward: Atlas
+# Note: Promotion pipeline semantics arrive in M4. M0 records planes only.
+
+version: 1.0.0-m0
+updated_at: "2026-07-18"
+
+planes:
+  - id: PLANE-ATOS
+    name: ATOS Governance Plane
+    root: atos/
+    authority: target
+    state: draft
+    loadable_as_canonical: false
+    notes: Building under RES-001; Specs not yet Authoritative
+
+  - id: PLANE-LEGACY-ATLAS
+    name: Pre-ATOS Atlas Corpus
+    root: atlas/
+    authority: legacy-live
+    state: authoritative-legacy
+    loadable_as_canonical: true
+    notes: Live Ask Atlas corpus per GOV-COMPAT; not auto-promoted into ATOS
+
+promotion_pipeline:
+  state: planned
+  standard: STD-002
+  stages:
+    - Observation
+    - Investigation
+    - Evidence Collection
+    - Evidence Review
+    - Recommendation
+    - Executive Review
+    - Institutional Approval
+    - Canonical Publication
+    - Historical Preservation
+
+queues:
+  promotion_queue:
+    ref: REF-R307
+    state: planned
+    path: null
