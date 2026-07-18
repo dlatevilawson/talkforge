@@ -11,7 +11,7 @@
 
 version: 1.0.0-m2
 updated_at: "2026-07-18"
-milestone: M3
+milestone: M4
 authorization: RES-001
 entrypoint: ATOS.md
 navigation: atos/NAVIGATION.md
@@ -97,6 +97,11 @@ systems:
     path: atos/registries
     state: draft
     note: M2 operationalized core registries
+  - id: SYS-KNOW
+    name: Knowledge Stores
+    path: atos/knowledge
+    state: draft
+    note: M4 promotion pipeline and canonical/archive stores
   - id: SYS-SCH
     name: Schemas
     path: atos/schemas
@@ -111,7 +116,7 @@ systems:
     state: draft
 
 milestones:
-  current: M3
+  current: M4
   sequence: [M0, M1, M2, M3, M4, M5, M6, M7, M8, M9]
-  completed: [M0, M1, M2]
-  in_progress: M3
+  completed: [M0, M1, M2, M3]
+  in_progress: M4

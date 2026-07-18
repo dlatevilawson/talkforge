@@ -12,7 +12,8 @@
     "atos:check:m1": "node scripts/atos-check-m1.mjs",
     "atos:check:m2": "node scripts/atos-check-m2.mjs",
     "atos:check:m3": "node scripts/atos-check-m3.mjs",
-    "atos:check": "node scripts/atos-check-m0.mjs && node scripts/atos-check-m1.mjs && node scripts/atos-check-m2.mjs && node scripts/atos-check-m3.mjs"
+    "atos:check:m4": "node scripts/atos-check-m4.mjs",
+    "atos:check": "node scripts/atos-check-m0.mjs && node scripts/atos-check-m1.mjs && node scripts/atos-check-m2.mjs && node scripts/atos-check-m3.mjs && node scripts/atos-check-m4.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.6",

@@ -10,9 +10,9 @@
 | **Human Approver** | Founder |
 | **Review Cycle** | Until cutover complete |
 | **Dependencies** | ADR-0001, GOV-AUTH |
-| **Related Documents** | `atlas/engine/loader.ts`, RES-001 |
+| **Related Documents** | `atlas/engine/loader.ts`, RES-001, GOV-KNOW, KNOW-CLASS-LEGACY |
 | **Approval History** | 2026-07-18 — M0 Draft |
-| **Change Log** | 2026-07-18 — Freeze live Ask Atlas corpus during ATOS standup |
+| **Change Log** | 2026-07-18 — Freeze live Ask Atlas corpus; 2026-07-18 — M4 classification cross-link |
 
 ---
 

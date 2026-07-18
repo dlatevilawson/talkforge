@@ -1,0 +1,37 @@
+# Knowledge Promotion Queue
+# Document ID: REG-PROMO-Q
+# Version: 1.0.0-m4
+# Status: Draft
+# Owner: Founder
+# AI Steward: Atlas
+# Human Approver: Founder
+# Review Cycle: Each milestone
+# Approval History: 2026-07-18 — M4 created
+# Change Log: 2026-07-18 — Empty operational queue initialized
+
+version: 1.0.0-m4
+updated_at: "2026-07-18"
+milestone: M4
+standard: STD-002
+operations: atos/governance/knowledge-governance-operations.md
+
+# Items awaiting promotion review. Empty is valid.
+# Each item must reference a REF-R1110 request and current pipeline stage.
+items: []
+
+stages:
+  - Observation
+  - Investigation
+  - Evidence Collection
+  - Evidence Review
+  - Recommendation
+  - Executive Review
+  - Institutional Approval
+  - Canonical Publication
+  - Historical Preservation
+
+rules:
+  - no_stage_skipping: true
+  - no_executive_unilateral_canonical: true
+  - institutional_approval_required: true
+  - draft_cannot_become_canonical_without_approval: true

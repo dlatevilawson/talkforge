@@ -1,17 +1,29 @@
 # Knowledge Registry
 # Document ID: REG-KNOW
-# Version: 1.0.0-m0
+# Version: 1.0.0-m4
 # Status: Draft
 # Owner: Founder
 # AI Steward: Atlas
 # Human Approver: Founder
 # Review Cycle: Each milestone
-# Approval History: 2026-07-18 — M3 header completion
-# Change Log: 2026-07-18 — Metadata headers completed in M3
-# Note: Promotion pipeline semantics arrive in M4. M0 records planes only.
+# Approval History: 2026-07-18 — M4 knowledge governance operationalized
+# Change Log: 2026-07-18 — Promotion pipeline, stores, canonical authority, legacy classification
 
-version: 1.0.0-m0
+version: 1.0.0-m4
 updated_at: "2026-07-18"
+milestone: M4
+governing_spec: SPEC-003
+governing_standard: STD-002
+operations: atos/governance/knowledge-governance-operations.md
+
+canonical_authority:
+  rule: one_canonical_source_per_domain
+  atos_canonical_requires:
+    - completed_promotion_pipeline
+    - or_authoritative_constitutional_document
+    - founder_institutional_approval_for_promotions
+  draft_and_scaffold_are_not_canonical: true
+  legacy_atlas_is_not_auto_canonical: true
 
 planes:
   - id: PLANE-ATOS
@@ -20,7 +32,16 @@ planes:
     authority: target
     state: draft
     loadable_as_canonical: false
-    notes: Building under RES-001; Specs not yet Authoritative
+    notes: Specs/Standards Draft until Founder ratification; knowledge stores under atos/knowledge/
+
+  - id: PLANE-ATOS-CANONICAL
+    name: ATOS Canonical Library
+    root: atos/knowledge/canonical/
+    authority: canonical
+    state: empty
+    loadable_as_canonical: true
+    publications_count: 0
+    notes: Empty until approved promotions or Authoritative constitutional mapping
 
   - id: PLANE-LEGACY-ATLAS
     name: Pre-ATOS Atlas Corpus
@@ -28,11 +49,37 @@ planes:
     authority: legacy-live
     state: authoritative-legacy
     loadable_as_canonical: true
-    notes: Live Ask Atlas corpus per GOV-COMPAT; not auto-promoted into ATOS
+    notes: Live Ask Atlas corpus per GOV-COMPAT; classified in KNOW-CLASS-LEGACY; not auto-promoted
+
+stores:
+  working:
+    ref: KNOW-WORKING
+    path: atos/knowledge/working/
+    state: scaffold
+  evidence:
+    ref: KNOW-EVIDENCE
+    path: atos/knowledge/evidence/
+    state: scaffold
+  promotion_queue:
+    ref: REG-PROMO-Q
+    path: atos/knowledge/promotion/queue.yaml
+    state: draft
+  canonical:
+    ref: KNOW-CANONICAL
+    path: atos/knowledge/canonical/
+    state: scaffold
+  archive:
+    ref: KNOW-ARCHIVE
+    path: atos/knowledge/archive/
+    state: scaffold
+  classifications:
+    path: atos/knowledge/classifications/
+    state: draft
 
 promotion_pipeline:
-  state: planned
+  state: active
   standard: STD-002
+  template: REF-R1110
   stages:
     - Observation
     - Investigation
@@ -43,9 +90,43 @@ promotion_pipeline:
     - Institutional Approval
     - Canonical Publication
     - Historical Preservation
+  queue:
+    path: atos/knowledge/promotion/queue.yaml
+    open_items: 0
 
-queues:
-  promotion_queue:
-    ref: REF-R307
-    state: planned
-    path: null
+confidence_levels:
+  - Observation
+  - Hypothesis
+  - Investigated
+  - Verified
+  - Canonical
+  - Superseded
+  - Archived
+
+legacy_classification:
+  document: KNOW-CLASS-LEGACY
+  path: atos/knowledge/classifications/legacy-atlas-corpus.md
+  state: draft
+
+domains:
+  # One Canonical source per domain — placeholders until promotions/ratification
+  - id: DOMAIN-IDENTITY
+    canonical_source: null
+    interim_legacy:
+      - atlas/constitution.md
+      - atlas/founder-brief.md
+      - atlas/forge-laws.md
+      - atlas/philosophy.md
+    note: Dual plane until Founder cutover; SPEC-002 Draft is not yet Authoritative Canonical
+  - id: DOMAIN-ENGINEERING-PROTOCOL
+    canonical_source: null
+    interim_legacy:
+      - atlas/engineering-protocol.md
+    note: Reconcile with STD-005 / MAN-009 before Canonical
+  - id: DOMAIN-OPERATIONS
+    canonical_source: null
+    interim_operational:
+      - atlas/projects.md
+      - atlas/roadmap.md
+      - atlas/metrics.md
+      - atlas/ops/state.json

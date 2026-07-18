@@ -45,6 +45,12 @@ atos_tree:
   - path: atos/references/
     role: level_4
     state: scaffold
+  - path: atos/knowledge/
+    role: knowledge_governance_stores
+    state: draft
+  - path: atos/knowledge/promotion/queue.yaml
+    role: promotion_queue
+    state: draft
   - path: atos/references/templates/
     role: templates
     state: scaffold

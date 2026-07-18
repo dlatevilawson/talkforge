@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATOS-NAV |
-| **Version** | 1.0.0-m3 |
+| **Version** | 1.0.0-m4 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -12,7 +12,7 @@
 | **Dependencies** | RES-001, ATOS-ROOT, ADR-0001 |
 | **Related Documents** | `atos/registries/INDEX.md`, `atos/governance/registry-operations.md` |
 | **Approval History** | 2026-07-18 — M1 Draft |
-| **Change Log** | 2026-07-18 — Initial navigation; M2 registry index; M3 metadata links |
+| **Change Log** | 2026-07-18 — M1–M3 navigation; M4 knowledge governance links |
 
 ---
 
@@ -66,6 +66,17 @@ See [`manuals/README.md`](manuals/README.md) and Document Registry entries `MAN-
 Sparse tree. Templates and historical folders are scaffolds.
 
 See [`references/README.md`](references/README.md).
+
+## Knowledge Governance (M4)
+
+| ID | Document | Path |
+|---|---|---|
+| GOV-KNOW | Knowledge Governance Operations | [governance/knowledge-governance-operations.md](governance/knowledge-governance-operations.md) |
+| REG-KNOW | Knowledge Registry | [registries/knowledge-registry.yaml](registries/knowledge-registry.yaml) |
+| KNOW-ROOT | Knowledge Stores | [knowledge/README.md](knowledge/README.md) |
+| REG-PROMO-Q | Promotion Queue | [knowledge/promotion/queue.yaml](knowledge/promotion/queue.yaml) |
+| KNOW-CLASS-LEGACY | Legacy Corpus Classification | [knowledge/classifications/legacy-atlas-corpus.md](knowledge/classifications/legacy-atlas-corpus.md) |
+| REF-R1110 | Promotion Request Template | [references/templates/REF-R1110-knowledge-promotion-request.md](references/templates/REF-R1110-knowledge-promotion-request.md) |
 
 ---
 

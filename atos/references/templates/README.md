@@ -10,7 +10,7 @@
 | **Human Approver** | Founder |
 | **Review Cycle** | Each milestone |
 | **Dependencies** | GOV-META, REF-R1100 |
-| **Related Documents** | REF-R1100-document-metadata-template.md |
+| **Related Documents** | REF-R1100-document-metadata-template.md, REF-R1110-knowledge-promotion-request.md |
 | **Approval History** | 2026-07-18 — M3 metadata completion |
 | **Change Log** | 2026-07-18 — Linked REF-R1100 in M3 |
 

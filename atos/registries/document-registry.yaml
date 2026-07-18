@@ -1,24 +1,24 @@
 # Document Registry
 # Document ID: REG-DOC
-# Version: 1.0.0-m3
+# Version: 1.0.0-m4
 # Status: Draft
 # Owner: Founder
 # AI Steward: Atlas
 # Human Approver: Founder
 # Review Cycle: Each milestone
-# Approval History: 2026-07-18 — M3 metadata completion
-# Change Log: 2026-07-18 — Rebuilt after M3 metadata application
+# Approval History: 2026-07-18 — M4 knowledge governance
+# Change Log: 2026-07-18 — Rebuilt after M4 knowledge stores
 
-version: 1.0.0-m3
+version: 1.0.0-m4
 updated_at: "2026-07-18"
-milestone: M3
+milestone: M4
 description: >
   Canonical index of governed ATOS document IDs. Completeness means every known ID
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
 
 counts:
-  total: 61
-  with_path: 54
+  total: 73
+  with_path: 66
   planned: 7
 
 documents:
@@ -26,7 +26,7 @@ documents:
     title: "ATOS Repository Navigation"
     path: atos/NAVIGATION.md
     state: draft
-    version: "1.0.0-m2"
+    version: "1.0.0-m4"
     owner: Founder
     ai_steward: Atlas
     layer: root
@@ -42,7 +42,7 @@ documents:
     title: "Atlas TalkForge Operating System (ATOS)"
     path: ATOS.md
     state: draft
-    version: "1.0.0-m3"
+    version: "1.0.0-m4"
     owner: Founder
     ai_steward: Atlas
     layer: root
@@ -211,6 +211,14 @@ documents:
     path: scripts/atos-check-m3.mjs
     state: draft
     version: "1.0.0-m3"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: governance
+  - id: SCRIPT-ATOS-M4
+    title: "ATOS M4 Integrity Check Script"
+    path: scripts/atos-check-m4.mjs
+    state: draft
+    version: "1.0.0-m4"
     owner: Founder
     ai_steward: Sentinel
     layer: governance
@@ -383,6 +391,102 @@ documents:
     owner: Founder
     ai_steward: Atlas
     layer: manuals
+  - id: GOV-KNOW
+    title: "ATOS Knowledge Governance Operations"
+    path: atos/governance/knowledge-governance-operations.md
+    state: draft
+    version: "1.0.0-m4"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+  - id: KNOW-ARCHIVE
+    title: "Historical Knowledge Archive"
+    path: atos/knowledge/archive/README.md
+    state: scaffold
+    version: "1.0.0-m4"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+  - id: KNOW-CANONICAL
+    title: "Canonical Knowledge Library"
+    path: atos/knowledge/canonical/README.md
+    state: scaffold
+    version: "1.0.0-m4"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+  - id: KNOW-CLASS-LEGACY
+    title: "Classification — Legacy Atlas Corpus"
+    path: atos/knowledge/classifications/legacy-atlas-corpus.md
+    state: draft
+    version: "1.0.0-m4"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+  - id: KNOW-EVIDENCE
+    title: "Evidence Repository"
+    path: atos/knowledge/evidence/README.md
+    state: scaffold
+    version: "1.0.0-m4"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+  - id: KNOW-PROMOTION
+    title: "Knowledge Promotion Queue"
+    path: atos/knowledge/promotion/README.md
+    state: draft
+    version: "1.0.0-m4"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+  - id: KNOW-ROOT
+    title: "ATOS Knowledge Stores"
+    path: atos/knowledge/README.md
+    state: draft
+    version: "1.0.0-m4"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+  - id: KNOW-WORKING
+    title: "Working Knowledge Library"
+    path: atos/knowledge/working/README.md
+    state: scaffold
+    version: "1.0.0-m4"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+  - id: MS-M4
+    title: "Milestone Record — M4 Knowledge Governance"
+    path: atos/milestones/M4-knowledge-governance.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas (CIO execution)
+    layer: knowledge
+  - id: REF-R1110
+    title: "Knowledge Promotion Request Template"
+    path: atos/references/templates/REF-R1110-knowledge-promotion-request.md
+    state: draft
+    version: "1.0.0-m4"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+  - id: REG-KNOW
+    title: "Knowledge Registry"
+    path: atos/registries/knowledge-registry.yaml
+    state: draft
+    version: "1.0.0-m4"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+  - id: REG-PROMO-Q
+    title: "Knowledge Promotion Queue"
+    path: atos/knowledge/promotion/queue.yaml
+    state: draft
+    version: "1.0.0-m4"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
   - id: L4-README
     title: "Level 4 — Reference Documents & Records"
     path: atos/references/README.md
@@ -435,7 +539,7 @@ documents:
     title: "Document Registry"
     path: atos/registries/document-registry.yaml
     state: draft
-    version: "1.0.0-m2"
+    version: "1.0.0-m3"
     owner: Founder
     ai_steward: Atlas
     layer: registries
@@ -452,14 +556,6 @@ documents:
     path: atos/registries/INDEX.md
     state: draft
     version: "1.0.0-m2"
-    owner: Founder
-    ai_steward: Atlas
-    layer: registries
-  - id: REG-KNOW
-    title: "Knowledge Registry"
-    path: atos/registries/knowledge-registry.yaml
-    state: draft
-    version: "1.0.0-m0"
     owner: Founder
     ai_steward: Atlas
     layer: registries
