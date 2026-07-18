@@ -42,13 +42,19 @@ for (const rel of required) {
   if (!existsSync(path.join(root, rel))) fail(`missing ${rel}`);
 }
 
-// Metadata + Draft status (not Authoritative yet)
+// Metadata + status: Draft until ratification; Authoritative after RES-002 (M9+)
+const ratified = existsSync(
+  path.join(root, "atos/resolutions/RES-002-atos-v1-ratification.md")
+);
 for (const rel of [...specs, ...standards]) {
   const body = readFileSync(path.join(root, rel), "utf8");
   if (!body.includes("**Document ID**")) fail(`${rel} missing metadata`);
-  if (!body.includes("**Status** | Draft")) fail(`${rel} must remain Draft until Founder ratification`);
-  if (/^\| \*\*Status\*\* \| Authoritative/m.test(body)) {
-    fail(`${rel} incorrectly Authoritative`);
+  const isDraft = body.includes("**Status** | Draft");
+  const isAuth = /^\| \*\*Status\*\* \| Authoritative/m.test(body);
+  if (ratified) {
+    if (!isAuth) fail(`${rel} must be Authoritative after RES-002 ratification`);
+  } else if (!isDraft) {
+    fail(`${rel} must remain Draft until Founder ratification`);
   }
 }
 

@@ -9,9 +9,9 @@
 # Approval History: 2026-07-18 — M3 header completion
 # Change Log: 2026-07-18 — Metadata headers completed in M3
 
-version: 1.0.0-m2
+version: 1.0.0
 updated_at: "2026-07-18"
-milestone: M8
+milestone: M9
 authorization: RES-001
 entrypoint: ATOS.md
 navigation: atos/NAVIGATION.md
@@ -62,18 +62,19 @@ layers:
   - id: L1
     name: Specifications
     path: atos/specifications
-    state: draft
+    state: authoritative
     planned_count: 6
     implemented_count: 6
-    authoritative_count: 0
-    note: Draft pending Founder ratification
+    authoritative_count: 6
+    note: Authoritative via RES-002 (ATOS v1.0.0)
   - id: L2
     name: Standards
     path: atos/standards
-    state: draft
+    state: authoritative
     planned_count: 6
     implemented_count: 6
-    authoritative_count: 0
+    authoritative_count: 6
+    note: Authoritative via RES-002 (ATOS v1.0.0)
   - id: L3
     name: Operating Manuals
     path: atos/manuals
@@ -143,7 +144,7 @@ systems:
     state: draft
 
 milestones:
-  current: M8
+  current: M9
   sequence: [M0, M1, M2, M3, M4, M5, M6, M7, M8, M9]
-  completed: [M0, M1, M2, M3, M4, M5, M6, M7]
-  in_progress: M8
+  completed: [M0, M1, M2, M3, M4, M5, M6, M7, M8]
+  in_progress: M9

@@ -2,9 +2,10 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Atlas TalkForge Operating System (ATOS)
 
-Organizational governance for TalkForge lives under ATOS (Version 1.0 implementation authorized by RES-001).
+Organizational governance for TalkForge lives under **ATOS Version 1.0.0** (RES-001 / RES-002).
 
 - **Entrypoint:** [`ATOS.md`](./ATOS.md)
+- **Release:** [`atos/RELEASE-1.0.0.md`](./atos/RELEASE-1.0.0.md)
 - **Tree:** [`atos/`](./atos/)
 - **Pre-ATOS Atlas corpus** (live Ask Atlas load set) remains in [`atlas/`](./atlas/) until an approved cutover.
 

@@ -31,8 +31,8 @@
 | Criterion | Status | Evidence / notes |
 |---|---|---|
 | All six Specifications exist | GREEN | `atos/specifications/SPEC-001`…`006` |
-| Specs have approved authority | AMBER | Present as **Draft**; Founder ratification → Authoritative required for full MVI |
-| Core Standards implemented | AMBER | STD-001…006 Draft present; same ratification note |
+| Specs have approved authority | GREEN | Authoritative via RES-002 (M9) |
+| Core Standards implemented | GREEN | STD-001…006 Authoritative via RES-002 (M9) |
 | Authority relationships enforced | GREEN | GOV-AUTH, hierarchy docs, checks reject Scaffold-as-Canonical |
 
 ## Knowledge
@@ -83,7 +83,7 @@
 | Dimension | Rollup |
 |---|---|
 | Docs/OS implementability | GREEN |
-| Constitutional ratification | AMBER — Founder must decide Draft→Authoritative for Specs/Standards |
+| Constitutional ratification | GREEN — RES-002 (M9) |
 | Ops SoT consolidation | AMBER — acceptable for v1.0 with documented interim |
 | Runtime code cutover | AMBER — intentionally out of M8; Founder-gated |
 

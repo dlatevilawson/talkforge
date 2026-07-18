@@ -31,8 +31,8 @@ planes:
     root: atos/
     authority: target
     state: draft
-    loadable_as_canonical: false
-    notes: Specs/Standards Draft until Founder ratification; knowledge stores under atos/knowledge/
+    loadable_as_canonical: false  # ATOS governance plane docs; Canonical library separate
+    notes: Specs/Standards Authoritative (RES-002); Ask Atlas still legacy plane until cutover; knowledge stores under atos/knowledge/
 
   - id: PLANE-ATOS-CANONICAL
     name: ATOS Canonical Library

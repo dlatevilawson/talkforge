@@ -4,17 +4,17 @@
 |---|---|
 | **Document ID** | SPEC-005 |
 | **Version** | 1.0.0 |
-| **Status** | Draft |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Sentinel |
 | **Human Approver** | Founder |
 | **Review Cycle** | On constitutional amendment |
 | **Dependencies** | SPEC-001, SPEC-003, SPEC-004 |
 | **Related Documents** | STD-006, MAN-013 |
-| **Approval History** | 2026-07-18 — Persisted under RES-001 / M1 as Draft (content from Founder architecture dictation) |
-| **Change Log** | 2026-07-18 — M1 repository organization: file created with cross-links |
+| **Approval History** | 2026-07-18 — Persisted under RES-001 / M1 as Draft (content from Founder architecture dictation) ; 2026-07-18 — Ratified Authoritative via RES-002 (ATOS v1.0.0) |
+| **Change Log** | 2026-07-18 — M1 repository organization: file created with cross-links ; 2026-07-18 — Status → Authoritative (RES-002) |
 
-> Authority note: Content is the Founder-dictated ATOS architecture text. RES-001 authorizes persistence for Version 1.0 implementation. Per this specification’s Approval section, **Authoritative** status requires explicit Founder ratification of the document itself.
+> Authority note: **Authoritative** for ATOS Version 1.0.0 per RES-002. Amendments require Founder approval and change management.
 
 ---
 

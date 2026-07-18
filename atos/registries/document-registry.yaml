@@ -1,32 +1,33 @@
 # Document Registry
 # Document ID: REG-DOC
-# Version: 1.0.0-m8
-# Status: Draft
+# Version: 1.0.0
+# Status: Authoritative
 # Owner: Founder
 # AI Steward: Atlas
 # Human Approver: Founder
-# Review Cycle: Each milestone
-# Approval History: 2026-07-18 — M8 operational validation
-# Change Log: 2026-07-18 — Rebuilt after M8 validation artifacts
+# Review Cycle: Each ATOS version
+# Approval History: 2026-07-18 — M9 Version 1.0.0 publication
+# Change Log: 2026-07-18 — Rebuilt for ATOS v1.0.0 release
 
-version: 1.0.0-m8
+version: 1.0.0
 updated_at: "2026-07-18"
-milestone: M8
+milestone: M9
 description: >
   Canonical index of governed ATOS document IDs. Completeness means every known ID
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
 
 counts:
-  total: 110
-  with_path: 107
+  total: 116
+  with_path: 113
   planned: 3
+  authoritative: 21
 
 documents:
   - id: ATOS-NAV
     title: "ATOS Repository Navigation"
     path: atos/NAVIGATION.md
-    state: draft
-    version: "1.0.0-m7"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: root
@@ -38,17 +39,41 @@ documents:
     owner: Founder
     ai_steward: Atlas
     layer: root
+  - id: ATOS-RELEASE-1.0.0
+    title: "ATOS Version 1.0.0 — Release Notes"
+    path: atos/RELEASE-1.0.0.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: root
   - id: ATOS-ROOT
     title: "Atlas TalkForge Operating System (ATOS)"
     path: ATOS.md
-    state: draft
-    version: "1.0.0-m8"
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: root
+  - id: ATOS-VERSION
+    title: "ATOS Version Pin"
+    path: atos/VERSION
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: root
   - id: RES-001
     title: "ATOS Resolution 001 — Founder Resolution for Version 1.0 Implementation"
     path: atos/resolutions/RES-001-atos-v1-implementation.md
+    state: authoritative
+    version: "1.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: resolutions
+  - id: RES-002
+    title: "ATOS Resolution 002 — Ratification of Specifications and Standards for Version 1.0"
+    path: atos/resolutions/RES-002-atos-v1-ratification.md
     state: authoritative
     version: "1.0"
     owner: Founder
@@ -75,6 +100,14 @@ documents:
     path: atos/governance/compatibility-atlas-pre-atos.md
     state: draft
     version: "1.0.0-m0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: governance
+  - id: GOV-FREEZE-1.0.0
+    title: "ATOS Repository Freeze — Version 1.0.0"
+    path: atos/governance/GOV-FREEZE-1.0.0.md
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: governance
@@ -161,6 +194,14 @@ documents:
   - id: MS-M6
     title: "Milestone Record — M6 Executive Systems"
     path: atos/milestones/M6-executive-systems.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas (CIO execution)
+    layer: governance
+  - id: MS-M9
+    title: "Milestone Record — M9 Version 1.0 Release"
+    path: atos/milestones/M9-version-1-release.md
     state: draft
     version: "1.0.0"
     owner: Founder
@@ -262,18 +303,26 @@ documents:
     owner: Founder
     ai_steward: Sentinel
     layer: governance
+  - id: SCRIPT-ATOS-M9
+    title: "ATOS M9 Integrity Check Script"
+    path: scripts/atos-check-m9.mjs
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: governance
   - id: L1-README
     title: "Level 1 — Specifications"
     path: atos/specifications/README.md
-    state: draft
-    version: "1.0.0-m1"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: specifications
   - id: SPEC-001
     title: "Core Architecture Specification"
     path: atos/specifications/SPEC-001-core-architecture.md
-    state: draft
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
@@ -281,7 +330,7 @@ documents:
   - id: SPEC-002
     title: "Identity Specification"
     path: atos/specifications/SPEC-002-identity.md
-    state: draft
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
@@ -289,7 +338,7 @@ documents:
   - id: SPEC-003
     title: "Knowledge Governance Specification (TKGS)"
     path: atos/specifications/SPEC-003-knowledge-governance.md
-    state: draft
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
@@ -297,7 +346,7 @@ documents:
   - id: SPEC-004
     title: "Operations Specification"
     path: atos/specifications/SPEC-004-operations.md
-    state: draft
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
@@ -305,7 +354,7 @@ documents:
   - id: SPEC-005
     title: "Runtime Infrastructure Specification"
     path: atos/specifications/SPEC-005-runtime-infrastructure.md
-    state: draft
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Sentinel
@@ -313,7 +362,7 @@ documents:
   - id: SPEC-006
     title: "Executive Systems Specification"
     path: atos/specifications/SPEC-006-executive-systems.md
-    state: draft
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
@@ -321,15 +370,15 @@ documents:
   - id: L2-README
     title: "Level 2 — Standards"
     path: atos/standards/README.md
-    state: draft
-    version: "1.0.0-m1"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: standards
   - id: STD-001
     title: "Architecture Decision Standard (ADS)"
     path: atos/standards/STD-001-architecture-decision-standard.md
-    state: draft
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
@@ -337,7 +386,7 @@ documents:
   - id: STD-002
     title: "Knowledge Promotion Standard (KPS)"
     path: atos/standards/STD-002-knowledge-promotion-standard.md
-    state: draft
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
@@ -345,7 +394,7 @@ documents:
   - id: STD-003
     title: "Executive Decision Standard (EDS)"
     path: atos/standards/STD-003-executive-decision-standard.md
-    state: draft
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
@@ -353,7 +402,7 @@ documents:
   - id: STD-004
     title: "Project Governance Standard (PGS)"
     path: atos/standards/STD-004-project-governance-standard.md
-    state: draft
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
@@ -361,7 +410,7 @@ documents:
   - id: STD-005
     title: "Incident & Investigation Standard (IIS)"
     path: atos/standards/STD-005-incident-investigation-standard.md
-    state: draft
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Sentinel
@@ -369,7 +418,7 @@ documents:
   - id: STD-006
     title: "Runtime Workflow Standard (RWS)"
     path: atos/standards/STD-006-runtime-workflow-standard.md
-    state: draft
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
@@ -839,7 +888,7 @@ documents:
     title: "Document Registry"
     path: atos/registries/document-registry.yaml
     state: draft
-    version: "1.0.0-m7"
+    version: "1.0.0-m8"
     owner: Founder
     ai_steward: Atlas
     layer: registries

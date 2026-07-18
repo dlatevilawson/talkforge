@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATOS-NAV |
-| **Version** | 1.0.0-m8 |
-| **Status** | Draft |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | Each milestone |
-| **Dependencies** | RES-001, ATOS-ROOT, ADR-0001 |
-| **Related Documents** | `atos/registries/INDEX.md`, `atos/governance/registry-operations.md` |
-| **Approval History** | 2026-07-18 — M1 Draft |
-| **Change Log** | 2026-07-18 — M1–M7 navigation; M8 validation links |
+| **Review Cycle** | On ATOS version / structural nav change |
+| **Dependencies** | RES-001, RES-002, ATOS-ROOT, ADR-0001 |
+| **Related Documents** | `atos/registries/INDEX.md`, `atos/RELEASE-1.0.0.md` |
+| **Approval History** | 2026-07-18 — M1 Draft; 2026-07-18 — v1.0.0 publication |
+| **Change Log** | 2026-07-18 — M1–M8 navigation; M9 release links |
 
 ---
 
@@ -25,7 +25,7 @@
 
 ---
 
-## Level 1 — Specifications (Draft)
+## Level 1 — Specifications (Authoritative)
 
 | ID | Document | Path |
 |---|---|---|
@@ -40,7 +40,7 @@
 
 ---
 
-## Level 2 — Standards (Draft)
+## Level 2 — Standards (Authoritative)
 
 | ID | Document | Path | Parent Spec |
 |---|---|---|---|
@@ -126,6 +126,16 @@ See [`references/README.md`](references/README.md).
 | VAL-CHECK | Validation Checklist | [validation/checklist.md](validation/checklist.md) |
 | VAL-MVI | MVI Readiness Scorecard | [validation/mvi-readiness.md](validation/mvi-readiness.md) |
 | MS-M8 | Milestone M8 | [milestones/M8-operational-validation.md](milestones/M8-operational-validation.md) |
+
+## Version 1.0.0 Release (M9)
+
+| ID | Document | Path |
+|---|---|---|
+| ATOS-RELEASE-1.0.0 | Release Notes | [RELEASE-1.0.0.md](RELEASE-1.0.0.md) |
+| RES-002 | Spec/Standard Ratification | [resolutions/RES-002-atos-v1-ratification.md](resolutions/RES-002-atos-v1-ratification.md) |
+| GOV-FREEZE-1.0.0 | Freeze Policy | [governance/GOV-FREEZE-1.0.0.md](governance/GOV-FREEZE-1.0.0.md) |
+| VERSION | Version Pin | [VERSION](VERSION) |
+| MS-M9 | Milestone M9 | [milestones/M9-version-1-release.md](milestones/M9-version-1-release.md) |
 
 ---
 

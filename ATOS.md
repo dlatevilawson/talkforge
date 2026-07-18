@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATOS-ROOT |
-| **Version** | 1.0.0-m8 |
-| **Status** | Draft |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas (Chief of Staff) |
 | **Human Approver** | Founder |
-| **Review Cycle** | Per milestone / on governance change |
-| **Dependencies** | RES-001 |
-| **Related Documents** | `atos/NAVIGATION.md`, `atos/governance/*`, `atos/registries/*`, SPEC-001…SPEC-006, STD-001…STD-006 |
-| **Approval History** | Authorized for v1.0 implementation by RES-001 (Founder approved) |
-| **Change Log** | 2026-07-18 — M0–M7 foundation; M8 operational validation |
+| **Review Cycle** | Per ATOS version / on governance change |
+| **Dependencies** | RES-001, RES-002 |
+| **Related Documents** | `atos/NAVIGATION.md`, `atos/RELEASE-1.0.0.md`, `atos/VERSION` |
+| **Approval History** | RES-001 authorized implementation; RES-002 ratified Specs/Standards; M9 publishes Version 1.0.0 |
+| **Change Log** | 2026-07-18 — M0–M8 delivery; 2026-07-18 — Version 1.0.0 publication (M9) |
 
 ---
 
@@ -20,100 +20,86 @@
 
 This file is the **canonical entrypoint** for humans and AI agents working with ATOS.
 
-ATOS is the organizational operating system for TalkForge. It is not the product application. Product code lives under `app/`, `lib/`, and related paths. Pre-ATOS knowledge remains under `atlas/` until migrated through Knowledge Governance.
+**Version:** `1.0.0` (see [`atos/VERSION`](atos/VERSION) and [`atos/RELEASE-1.0.0.md`](atos/RELEASE-1.0.0.md)).
+
+ATOS is the organizational operating system for TalkForge. It is not the product application. Product code lives under `app/`, `lib/`, and related paths. Pre-ATOS knowledge remains under `atlas/` until migrated through Knowledge Governance (GOV-COMPAT).
 
 ---
 
 ## Authority
 
-Implementation of ATOS Version 1.0 is authorized by:
+| Instrument | Role |
+|---|---|
+| **RES-001** | Implementation authorization for Version 1.0 |
+| **RES-002** | Ratification of Specifications and Standards as Authoritative |
+| **SPEC-001…006** | Authoritative constitutional layer |
+| **STD-001…006** | Authoritative organizational rules |
 
-- **RES-001** — Founder Resolution for Version 1.0 Implementation (`atos/resolutions/RES-001-atos-v1-implementation.md`)
-
-Constitutional layers (Specifications, Standards) become **Authoritative** only upon formal Founder approval of those documents. Presence in the repository does not equal constitutional authority.
+Constitutional amendments and version releases remain Founder-exclusive.
 
 ---
 
 ## Governance Hierarchy
 
-| Level | Role | Path |
-|---|---|---|
-| **1 — Specifications** | Constitution | `atos/specifications/` |
-| **2 — Standards** | Organizational rules | `atos/standards/` |
-| **3 — Operating Manuals** | Day-to-day execution | `atos/manuals/` |
-| **4 — Reference Documents** | Knowledge & records | `atos/references/` |
+| Level | Role | Path | v1.0.0 state |
+|---|---|---|---|
+| **1 — Specifications** | Constitution | `atos/specifications/` | Authoritative |
+| **2 — Standards** | Organizational rules | `atos/standards/` | Authoritative |
+| **3 — Operating Manuals** | Day-to-day execution | `atos/manuals/` | Core Draft manuals |
+| **4 — Reference Documents** | Knowledge & records | `atos/references/` | Sparse + templates |
 
-Supporting systems:
-
-| System | Path |
-|---|---|
-| Resolutions | `atos/resolutions/` |
-| Governance frameworks | `atos/governance/` |
-| Registries | `atos/registries/` |
-| Schemas | `atos/schemas/` |
-| History | `atos/history/` |
-| Milestone records | `atos/milestones/` |
+Supporting systems: resolutions, governance, registries, schemas, knowledge, runtime, executives, founder, validation, history, milestones.
 
 ---
 
 ## Authority States (Anti-Hollow Rule)
 
-Every governed document **must** declare one of:
-
-| Status | Meaning | Loadable as institutional knowledge? |
-|---|---|---|
-| `Scaffold` | Placeholder structure only | **No** |
-| `Draft` | Content under development | **No** (unless Founder explicitly authorizes interim use) |
-| `Review` | Submitted for approval | **No** |
-| `Authoritative` | Founder-approved governing truth | **Yes** |
-| `Superseded` | Replaced by a newer version | Historical only |
-| `Archived` | Retained for lineage | Historical only |
-
-**Rule:** AI executives and runtime Context Injectors must not treat `Scaffold` or unapproved `Draft` documents as Canonical institutional knowledge.
+| Status | Loadable as institutional/Canonical knowledge? |
+|---|---|
+| `Scaffold` | **No** |
+| `Draft` | **No** (unless Founder explicitly authorizes interim use) |
+| `Review` | **No** |
+| `Authoritative` | **Yes** |
+| `Superseded` / `Archived` | Historical only |
 
 ---
 
 ## Quick Navigation
 
-1. [Repository Navigation](atos/NAVIGATION.md)
-2. [RES-001](atos/resolutions/RES-001-atos-v1-implementation.md)
-3. [Specifications](atos/specifications/README.md) (Draft)
-4. [Standards](atos/standards/README.md) (Draft)
-5. [Repository Governance](atos/governance/repository-governance.md)
-6. [Authority Model](atos/governance/authority-model.md)
-7. [Metadata Framework](atos/governance/metadata-framework.md)
-8. [Registry Framework](atos/governance/registry-framework.md)
-9. [ADR-0001 Repository Layout](atos/governance/ADR-0001-repository-layout.md)
-10. [Pre-ATOS Compatibility](atos/governance/compatibility-atlas-pre-atos.md)
-11. [Document Registry](atos/registries/document-registry.yaml)
-12. [ATOS Registry](atos/registries/atos-registry.yaml)
+1. [Release 1.0.0](atos/RELEASE-1.0.0.md)
+2. [Repository Navigation](atos/NAVIGATION.md)
+3. [RES-001](atos/resolutions/RES-001-atos-v1-implementation.md) · [RES-002](atos/resolutions/RES-002-atos-v1-ratification.md)
+4. [Specifications](atos/specifications/README.md) (Authoritative)
+5. [Standards](atos/standards/README.md) (Authoritative)
+6. [MVI Readiness](atos/validation/mvi-readiness.md)
+7. [Freeze Policy](atos/governance/GOV-FREEZE-1.0.0.md)
+8. [Document Registry](atos/registries/document-registry.yaml)
 
 ---
 
-## Milestone Sequence (RES-001)
+## Milestone Sequence (RES-001) — Complete
 
 | Milestone | Focus | Status |
 |---|---|---|
 | M0 | Governance Foundation | Complete — Founder approved |
 | M1 | Repository Organization | Complete — Founder approved |
 | M2 | Registry Infrastructure | Complete — Founder approved |
-| M3 | Metadata Framework (applied) | Complete — Founder approved |
+| M3 | Metadata Framework | Complete — Founder approved |
 | M4 | Knowledge Governance | Complete — Founder approved |
 | M5 | Runtime Infrastructure | Complete — Founder approved |
 | M6 | Executive Systems | Complete — Founder approved |
 | M7 | Founder Workspace | Complete — Founder approved |
-| M8 | Operational Validation | Complete — awaiting Founder approval |
-| M9 | Version 1.0 Release | Pending |
+| M8 | Operational Validation | Complete — Founder approved |
+| M9 | Version 1.0 Release | Complete — awaiting Founder approval |
 
 ---
 
 ## Agent Instructions
 
-When operating on this repository:
-
-1. Read this file and RES-001 before changing ATOS artifacts.
-2. Obey Specifications and Standards once they are `Authoritative`.
-3. Do not invent institutional knowledge.
-4. Do not modify `atlas/` load paths without an approved compatibility/cutover plan.
-5. Update registries when creating or modifying governed documents.
-6. Stop at Founder approval gates between milestones.
+1. Read this file, RES-001, and RES-002 before changing ATOS artifacts.  
+2. Obey Authoritative Specifications and Standards.  
+3. Do not invent institutional knowledge.  
+4. Do not modify `atlas/` load paths without Founder-gated cutover approval.  
+5. Update registries when creating or modifying governed documents.  
+6. Pass `npm run atos:check` before completing ATOS structural changes.  
+7. Respect GOV-FREEZE-1.0.0 for constitutional layers.  
