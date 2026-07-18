@@ -48,6 +48,12 @@ atos_tree:
   - path: atos/knowledge/
     role: knowledge_governance_stores
     state: draft
+  - path: atos/runtime/
+    role: runtime_infrastructure_docs
+    state: draft
+  - path: atos/manuals/MAN-013-runtime-operations.md
+    role: runtime_operations_manual
+    state: draft
   - path: atos/knowledge/promotion/queue.yaml
     role: promotion_queue
     state: draft

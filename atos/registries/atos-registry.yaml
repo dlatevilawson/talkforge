@@ -11,7 +11,7 @@
 
 version: 1.0.0-m2
 updated_at: "2026-07-18"
-milestone: M4
+milestone: M5
 authorization: RES-001
 entrypoint: ATOS.md
 navigation: atos/NAVIGATION.md
@@ -51,6 +51,9 @@ registries:
     - id: REG-OWN
       file: atos/registries/ownership-registry.yaml
       state: draft
+    - id: REG-RUNTIME
+      file: atos/registries/runtime-registry.yaml
+      state: draft
 
 layers:
   - id: L1
@@ -71,7 +74,7 @@ layers:
   - id: L3
     name: Operating Manuals
     path: atos/manuals
-    state: scaffold
+    state: draft
     planned_core:
       - MAN-001
       - MAN-002
@@ -80,7 +83,8 @@ layers:
       - MAN-009
       - MAN-012
       - MAN-013
-    implemented_count: 0
+    implemented_count: 1
+    note: MAN-013 Draft present (M5)
   - id: L4
     name: Reference Documents
     path: atos/references
@@ -102,6 +106,11 @@ systems:
     path: atos/knowledge
     state: draft
     note: M4 promotion pipeline and canonical/archive stores
+  - id: SYS-RUNTIME
+    name: Runtime Infrastructure Docs
+    path: atos/runtime
+    state: draft
+    note: M5 interfaces defined; code cutover Founder-gated
   - id: SYS-SCH
     name: Schemas
     path: atos/schemas
@@ -116,7 +125,7 @@ systems:
     state: draft
 
 milestones:
-  current: M4
+  current: M5
   sequence: [M0, M1, M2, M3, M4, M5, M6, M7, M8, M9]
-  completed: [M0, M1, M2, M3]
-  in_progress: M4
+  completed: [M0, M1, M2, M3, M4]
+  in_progress: M5

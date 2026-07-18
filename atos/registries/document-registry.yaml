@@ -1,25 +1,25 @@
 # Document Registry
 # Document ID: REG-DOC
-# Version: 1.0.0-m4
+# Version: 1.0.0-m5
 # Status: Draft
 # Owner: Founder
 # AI Steward: Atlas
 # Human Approver: Founder
 # Review Cycle: Each milestone
-# Approval History: 2026-07-18 — M4 knowledge governance
-# Change Log: 2026-07-18 — Rebuilt after M4 knowledge stores
+# Approval History: 2026-07-18 — M5 runtime infrastructure
+# Change Log: 2026-07-18 — Rebuilt after M5 runtime docs and MAN-013
 
-version: 1.0.0-m4
+version: 1.0.0-m5
 updated_at: "2026-07-18"
-milestone: M4
+milestone: M5
 description: >
   Canonical index of governed ATOS document IDs. Completeness means every known ID
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
 
 counts:
-  total: 73
-  with_path: 66
-  planned: 7
+  total: 84
+  with_path: 78
+  planned: 6
 
 documents:
   - id: ATOS-NAV
@@ -42,7 +42,7 @@ documents:
     title: "Atlas TalkForge Operating System (ATOS)"
     path: ATOS.md
     state: draft
-    version: "1.0.0-m4"
+    version: "1.0.0-m5"
     owner: Founder
     ai_steward: Atlas
     layer: root
@@ -222,6 +222,14 @@ documents:
     owner: Founder
     ai_steward: Sentinel
     layer: governance
+  - id: SCRIPT-ATOS-M5
+    title: "ATOS M5 Integrity Check Script"
+    path: scripts/atos-check-m5.mjs
+    state: draft
+    version: "1.0.0-m5"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: governance
   - id: L1-README
     title: "Level 1 — Specifications"
     path: atos/specifications/README.md
@@ -337,8 +345,8 @@ documents:
   - id: L3-README
     title: "Level 3 — Operating Manuals"
     path: atos/manuals/README.md
-    state: scaffold
-    version: "1.0.0-m0"
+    state: draft
+    version: "1.0.0-m5"
     owner: Founder
     ai_steward: Atlas
     layer: manuals
@@ -385,11 +393,12 @@ documents:
     ai_steward: Atlas
     layer: manuals
   - id: MAN-013
-    title: "Runtime Operations Manual"
-    path: null
-    state: planned
+    title: "Runtime Operations Manual (ROM)"
+    path: atos/manuals/MAN-013-runtime-operations.md
+    state: draft
+    version: "1.0.0-m5"
     owner: Founder
-    ai_steward: Atlas
+    ai_steward: Sentinel
     layer: manuals
   - id: GOV-KNOW
     title: "ATOS Knowledge Governance Operations"
@@ -487,6 +496,86 @@ documents:
     owner: Founder
     ai_steward: Atlas
     layer: knowledge
+  - id: GOV-RUNTIME
+    title: "ATOS Runtime Governance"
+    path: atos/governance/runtime-governance.md
+    state: draft
+    version: "1.0.0-m5"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: runtime
+  - id: MS-M5
+    title: "Milestone Record — M5 Runtime Infrastructure"
+    path: atos/milestones/M5-runtime-infrastructure.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Sentinel (CIO execution with Atlas)
+    layer: runtime
+  - id: REG-RUNTIME
+    title: "Runtime Registry"
+    path: atos/registries/runtime-registry.yaml
+    state: draft
+    version: "1.0.0-m5"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: runtime
+  - id: RUNTIME-CTX
+    title: "Context Framework"
+    path: atos/runtime/context-framework.md
+    state: draft
+    version: "1.0.0-m5"
+    owner: Founder
+    ai_steward: Atlas
+    layer: runtime
+  - id: RUNTIME-IFACE
+    title: "Runtime Component Interfaces"
+    path: atos/runtime/interfaces.md
+    state: draft
+    version: "1.0.0-m5"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: runtime
+  - id: RUNTIME-LEGACY
+    title: "Legacy Atlas Engine → ATOS Runtime Mapping"
+    path: atos/runtime/legacy-mapping.md
+    state: draft
+    version: "1.0.0-m5"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: runtime
+  - id: RUNTIME-MEM
+    title: "Memory Classification"
+    path: atos/runtime/memory-classification.md
+    state: draft
+    version: "1.0.0-m5"
+    owner: Founder
+    ai_steward: Atlas
+    layer: runtime
+  - id: RUNTIME-RECORDS
+    title: "Runtime Records (Reference Series R1001–R1006)"
+    path: atos/runtime/records.md
+    state: draft
+    version: "1.0.0-m5"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: runtime
+  - id: RUNTIME-ROOT
+    title: "ATOS Runtime Infrastructure"
+    path: atos/runtime/README.md
+    state: draft
+    version: "1.0.0-m5"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: runtime
+  - id: RUNTIME-WF
+    title: "Runtime Workflow Documentation"
+    path: atos/runtime/workflows.md
+    state: draft
+    version: "1.0.0-m5"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: runtime
   - id: L4-README
     title: "Level 4 — Reference Documents & Records"
     path: atos/references/README.md
@@ -539,7 +628,7 @@ documents:
     title: "Document Registry"
     path: atos/registries/document-registry.yaml
     state: draft
-    version: "1.0.0-m3"
+    version: "1.0.0-m4"
     owner: Founder
     ai_steward: Atlas
     layer: registries

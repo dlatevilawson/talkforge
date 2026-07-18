@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATOS-NAV |
-| **Version** | 1.0.0-m4 |
+| **Version** | 1.0.0-m5 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -12,7 +12,7 @@
 | **Dependencies** | RES-001, ATOS-ROOT, ADR-0001 |
 | **Related Documents** | `atos/registries/INDEX.md`, `atos/governance/registry-operations.md` |
 | **Approval History** | 2026-07-18 — M1 Draft |
-| **Change Log** | 2026-07-18 — M1–M3 navigation; M4 knowledge governance links |
+| **Change Log** | 2026-07-18 — M1–M4 navigation; M5 runtime infrastructure links |
 
 ---
 
@@ -77,6 +77,19 @@ See [`references/README.md`](references/README.md).
 | REG-PROMO-Q | Promotion Queue | [knowledge/promotion/queue.yaml](knowledge/promotion/queue.yaml) |
 | KNOW-CLASS-LEGACY | Legacy Corpus Classification | [knowledge/classifications/legacy-atlas-corpus.md](knowledge/classifications/legacy-atlas-corpus.md) |
 | REF-R1110 | Promotion Request Template | [references/templates/REF-R1110-knowledge-promotion-request.md](references/templates/REF-R1110-knowledge-promotion-request.md) |
+
+## Runtime Infrastructure (M5)
+
+| ID | Document | Path |
+|---|---|---|
+| GOV-RUNTIME | Runtime Governance | [governance/runtime-governance.md](governance/runtime-governance.md) |
+| RUNTIME-ROOT | Runtime Root | [runtime/README.md](runtime/README.md) |
+| RUNTIME-IFACE | Component Interfaces | [runtime/interfaces.md](runtime/interfaces.md) |
+| RUNTIME-CTX | Context Framework | [runtime/context-framework.md](runtime/context-framework.md) |
+| RUNTIME-MEM | Memory Classification | [runtime/memory-classification.md](runtime/memory-classification.md) |
+| RUNTIME-WF | Workflows | [runtime/workflows.md](runtime/workflows.md) |
+| MAN-013 | Runtime Operations Manual | [manuals/MAN-013-runtime-operations.md](manuals/MAN-013-runtime-operations.md) |
+| REG-RUNTIME | Runtime Registry | [registries/runtime-registry.yaml](registries/runtime-registry.yaml) |
 
 ---
 
