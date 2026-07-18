@@ -11,7 +11,7 @@
 
 version: 1.0.0-m2
 updated_at: "2026-07-18"
-milestone: M7
+milestone: M8
 authorization: RES-001
 entrypoint: ATOS.md
 navigation: atos/NAVIGATION.md
@@ -124,6 +124,11 @@ systems:
     path: atos/founder
     state: draft
     note: M7 dashboard contract and review workflows
+  - id: SYS-VAL
+    name: Operational Validation
+    path: atos/validation
+    state: draft
+    note: M8 MVI readiness and integrity suite
   - id: SYS-SCH
     name: Schemas
     path: atos/schemas
@@ -138,7 +143,7 @@ systems:
     state: draft
 
 milestones:
-  current: M7
+  current: M8
   sequence: [M0, M1, M2, M3, M4, M5, M6, M7, M8, M9]
-  completed: [M0, M1, M2, M3, M4, M5, M6]
-  in_progress: M7
+  completed: [M0, M1, M2, M3, M4, M5, M6, M7]
+  in_progress: M8

@@ -87,3 +87,6 @@ legacy_and_product:
   - path: atos/founder/
     role: founder_workspace
     state: draft
+  - path: atos/validation/
+    role: operational_validation
+    state: draft

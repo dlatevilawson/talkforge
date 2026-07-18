@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATOS-NAV |
-| **Version** | 1.0.0-m7 |
+| **Version** | 1.0.0-m8 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -12,7 +12,7 @@
 | **Dependencies** | RES-001, ATOS-ROOT, ADR-0001 |
 | **Related Documents** | `atos/registries/INDEX.md`, `atos/governance/registry-operations.md` |
 | **Approval History** | 2026-07-18 — M1 Draft |
-| **Change Log** | 2026-07-18 — M1–M6 navigation; M7 Founder Workspace links |
+| **Change Log** | 2026-07-18 — M1–M7 navigation; M8 validation links |
 
 ---
 
@@ -117,6 +117,15 @@ See [`references/README.md`](references/README.md).
 | FWS-REVIEWS | Review Workflows | [founder/reviews.md](founder/reviews.md) |
 | MAN-017 | Founder Intelligence Manual | [manuals/MAN-017-founder-intelligence-manual.md](manuals/MAN-017-founder-intelligence-manual.md) |
 | REG-FWS | Founder Workspace Registry | [registries/founder-workspace-registry.yaml](registries/founder-workspace-registry.yaml) |
+
+## Operational Validation (M8)
+
+| ID | Document | Path |
+|---|---|---|
+| VAL-ROOT | Validation Package | [validation/README.md](validation/README.md) |
+| VAL-CHECK | Validation Checklist | [validation/checklist.md](validation/checklist.md) |
+| VAL-MVI | MVI Readiness Scorecard | [validation/mvi-readiness.md](validation/mvi-readiness.md) |
+| MS-M8 | Milestone M8 | [milestones/M8-operational-validation.md](milestones/M8-operational-validation.md) |
 
 ---
 

@@ -1,24 +1,24 @@
 # Document Registry
 # Document ID: REG-DOC
-# Version: 1.0.0-m7
+# Version: 1.0.0-m8
 # Status: Draft
 # Owner: Founder
 # AI Steward: Atlas
 # Human Approver: Founder
 # Review Cycle: Each milestone
-# Approval History: 2026-07-18 — M7 Founder Workspace
-# Change Log: 2026-07-18 — Rebuilt after M7 Founder Workspace artifacts
+# Approval History: 2026-07-18 — M8 operational validation
+# Change Log: 2026-07-18 — Rebuilt after M8 validation artifacts
 
-version: 1.0.0-m7
+version: 1.0.0-m8
 updated_at: "2026-07-18"
-milestone: M7
+milestone: M8
 description: >
   Canonical index of governed ATOS document IDs. Completeness means every known ID
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
 
 counts:
-  total: 105
-  with_path: 102
+  total: 110
+  with_path: 107
   planned: 3
 
 documents:
@@ -42,7 +42,7 @@ documents:
     title: "Atlas TalkForge Operating System (ATOS)"
     path: ATOS.md
     state: draft
-    version: "1.0.0-m7"
+    version: "1.0.0-m8"
     owner: Founder
     ai_steward: Atlas
     layer: root
@@ -251,6 +251,14 @@ documents:
     path: scripts/atos-check-m7.mjs
     state: draft
     version: "1.0.0-m7"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: governance
+  - id: SCRIPT-ATOS-M8
+    title: "ATOS M8 Integrity Check Script"
+    path: scripts/atos-check-m8.mjs
+    state: draft
+    version: "1.0.0-m8"
     owner: Founder
     ai_steward: Sentinel
     layer: governance
@@ -723,6 +731,38 @@ documents:
     owner: Founder
     ai_steward: Sentinel
     layer: runtime
+  - id: MS-M8
+    title: "Milestone Record — M8 Operational Validation"
+    path: atos/milestones/M8-operational-validation.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Sentinel (CIO execution with Atlas)
+    layer: validation
+  - id: VAL-CHECK
+    title: "Operational Validation Checklist"
+    path: atos/validation/checklist.md
+    state: draft
+    version: "1.0.0-m8"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: validation
+  - id: VAL-MVI
+    title: "RES-001 MVI Readiness Scorecard"
+    path: atos/validation/mvi-readiness.md
+    state: draft
+    version: "1.0.0-m8"
+    owner: Founder
+    ai_steward: Atlas
+    layer: validation
+  - id: VAL-ROOT
+    title: "ATOS Operational Validation"
+    path: atos/validation/README.md
+    state: draft
+    version: "1.0.0-m8"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: validation
   - id: L4-README
     title: "Level 4 — Reference Documents & Records"
     path: atos/references/README.md
@@ -799,7 +839,7 @@ documents:
     title: "Document Registry"
     path: atos/registries/document-registry.yaml
     state: draft
-    version: "1.0.0-m6"
+    version: "1.0.0-m7"
     owner: Founder
     ai_steward: Atlas
     layer: registries

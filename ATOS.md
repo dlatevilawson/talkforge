@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATOS-ROOT |
-| **Version** | 1.0.0-m7 |
+| **Version** | 1.0.0-m8 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas (Chief of Staff) |
@@ -12,7 +12,7 @@
 | **Dependencies** | RES-001 |
 | **Related Documents** | `atos/NAVIGATION.md`, `atos/governance/*`, `atos/registries/*`, SPEC-001…SPEC-006, STD-001…STD-006 |
 | **Approval History** | Authorized for v1.0 implementation by RES-001 (Founder approved) |
-| **Change Log** | 2026-07-18 — M0–M6 foundation; M7 Founder Workspace |
+| **Change Log** | 2026-07-18 — M0–M7 foundation; M8 operational validation |
 
 ---
 
@@ -101,8 +101,8 @@ Every governed document **must** declare one of:
 | M4 | Knowledge Governance | Complete — Founder approved |
 | M5 | Runtime Infrastructure | Complete — Founder approved |
 | M6 | Executive Systems | Complete — Founder approved |
-| M7 | Founder Workspace | Complete — awaiting Founder approval |
-| M8 | Operational Validation | Pending |
+| M7 | Founder Workspace | Complete — Founder approved |
+| M8 | Operational Validation | Complete — awaiting Founder approval |
 | M9 | Version 1.0 Release | Pending |
 
 ---
