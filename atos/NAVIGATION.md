@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATOS-NAV |
-| **Version** | 1.0.0-m5 |
+| **Version** | 1.0.0-m6 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -12,7 +12,7 @@
 | **Dependencies** | RES-001, ATOS-ROOT, ADR-0001 |
 | **Related Documents** | `atos/registries/INDEX.md`, `atos/governance/registry-operations.md` |
 | **Approval History** | 2026-07-18 — M1 Draft |
-| **Change Log** | 2026-07-18 — M1–M4 navigation; M5 runtime infrastructure links |
+| **Change Log** | 2026-07-18 — M1–M5 navigation; M6 executive systems links |
 
 ---
 
@@ -90,6 +90,21 @@ See [`references/README.md`](references/README.md).
 | RUNTIME-WF | Workflows | [runtime/workflows.md](runtime/workflows.md) |
 | MAN-013 | Runtime Operations Manual | [manuals/MAN-013-runtime-operations.md](manuals/MAN-013-runtime-operations.md) |
 | REG-RUNTIME | Runtime Registry | [registries/runtime-registry.yaml](registries/runtime-registry.yaml) |
+
+## Executive Systems (M6)
+
+| ID | Document | Path |
+|---|---|---|
+| EXEC-ROOT | Executive Package | [executives/README.md](executives/README.md) |
+| CHARTER-ATLAS | Atlas Charter | [executives/charters/CHARTER-ATLAS.md](executives/charters/CHARTER-ATLAS.md) |
+| CHARTER-SENTINEL | Sentinel Charter | [executives/charters/CHARTER-SENTINEL.md](executives/charters/CHARTER-SENTINEL.md) |
+| CHARTER-FOUNDER | Founder Charter | [executives/charters/CHARTER-FOUNDER.md](executives/charters/CHARTER-FOUNDER.md) |
+| EXEC-COLLAB | Collaboration | [executives/collaboration.md](executives/collaboration.md) |
+| MAN-001 | Founder Manual | [manuals/MAN-001-founder-operating-manual.md](manuals/MAN-001-founder-operating-manual.md) |
+| MAN-002 | Atlas Manual | [manuals/MAN-002-atlas-operating-manual.md](manuals/MAN-002-atlas-operating-manual.md) |
+| MAN-003 | Sentinel Manual | [manuals/MAN-003-sentinel-operating-manual.md](manuals/MAN-003-sentinel-operating-manual.md) |
+| MAN-016 | AI Executive Manual | [manuals/MAN-016-ai-executive-manual.md](manuals/MAN-016-ai-executive-manual.md) |
+| REG-EXEC | Executive Registry | [registries/executive-registry.yaml](registries/executive-registry.yaml) |
 
 ---
 

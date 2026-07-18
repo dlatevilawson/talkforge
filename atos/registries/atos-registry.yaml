@@ -11,7 +11,7 @@
 
 version: 1.0.0-m2
 updated_at: "2026-07-18"
-milestone: M5
+milestone: M6
 authorization: RES-001
 entrypoint: ATOS.md
 navigation: atos/NAVIGATION.md
@@ -83,8 +83,8 @@ layers:
       - MAN-009
       - MAN-012
       - MAN-013
-    implemented_count: 1
-    note: MAN-013 Draft present (M5)
+    implemented_count:  5
+    note: MAN-001/002/003/013/016 Draft present (M6)
   - id: L4
     name: Reference Documents
     path: atos/references
@@ -111,6 +111,11 @@ systems:
     path: atos/runtime
     state: draft
     note: M5 interfaces defined; code cutover Founder-gated
+  - id: SYS-EXEC
+    name: Executive Systems
+    path: atos/executives
+    state: draft
+    note: M6 charters and collaboration
   - id: SYS-SCH
     name: Schemas
     path: atos/schemas
@@ -125,7 +130,7 @@ systems:
     state: draft
 
 milestones:
-  current: M5
+  current: M6
   sequence: [M0, M1, M2, M3, M4, M5, M6, M7, M8, M9]
-  completed: [M0, M1, M2, M3, M4]
-  in_progress: M5
+  completed: [M0, M1, M2, M3, M4, M5]
+  in_progress: M6

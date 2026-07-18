@@ -1,32 +1,32 @@
 # Document Registry
 # Document ID: REG-DOC
-# Version: 1.0.0-m5
+# Version: 1.0.0-m6
 # Status: Draft
 # Owner: Founder
 # AI Steward: Atlas
 # Human Approver: Founder
 # Review Cycle: Each milestone
-# Approval History: 2026-07-18 — M5 runtime infrastructure
-# Change Log: 2026-07-18 — Rebuilt after M5 runtime docs and MAN-013
+# Approval History: 2026-07-18 — M6 executive systems
+# Change Log: 2026-07-18 — Rebuilt after M6 charters and manuals
 
-version: 1.0.0-m5
+version: 1.0.0-m6
 updated_at: "2026-07-18"
-milestone: M5
+milestone: M6
 description: >
   Canonical index of governed ATOS document IDs. Completeness means every known ID
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
 
 counts:
-  total: 84
-  with_path: 78
-  planned: 6
+  total: 92
+  with_path: 89
+  planned: 3
 
 documents:
   - id: ATOS-NAV
     title: "ATOS Repository Navigation"
     path: atos/NAVIGATION.md
     state: draft
-    version: "1.0.0-m4"
+    version: "1.0.0-m6"
     owner: Founder
     ai_steward: Atlas
     layer: root
@@ -42,7 +42,7 @@ documents:
     title: "Atlas TalkForge Operating System (ATOS)"
     path: ATOS.md
     state: draft
-    version: "1.0.0-m5"
+    version: "1.0.0-m6"
     owner: Founder
     ai_steward: Atlas
     layer: root
@@ -158,6 +158,14 @@ documents:
     owner: Founder
     ai_steward: Atlas (CIO execution)
     layer: governance
+  - id: MS-M6
+    title: "Milestone Record — M6 Executive Systems"
+    path: atos/milestones/M6-executive-systems.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas (CIO execution)
+    layer: governance
   - id: SCH-META-001
     title: "ATOS Document Metadata Schema (M0)"
     path: atos/schemas/document-metadata.schema.yaml
@@ -227,6 +235,14 @@ documents:
     path: scripts/atos-check-m5.mjs
     state: draft
     version: "1.0.0-m5"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: governance
+  - id: SCRIPT-ATOS-M6
+    title: "ATOS M6 Integrity Check Script"
+    path: scripts/atos-check-m6.mjs
+    state: draft
+    version: "1.0.0-m6"
     owner: Founder
     ai_steward: Sentinel
     layer: governance
@@ -346,30 +362,33 @@ documents:
     title: "Level 3 — Operating Manuals"
     path: atos/manuals/README.md
     state: draft
-    version: "1.0.0-m5"
+    version: "1.0.0-m6"
     owner: Founder
     ai_steward: Atlas
     layer: manuals
   - id: MAN-001
-    title: "Founder Operating Manual"
-    path: null
-    state: planned
+    title: "Founder Operating Manual (FOM)"
+    path: atos/manuals/MAN-001-founder-operating-manual.md
+    state: draft
+    version: "1.0.0-m6"
     owner: Founder
     ai_steward: Atlas
     layer: manuals
   - id: MAN-002
-    title: "Atlas Operating Manual"
-    path: null
-    state: planned
+    title: "Atlas Operating Manual (AOM)"
+    path: atos/manuals/MAN-002-atlas-operating-manual.md
+    state: draft
+    version: "1.0.0-m6"
     owner: Founder
     ai_steward: Atlas
     layer: manuals
   - id: MAN-003
-    title: "Sentinel Operating Manual"
-    path: null
-    state: planned
+    title: "Sentinel Operating Manual (SOM)"
+    path: atos/manuals/MAN-003-sentinel-operating-manual.md
+    state: draft
+    version: "1.0.0-m6"
     owner: Founder
-    ai_steward: Atlas
+    ai_steward: Sentinel
     layer: manuals
   - id: MAN-004
     title: "Product Executive Manual"
@@ -400,6 +419,54 @@ documents:
     owner: Founder
     ai_steward: Sentinel
     layer: manuals
+  - id: MAN-016
+    title: "AI Executive Manual (AIEM)"
+    path: atos/manuals/MAN-016-ai-executive-manual.md
+    state: draft
+    version: "1.0.0-m6"
+    owner: Founder
+    ai_steward: Atlas
+    layer: manuals
+  - id: CHARTER-ATLAS
+    title: "Charter — Atlas (Chief of Staff)"
+    path: atos/executives/charters/CHARTER-ATLAS.md
+    state: draft
+    version: "1.0.0-m6"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: CHARTER-FOUNDER
+    title: "Charter — Founder"
+    path: atos/executives/charters/CHARTER-FOUNDER.md
+    state: draft
+    version: "1.0.0-m6"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: CHARTER-SENTINEL
+    title: "Charter — Sentinel (Chief Engineering Officer)"
+    path: atos/executives/charters/CHARTER-SENTINEL.md
+    state: draft
+    version: "1.0.0-m6"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: executives
+  - id: EXEC-COLLAB
+    title: "Executive Collaboration Interfaces"
+    path: atos/executives/collaboration.md
+    state: draft
+    version: "1.0.0-m6"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: EXEC-ROOT
+    title: "Executive Systems Package"
+    path: atos/executives/README.md
+    state: draft
+    version: "1.0.0-m6"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
   - id: GOV-KNOW
     title: "ATOS Knowledge Governance Operations"
     path: atos/governance/knowledge-governance-operations.md
@@ -628,7 +695,7 @@ documents:
     title: "Document Registry"
     path: atos/registries/document-registry.yaml
     state: draft
-    version: "1.0.0-m4"
+    version: "1.0.0-m5"
     owner: Founder
     ai_steward: Atlas
     layer: registries
@@ -636,7 +703,7 @@ documents:
     title: "Executive Registry"
     path: atos/registries/executive-registry.yaml
     state: draft
-    version: "1.0.0-m2"
+    version: "1.0.0-m6"
     owner: Founder
     ai_steward: Atlas
     layer: registries

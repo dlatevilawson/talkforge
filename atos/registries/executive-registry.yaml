@@ -1,20 +1,21 @@
 # Executive Registry
 # Document ID: REG-EXEC
-# Version: 1.0.0-m2
+# Version: 1.0.0-m6
 # Status: Draft
 # Owner: Founder
 # AI Steward: Atlas
 # Human Approver: Founder
 # Review Cycle: Each milestone
-# Approval History: 2026-07-18 — M3 header completion
-# Change Log: 2026-07-18 — Metadata headers completed in M3
+# Approval History: 2026-07-18 — M6 executive charters
+# Change Log: 2026-07-18 — Charters and manuals linked for Founder/Atlas/Sentinel
 
-version: 1.0.0-m2
+version: 1.0.0-m6
 updated_at: "2026-07-18"
-milestone: M2
+milestone: M6
 governing_spec: SPEC-006
 governing_resolution: RES-001
 operations: atos/governance/registry-operations.md
+collaboration: atos/executives/collaboration.md
 
 hierarchy:
   - EXEC-FOUNDER
@@ -30,7 +31,10 @@ executives:
     authority: constitutional
     reports_to: null
     manual: MAN-001
-    charter_state: planned
+    manual_path: atos/manuals/MAN-001-founder-operating-manual.md
+    charter: CHARTER-FOUNDER
+    charter_path: atos/executives/charters/CHARTER-FOUNDER.md
+    charter_state: draft
     interfaces:
       - Identity
       - Knowledge Governance
@@ -50,7 +54,11 @@ executives:
     authority: delegated
     reports_to: EXEC-FOUNDER
     manual: MAN-002
-    charter_state: planned
+    manual_path: atos/manuals/MAN-002-atlas-operating-manual.md
+    charter: CHARTER-ATLAS
+    charter_path: atos/executives/charters/CHARTER-ATLAS.md
+    charter_state: draft
+    ai_conduct: MAN-016
     interfaces:
       - Founder briefings
       - Project coordination
@@ -72,9 +80,13 @@ executives:
     authority: delegated
     reports_to: EXEC-FOUNDER
     manual: MAN-003
-    charter_state: planned
+    manual_path: atos/manuals/MAN-003-sentinel-operating-manual.md
+    charter: CHARTER-SENTINEL
+    charter_path: atos/executives/charters/CHARTER-SENTINEL.md
+    charter_state: draft
+    ai_conduct: MAN-016
     interfaces:
-      - Engineering Manual (MAN-009)
+      - Engineering Manual (MAN-009 planned)
       - Incident investigation (STD-005 / TEP)
       - Architecture reviews (STD-001)
     may:
@@ -92,7 +104,7 @@ executives:
     reports_to: EXEC-FOUNDER
     manual: MAN-004
     charter_state: planned
-    notes: RES-001 core manual priority; executive activation planned
+    notes: RES-001 core manual priority; activation after charter
 
   - id: EXEC-MARKETING
     title: Marketing Executive
@@ -139,5 +151,12 @@ executives:
 
 counts:
   active: 4
+  chartered_draft: 3
   planned: 1
   deferred: 4
+
+mvi:
+  atlas_charter: present
+  sentinel_charter: present
+  responsibilities_documented: true
+  collaboration_documented: true

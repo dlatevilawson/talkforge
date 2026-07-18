@@ -80,3 +80,7 @@ legacy_and_product:
     role: product_libraries
   - path: supabase/
     role: database_schema
+
+  - path: atos/executives/
+    role: executive_systems
+    state: draft
