@@ -84,3 +84,6 @@ legacy_and_product:
   - path: atos/executives/
     role: executive_systems
     state: draft
+  - path: atos/founder/
+    role: founder_workspace
+    state: draft

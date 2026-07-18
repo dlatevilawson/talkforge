@@ -10,9 +10,9 @@
 | **Human Approver** | Founder |
 | **Review Cycle** | Quarterly / on Identity change |
 | **Dependencies** | CHARTER-FOUNDER, SPEC-002, RES-001 |
-| **Related Documents** | MAN-002, MAN-017 (planned), M7 Founder Workspace |
+| **Related Documents** | MAN-002, MAN-017, FWS-ROOT, FWS-REVIEWS |
 | **Approval History** | 2026-07-18 — M6 Draft |
-| **Change Log** | 2026-07-18 — Initial Founder Operating Manual |
+| **Change Log** | 2026-07-18 — Initial Founder Operating Manual; 2026-07-18 — M7 links to FWS/MAN-017 |
 
 ---
 

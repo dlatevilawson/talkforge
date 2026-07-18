@@ -1,24 +1,24 @@
 # Document Registry
 # Document ID: REG-DOC
-# Version: 1.0.0-m6
+# Version: 1.0.0-m7
 # Status: Draft
 # Owner: Founder
 # AI Steward: Atlas
 # Human Approver: Founder
 # Review Cycle: Each milestone
-# Approval History: 2026-07-18 — M6 executive systems
-# Change Log: 2026-07-18 — Rebuilt after M6 charters and manuals
+# Approval History: 2026-07-18 — M7 Founder Workspace
+# Change Log: 2026-07-18 — Rebuilt after M7 Founder Workspace artifacts
 
-version: 1.0.0-m6
+version: 1.0.0-m7
 updated_at: "2026-07-18"
-milestone: M6
+milestone: M7
 description: >
   Canonical index of governed ATOS document IDs. Completeness means every known ID
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
 
 counts:
-  total: 92
-  with_path: 89
+  total: 105
+  with_path: 102
   planned: 3
 
 documents:
@@ -26,7 +26,7 @@ documents:
     title: "ATOS Repository Navigation"
     path: atos/NAVIGATION.md
     state: draft
-    version: "1.0.0-m6"
+    version: "1.0.0-m7"
     owner: Founder
     ai_steward: Atlas
     layer: root
@@ -42,7 +42,7 @@ documents:
     title: "Atlas TalkForge Operating System (ATOS)"
     path: ATOS.md
     state: draft
-    version: "1.0.0-m6"
+    version: "1.0.0-m7"
     owner: Founder
     ai_steward: Atlas
     layer: root
@@ -246,6 +246,14 @@ documents:
     owner: Founder
     ai_steward: Sentinel
     layer: governance
+  - id: SCRIPT-ATOS-M7
+    title: "ATOS M7 Integrity Check Script"
+    path: scripts/atos-check-m7.mjs
+    state: draft
+    version: "1.0.0-m7"
+    owner: Founder
+    ai_steward: Sentinel
+    layer: governance
   - id: L1-README
     title: "Level 1 — Specifications"
     path: atos/specifications/README.md
@@ -362,7 +370,7 @@ documents:
     title: "Level 3 — Operating Manuals"
     path: atos/manuals/README.md
     state: draft
-    version: "1.0.0-m6"
+    version: "1.0.0-m7"
     owner: Founder
     ai_steward: Atlas
     layer: manuals
@@ -427,6 +435,14 @@ documents:
     owner: Founder
     ai_steward: Atlas
     layer: manuals
+  - id: MAN-017
+    title: "Founder Intelligence Manual (FIM)"
+    path: atos/manuals/MAN-017-founder-intelligence-manual.md
+    state: draft
+    version: "1.0.0-m7"
+    owner: Founder
+    ai_steward: Atlas
+    layer: manuals
   - id: CHARTER-ATLAS
     title: "Charter — Atlas (Chief of Staff)"
     path: atos/executives/charters/CHARTER-ATLAS.md
@@ -467,6 +483,70 @@ documents:
     owner: Founder
     ai_steward: Atlas
     layer: executives
+  - id: FWS-DASH
+    title: "Founder Executive Dashboard"
+    path: atos/founder/dashboard.md
+    state: draft
+    version: "1.0.0-m7"
+    owner: Founder
+    ai_steward: Atlas
+    layer: founder
+  - id: FWS-PLAN
+    title: "Strategic Planning"
+    path: atos/founder/planning.md
+    state: draft
+    version: "1.0.0-m7"
+    owner: Founder
+    ai_steward: Atlas
+    layer: founder
+  - id: FWS-REPORTS
+    title: "Founder Reports"
+    path: atos/founder/reports.md
+    state: draft
+    version: "1.0.0-m7"
+    owner: Founder
+    ai_steward: Atlas
+    layer: founder
+  - id: FWS-REVIEWS
+    title: "Executive Review Workflows"
+    path: atos/founder/reviews.md
+    state: draft
+    version: "1.0.0-m7"
+    owner: Founder
+    ai_steward: Atlas
+    layer: founder
+  - id: FWS-ROOT
+    title: "Founder Workspace"
+    path: atos/founder/README.md
+    state: draft
+    version: "1.0.0-m7"
+    owner: Founder
+    ai_steward: Atlas
+    layer: founder
+  - id: FWS-SURFACE
+    title: "Founder Workspace ↔ Product Surface Mapping"
+    path: atos/founder/product-surface.md
+    state: draft
+    version: "1.0.0-m7"
+    owner: Founder
+    ai_steward: Atlas
+    layer: founder
+  - id: MS-M7
+    title: "Milestone Record — M7 Founder Workspace"
+    path: atos/milestones/M7-founder-workspace.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas (CIO execution)
+    layer: founder
+  - id: REG-FWS
+    title: "Founder Workspace Registry"
+    path: atos/registries/founder-workspace-registry.yaml
+    state: draft
+    version: "1.0.0-m7"
+    owner: Founder
+    ai_steward: Atlas
+    layer: founder
   - id: GOV-KNOW
     title: "ATOS Knowledge Governance Operations"
     path: atos/governance/knowledge-governance-operations.md
@@ -667,6 +747,30 @@ documents:
     owner: Founder
     ai_steward: Atlas
     layer: references
+  - id: REF-R1104
+    title: "Executive Brief Template"
+    path: atos/references/templates/REF-R1104-executive-brief-template.md
+    state: draft
+    version: "1.0.0-m7"
+    owner: Founder
+    ai_steward: Atlas
+    layer: references
+  - id: REF-R1108
+    title: "Weekly Review Template"
+    path: atos/references/templates/REF-R1108-weekly-review-template.md
+    state: draft
+    version: "1.0.0-m7"
+    owner: Founder
+    ai_steward: Atlas
+    layer: references
+  - id: REF-R1109
+    title: "Quarterly Planning Template"
+    path: atos/references/templates/REF-R1109-quarterly-planning-template.md
+    state: draft
+    version: "1.0.0-m7"
+    owner: Founder
+    ai_steward: Atlas
+    layer: references
   - id: REF-TPL-README
     title: "Templates"
     path: atos/references/templates/README.md
@@ -695,7 +799,7 @@ documents:
     title: "Document Registry"
     path: atos/registries/document-registry.yaml
     state: draft
-    version: "1.0.0-m5"
+    version: "1.0.0-m6"
     owner: Founder
     ai_steward: Atlas
     layer: registries

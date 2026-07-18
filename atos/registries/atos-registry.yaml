@@ -11,7 +11,7 @@
 
 version: 1.0.0-m2
 updated_at: "2026-07-18"
-milestone: M6
+milestone: M7
 authorization: RES-001
 entrypoint: ATOS.md
 navigation: atos/NAVIGATION.md
@@ -54,6 +54,9 @@ registries:
     - id: REG-RUNTIME
       file: atos/registries/runtime-registry.yaml
       state: draft
+    - id: REG-FWS
+      file: atos/registries/founder-workspace-registry.yaml
+      state: draft
 
 layers:
   - id: L1
@@ -83,8 +86,8 @@ layers:
       - MAN-009
       - MAN-012
       - MAN-013
-    implemented_count:  5
-    note: MAN-001/002/003/013/016 Draft present (M6)
+    implemented_count: 6
+    note: MAN-001/002/003/013/016/017 Draft present (M7)
   - id: L4
     name: Reference Documents
     path: atos/references
@@ -116,6 +119,11 @@ systems:
     path: atos/executives
     state: draft
     note: M6 charters and collaboration
+  - id: SYS-FWS
+    name: Founder Workspace
+    path: atos/founder
+    state: draft
+    note: M7 dashboard contract and review workflows
   - id: SYS-SCH
     name: Schemas
     path: atos/schemas
@@ -130,7 +138,7 @@ systems:
     state: draft
 
 milestones:
-  current: M6
+  current: M7
   sequence: [M0, M1, M2, M3, M4, M5, M6, M7, M8, M9]
-  completed: [M0, M1, M2, M3, M4, M5]
-  in_progress: M6
+  completed: [M0, M1, M2, M3, M4, M5, M6]
+  in_progress: M7

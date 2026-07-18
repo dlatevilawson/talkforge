@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATOS-NAV |
-| **Version** | 1.0.0-m6 |
+| **Version** | 1.0.0-m7 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -12,7 +12,7 @@
 | **Dependencies** | RES-001, ATOS-ROOT, ADR-0001 |
 | **Related Documents** | `atos/registries/INDEX.md`, `atos/governance/registry-operations.md` |
 | **Approval History** | 2026-07-18 — M1 Draft |
-| **Change Log** | 2026-07-18 — M1–M5 navigation; M6 executive systems links |
+| **Change Log** | 2026-07-18 — M1–M6 navigation; M7 Founder Workspace links |
 
 ---
 
@@ -105,6 +105,18 @@ See [`references/README.md`](references/README.md).
 | MAN-003 | Sentinel Manual | [manuals/MAN-003-sentinel-operating-manual.md](manuals/MAN-003-sentinel-operating-manual.md) |
 | MAN-016 | AI Executive Manual | [manuals/MAN-016-ai-executive-manual.md](manuals/MAN-016-ai-executive-manual.md) |
 | REG-EXEC | Executive Registry | [registries/executive-registry.yaml](registries/executive-registry.yaml) |
+
+## Founder Workspace (M7)
+
+| ID | Document | Path |
+|---|---|---|
+| FWS-ROOT | Founder Workspace | [founder/README.md](founder/README.md) |
+| FWS-DASH | Executive Dashboard | [founder/dashboard.md](founder/dashboard.md) |
+| FWS-REPORTS | Founder Reports | [founder/reports.md](founder/reports.md) |
+| FWS-PLAN | Strategic Planning | [founder/planning.md](founder/planning.md) |
+| FWS-REVIEWS | Review Workflows | [founder/reviews.md](founder/reviews.md) |
+| MAN-017 | Founder Intelligence Manual | [manuals/MAN-017-founder-intelligence-manual.md](manuals/MAN-017-founder-intelligence-manual.md) |
+| REG-FWS | Founder Workspace Registry | [registries/founder-workspace-registry.yaml](registries/founder-workspace-registry.yaml) |
 
 ---
 
