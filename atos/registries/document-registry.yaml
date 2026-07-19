@@ -17,10 +17,10 @@ description: >
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
 
 counts:
-  total: 123
-  with_path: 120
+  total: 126
+  with_path: 123
   planned: 3
-  authoritative: 36
+  authoritative: 38
 
 documents:
   - id: ATOS-NAV
@@ -88,6 +88,14 @@ documents:
   - id: RES-003
     title: "ATOS Resolution 003 — Ratification of Atlas Program Phase 0 Design Contract"
     path: atos/resolutions/RES-003-atlas-phase-0-design-contract.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: resolutions
+  - id: RES-004
+    title: "ATOS Resolution 004 — Ratification of Atlas Program Phase 1 Executive Architecture"
+    path: atos/resolutions/RES-004-atlas-phase-1-executive-architecture.md
     state: authoritative
     version: "1.0.0"
     owner: Founder
@@ -598,6 +606,22 @@ documents:
     path: atos/executives/atlas-program/PHASE-0-DESIGN-CONTRACT.md
     state: authoritative
     version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: ATLAS-P1
+    title: "Atlas Program — Phase 1 Executive Architecture Contract"
+    path: atos/executives/atlas-program/PHASE-1-EXECUTIVE-ARCHITECTURE.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: ATLAS-P2
+    title: "Atlas Program — Phase 2 Executive Infrastructure Design"
+    path: atos/executives/atlas-program/PHASE-2-EXECUTIVE-INFRASTRUCTURE.md
+    state: draft
+    version: "0.1.0-draft"
     owner: Founder
     ai_steward: Atlas
     layer: executives

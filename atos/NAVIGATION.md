@@ -155,6 +155,9 @@ See [`references/README.md`](references/README.md).
 | GOV-REG | Registry Framework | [governance/registry-framework.md](governance/registry-framework.md) |
 | GOV-MAINT-1.0.0 | Maintenance Mode | [governance/GOV-MAINT-1.0.0.md](governance/GOV-MAINT-1.0.0.md) |
 | ATLAS-P0 | Atlas Phase 0 Design Contract | [executives/atlas-program/PHASE-0-DESIGN-CONTRACT.md](executives/atlas-program/PHASE-0-DESIGN-CONTRACT.md) |
+| ATLAS-P1 | Atlas Phase 1 Executive Architecture | [executives/atlas-program/PHASE-1-EXECUTIVE-ARCHITECTURE.md](executives/atlas-program/PHASE-1-EXECUTIVE-ARCHITECTURE.md) |
+| RES-004 | Atlas Phase 1 Ratification | [resolutions/RES-004-atlas-phase-1-executive-architecture.md](resolutions/RES-004-atlas-phase-1-executive-architecture.md) |
+| ATLAS-P2 | Atlas Phase 2 Infrastructure Design | [executives/atlas-program/PHASE-2-EXECUTIVE-INFRASTRUCTURE.md](executives/atlas-program/PHASE-2-EXECUTIVE-INFRASTRUCTURE.md) |
 | RES-003 | Atlas Phase 0 Ratification | [resolutions/RES-003-atlas-phase-0-design-contract.md](resolutions/RES-003-atlas-phase-0-design-contract.md) |
 | GOV-COMPAT | Pre-ATOS Compatibility | [governance/compatibility-atlas-pre-atos.md](governance/compatibility-atlas-pre-atos.md) |
 | GOV-IDQ | ID Namespace Quarantine | [governance/id-namespace-quarantine.md](governance/id-namespace-quarantine.md) |
