@@ -71,8 +71,9 @@ Prove that Atlas’s **executive organization (P4)** and **internal staff (P5)**
 | Artifact | Path / ID |
 |---|---|
 | Stage run log | `atlas/runtime/evidence/org-val/STAGE-<n>-<id>.md` (+ `.json` when automated) |
-| Structural matrix | `atos/executives/atlas-program/evidence/ORG-VAL-S1-STRUCTURE.md` |
-| Team effectiveness scorecard | `atos/executives/atlas-program/evidence/ORG-VAL-S5-TEAM.md` |
+| Structural matrix | `atlas/runtime/evidence/org-val/ORG-VAL-S1-STRUCTURE.md` |
+| Stage rollup | `atlas/runtime/evidence/org-val/ORG-VAL-STATUS.md` |
+| Team effectiveness scorecard | `atlas/runtime/evidence/org-val/ORG-VAL-S5-TEAM.md` |
 | Operational Readiness Report | `atos/executives/atlas-program/ATLAS-ORR.md` (**issued only after Stages 1–6 PASS**) |
 | Program register currency | ATLAS-HANDOFF-REGISTER |
 
@@ -128,7 +129,7 @@ Any finding → Program Desk opens `atlas.program.blocked`; Engineering/Atlas co
 | Field | Value |
 |---|---|
 | **Result** | **PASS WITH FINDINGS** (2026-07-19) |
-| **Evidence** | [`evidence/ORG-VAL-S1-STRUCTURE.md`](evidence/ORG-VAL-S1-STRUCTURE.md) |
+| **Evidence** | [`atlas/runtime/evidence/org-val/ORG-VAL-S1-STRUCTURE.md`](../../../atlas/runtime/evidence/org-val/ORG-VAL-S1-STRUCTURE.md) |
 | **Blockers for later stages** | Staff facades not implemented (S1-F3) — does not reopen Stage 1 |
 
 ---
@@ -450,6 +451,6 @@ Handoff Register must show Stage 1–7 rollup while validation is active.
 | 6 Stress | Order under load | PENDING |
 | 7 ORR + Founder Decision | Certify or not | **Not issued / Not certified** |
 
-Live rollup: [`evidence/ORG-VAL-STATUS.md`](evidence/ORG-VAL-STATUS.md).
+Live rollup: [`atlas/runtime/evidence/org-val/ORG-VAL-STATUS.md`](../../../atlas/runtime/evidence/org-val/ORG-VAL-STATUS.md).
 
 **Atlas coordinates this program. Engineering builds harnesses. Founder alone certifies readiness for the next phase.**
