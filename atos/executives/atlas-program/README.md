@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-PROGRAM |
-| **Version** | 1.1.0 |
+| **Version** | 1.2.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Review Cycle** | On Atlas Program phase change |
-| **Dependencies** | RES-002…RES-006, SPEC-006 |
+| **Dependencies** | RES-002…RES-007, SPEC-006 |
 | **Related Documents** | ATLAS-P0…P4, CHARTER-*, MAN-002 |
-| **Approval History** | 2026-07-19 — Phases 0–3 ratified; Phase 4 design opened |
-| **Change Log** | 2026-07-19 — Phase 4 Executive Organization design package |
+| **Approval History** | 2026-07-19 — Phases 0–4 ratified |
+| **Change Log** | 2026-07-19 — Phase 4 ratified (RES-007) as Executive Organization Contract |
 
 ---
 
@@ -20,7 +20,7 @@
 
 The Atlas Program designs and implements Atlas as Executive Intelligence operating **under** ATOS.
 
-**Atlas is not the organization. Atlas coordinates the organization.**
+**Atlas coordinates the executive organization but does not constitute the organization.**
 
 This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program Status remains CLOSED / Maintenance Mode.
 
@@ -32,20 +32,16 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 | 1 | [PHASE-1-EXECUTIVE-ARCHITECTURE.md](PHASE-1-EXECUTIVE-ARCHITECTURE.md) (`ATLAS-P1`) | RES-004 | How Atlas is organized internally |
 | 2 | [PHASE-2-EXECUTIVE-INFRASTRUCTURE.md](PHASE-2-EXECUTIVE-INFRASTRUCTURE.md) (`ATLAS-P2`) | RES-005 | Infrastructure that realizes Phase 1 |
 | 3 | [PHASE-3-RUNTIME-ARCHITECTURE.md](PHASE-3-RUNTIME-ARCHITECTURE.md) (`ATLAS-P3`) | RES-006 | Runtime architecture that realizes Phase 2 |
+| 4 | [PHASE-4-EXECUTIVE-ORGANIZATION.md](PHASE-4-EXECUTIVE-ORGANIZATION.md) (`ATLAS-P4`) | RES-007 | Permanent executive organization Atlas coordinates |
 
-## Active design
+### Phase 4 companion contracts
 
-| Phase | Document | Status | Role |
-|---|---|---|---|
-| 4 | [PHASE-4-EXECUTIVE-ORGANIZATION.md](PHASE-4-EXECUTIVE-ORGANIZATION.md) (`ATLAS-P4`) | Review | Permanent executive organization Atlas coordinates |
-
-### Phase 4 companion specs
-
-| Doc | ID | Focus |
-|---|---|---|
-| [ORG-COMMUNICATION.md](ORG-COMMUNICATION.md) | EXEC-ORG-COMM | Governed executive interfaces |
-| [ORG-DECISION-GOVERNANCE.md](ORG-DECISION-GOVERNANCE.md) | EXEC-ORG-DECISIONS | Decision classes & deadlock |
-| [ORG-CADENCE.md](ORG-CADENCE.md) | EXEC-ORG-CADENCE | Institutional operating rhythm |
+| Doc | ID |
+|---|---|
+| [ORG-COMMUNICATION.md](ORG-COMMUNICATION.md) | EXEC-ORG-COMM |
+| [ORG-DECISION-GOVERNANCE.md](ORG-DECISION-GOVERNANCE.md) | EXEC-ORG-DECISIONS |
+| [ORG-CADENCE.md](ORG-CADENCE.md) | EXEC-ORG-CADENCE |
+| [../charters/](../charters/) | CHARTER-* |
 
 ## Runtime implementation (Phase 3 waves)
 
@@ -55,4 +51,4 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 | [GATE-FOUNDER-VISIBLE.md](GATE-FOUNDER-VISIBLE.md) | FOUNDER_VISIBLE gate |
 | [atlas/runtime/README.md](../../../atlas/runtime/README.md) | Target plane |
 
-All Atlas work must satisfy Phases 0–3; Phase 4 (once ratified) binds organizational architecture. Conflicts change the design — not ratified contracts.
+Future organizational growth shall **extend** Phase 4 rather than bypass it. Conflicts with ratified contracts change the design — not the contracts.

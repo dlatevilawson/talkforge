@@ -3,15 +3,15 @@
 | Field | Value |
 |---|---|
 | **Document ID** | EXEC-ORG-DECISIONS |
-| **Version** | 1.0.0-review |
-| **Status** | Review |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | Until Phase 4 ratification / on org change |
+| **Review Cycle** | Until Founder-amended |
 | **Dependencies** | ATLAS-P4, SPEC-006, STD-003, STD-001, STD-002, GOV-AUTH |
 | **Related Documents** | EXEC-ORG-COMM, CHARTER-* |
-| **Approval History** | 2026-07-19 — Phase 4 Step 4 |
+| **Approval History** | 2026-07-19 — Phase 4 Step 4 ; 2026-07-19 — RES-007 Authoritative|
 | **Change Log** | 2026-07-19 — Organizational decision system |
 
 ---

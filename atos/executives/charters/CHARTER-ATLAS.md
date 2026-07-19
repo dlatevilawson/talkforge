@@ -3,15 +3,15 @@
 | Field | Value |
 |---|---|
 | **Document ID** | CHARTER-ATLAS |
-| **Version** | 1.1.0-p4 |
-| **Status** | Review |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | On ATLAS-P4 / SPEC-006 change |
+| **Review Cycle** | On Founder amendment / SPEC-006 change |
 | **Dependencies** | ATLAS-P0…P4, SPEC-006, STD-003, STD-002, RES-003…RES-006, MAN-002, MAN-016 |
 | **Related Documents** | REG-EXEC, EXEC-ORG-COMM, EXEC-ORG-DECISIONS, EXEC-ORG-CADENCE |
-| **Approval History** | 2026-07-18 — M6 Draft; 2026-07-19 — Bound P0–P3; 2026-07-19 — Phase 4 org charter |
+| **Approval History** | 2026-07-18 — M6 Draft; 2026-07-19 — Bound P0–P3; 2026-07-19 — Phase 4 org charter ; 2026-07-19 — RES-007 Authoritative|
 | **Change Log** | 2026-07-19 — Permanent org: coordinate, never absorb |
 
 ---

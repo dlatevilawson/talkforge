@@ -7,7 +7,7 @@
 # Human Approver: Founder
 # Review Cycle: Each ATOS version
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
-# Change Log: 2026-07-19 — ATLAS-P4 Executive Organization design package
+# Change Log: 2026-07-19 — RES-007 / ATLAS-P4 Executive Organization Contract ratified
 
 version: 1.0.0
 updated_at: "2026-07-19"
@@ -612,8 +612,8 @@ documents:
   - id: CHARTER-ATLAS
     title: "Charter — Atlas (Chief of Staff)"
     path: atos/executives/charters/CHARTER-ATLAS.md
-    state: review
-    version: "1.1.0-p4"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
@@ -652,32 +652,32 @@ documents:
   - id: ATLAS-P4
     title: "Atlas Program — Phase 4 Executive Organization"
     path: atos/executives/atlas-program/PHASE-4-EXECUTIVE-ORGANIZATION.md
-    state: review
-    version: "1.0.0-review"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
   - id: EXEC-ORG-COMM
     title: "Executive Organization — Communication Interfaces"
     path: atos/executives/atlas-program/ORG-COMMUNICATION.md
-    state: review
-    version: "1.0.0-review"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
   - id: EXEC-ORG-DECISIONS
     title: "Executive Organization — Decision Governance"
     path: atos/executives/atlas-program/ORG-DECISION-GOVERNANCE.md
-    state: review
-    version: "1.0.0-review"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
   - id: EXEC-ORG-CADENCE
     title: "Executive Organization — Operating Cadence"
     path: atos/executives/atlas-program/ORG-CADENCE.md
-    state: review
-    version: "1.0.0-review"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
@@ -717,7 +717,7 @@ documents:
     title: "Atlas Program"
     path: atos/executives/atlas-program/README.md
     state: authoritative
-    version: "1.1.0"
+    version: "1.2.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
@@ -725,8 +725,8 @@ documents:
   - id: CHARTER-FOUNDER
     title: "Charter — Founder"
     path: atos/executives/charters/CHARTER-FOUNDER.md
-    state: review
-    version: "1.1.0-p4"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
@@ -734,8 +734,8 @@ documents:
   - id: CHARTER-SENTINEL
     title: "Charter — Sentinel (Chief Engineering Officer)"
     path: atos/executives/charters/CHARTER-SENTINEL.md
-    state: review
-    version: "1.1.0-p4"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Sentinel
     layer: executives
@@ -743,8 +743,8 @@ documents:
   - id: CHARTER-PRODUCT
     title: "Charter — Product Executive"
     path: atos/executives/charters/CHARTER-PRODUCT.md
-    state: review
-    version: "1.0.0-p4"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
@@ -752,8 +752,8 @@ documents:
   - id: CHARTER-ENGINEERING
     title: "Charter — Engineering Executive"
     path: atos/executives/charters/CHARTER-ENGINEERING.md
-    state: review
-    version: "1.0.0-p4"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
@@ -761,8 +761,8 @@ documents:
   - id: CHARTER-GROWTH
     title: "Charter — Growth Executive"
     path: atos/executives/charters/CHARTER-GROWTH.md
-    state: review
-    version: "1.0.0-p4"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
@@ -770,8 +770,8 @@ documents:
   - id: CHARTER-KNOWLEDGE
     title: "Charter — Knowledge Executive"
     path: atos/executives/charters/CHARTER-KNOWLEDGE.md
-    state: review
-    version: "1.0.0-p4"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
@@ -779,8 +779,8 @@ documents:
   - id: CHARTER-CUSTOMER
     title: "Charter — Customer Executive"
     path: atos/executives/charters/CHARTER-CUSTOMER.md
-    state: review
-    version: "1.0.0-p4"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
@@ -788,8 +788,8 @@ documents:
   - id: CHARTER-FINANCE
     title: "Charter — Finance Executive"
     path: atos/executives/charters/CHARTER-FINANCE.md
-    state: review
-    version: "1.0.0-p4"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
@@ -797,8 +797,8 @@ documents:
   - id: CHARTER-OPERATIONS
     title: "Charter — Operations Executive"
     path: atos/executives/charters/CHARTER-OPERATIONS.md
-    state: review
-    version: "1.0.0-p4"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives

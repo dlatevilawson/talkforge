@@ -3,15 +3,15 @@
 | Field | Value |
 |---|---|
 | **Document ID** | CHARTER-CUSTOMER |
-| **Version** | 1.0.0-p4 |
-| **Status** | Review |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | On ATLAS-P4 / appointment |
+| **Review Cycle** | On Founder amendment / appointment |
 | **Dependencies** | ATLAS-P4, SPEC-006, STD-003, CHARTER-PRODUCT, CHARTER-GROWTH |
 | **Related Documents** | EXEC-ORG-COMM |
-| **Approval History** | 2026-07-19 — Phase 4 designed |
+| **Approval History** | 2026-07-19 — Phase 4 designed ; 2026-07-19 — RES-007 Authoritative|
 | **Change Log** | 2026-07-19 — Initial Customer charter |
 
 ---

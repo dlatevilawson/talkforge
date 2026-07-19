@@ -7,9 +7,9 @@
 # Human Approver: Founder
 # Review Cycle: Each milestone / Phase 4 ratification
 # Approval History: 2026-07-18 — M6 executive charters
-# Change Log: 2026-07-19 — Phase 4 permanent offices designed (ATLAS-P4)
+# Change Log: 2026-07-19 — ATLAS-P4 ratified (RES-007)
 
-version: 1.1.0-p4
+version: 1.2.0
 updated_at: "2026-07-19"
 milestone: M6
 governing_spec: SPEC-006
@@ -46,7 +46,7 @@ executives:
     manual_path: atos/manuals/MAN-001-founder-operating-manual.md
     charter: CHARTER-FOUNDER
     charter_path: atos/executives/charters/CHARTER-FOUNDER.md
-    charter_state: review
+    charter_state: authoritative
     domain: constitutional_authority
     interfaces:
       - Identity
@@ -71,13 +71,15 @@ executives:
     manual_path: atos/manuals/MAN-002-atlas-operating-manual.md
     charter: CHARTER-ATLAS
     charter_path: atos/executives/charters/CHARTER-ATLAS.md
-    charter_state: review
+    charter_state: authoritative
     domain: executive_coordination
     design_contract: ATLAS-P0
     architecture_contract: ATLAS-P1
     infrastructure_contract: ATLAS-P2
     runtime_architecture_contract: ATLAS-P3
     organization_contract: ATLAS-P4
+    organization_contract_path: atos/executives/atlas-program/PHASE-4-EXECUTIVE-ORGANIZATION.md
+    organization_contract_resolution: RES-007
     ai_conduct: MAN-016
     interfaces:
       - Founder briefings
@@ -106,7 +108,7 @@ executives:
     manual_path: atos/manuals/MAN-003-sentinel-operating-manual.md
     charter: CHARTER-SENTINEL
     charter_path: atos/executives/charters/CHARTER-SENTINEL.md
-    charter_state: review
+    charter_state: authoritative
     domain: engineering_integrity
     ai_conduct: MAN-016
     interfaces:
@@ -132,7 +134,7 @@ executives:
     manual: MAN-004
     charter: CHARTER-PRODUCT
     charter_path: atos/executives/charters/CHARTER-PRODUCT.md
-    charter_state: review
+    charter_state: authoritative
     domain: product_value_roadmap
     notes: Phase 4 designed; activation by Founder appointment
 
@@ -143,7 +145,7 @@ executives:
     reports_to: EXEC-FOUNDER
     charter: CHARTER-ENGINEERING
     charter_path: atos/executives/charters/CHARTER-ENGINEERING.md
-    charter_state: review
+    charter_state: authoritative
     domain: engineering_delivery
     notes: Delivery owner; Sentinel owns integrity — Phase 4 designed
 
@@ -154,7 +156,7 @@ executives:
     reports_to: EXEC-FOUNDER
     charter: CHARTER-GROWTH
     charter_path: atos/executives/charters/CHARTER-GROWTH.md
-    charter_state: review
+    charter_state: authoritative
     domain: growth_systems
     notes: Includes demand/brand GTM until separate Marketing office appointed
 
@@ -165,7 +167,7 @@ executives:
     reports_to: EXEC-FOUNDER
     charter: CHARTER-KNOWLEDGE
     charter_path: atos/executives/charters/CHARTER-KNOWLEDGE.md
-    charter_state: review
+    charter_state: authoritative
     domain: knowledge_lifecycle
     notes: Process owner for STD-002; Founder approves Canonical
 
@@ -176,7 +178,7 @@ executives:
     reports_to: EXEC-FOUNDER
     charter: CHARTER-CUSTOMER
     charter_path: atos/executives/charters/CHARTER-CUSTOMER.md
-    charter_state: review
+    charter_state: authoritative
     domain: customer_outcomes
 
   - id: EXEC-FINANCE
@@ -186,7 +188,7 @@ executives:
     reports_to: EXEC-FOUNDER
     charter: CHARTER-FINANCE
     charter_path: atos/executives/charters/CHARTER-FINANCE.md
-    charter_state: review
+    charter_state: authoritative
     domain: economic_truth
 
   - id: EXEC-OPERATIONS
@@ -196,7 +198,7 @@ executives:
     reports_to: EXEC-FOUNDER
     charter: CHARTER-OPERATIONS
     charter_path: atos/executives/charters/CHARTER-OPERATIONS.md
-    charter_state: review
+    charter_state: authoritative
     domain: operating_cadence_execution
 
   - id: EXEC-MARKETING

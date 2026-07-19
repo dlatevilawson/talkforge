@@ -3,15 +3,15 @@
 | Field | Value |
 |---|---|
 | **Document ID** | CHARTER-FOUNDER |
-| **Version** | 1.1.0-p4 |
-| **Status** | Review |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | On constitutional amendment / Phase 4 ratification |
+| **Review Cycle** | On constitutional amendment |
 | **Dependencies** | ATLAS-P4, SPEC-002, SPEC-006, RES-001, RES-002, GOV-AUTH, MAN-001 |
 | **Related Documents** | REG-EXEC, EXEC-ORG-DECISIONS |
-| **Approval History** | 2026-07-18 — M6 Draft; 2026-07-19 — Phase 4 charter expansion |
+| **Approval History** | 2026-07-18 — M6 Draft; 2026-07-19 — Phase 4 charter expansion ; 2026-07-19 — RES-007 Authoritative|
 | **Change Log** | 2026-07-19 — Phase 4 permanent organization charter |
 
 ---

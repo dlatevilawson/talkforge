@@ -3,15 +3,15 @@
 | Field | Value |
 |---|---|
 | **Document ID** | EXEC-ORG-CADENCE |
-| **Version** | 1.0.0-review |
-| **Status** | Review |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | Until Phase 4 ratification / on org change |
+| **Review Cycle** | Until Founder-amended |
 | **Dependencies** | ATLAS-P4, EXEC-ORG-COMM, EXEC-ORG-DECISIONS, FWS-REPORTS |
 | **Related Documents** | CHARTER-OPERATIONS, CHARTER-ATLAS |
-| **Approval History** | 2026-07-19 — Phase 4 Step 5 |
+| **Approval History** | 2026-07-19 — Phase 4 Step 5 ; 2026-07-19 — RES-007 Authoritative|
 | **Change Log** | 2026-07-19 — Institutional operating rhythm |
 
 ---

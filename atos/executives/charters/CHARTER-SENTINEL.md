@@ -3,15 +3,15 @@
 | Field | Value |
 |---|---|
 | **Document ID** | CHARTER-SENTINEL |
-| **Version** | 1.1.0-p4 |
-| **Status** | Review |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Sentinel |
 | **Human Approver** | Founder |
-| **Review Cycle** | On ATLAS-P4 / SPEC-006 change |
+| **Review Cycle** | On Founder amendment / SPEC-006 change |
 | **Dependencies** | ATLAS-P4, SPEC-006, STD-001, STD-005, RES-001, MAN-003, CHARTER-FOUNDER, CHARTER-ENGINEERING |
 | **Related Documents** | REG-EXEC, TEP, RUNTIME-LEGACY, EXEC-ORG-DECISIONS |
-| **Approval History** | 2026-07-18 — M6 Draft; 2026-07-19 — Phase 4 charter (integrity vs delivery split) |
+| **Approval History** | 2026-07-18 — M6 Draft; 2026-07-19 — Phase 4 charter (integrity vs delivery split) ; 2026-07-19 — RES-007 Authoritative|
 | **Change Log** | 2026-07-19 — Owns engineering integrity; Engineering Executive owns delivery |
 
 ---

@@ -1,18 +1,33 @@
-# Atlas Program — Phase 4 Executive Organization
+# Atlas Program — Phase 4 Executive Organization Contract
 
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-P4 |
-| **Version** | 1.0.0-review |
-| **Status** | Review |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | Until Founder ratification |
-| **Dependencies** | ATLAS-P0, ATLAS-P1, ATLAS-P2, ATLAS-P3, RES-003…RES-006, SPEC-006, STD-003, STD-002 |
+| **Review Cycle** | Until Founder-amended |
+| **Dependencies** | RES-007, ATLAS-P0, ATLAS-P1, ATLAS-P2, ATLAS-P3, RES-003…RES-006, SPEC-006, STD-003, STD-002 |
 | **Related Documents** | CHARTER-*, EXEC-ORG-COMM, EXEC-ORG-DECISIONS, EXEC-ORG-CADENCE, REG-EXEC, EXEC-COLLAB |
-| **Approval History** | 2026-07-19 — Phase 4 opened after Runtime Architecture completion |
-| **Change Log** | 2026-07-19 — Full Phase 4 Steps 1–6 design package |
+| **Approval History** | 2026-07-19 — Founder ratified Phase 4 as Executive Organization Contract (RES-007) |
+| **Change Log** | 2026-07-19 — Full Phase 4 Steps 1–6 design package; ratified Authoritative |
+
+---
+
+## Ratification
+
+Phase 4 is the binding **Executive Organization Contract** for TalkForge.
+
+| Rule | Statement |
+|---|---|
+| Coordination | Atlas coordinates the executive organization but does not constitute the organization |
+| Domain ownership | Each executive office owns a defined domain, with explicit authority boundaries and accountability |
+| Growth | Future organizational growth shall extend this contract rather than bypass it |
+| Conflict | Implementation/design changes — not Phase 4 — unless Founder amends |
+
+Phases 0–3 remain binding for Atlas mission, architecture, infrastructure, and runtime.
 
 ---
 
@@ -31,12 +46,12 @@ Phase 4 defines the **permanent executive organization** that Atlas coordinates.
 
 | Step | Focus | Status |
 |---|---|---|
-| 1 | Executive Organization Specification | Complete — awaiting review |
-| 2 | Executive Charters | Complete — awaiting review |
-| 3 | Organizational Communication | Complete — awaiting review |
-| 4 | Decision Governance | Complete — awaiting review |
-| 5 | Organizational Cadence | Complete — awaiting review |
-| 6 | Atlas Intelligence (post-organization) | Complete — awaiting review |
+| 1 | Executive Organization Specification | **Approved** |
+| 2 | Executive Charters | **Approved** |
+| 3 | Organizational Communication | **Approved** |
+| 4 | Decision Governance | **Approved** |
+| 5 | Organizational Cadence | **Approved** |
+| 6 | Atlas Intelligence (post-organization) | **Approved** |
 
 ---
 
@@ -341,14 +356,8 @@ Only after the organization exists may Atlas deepen intelligence — still under
 
 ---
 
-## Founder ratification request
+## Ratification record
 
-Phase 4 Steps 1–6 are complete for review.
+Founder Decision (2026-07-19): **Phase 4 ratified as the Executive Organization Contract.**
 
-Please rule:
-
-1. **Approve Phase 4 in full** as the Executive Organization Contract, or  
-2. **Approve with corrections**, or  
-3. **Reject pending corrections**
-
-On approval, Phase 4 should be ratified (RES + ATLAS-P4 Authoritative) and charters/communication/decision/cadence docs bound as the permanent organizational architecture — without changing ATOS Specs/Standards except by separate Founder constitutional process.
+Recorded as [`RES-007`](../../resolutions/RES-007-atlas-phase-4-executive-organization.md).

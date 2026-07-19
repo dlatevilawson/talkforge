@@ -3,15 +3,15 @@
 | Field | Value |
 |---|---|
 | **Document ID** | CHARTER-KNOWLEDGE |
-| **Version** | 1.0.0-p4 |
-| **Status** | Review |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | On ATLAS-P4 / appointment |
+| **Review Cycle** | On Founder amendment / appointment |
 | **Dependencies** | ATLAS-P4, SPEC-003, STD-002, GOV-KNOW, CHARTER-FOUNDER |
 | **Related Documents** | REG-PROMO-Q, RUNTIME-CTX, RUNTIME-MEM |
-| **Approval History** | 2026-07-19 — Phase 4 designed |
+| **Approval History** | 2026-07-19 — Phase 4 designed ; 2026-07-19 — RES-007 Authoritative|
 | **Change Log** | 2026-07-19 — Knowledge lifecycle ownership (process, not invention) |
 
 ---
