@@ -22,6 +22,7 @@
 |---|---|
 | **Last updated** | 2026-07-19 |
 | **Updated by** | Atlas |
+| **Standing priority** | TalkForge first (RES-011); Atlas coordinates in service of that |
 | **Staleness rule** | If older than 7 days or last Weekly Review, successor must refresh before counsel |
 
 **Program note:** [`ATLAS-ENG-PROGRAM`](ATLAS-ENGINEERING-PROGRAM.md) issued — Engineering owns WP-S0…S9; Atlas coordinates acceptance.  
@@ -94,6 +95,8 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 | P6-EXEC WP-S4 Failure Injection | Engineering + Atlas | **PASS** — Founder-approved 2026-07-19 |
 | P6-EXEC WP-S5 Operational Stress | Engineering + Atlas | **PASS** — Founder-approved |
 | Atlas Runtime Organization v1.0 | Founder | **CERTIFIED** (RES-010 / ATLAS-ORR) — continued development within validated framework |
+| Company primary objective | Founder | **Building TalkForge** (RES-011) — Atlas serves that objective; not the product |
+| Atlas org changes | Founder | Require **governance review** before structural change |
 | `ATLAS_RUNTIME_FOUNDER_VISIBLE` | Founder | **Still off** — certification does not enable; separate Decision required |
 | Loader freeze | Founder | **Still frozen** — separate Decision required |
 | Founder-visible gate evidence | Atlas Guard/Intel + Founder | Suite exists; operational observation continues |

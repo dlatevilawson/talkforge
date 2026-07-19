@@ -7,7 +7,7 @@
 # Human Approver: Founder
 # Review Cycle: Each ATOS version
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
-# Change Log: 2026-07-19 — RES-010 Atlas Runtime Organization v1.0 certification
+# Change Log: 2026-07-19 — RES-011 TalkForge primary; Atlas in service
 
 version: 1.0.0
 updated_at: "2026-07-19"
@@ -756,6 +756,14 @@ documents:
   - id: RES-010
     title: "Resolution — Atlas Runtime Organization v1.0 Certification"
     path: atos/resolutions/RES-010-atlas-runtime-organization-certification.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: resolutions
+  - id: RES-011
+    title: "Resolution — TalkForge Primary; Atlas in Service"
+    path: atos/resolutions/RES-011-talkforge-primary-atlas-service.md
     state: authoritative
     version: "1.0.0"
     owner: Founder

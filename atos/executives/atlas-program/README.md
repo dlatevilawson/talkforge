@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-PROGRAM |
-| **Version** | 2.2.0 |
+| **Version** | 2.3.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Review Cycle** | On Atlas Program phase change |
-| **Dependencies** | RES-002…RES-010, SPEC-006 |
+| **Dependencies** | RES-002…RES-011, SPEC-006 |
 | **Related Documents** | ATLAS-P0…P5, CHARTER-*, MAN-002 |
 | **Approval History** | 2026-07-19 — Phases 0–5 ratified |
-| **Change Log** | 2026-07-19 — RES-010: Atlas Runtime Organization v1.0 Founder-certified |
+| **Change Log** | 2026-07-19 — RES-011: TalkForge primary; Atlas in service; org changes need governance review |
 
 ---
 
@@ -21,6 +21,8 @@
 The Atlas Program designs and implements Atlas as Executive Intelligence operating **under** ATOS.
 
 **Atlas coordinates the executive organization but does not constitute the organization.**
+
+**Posture (RES-011):** The company’s primary objective is **building TalkForge**. Atlas exists to help achieve that objective. Atlas Runtime Organization v1.0 is certified (RES-010); future organizational changes require governance review.
 
 This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program Status remains CLOSED / Maintenance Mode.
 

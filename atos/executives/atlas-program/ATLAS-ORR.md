@@ -12,7 +12,7 @@
 | **Dependencies** | RES-010, ATLAS-P6-EXEC WP-S0…S5, ATLAS-ORG-VAL, ATLAS-P0…P6 |
 | **Related Documents** | ATLAS-D-FLAGS, ATLAS-GATE-FV, WP evidence under `atlas/runtime/evidence/` |
 | **Approval History** | 2026-07-19 — Draft after WP-S5; **2026-07-19 — Founder Certification (RES-010)** |
-| **Change Log** | 2026-07-19 — Certified Atlas Runtime Organization v1.0 for continued development |
+| **Change Log** | 2026-07-19 — Certified v1.0; RES-011 TalkForge-primary posture noted |
 
 ---
 
@@ -116,3 +116,5 @@ All future development shall proceed within the validated organizational framewo
 ## Authority
 
 This ORR is binding under **RES-010**. Atlas coordinates continued development inside this certified framework. Atlas does not expand scope beyond this certification without Founder authority.
+
+**Company posture (RES-011):** Building TalkForge is primary. Atlas serves that objective. Organizational changes to Atlas require governance review.
