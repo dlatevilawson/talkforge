@@ -7,60 +7,60 @@
   "retention": {
     "ephemeral": [
       {
-        "record_id": "9f8c1289-be06-48df-b658-fb9e61a9af7c",
-        "request_id": "cec04db5-2f04-4293-a7bc-b729c637823a",
+        "record_id": "c69a0e24-eeff-4ec7-bcb6-a174030e82f7",
+        "request_id": "e54acf2d-cd3f-4094-80c3-7984075fd56f",
         "class": "temporary",
         "summary": "W4 retention class=temporary; canonical=false",
         "refs": [
-          "a1412831-a18e-4de6-9c77-eafefb931a86",
-          "c68abb98-4f7f-4dc8-b7d7-a6e223b81e48",
-          "3a2edf3a-b0d8-4c78-a987-8da00eb773ac",
-          "e3d18aee-3796-4479-91f4-d83e5898ca06",
-          "307e707d-64ef-4a48-8468-227529c4b9a7",
-          "3ec78a4c-30aa-44a7-97c3-9848e5d7c739",
-          "638c3dff-b9d1-4bd6-8a94-b88cf9cc2b59",
-          "6299486b-4b30-44c2-90d3-b2c7aa5dd24d",
-          "ffc1b7b5-c429-4fcc-b6d7-aa45ae5b9b4f",
-          "65596469-94ac-4608-9574-c86c474157f1"
+          "7b5a717f-15cf-4f43-9cda-c62263d25427",
+          "fc01f108-e626-462b-8510-171bc1f5279a",
+          "e29887ca-cccd-41ba-bb73-47ec5d1719f8",
+          "91c7b51b-a8e2-400b-a727-cab7fbac61d7",
+          "cbb89745-240d-4cc9-b523-e97afb1b13c5",
+          "c630e174-a2b2-4288-ad07-0c58972ee114",
+          "21ea5af7-6e57-4570-9c14-102776766597",
+          "dbe01e5b-5752-4984-88c7-95f8a10d1949",
+          "54e45ebb-befd-4698-83f7-0484d05f4211",
+          "acf08a88-9a63-4c73-96cf-ace0075becb7"
         ],
         "canonical": false,
-        "stored_at": "2026-07-19T03:30:14.018Z",
+        "stored_at": "2026-07-19T03:50:48.447Z",
         "sink": "ephemeral"
       }
     ],
     "ops": [
       {
-        "record_id": "94af8caa-c43b-4ce8-8dd1-5f84eff166e8",
-        "request_id": "41f9b5fc-dfac-4bfe-90ba-146f70ef39b9",
+        "record_id": "d06a580e-b580-4890-af79-3a43d76bc221",
+        "request_id": "c88ff363-382d-42ca-91e1-7dfedfde71cf",
         "class": "promotion_candidate",
-        "summary": "Promo staging 77290418-817a-42f7-aee9-92e0f4a3b1e3",
+        "summary": "Promo staging a2c90d5e-b545-4736-943f-c813cc612feb",
         "refs": [
-          "c112bf6d-2916-4b33-8db7-328d82f7f25c",
-          "37044f7a-aa40-44f4-a539-312d22742e6e",
-          "57c7cab8-2dd6-4fea-921c-0f42591837a4",
-          "17ccf9ae-8abd-42f4-be50-78296dc1df57",
-          "8bf08460-2b05-4603-a316-c78074c380d3",
-          "a80475ee-78b2-4acd-bf37-42c98ed6bf7c",
-          "c87dc0aa-4eb6-4ec0-baae-48520ffc08be",
-          "ed3d34c2-af72-45d1-9c3d-c83b5c84b3b6",
-          "f197d038-b18a-4511-b15a-c752ba4d883f",
-          "e5f834ba-91c7-4097-9dee-385324af9f89"
+          "58e5919e-012a-4724-8adc-eecc37ffb7fb",
+          "1c8638e5-ba68-4017-b819-534a52bd7c38",
+          "0c67f64f-88f3-454a-b0a8-90470995d6ac",
+          "42320f72-0ad5-4743-a799-3e5c1fbe7e3d",
+          "1cafddd7-b302-4bef-8835-62d48564a1fa",
+          "9ac2d6b8-ef7a-420e-8edd-1328672dda9a",
+          "97aa4e59-19e1-4b55-b00f-39c0f20f4b00",
+          "c3dc6eb1-919b-4b30-a913-bc30b7f818bf",
+          "8a646218-83f6-4ad8-8380-2441d27a470d",
+          "0af06ac1-d752-4941-a38c-a4ae9cc7e20c"
         ],
         "canonical": false,
-        "stored_at": "2026-07-19T03:30:14.019Z",
+        "stored_at": "2026-07-19T03:50:48.448Z",
         "sink": "promo_staging"
       }
     ],
     "discarded": [],
     "promoStaging": [
       {
-        "staging_id": "77290418-817a-42f7-aee9-92e0f4a3b1e3",
-        "request_id": "41f9b5fc-dfac-4bfe-90ba-146f70ef39b9",
+        "staging_id": "a2c90d5e-b545-4736-943f-c813cc612feb",
+        "request_id": "c88ff363-382d-42ca-91e1-7dfedfde71cf",
         "stage": "Observation",
         "summary": "W4 retention class=promotion_candidate; canonical=false",
         "canonical": false,
         "auto_published": false,
-        "created_at": "2026-07-19T03:30:14.019Z",
+        "created_at": "2026-07-19T03:50:48.448Z",
         "notes": [
           "Staging only — not REG-PROMO-Q Canonical publication",
           "STD-002 stages required before institutional approval"
@@ -105,7 +105,7 @@
     "boundary_violations": []
   },
   "cutover": {
-    "generated_at": "2026-07-19T03:30:14.020Z",
+    "generated_at": "2026-07-19T03:50:48.448Z",
     "founder_visible_enabled": false,
     "target_enabled": true,
     "loader_frozen": true,
@@ -182,12 +182,12 @@
     "blockers": []
   },
   "pipeline": {
-    "request_id": "cec04db5-2f04-4293-a7bc-b729c637823a",
+    "request_id": "e54acf2d-cd3f-4094-80c3-7984075fd56f",
     "validation": "PASS",
     "disposition_class": "temporary"
   },
   "promo_pipeline": {
-    "request_id": "41f9b5fc-dfac-4bfe-90ba-146f70ef39b9",
+    "request_id": "c88ff363-382d-42ca-91e1-7dfedfde71cf",
     "disposition_class": "promotion_candidate",
     "staging_count": 1
   },

@@ -53,14 +53,25 @@ export async function runTargetPipeline(
   if (state.authority?.result === "escalate") {
     state = runEscalation(state);
     state = runIntegrity(state);
-    const exchanged = runExchange(state);
-    state = runMemory(exchanged.state);
+    let delivery: ExchangeDelivery | undefined;
+    if (founderVisible) {
+      const exchanged = runExchange(state);
+      state = exchanged.state;
+      delivery = exchanged.delivery;
+    } else {
+      state = traceStage(
+        state,
+        "exchange",
+        "Escalation Founder delivery suppressed (ATLAS_RUNTIME_FOUNDER_VISIBLE off)"
+      );
+    }
+    state = runMemory(state);
     return {
       plane: "target",
       enabled,
       founderVisible,
       state,
-      delivery: exchanged.delivery,
+      delivery,
       ok: true,
     };
   }

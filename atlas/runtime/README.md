@@ -26,9 +26,18 @@ While TARGET is on and FOUNDER_VISIBLE is off:
 2. Founder-visible `response` still comes from Legacy Ask Atlas.  
 3. Collect evidence that target Integrity/retention/exchange behave under normal use.  
 
+## Founder-visible gate (ATLAS-GATE-FV)
+
+Observation suite for the next Founder Gate (does **not** enable FOUNDER_VISIBLE):
+
+```bash
+npm run atlas:runtime:observe
+```
+
 ## Checks
 
 ```bash
 npm run atlas:runtime:check
 npm run atlas:runtime:check:w4
+npm run atlas:runtime:observe
 ```

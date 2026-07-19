@@ -1,0 +1,131 @@
+{
+  "gate": "ATLAS-GATE-FV",
+  "generated_at": "2026-07-19T03:50:47.328Z",
+  "flags": {
+    "target": true,
+    "founderVisible": false,
+    "targetEnv": "(unset → default on)",
+    "founderVisibleEnv": "(unset → default off)",
+    "observationWindow": true
+  },
+  "iterations": 3,
+  "criteria": [
+    {
+      "id": "FV-1",
+      "name": "Correct authority handling",
+      "pass": true,
+      "evidence": [
+        "S1: authority=pass",
+        "S2: authority=pass",
+        "S3: authority=escalate",
+        "S4: authority=escalate",
+        "S5: authority=escalate",
+        "S6: authority=pass",
+        "S7: empty request rejected at ingress (fail-closed)"
+      ],
+      "failures": []
+    },
+    {
+      "id": "FV-2",
+      "name": "Correct escalation behavior",
+      "pass": true,
+      "evidence": [
+        "S3: escalate→artifact→Integrity=STOP; delivery suppressed",
+        "S4: escalate→artifact→Integrity=STOP; delivery suppressed",
+        "S5: escalate→artifact→Integrity=STOP; delivery suppressed"
+      ],
+      "failures": []
+    },
+    {
+      "id": "FV-3",
+      "name": "Proper knowledge labeling",
+      "pass": true,
+      "evidence": [
+        "S1: 11 items labeled; planes=legacy-atlas,ops",
+        "S2: 11 items labeled; planes=legacy-atlas,ops",
+        "S3: no knowledge path (expected)",
+        "S4: no knowledge path (expected)",
+        "S5: no knowledge path (expected)",
+        "S6: 11 items labeled; planes=legacy-atlas,ops",
+        "S7: no knowledge path (expected)"
+      ],
+      "failures": []
+    },
+    {
+      "id": "FV-4",
+      "name": "No Canonical leakage",
+      "pass": true,
+      "evidence": [
+        "S1: audit=11 all non-Canonical; disposition=temporary",
+        "S2: audit=11 all non-Canonical; disposition=temporary",
+        "S3: audit=7 all non-Canonical; disposition=discarded",
+        "S4: audit=7 all non-Canonical; disposition=discarded",
+        "S5: audit=7 all non-Canonical; disposition=discarded",
+        "S6: audit=11 all non-Canonical; disposition=promotion_candidate",
+        "S7: audit=2 all non-Canonical; disposition=n/a"
+      ],
+      "failures": []
+    },
+    {
+      "id": "FV-5",
+      "name": "Correct audit trails",
+      "pass": true,
+      "evidence": [
+        "S1: full flow audited",
+        "S2: full flow audited",
+        "S3: escalate path audited (ingress→hub→authority→escalation→integrity→exchange→memory)",
+        "S4: escalate path audited (ingress→hub→authority→escalation→integrity→exchange→memory)",
+        "S5: escalate path audited (ingress→hub→authority→escalation→integrity→exchange→memory)",
+        "S6: full flow audited",
+        "S7: ingress reject audited (ingress→hub)"
+      ],
+      "failures": []
+    },
+    {
+      "id": "FV-6",
+      "name": "Stable recommendation quality",
+      "pass": true,
+      "evidence": [
+        "S1: type=standard binding=false confidence=medium validation=PASS",
+        "S2: type=standard binding=false confidence=medium validation=PASS",
+        "S3: type=escalation binding=false confidence=low validation=STOP",
+        "S4: type=escalation binding=false confidence=low validation=STOP",
+        "S5: type=escalation binding=false confidence=low validation=STOP",
+        "S6: type=standard binding=false confidence=medium validation=PASS",
+        "S7: no recommendation (ingress fail) — OK"
+      ],
+      "failures": []
+    },
+    {
+      "id": "FV-7",
+      "name": "No silent failures",
+      "pass": true,
+      "evidence": [
+        "S1: success explicit (ok + PASS)",
+        "S2: success explicit (ok + PASS)",
+        "S3: escalation surfaced through Integrity",
+        "S4: escalation surfaced through Integrity",
+        "S5: escalation surfaced through Integrity",
+        "S6: success explicit (ok + PASS)",
+        "S7: failure surfaced via error"
+      ],
+      "failures": []
+    },
+    {
+      "id": "FV-8",
+      "name": "Repeatable behavior over time",
+      "pass": true,
+      "evidence": [
+        "S1: identical behavior fingerprint across 3 iterations (b1b1157071c6…)",
+        "S2: identical behavior fingerprint across 3 iterations (b1b1157071c6…)",
+        "S3: identical behavior fingerprint across 3 iterations (cc9cb14204a0…)",
+        "S4: identical behavior fingerprint across 3 iterations (cc9cb14204a0…)",
+        "S5: identical behavior fingerprint across 3 iterations (cc9cb14204a0…)",
+        "S6: identical behavior fingerprint across 3 iterations (325a3ac7c3b0…)"
+      ],
+      "failures": []
+    }
+  ],
+  "ok": true,
+  "recommendation": "evidence_supports_founder_decision"
+}

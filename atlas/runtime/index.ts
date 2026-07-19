@@ -20,4 +20,5 @@ export {
 } from "./retention/store";
 export { evaluateCutoverReadiness } from "./readiness/cutover";
 export { collectW4Evidence } from "./readiness/run-w4";
+export { runObservationSuite } from "./observation/run";
 export type * from "./types/envelopes";
