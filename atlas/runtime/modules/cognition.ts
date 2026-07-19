@@ -18,10 +18,21 @@ export function runCognition(state: WorkflowState): WorkflowState {
     (i) => `${i.source_id} [${i.authority_label}/${i.plane}]`
   );
 
-  const missing =
+  const missing: string[] =
     state.context.items.length === 0
       ? ["No knowledge items in locked context"]
       : [];
+
+  // Operational integrity: never invent Canonical when the ask requires absent institutional fact
+  const objective = state.context.objective;
+  if (
+    /canonical/i.test(objective) &&
+    /(unpublished|does not exist|not (yet )?exist|invent|as fact)/i.test(objective)
+  ) {
+    missing.push(
+      "Requested Canonical institutional knowledge is not present in labeled context — do not invent"
+    );
+  }
 
   const product: ReasoningProduct = {
     request_id: state.request_id,
@@ -57,7 +68,7 @@ export function runCognition(state: WorkflowState): WorkflowState {
         ? "Insufficient labeled knowledge to form a grounded recommendation."
         : "Recommend proceeding with counsel grounded only in labeled context sources; Founder decides.",
     confidence: missing.length > 0 ? "low" : "medium",
-    escalation_flag: false,
+    escalation_flag: missing.some((m) => /canonical/i.test(m)),
   };
 
   let next: WorkflowState = {

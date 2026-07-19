@@ -12,7 +12,7 @@
 | **Dependencies** | RES-002…RES-009, SPEC-006 |
 | **Related Documents** | ATLAS-P0…P5, CHARTER-*, MAN-002 |
 | **Approval History** | 2026-07-19 — Phases 0–5 ratified |
-| **Change Log** | 2026-07-19 — WP-S2 PASS; WP-S3 awaiting Founder approval |
+| **Change Log** | 2026-07-19 — WP-S3 PASS; WP-S4 awaiting Founder approval |
 
 ---
 

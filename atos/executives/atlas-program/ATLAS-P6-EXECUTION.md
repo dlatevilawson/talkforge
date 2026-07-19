@@ -100,6 +100,7 @@ Per Founder directive: Atlas coordinates; one owner; traceable decisions; eviden
 |---|---|
 | ENG WP-S0 | **PASS** |
 | P6-EXEC WP-S1 | **PASS** — Founder-approved |
-| P6-EXEC WP-S2 | **PASS** — `atlas/runtime/evidence/WP-S2-COORDINATION.md` |
-| WP-S3…S6 | **BLOCKED** — await Founder approval to start WP-S3 |
+| P6-EXEC WP-S2 | **PASS** — Founder-approved |
+| P6-EXEC WP-S3 | **PASS** — `atlas/runtime/evidence/WP-S3-CONFLICT.md` |
+| WP-S4…S6 | **BLOCKED** — await Founder approval to start WP-S4 |
 | Certification | **Not certified** |

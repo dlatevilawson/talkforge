@@ -16,4 +16,4 @@
 | 6 Operational stress | PENDING | WP-S5 |
 | 7 ORR / Certification | **Not issued / Not certified** | WP-S6 + Founder |
 
-**P6-EXEC:** WP-S1 PASS (Founder-approved) · WP-S2 PASS · WP-S3 **BLOCKED**
+**P6-EXEC:** WP-S1–S2 Founder-approved · WP-S3 PASS · WP-S4 **BLOCKED**
