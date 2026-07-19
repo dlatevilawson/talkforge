@@ -2,7 +2,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Atlas TalkForge Operating System (ATOS)
 
-**ATOS Version 1.0.0 is ratified** (RES-002) as the constitution of TalkForge. The Version 1.0 implementation project is complete.
+**ATOS Version 1.0.0 is ratified** (RES-002). **Program status: CLOSED.** ATOS is in **Maintenance Mode**.
 
 | Role | Standing |
 |---|---|
@@ -11,7 +11,10 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 | **Sentinel** | Protects implementation |
 | **TalkForge** | The product built on both |
 
+Future ATOS changes require the governance amendment process. New work is built **on** ATOS, not **inside** ATOS, unless a formal amendment is approved.
+
 - **Entrypoint:** [`ATOS.md`](./ATOS.md)
+- **Maintenance:** [`atos/governance/GOV-MAINT-1.0.0.md`](./atos/governance/GOV-MAINT-1.0.0.md)
 - **Ratification:** [`atos/resolutions/RES-002-atos-v1-ratification.md`](./atos/resolutions/RES-002-atos-v1-ratification.md)
 - **Release:** [`atos/RELEASE-1.0.0.md`](./atos/RELEASE-1.0.0.md)
 - **Tree:** [`atos/`](./atos/)

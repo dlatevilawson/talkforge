@@ -10,9 +10,9 @@
 | **Human Approver** | Founder |
 | **Review Cycle** | Until next ATOS version |
 | **Dependencies** | RES-001, RES-002, ATOS-RELEASE-1.0.0, GOV-AUTH, ADR-0001 |
-| **Related Documents** | GOV-REPO, MS-M9, MS-SYNC |
+| **Related Documents** | GOV-REPO, GOV-MAINT-1.0.0, MS-M9, MS-SYNC |
 | **Approval History** | 2026-07-19 — Authoritative upon Founder ratification of ATOS Version 1.0 (RES-002) |
-| **Change Log** | 2026-07-19 — Freeze in effect; Version 1.0 ratified |
+| **Change Log** | 2026-07-19 — Freeze in effect; Maintenance Mode (GOV-MAINT-1.0.0) |
 
 ---
 
@@ -42,7 +42,9 @@ Defines what is frozen at ATOS Version 1.0.0 and how post-release changes must p
 - Legacy `atlas/` corpus content (still GOV-COMPAT; cutover Founder-gated)  
 - Empty Canonical library contents (grow via STD-002)  
 
-## Post-1.0.0 process
+## Post-1.0.0 process (Maintenance Mode)
+
+Program status is **CLOSED**; operating mode is **Maintenance Mode** ([GOV-MAINT-1.0.0](GOV-MAINT-1.0.0.md)).
 
 1. Propose change with evidence.  
 2. Follow applicable Spec/Standard change management.  
@@ -50,4 +52,4 @@ Defines what is frozen at ATOS Version 1.0.0 and how post-release changes must p
 4. Pass `npm run atos:check`.  
 5. Founder approval for constitutional layers.  
 
-ATOS is not rewritten outside this process. Future development occurs within ATOS.
+ATOS is not rewritten outside this process. **New work shall be built on ATOS rather than inside ATOS** unless a formal amendment is approved.

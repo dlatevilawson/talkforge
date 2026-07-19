@@ -17,10 +17,10 @@ description: >
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
 
 counts:
-  total: 119
-  with_path: 116
+  total: 120
+  with_path: 117
   planned: 3
-  authoritative: 32
+  authoritative: 33
 
 documents:
   - id: ATOS-NAV
@@ -116,6 +116,14 @@ documents:
   - id: GOV-FREEZE-1.0.0
     title: "ATOS Repository Freeze — Version 1.0.0"
     path: atos/governance/GOV-FREEZE-1.0.0.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: governance
+  - id: GOV-MAINT-1.0.0
+    title: "ATOS Maintenance Mode — Version 1.0.0"
+    path: atos/governance/GOV-MAINT-1.0.0.md
     state: authoritative
     version: "1.0.0"
     owner: Founder

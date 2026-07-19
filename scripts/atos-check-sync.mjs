@@ -101,6 +101,7 @@ for (const [rel, status] of [
   ["atos/references/templates/REF-R1101-architecture-decision-record-template.md", "Draft"],
   ["atos/milestones/MS-SYNC-governance-state.md", "Authoritative"],
   ["atos/resolutions/RES-002-atos-v1-ratification.md", "Authoritative"],
+  ["atos/governance/GOV-MAINT-1.0.0.md", "Authoritative"],
 ]) {
   if (!existsSync(path.join(root, rel))) {
     fail(`missing ${rel}`);
@@ -117,6 +118,17 @@ if (!res2.includes("ATOS Version 1.0 is ratified")) {
 if (!res2.includes("The ATOS Version 1.0 implementation project is complete")) {
   fail("RES-002 must declare the ATOS Version 1.0 implementation project complete");
 }
+
+const maint = read("atos/governance/GOV-MAINT-1.0.0.md");
+if (!maint.includes("CLOSED")) fail("GOV-MAINT must declare program CLOSED");
+if (!maint.includes("Maintenance Mode")) fail("GOV-MAINT must declare Maintenance Mode");
+if (!maint.includes("built on ATOS rather than inside ATOS")) {
+  fail("GOV-MAINT must require new work built on ATOS rather than inside ATOS");
+}
+const atosRoot = read("ATOS.md");
+if (!atosRoot.includes("CLOSED")) fail("ATOS.md must declare program CLOSED");
+if (!atosRoot.includes("Maintenance Mode")) fail("ATOS.md must declare Maintenance Mode");
+
 
 // Cross-ref: REF-R1101 exists and is referenced by STD-001
 const std001 = read(

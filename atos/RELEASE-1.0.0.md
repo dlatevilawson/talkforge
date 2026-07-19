@@ -76,3 +76,5 @@ See [`GOV-FREEZE-1.0.0.md`](governance/GOV-FREEZE-1.0.0.md) — **in effect**.
 ## Project status
 
 The ATOS Version 1.0 implementation project is **complete**.
+
+**ATOS Program Status: CLOSED.** Operating mode: **Maintenance Mode** ([GOV-MAINT-1.0.0](governance/GOV-MAINT-1.0.0.md)). New work is built on ATOS rather than inside ATOS unless a formal amendment is approved.

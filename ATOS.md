@@ -10,9 +10,22 @@
 | **Human Approver** | Founder |
 | **Review Cycle** | Per ATOS version / on governance change |
 | **Dependencies** | RES-001, RES-002 |
-| **Related Documents** | `atos/NAVIGATION.md`, `atos/RELEASE-1.0.0.md`, `atos/VERSION` |
-| **Approval History** | RES-001 authorized implementation; RES-002 ratified ATOS Version 1.0 (2026-07-19) |
-| **Change Log** | 2026-07-19 — Version 1.0 ratified; ATOS implementation project complete |
+| **Related Documents** | `atos/NAVIGATION.md`, `atos/RELEASE-1.0.0.md`, `atos/VERSION`, `atos/governance/GOV-MAINT-1.0.0.md` |
+| **Approval History** | RES-001 authorized implementation; RES-002 ratified ATOS Version 1.0; Founder closed program / Maintenance Mode (2026-07-19) |
+| **Change Log** | 2026-07-19 — Version 1.0 ratified; program CLOSED; Maintenance Mode |
+
+---
+
+## Program status
+
+| Field | Value |
+|---|---|
+| **ATOS Program Status** | **CLOSED** |
+| **Mode** | **Maintenance Mode** |
+| **Version** | `1.0.0` — ratified (RES-002) |
+| **Maintenance policy** | [`GOV-MAINT-1.0.0`](atos/governance/GOV-MAINT-1.0.0.md) |
+
+Future changes to ATOS require the governance amendment process. **New work shall be built on ATOS rather than inside ATOS** unless a formal amendment is approved.
 
 ---
 
@@ -46,8 +59,9 @@ ATOS is the constitution of TalkForge — the governing organizational operating
 | **SPEC-001…006** | Constitutional documents |
 | **STD-001…006** | Official governance rules |
 | **GOV-FREEZE-1.0.0** | Freeze — amendments only via approved process |
+| **GOV-MAINT-1.0.0** | Program CLOSED · Maintenance Mode |
 
-Constitutional amendments and version releases remain Founder-exclusive. Future development occurs within ATOS, not by rewriting it.
+Constitutional amendments and version releases remain Founder-exclusive.
 
 ---
 
@@ -79,16 +93,17 @@ Supporting systems: resolutions, governance, registries, schemas, knowledge, run
 ## Quick Navigation
 
 1. [Release 1.0.0](atos/RELEASE-1.0.0.md)  
-2. [Repository Navigation](atos/NAVIGATION.md)  
-3. [RES-002 — Ratification](atos/resolutions/RES-002-atos-v1-ratification.md) · [RES-001](atos/resolutions/RES-001-atos-v1-implementation.md)  
-4. [Specifications](atos/specifications/README.md) (Authoritative)  
-5. [Standards](atos/standards/README.md) (Authoritative)  
-6. [Freeze Policy](atos/governance/GOV-FREEZE-1.0.0.md)  
-7. [Document Registry](atos/registries/document-registry.yaml)  
+2. [Maintenance Mode](atos/governance/GOV-MAINT-1.0.0.md)  
+3. [Repository Navigation](atos/NAVIGATION.md)  
+4. [RES-002 — Ratification](atos/resolutions/RES-002-atos-v1-ratification.md) · [RES-001](atos/resolutions/RES-001-atos-v1-implementation.md)  
+5. [Specifications](atos/specifications/README.md) (Authoritative)  
+6. [Standards](atos/standards/README.md) (Authoritative)  
+7. [Freeze Policy](atos/governance/GOV-FREEZE-1.0.0.md)  
+8. [Document Registry](atos/registries/document-registry.yaml)  
 
 ---
 
-## Milestone Sequence (RES-001) — Project Complete
+## Milestone Sequence (RES-001) — Program CLOSED
 
 | Milestone | Focus | Status |
 |---|---|---|
@@ -104,17 +119,18 @@ Supporting systems: resolutions, governance, registries, schemas, knowledge, run
 | M9 | Version 1.0 Release | Complete — Founder ratified |
 | MS-SYNC | Governance State Synchronization | Complete — Founder ratified |
 
-**The ATOS Version 1.0 implementation project is complete.**
+**ATOS Program Status: CLOSED.** Maintenance Mode in effect.
 
 ---
 
 ## Agent Instructions
 
-1. Read this file and RES-002 before changing ATOS artifacts.  
+1. Read this file, RES-002, GOV-FREEZE-1.0.0, and GOV-MAINT-1.0.0 before changing ATOS artifacts.  
 2. Obey Authoritative Specifications and Standards — they are constitutional law.  
 3. Do not invent institutional knowledge.  
 4. Do not modify `atlas/` load paths without Founder-gated cutover approval.  
-5. Update registries when creating or modifying governed documents.  
+5. Update registries when creating or modifying governed documents under an approved amendment.  
 6. Pass `npm run atos:check` before completing ATOS structural changes.  
 7. Obey GOV-FREEZE-1.0.0 — amend constitutional layers only through approved governance.  
-8. Operate within ATOS; do not rewrite the constitution.  
+8. Build new work **on** ATOS (product / executive operations); do not expand ATOS **inside** without a formal amendment.  
+9. Do not open new ATOS implementation milestones unless the Founder authorizes an amendment or version program.  
