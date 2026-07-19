@@ -1,18 +1,32 @@
-# Atlas Program — Phase 2 Executive Infrastructure Design
+# Atlas Program — Phase 2 Executive Infrastructure Contract
 
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-P2 |
-| **Version** | 1.0.0-review |
-| **Status** | Review |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | Until Founder ratification |
-| **Dependencies** | ATLAS-P0, ATLAS-P1, RES-003, RES-004 |
+| **Review Cycle** | Until Founder-amended |
+| **Dependencies** | RES-005, ATLAS-P0, ATLAS-P1, RES-003, RES-004 |
 | **Related Documents** | SPEC-005, STD-006, RUNTIME-IFACE, RUNTIME-CTX, RUNTIME-MEM, GOV-MAINT-1.0.0 |
-| **Approval History** | 2026-07-19 — Step 1 approved; Steps 2–10 designed for Founder review |
-| **Change Log** | 2026-07-19 — Full Phase 2 infrastructure design package |
+| **Approval History** | 2026-07-19 — Founder approved Phase 2 in full (RES-005) |
+| **Change Log** | 2026-07-19 — Full Phase 2 infrastructure design package; ratified Authoritative |
+
+---
+
+## Ratification
+
+Phase 2 is the binding **Executive Infrastructure Contract** for Atlas.
+
+| Rule | Statement |
+|---|---|
+| Implementation | Every Atlas implementation must satisfy Phase 2 |
+| Extension | Future architecture may extend this infrastructure but may not violate it |
+| Conflict | Implementation changes — not Phase 2 — unless Founder amends |
+
+Phase 0 remains the design contract for *what Atlas is*. Phase 1 defines *how Atlas is organized*. Phase 2 defines the *infrastructure that realizes Phase 1*.
 
 ---
 
@@ -36,15 +50,15 @@ Request → Authority → Knowledge → Context → Reasoning → Recommendation
 | Step | Focus | Status |
 |---|---|---|
 | 1 | Infrastructure principles & constraints | **Approved** |
-| 2 | Component infrastructure map | Complete — awaiting review |
-| 3 | Inter-component contracts | Complete — awaiting review |
-| 4 | Knowledge & context infrastructure | Complete — awaiting review |
-| 5 | Memory & audit infrastructure | Complete — awaiting review |
-| 6 | Pipeline infrastructure (Reason→Recommend→Validate) | Complete — awaiting review |
-| 7 | Executive interface infrastructure | Complete — awaiting review |
-| 8 | Reporting infrastructure | Complete — awaiting review |
-| 9 | Failure & recovery infrastructure | Complete — awaiting review |
-| 10 | Infrastructure design validation | Complete — awaiting Founder ratification |
+| 2 | Component infrastructure map | **Approved** |
+| 3 | Inter-component contracts | **Approved** |
+| 4 | Knowledge & context infrastructure | **Approved** |
+| 5 | Memory & audit infrastructure | **Approved** |
+| 6 | Pipeline infrastructure (Reason→Recommend→Validate) | **Approved** |
+| 7 | Executive interface infrastructure | **Approved** |
+| 8 | Reporting infrastructure | **Approved** |
+| 9 | Failure & recovery infrastructure | **Approved** |
+| 10 | Infrastructure design validation | **Approved** |
 
 ---
 
@@ -74,7 +88,7 @@ Request → Authority → Knowledge → Context → Reasoning → Recommendation
 | P-Promote-Only-by-Governance | Persistence ≠ Canonical |
 | P-Minimal-Surface | Smallest sufficient contracts |
 | P-No-Impl-Leak | Contracts/responsibilities only — not code/UI |
-| P-Conflict-Rule | Conflict with P0/P1 → change infrastructure |
+| P-Conflict-Rule | Conflict with P0/P1 → change infrastructure; after ratification, conflict with P2 → change implementation |
 
 ### Logical planes
 
@@ -310,10 +324,10 @@ Results: PASS → Founder channel; RETURN → upstream; ESCALATE → Escalation 
 | No production code / UI leakage | **Met** |
 | No ATOS Spec/Standard rewrite | **Met** |
 
-### Remaining unknowns
+### Deferred to Phase 3+
 
-1. Physical deployment topology (services vs modular monolith, etc.) — implementation phase.  
-2. Exact persistence technology for audit/ops — implementation phase.  
+1. Physical deployment topology (services vs modular monolith, etc.).  
+2. Exact persistence technology for audit/ops.  
 3. Founder-gated cutover schedule for Ask Atlas → ATOS context injection.  
 4. Optional deeper context-selection scoring algorithm (deferred addendum).  
 
@@ -326,22 +340,11 @@ Results: PASS → Founder channel; RETURN → upstream; ESCALATE → Escalation 
 | Coordination channels become command bus | Executive Exchange boundaries |
 | Validation bypass “for demo” | No urgency exception in contract |
 
-### Open questions
-
-1. Ratify Phase 2 as Authoritative Executive Infrastructure Contract?  
-2. Any plane/contract rename before implementation phase?  
-3. Require Context-selection addendum before implementation?
-
 ---
 
-## Founder ratification request
+## Ratification record
 
-Phase 2 Steps 1–10 are complete for review.
+Founder Decision (2026-07-19): **Phase 2 Approved in Full.**
 
-Please rule:
-
-1. **Approve Phase 2 in full** as the Executive Infrastructure Contract, or  
-2. **Approve with corrections**, or  
-3. **Reject pending corrections**
-
-On approval, Phase 2 should be ratified (RES + ATLAS-P2 Authoritative) to guide every future Atlas implementation — without changing ATOS, Phase 0, or Phase 1.
+Recorded as [`RES-005`](../../resolutions/RES-005-atlas-phase-2-executive-infrastructure.md).  
+Runtime Architecture & Implementation Design continues under [`ATLAS-P3`](PHASE-3-RUNTIME-ARCHITECTURE.md).

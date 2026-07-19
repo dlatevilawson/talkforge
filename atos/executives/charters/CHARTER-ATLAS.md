@@ -10,9 +10,9 @@
 | **Human Approver** | Founder |
 | **Review Cycle** | Each milestone / on SPEC-006 change |
 | **Dependencies** | SPEC-006, STD-003, RES-001, MAN-002, CHARTER-FOUNDER |
-| **Related Documents** | REG-EXEC, RUNTIME-CTX, GOV-KNOW, ATLAS-P0, ATLAS-P1, RES-003, RES-004 |
-| **Approval History** | 2026-07-18 — M6 Draft; 2026-07-19 — ATLAS-P0 (RES-003); 2026-07-19 — ATLAS-P1 (RES-004) |
-| **Change Log** | 2026-07-19 — Bound to Phase 0 Design Contract and Phase 1 Executive Architecture |
+| **Related Documents** | REG-EXEC, RUNTIME-CTX, GOV-KNOW, ATLAS-P0, ATLAS-P1, ATLAS-P2, RES-003, RES-004, RES-005 |
+| **Approval History** | 2026-07-18 — M6 Draft; 2026-07-19 — ATLAS-P0 (RES-003); 2026-07-19 — ATLAS-P1 (RES-004); 2026-07-19 — ATLAS-P2 (RES-005) |
+| **Change Log** | 2026-07-19 — Bound to Phase 0–2 contracts; Phase 3 runtime design active |
 
 ---
 
@@ -20,8 +20,9 @@
 
 1. **[Phase 0 Design Contract](../atlas-program/PHASE-0-DESIGN-CONTRACT.md)** (`ATLAS-P0`, RES-003) — what Atlas is.  
 2. **[Phase 1 Executive Architecture](../atlas-program/PHASE-1-EXECUTIVE-ARCHITECTURE.md)** (`ATLAS-P1`, RES-004) — how Atlas is organized.  
+3. **[Phase 2 Executive Infrastructure](../atlas-program/PHASE-2-EXECUTIVE-INFRASTRUCTURE.md)** (`ATLAS-P2`, RES-005) — infrastructure that realizes Phase 1.  
 
-If a design conflicts with Phase 0 or Phase 1, the design changes — not the contracts.
+If a design conflicts with Phase 0, Phase 1, or Phase 2, the design changes — not the contracts.
 
 ## Role
 

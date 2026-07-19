@@ -7,7 +7,7 @@
 # Human Approver: Founder
 # Review Cycle: Each milestone
 # Approval History: 2026-07-18 — M6 executive charters
-# Change Log: 2026-07-19 — EXEC-ATLAS bound to ATLAS-P1 (RES-004)
+# Change Log: 2026-07-19 — EXEC-ATLAS bound to ATLAS-P2 (RES-005)
 
 version: 1.0.0-m6
 updated_at: "2026-07-19"
@@ -65,6 +65,9 @@ executives:
     architecture_contract: ATLAS-P1
     architecture_contract_path: atos/executives/atlas-program/PHASE-1-EXECUTIVE-ARCHITECTURE.md
     architecture_contract_resolution: RES-004
+    infrastructure_contract: ATLAS-P2
+    infrastructure_contract_path: atos/executives/atlas-program/PHASE-2-EXECUTIVE-INFRASTRUCTURE.md
+    infrastructure_contract_resolution: RES-005
     ai_conduct: MAN-016
     interfaces:
       - Founder briefings

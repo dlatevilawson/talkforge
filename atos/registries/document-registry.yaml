@@ -7,7 +7,7 @@
 # Human Approver: Founder
 # Review Cycle: Each ATOS version
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
-# Change Log: 2026-07-19 — RES-003 / ATLAS-P0 Phase 0 Design Contract ratified
+# Change Log: 2026-07-19 — RES-005 / ATLAS-P2 ratified; ATLAS-P3 opened
 
 version: 1.0.0
 updated_at: "2026-07-19"
@@ -96,6 +96,14 @@ documents:
   - id: RES-004
     title: "ATOS Resolution 004 — Ratification of Atlas Program Phase 1 Executive Architecture"
     path: atos/resolutions/RES-004-atlas-phase-1-executive-architecture.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: resolutions
+  - id: RES-005
+    title: "ATOS Resolution 005 — Ratification of Atlas Program Phase 2 Executive Infrastructure"
+    path: atos/resolutions/RES-005-atlas-phase-2-executive-infrastructure.md
     state: authoritative
     version: "1.0.0"
     owner: Founder
@@ -618,10 +626,18 @@ documents:
     ai_steward: Atlas
     layer: executives
   - id: ATLAS-P2
-    title: "Atlas Program — Phase 2 Executive Infrastructure Design"
+    title: "Atlas Program — Phase 2 Executive Infrastructure Contract"
     path: atos/executives/atlas-program/PHASE-2-EXECUTIVE-INFRASTRUCTURE.md
-    state: review
-    version: "1.0.0-review"
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: ATLAS-P3
+    title: "Atlas Program — Phase 3 Runtime Architecture & Implementation Design"
+    path: atos/executives/atlas-program/PHASE-3-RUNTIME-ARCHITECTURE.md
+    state: draft
+    version: "0.1.0-draft"
     owner: Founder
     ai_steward: Atlas
     layer: executives
