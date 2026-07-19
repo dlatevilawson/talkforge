@@ -5,7 +5,7 @@
 | **Work package** | WP-S0 |
 | **Sprint** | Sprint 1 |
 | **Result** | **PASS** |
-| **At** | 2026-07-19T14:05:38.892Z |
+| **At** | 2026-07-19T14:16:30.388Z |
 | **Command** | `npm run atlas:staff:check:s0` |
 
 ## Acceptance criteria

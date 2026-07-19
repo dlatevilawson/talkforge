@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-PROGRAM |
-| **Version** | 2.0.0 |
+| **Version** | 2.1.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -12,7 +12,7 @@
 | **Dependencies** | RES-002…RES-009, SPEC-006 |
 | **Related Documents** | ATLAS-P0…P5, CHARTER-*, MAN-002 |
 | **Approval History** | 2026-07-19 — Phases 0–5 ratified |
-| **Change Log** | 2026-07-19 — Phase 6 Operationalization: living staff under `atlas/runtime/staff/` |
+| **Change Log** | 2026-07-19 — ATLAS-P6-EXEC; WP-S1 PASS; WP-S2 awaiting Founder |
 
 ---
 
@@ -35,6 +35,7 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 | 4 | [PHASE-4-EXECUTIVE-ORGANIZATION.md](PHASE-4-EXECUTIVE-ORGANIZATION.md) (`ATLAS-P4`) | RES-007 | Permanent executive organization Atlas coordinates |
 | 5 | [PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md](PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md) (`ATLAS-P5`) | RES-008 | Atlas internal staff (AIO-*); GUARD ≠ Sentinel |
 | 6 | [PHASE-6-OPERATIONALIZATION.md](PHASE-6-OPERATIONALIZATION.md) (`ATLAS-P6`) | RES-009 | Make the organization exist (runtime staff) |
+| 6-exec | [ATLAS-P6-EXECUTION.md](ATLAS-P6-EXECUTION.md) (`ATLAS-P6-EXEC`) | Founder | Remaining ORR WPs S1–S6; Founder gate between WPs |
 
 ### Phase 4 companion contracts
 

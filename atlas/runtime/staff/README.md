@@ -16,8 +16,10 @@ This directory **is** the organization — executable AIO offices, not a documen
 | `check.ts` | `npm run atlas:staff:check` |
 
 ```bash
-npm run atlas:staff:check:s0   # WP-S0 Ownership Skeleton
+npm run atlas:staff:check:s0   # ENG WP-S0 Ownership Skeleton
+npm run atlas:staff:check:s1   # P6-EXEC WP-S1 Office Capability (Founder gate before S2)
 npm run atlas:staff:check      # full staff suite
 ```
 
-**WP-S0 evidence:** `atlas/runtime/evidence/WP-S0-OWNERSHIP.md`
+**Evidence:** `atlas/runtime/evidence/WP-S0-OWNERSHIP.md`, `WP-S1-OFFICE-CAPABILITY.md`  
+**Advance rule:** Do not start WP-S2 without Founder approval (ATLAS-P6-EXEC).
