@@ -1,36 +1,36 @@
-import type { MemoryDisposition, WorkflowState } from "../types/envelopes";
+import {
+  classifyForRetention,
+  persistDisposition,
+} from "../retention/store";
+import type { WorkflowState } from "../types/envelopes";
 import { traceStage } from "./trace";
 
 /**
- * rt.memory — classify retain / promote-candidate / discard.
- * Never auto-Canonicalizes. Does not write production promo queue in W0–W3
- * (W4 gated if touching production retention).
+ * rt.memory — classify then retain in non-Canonical sinks (W4).
+ * Promotion candidates go to promo staging only — never auto-Canonical.
  */
 export function runMemory(state: WorkflowState): WorkflowState {
-  const classValue =
-    state.validation?.result === "PASS"
-      ? ("temporary" as const)
-      : state.validation?.result === "STOP"
-        ? ("discarded" as const)
-        : ("operational" as const);
-
-  const disposition: MemoryDisposition = {
-    request_id: state.request_id,
-    class: classValue,
-    summary: `Classified as ${classValue}; canonical=false`,
-    refs: state.audit.map((a) => a.event_id),
-    canonical: false,
-  };
-
+  const disposition = classifyForRetention(state);
   if (disposition.canonical !== false) {
     throw new Error("MemoryDisposition.canonical must be false");
   }
+
+  const { record, promo } = persistDisposition(disposition);
 
   let next: WorkflowState = {
     ...state,
     disposition,
     stage: "memory",
   };
-  next = traceStage(next, "memory", `Memory class=${classValue}`, [classValue]);
+  next = traceStage(
+    next,
+    "memory",
+    `Retained class=${disposition.class} sink=${record.sink}`,
+    [
+      record.record_id,
+      disposition.class,
+      ...(promo ? [promo.staging_id, "promo-staging-not-canonical"] : []),
+    ]
+  );
   return next;
 }

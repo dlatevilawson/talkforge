@@ -19,7 +19,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // Target plane: Founder-visible delivery only when both flags enabled (W3 gate).
+    // Target plane Founder-visible delivery: both flags required.
+    // ATLAS-D-W4: do not enable for Founder exposure until separate Founder decision.
     // Default remains Legacy Ask Atlas. Loader freeze preserved.
     if (isTargetFounderVisibleEnabled()) {
       const result = await runTargetPipeline({ message, source: "founder" });

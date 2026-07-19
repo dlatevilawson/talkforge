@@ -68,6 +68,8 @@ async function main(): Promise<void> {
     w3.delivery === undefined,
     "W3: Founder delivery suppressed when FOUNDER_VISIBLE off"
   );
+  assert(w3.founderVisible === false, "W3: FOUNDER_VISIBLE must default off");
+  assert(w3.enabled === false, "W3: TARGET must default off");
 
   const stages = getAuditSink().map((e) => e.stage);
   for (const required of [

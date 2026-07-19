@@ -1,0 +1,195 @@
+{
+  "decision": "ATLAS-D-W4",
+  "flags": {
+    "target": false,
+    "founderVisible": false
+  },
+  "retention": {
+    "ephemeral": [
+      {
+        "record_id": "cb1a69b0-706f-491e-842b-b2ff5f0f5235",
+        "request_id": "cd0f4a6b-6d24-45db-b422-e1e46e3854cc",
+        "class": "temporary",
+        "summary": "W4 retention class=temporary; canonical=false",
+        "refs": [
+          "e86dd42f-0b6c-4888-a1ec-6bad17588bf7",
+          "6baaa2fd-db21-4770-8607-70977462d107",
+          "15a33b27-ae89-4fb2-9e5a-0bdf2aaaabef",
+          "811dce6a-b9e7-4bdf-8c7f-81055c61aa51",
+          "430e819d-e018-4a78-ba56-bba7b91ea45b",
+          "18727e94-ab2a-428c-a9fe-43245b16d56d",
+          "81d7bbc1-a8f1-43ec-b04a-0c9c00d3aaeb",
+          "f56eed1f-7d85-4612-b6b8-1665ab0804f8",
+          "5c25d98d-41e7-40e7-9484-30b135c58b11",
+          "2975814a-6fd7-4069-9b1e-8fb281c82444"
+        ],
+        "canonical": false,
+        "stored_at": "2026-07-19T03:21:53.455Z",
+        "sink": "ephemeral"
+      }
+    ],
+    "ops": [
+      {
+        "record_id": "c4ea00b9-6fd2-4a22-ae56-1a1298ab95f5",
+        "request_id": "bb824de6-18ef-461f-be12-987f02837f01",
+        "class": "promotion_candidate",
+        "summary": "Promo staging f6ca2c82-1913-44c9-8f57-e063bd630eff",
+        "refs": [
+          "0f18f924-c5a7-4fc2-8c1c-290286ec76ed",
+          "7f44cadb-f77e-42b8-9c7a-ce2d2ac66f5f",
+          "19eb6988-3ac9-4dff-8887-1f043428fffc",
+          "450173d2-abce-4a22-8dc5-43e294ffdc04",
+          "36e20df4-c315-4e9a-b582-41e50f8051ef",
+          "ed92a3c7-a190-40d6-bb26-3c64efcb64ef",
+          "1330a929-f5ae-4632-a966-c656cb9dbfab",
+          "5464af63-82bb-425e-8aca-82863558f44b",
+          "54681d15-8ffa-48dd-b496-724d594dfd74",
+          "b8183dbf-ebff-4b7f-a6ec-0bf2cdc68737"
+        ],
+        "canonical": false,
+        "stored_at": "2026-07-19T03:21:53.456Z",
+        "sink": "promo_staging"
+      }
+    ],
+    "discarded": [],
+    "promoStaging": [
+      {
+        "staging_id": "f6ca2c82-1913-44c9-8f57-e063bd630eff",
+        "request_id": "bb824de6-18ef-461f-be12-987f02837f01",
+        "stage": "Observation",
+        "summary": "W4 retention class=promotion_candidate; canonical=false",
+        "canonical": false,
+        "auto_published": false,
+        "created_at": "2026-07-19T03:21:53.456Z",
+        "notes": [
+          "Staging only — not REG-PROMO-Q Canonical publication",
+          "STD-002 stages required before institutional approval"
+        ]
+      }
+    ]
+  },
+  "exchange": {
+    "founder": {
+      "channel": "founder",
+      "deliverable": "Recommend proceeding with counsel grounded only in labeled context sources; Founder decides.",
+      "binding": false,
+      "validation": "PASS",
+      "canonical_published": false,
+      "domain_absorbed": false
+    },
+    "sentinel": {
+      "channel": "sentinel",
+      "deliverable": "Request for findings / shared options. Preserved note: No Sentinel finding attached — channel ready; findings would pass through intact",
+      "binding": false,
+      "validation": "PASS",
+      "sentinel_findings_intact": true,
+      "canonical_published": false,
+      "domain_absorbed": false
+    },
+    "domain": {
+      "channel": "domain",
+      "deliverable": "Coordination status/options request only — Atlas does not assume domain execution ownership",
+      "binding": false,
+      "validation": "PASS",
+      "domain_absorbed": false,
+      "canonical_published": false
+    },
+    "promotion": {
+      "channel": "promotion",
+      "deliverable": "No promotion candidate on this path",
+      "binding": false,
+      "validation": "PASS",
+      "canonical_published": false,
+      "domain_absorbed": false
+    },
+    "boundary_violations": []
+  },
+  "cutover": {
+    "generated_at": "2026-07-19T03:21:53.457Z",
+    "founder_visible_enabled": false,
+    "target_enabled": false,
+    "loader_frozen": true,
+    "gates": [
+      {
+        "id": "G1",
+        "gate": "Context path implements RUNTIME-CTX authority filters",
+        "status": "amber",
+        "evidence": [
+          "Target Knowledge Module labels all legacy sources; Scaffold excluded",
+          "Full ATOS Authoritative/Canonical inject path still dual-plane (amber until cutover)"
+        ]
+      },
+      {
+        "id": "G2",
+        "gate": "Canonical / Authoritative sources exist for domains being cut over",
+        "status": "amber",
+        "evidence": [
+          "ATOS Specs/Standards Authoritative under RES-002",
+          "Legacy-atlas plane still primary for Ask Atlas until cutover"
+        ]
+      },
+      {
+        "id": "G3",
+        "gate": "Memory Module can enqueue REG-PROMO-Q without auto-Canonicalizing",
+        "status": "amber",
+        "evidence": [
+          "W4 promo staging proves enqueue-without-Canonical (staging ≠ REG-PROMO-Q publish)",
+          "Promo staging items: 1",
+          "Production REG-PROMO-Q write remains STD-002 Founder-gated"
+        ]
+      },
+      {
+        "id": "G4",
+        "gate": "Explicit Founder approval to change loadAtlasContext() / loader file set",
+        "status": "pending",
+        "evidence": [
+          "loadAtlasContext() still loads the frozen Tier-D set (10 files)",
+          "W4 did not modify atlas/engine/loader.ts",
+          "No Founder approval to lift loader freeze in W4"
+        ]
+      },
+      {
+        "id": "G5",
+        "gate": "Compatibility test: no silent authority upgrade of Draft Specs",
+        "status": "amber",
+        "evidence": [
+          "Label transport forbids upgrades in Context Module",
+          "Integrity V3 rejects unlabeled / scaffold-as-institutional"
+        ]
+      },
+      {
+        "id": "G6",
+        "gate": "Integrity Module V1–V8 active on Founder-visible path",
+        "status": "amber",
+        "evidence": [
+          "Integrity Module implemented on target plane",
+          "Founder-visible path remains disabled — gate not production-proven yet"
+        ]
+      },
+      {
+        "id": "G7",
+        "gate": "Dual-plane rollback plan documented before switch",
+        "status": "amber",
+        "evidence": [
+          "Rollback: keep FOUNDER_VISIBLE off; Legacy /api/atlas continues to serve",
+          "TARGET shadow can be disabled by unsetting ATLAS_RUNTIME_TARGET",
+          "Loader freeze preserves Legacy knowledge set"
+        ]
+      }
+    ],
+    "ready_for_founder_flag_decision": true,
+    "blockers": []
+  },
+  "pipeline": {
+    "request_id": "cd0f4a6b-6d24-45db-b422-e1e46e3854cc",
+    "validation": "PASS",
+    "disposition_class": "temporary"
+  },
+  "promo_pipeline": {
+    "request_id": "bb824de6-18ef-461f-be12-987f02837f01",
+    "disposition_class": "promotion_candidate",
+    "staging_count": 1
+  },
+  "ok": true,
+  "failures": []
+}
