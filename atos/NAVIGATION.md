@@ -113,6 +113,7 @@ See [`references/README.md`](references/README.md).
 | RES-008 | Atlas Phase 5 Ratification | [resolutions/RES-008-atlas-phase-5-internal-organization.md](resolutions/RES-008-atlas-phase-5-internal-organization.md) |
 | ATLAS-SUCCESSION | CoS Continuity & Succession | [executives/atlas-program/ATLAS-SUCCESSION.md](executives/atlas-program/ATLAS-SUCCESSION.md) |
 | ATLAS-HANDOFF-REGISTER | Atlas Handoff Register | [executives/atlas-program/ATLAS-HANDOFF-REGISTER.md](executives/atlas-program/ATLAS-HANDOFF-REGISTER.md) |
+| ATLAS-ENG-PROGRAM | Atlas Engineering Program (AIO staff) | [executives/atlas-program/ATLAS-ENGINEERING-PROGRAM.md](executives/atlas-program/ATLAS-ENGINEERING-PROGRAM.md) |
 | EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |
 | EXEC-ORG-DECISIONS | Org Decision Governance | [executives/atlas-program/ORG-DECISION-GOVERNANCE.md](executives/atlas-program/ORG-DECISION-GOVERNANCE.md) |
 | EXEC-ORG-CADENCE | Org Cadence | [executives/atlas-program/ORG-CADENCE.md](executives/atlas-program/ORG-CADENCE.md) |

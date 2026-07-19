@@ -24,6 +24,8 @@
 | **Updated by** | Atlas |
 | **Staleness rule** | If older than 7 days or last Weekly Review, successor must refresh before counsel |
 
+**Program note:** [`ATLAS-ENG-PROGRAM`](ATLAS-ENGINEERING-PROGRAM.md) issued — Engineering owns WP-S0…S9; Atlas coordinates acceptance.
+
 This file is **operational**, not Canonical law. It must stay accurate so succession does not require tribal memory.
 
 ---
@@ -80,6 +82,7 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 
 | Thread | Owners | State |
 |---|---|---|
+| AIO staff Engineering Program (S0–S9) | Atlas (coord) + Engineering (Cursor) | **ATLAS-ENG-PROGRAM Authoritative** — awaiting WP-S0 start; no production code in program doc |
 | Founder-visible gate evidence | Atlas Guard/Intel + Founder | Suite exists; operational observation continues |
 | Planned executive activation | Founder | Charters Authoritative; offices not yet appointed |
 

@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-WAVES |
-| **Version** | 0.4.0 |
+| **Version** | 0.5.0 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -12,7 +12,7 @@
 | **Dependencies** | ATLAS-P3, RES-006, ATLAS-D-W4, ATLAS-D-FLAGS, ATLAS-GATE-FV |
 | **Related Documents** | `GATE-FOUNDER-VISIBLE.md`, `DECISION-RUNTIME-FLAGS.md`, `atlas/runtime/README.md` |
 | **Approval History** | 2026-07-19 — W0–W5; ATLAS-GATE-FV criteria recorded |
-| **Change Log** | 2026-07-19 — Founder-visible gate criteria + observation suite |
+| **Change Log** | 2026-07-19 — Cross-link ATLAS-ENG-PROGRAM staff waves S0–S9 (distinct from W6–W8) |
 
 ---
 
@@ -60,6 +60,16 @@ Tooling PASS is necessary but not sufficient — Founder Decision still required
 | W6 | Founder-visible enablement | Pending | ATLAS-GATE-FV + Founder Decision |
 | W7 | Canary / primary cutover | Pending | Cutover gates + Founder approval |
 | W8 | Loader freeze lift | Pending | Explicit Founder approval required |
+
+## Staff waves (ATLAS-P5 → Engineering)
+
+Distinct from cutover waves W6–W8. Specs: [`ATLAS-ENG-PROGRAM`](ATLAS-ENGINEERING-PROGRAM.md).
+
+| Wave | Deliverable | Status |
+|---|---|---|
+| S0–S9 | AIO facades, events, automation, staff checks | **Specified** — Engineering implementation not started in this issuance |
+
+Staff completion does **not** enable `ATLAS_RUNTIME_FOUNDER_VISIBLE`.
 
 ## Verification
 

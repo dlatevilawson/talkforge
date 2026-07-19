@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-PROGRAM |
-| **Version** | 1.2.0 |
+| **Version** | 1.3.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -12,7 +12,7 @@
 | **Dependencies** | RES-002…RES-008, SPEC-006 |
 | **Related Documents** | ATLAS-P0…P5, CHARTER-*, MAN-002 |
 | **Approval History** | 2026-07-19 — Phases 0–5 ratified |
-| **Change Log** | 2026-07-19 — Phase 5 ratified (RES-008); GUARD–Sentinel boundary normative |
+| **Change Log** | 2026-07-19 — ATLAS-ENG-PROGRAM issued for AIO staff implementation via Engineering |
 
 ---
 
@@ -50,6 +50,14 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 |---|---|
 | [ATLAS-SUCCESSION.md](ATLAS-SUCCESSION.md) | Can another CoS take over from docs? |
 | [ATLAS-HANDOFF-REGISTER.md](ATLAS-HANDOFF-REGISTER.md) | Live open state for handoff |
+
+## Staff implementation (Phase 5 → Engineering)
+
+| Doc | Role |
+|---|---|
+| [ATLAS-ENGINEERING-PROGRAM.md](ATLAS-ENGINEERING-PROGRAM.md) (`ATLAS-ENG-PROGRAM`) | Implementation specs for AIO-* via Engineering (Cursor); no production code in the program itself |
+
+Atlas coordinates. Engineering implements. Contracts govern.
 
 ## Runtime implementation (Phase 3 waves)
 
