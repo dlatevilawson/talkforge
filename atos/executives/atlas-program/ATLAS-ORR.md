@@ -1,42 +1,56 @@
-# Atlas — Operational Readiness Report (Recommendation)
+# Atlas — Operational Readiness Report
 
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-ORR |
-| **Version** | 1.0.0-draft |
-| **Status** | Draft |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | Until Founder Decision |
-| **Dependencies** | ATLAS-P6-EXEC WP-S1…S5, ATLAS-ORG-VAL, ATLAS-P0…P6 |
-| **Related Documents** | WP-S1…S5 evidence under atlas/runtime/evidence/ |
-| **Approval History** | 2026-07-19 — Draft ORR after WP-S5; awaiting Founder certification |
-| **Change Log** | 2026-07-19 — Recommendation only; Atlas does not self-certify |
+| **Review Cycle** | Until superseded by formal architectural revision |
+| **Dependencies** | RES-010, ATLAS-P6-EXEC WP-S0…S5, ATLAS-ORG-VAL, ATLAS-P0…P6 |
+| **Related Documents** | ATLAS-D-FLAGS, ATLAS-GATE-FV, WP evidence under `atlas/runtime/evidence/` |
+| **Approval History** | 2026-07-19 — Draft after WP-S5; **2026-07-19 — Founder Certification (RES-010)** |
+| **Change Log** | 2026-07-19 — Certified Atlas Runtime Organization v1.0 for continued development |
 
 ---
 
-## Certification statement (Atlas recommendation)
+## Founder Certification — Atlas Runtime Organization v1.0
 
 | Field | Value |
 |---|---|
-| **Recommended result** | **PASS WITH FINDINGS** |
-| **Certified for normal operation?** | **NO — Founder Decision required** |
-| **Self-certified by Atlas?** | **NO** |
+| **Result** | **CERTIFIED** |
+| **Certified version** | Atlas Runtime Organization v1.0 |
+| **Resolution** | [`RES-010`](../../resolutions/RES-010-atlas-runtime-organization-certification.md) |
+| **Date** | 2026-07-19 |
+| **Self-certified by Atlas?** | **NO** — Founder Decision |
 
-### Recommended scope (if Founder certifies)
+### Certification applies to
 
-- Atlas internal staff (`AIO-*`) operational on target plane  
-- Staff-coordinated pipeline with Core delegation + Guard emission gates  
-- Dual-plane: `ATLAS_RUNTIME_TARGET` on; `ATLAS_RUNTIME_FOUNDER_VISIBLE` **off**  
-- Loader freeze remains until separate Founder Decision  
+- Runtime organizational model  
+- Delegation framework  
+- Governance boundaries  
+- Validation architecture  
 
-### Explicitly NOT included
+### Certification does **not** authorize
 
-- Enabling `ATLAS_RUNTIME_FOUNDER_VISIBLE`  
-- Loader freeze lift  
-- Company EXEC-* appointments (Founder-exclusive)  
-- Strategic capability expansion  
+- Automatic promotion of experimental capabilities  
+- Bypass of governance controls  
+- Enabling `ATLAS_RUNTIME_FOUNDER_VISIBLE` without separate approval  
+- Loader freeze lift without separate Founder Decision  
+
+### Standing rule
+
+All future development shall proceed within the validated organizational framework unless superseded by a formally approved architectural revision.
+
+### Operational posture (unchanged by this certification)
+
+| Control | Posture |
+|---|---|
+| `ATLAS_RUNTIME_TARGET` | **On** (default) |
+| `ATLAS_RUNTIME_FOUNDER_VISIBLE` | **Off** — separate Founder Decision required |
+| `atlas/engine/loader.ts` | **Frozen** — separate Founder Decision required |
 
 ---
 
@@ -44,12 +58,12 @@
 
 | Office / Function | Operational? | Evidence |
 |---|---|---|
-| AIO-CORE | Yes | WP-S1, S2, S5 |
+| AIO-CORE | Yes | WP-S1–S5 |
 | AIO-INTEL | Yes | WP-S1–S5 |
 | AIO-COUNSEL | Yes | WP-S1–S5 |
 | AIO-BROKER | Yes | WP-S1–S5 |
 | AIO-GUARD | Yes | WP-S1–S5 |
-| AIF-PROGRAM | Yes (Core function) | Program Desk tracking |
+| AIF-PROGRAM | Yes (Core function) | Program Desk |
 | EXEC-* (Designed) | Chartered; not all appointed | P4 / REG-EXEC |
 
 ## 2. Interfaces validated
@@ -59,16 +73,16 @@
 - Fail-closed paths (WP-S4)  
 - Sustained coordination under load (WP-S5)  
 
-## 3. Residual risks / findings
+## 3. Residual findings (accepted under certification)
 
 | Finding | Severity | Notes |
 |---|---|---|
-| FOUNDER_VISIBLE still off | Info | Separate ATLAS-GATE-FV Decision |
+| FOUNDER_VISIBLE still off | Info | Requires separate Decision (ATLAS-GATE-FV) |
 | Designed EXEC offices not appointed | Info | Founder-exclusive |
-| Concurrent demand serialized via pipeline lock | Low | Queued high demand; not multi-tenant memory isolation |
-| REG-EXEC Draft vs P4 Authoritative sync | Low | Hygiene (S1-F1) |
+| Concurrent demand serialized via pipeline lock | Low | Queued high demand posture |
+| REG-EXEC Draft vs P4 Authoritative sync | Low | Hygiene item |
 
-## 4. Untested assumptions
+## 4. Untested assumptions (not blockers to this certification)
 
 - Live multi-executive human traffic volumes  
 - Model-backed cognition beyond structural target plane  
@@ -78,34 +92,27 @@
 
 | WP | Result | Path |
 |---|---|---|
-| WP-S0 | PASS | atlas/runtime/evidence/WP-S0-OWNERSHIP.md |
-| WP-S1 | PASS (Founder-approved) | atlas/runtime/evidence/WP-S1-OFFICE-CAPABILITY.md |
-| WP-S2 | PASS (Founder-approved) | atlas/runtime/evidence/WP-S2-COORDINATION.md |
-| WP-S3 | PASS (Founder-approved) | atlas/runtime/evidence/WP-S3-CONFLICT.md |
-| WP-S4 | PASS (Founder-approved) | atlas/runtime/evidence/WP-S4-FAILURE.md |
-| WP-S5 | **PASS** | atlas/runtime/evidence/WP-S5-STRESS.md |
+| WP-S0 | PASS | `atlas/runtime/evidence/WP-S0-OWNERSHIP.md` |
+| WP-S1 | PASS (Founder-approved) | `atlas/runtime/evidence/WP-S1-OFFICE-CAPABILITY.md` |
+| WP-S2 | PASS (Founder-approved) | `atlas/runtime/evidence/WP-S2-COORDINATION.md` |
+| WP-S3 | PASS (Founder-approved) | `atlas/runtime/evidence/WP-S3-CONFLICT.md` |
+| WP-S4 | PASS (Founder-approved) | `atlas/runtime/evidence/WP-S4-FAILURE.md` |
+| WP-S5 | PASS (Founder-approved) | `atlas/runtime/evidence/WP-S5-STRESS.md` |
 
-Commands: `atlas:staff:check:s0` … `s5`, `atos:check`, `atlas:runtime:check`
-
-## 6. ORG-VAL stage rollup (recommendation)
+## 6. ORG-VAL stage rollup
 
 | Stage | Result |
 |---|---|
 | 1 Structural | PASS WITH FINDINGS |
-| 2 Integration | PASS (WP-S2) |
-| 3 Automation | PARTIAL → strengthened via staff checks |
-| 4 Failure injection | PASS (WP-S4) |
-| 5 Team effectiveness | Supported by S2/S5 delegation metrics |
-| 6 Operational stress | **PASS** (WP-S5) |
-| 7 Certification | **Awaiting Founder** |
+| 2 Integration | PASS |
+| 3 Automation | Strengthened via staff checks |
+| 4 Failure injection | PASS |
+| 5 Team effectiveness | Supported by S2/S5 metrics |
+| 6 Operational stress | PASS |
+| 7 Certification | **Founder CERTIFIED (RES-010)** |
 
-## 7. Founder Decision request
+---
 
-Options:
+## Authority
 
-1. **Certify as scoped** — staff org operational under TARGET on / FOUNDER_VISIBLE off  
-2. **Certify with waivers** — list waivers explicitly  
-3. **Return to Stage/WP** — specify which  
-
-**Atlas recommends option (1) if WP-S5 is PASS, with findings above.**  
-**Atlas will not enable FOUNDER_VISIBLE or lift loader freeze without separate Decisions.**
+This ORR is binding under **RES-010**. Atlas coordinates continued development inside this certified framework. Atlas does not expand scope beyond this certification without Founder authority.

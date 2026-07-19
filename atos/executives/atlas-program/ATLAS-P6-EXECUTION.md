@@ -103,6 +103,6 @@ Per Founder directive: Atlas coordinates; one owner; traceable decisions; eviden
 | P6-EXEC WP-S2 | **PASS** — Founder-approved |
 | P6-EXEC WP-S3 | **PASS** — Founder-approved |
 | P6-EXEC WP-S4 | **PASS** — Founder-approved |
-| P6-EXEC WP-S5 | **PASS** — `atlas/runtime/evidence/WP-S5-STRESS.md` |
-| ORR / Certification | **Draft ORR issued** — [`ATLAS-ORR`](ATLAS-ORR.md); **awaiting Founder Decision** |
-| Certification | **Not certified** (Atlas does not self-certify) |
+| P6-EXEC WP-S5 | **PASS** — Founder-approved |
+| ORR / Certification | **CERTIFIED** — [`ATLAS-ORR`](ATLAS-ORR.md) / [`RES-010`](../../resolutions/RES-010-atlas-runtime-organization-certification.md) |
+| Certified version | **Atlas Runtime Organization v1.0** — continued development within framework; FOUNDER_VISIBLE / loader still separately gated |

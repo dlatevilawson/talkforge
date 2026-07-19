@@ -26,4 +26,5 @@ npm run atlas:staff:check      # full staff suite
 ```
 
 **Evidence:** `WP-S0` … `WP-S5-STRESS.md` · ORR: `atos/executives/atlas-program/ATLAS-ORR.md`  
-**Advance rule:** Awaiting Founder certification — Atlas does not self-certify.
+**Certification:** Atlas Runtime Organization **v1.0** (RES-010) — continued development within validated framework.  
+**Not authorized:** `FOUNDER_VISIBLE` on, loader freeze lift, or governance bypass without separate Founder Decision.

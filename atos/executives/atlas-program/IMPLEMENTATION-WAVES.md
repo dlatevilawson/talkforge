@@ -70,7 +70,7 @@ Distinct from cutover waves W6–W8. Specs: [`ATLAS-ENG-PROGRAM`](ATLAS-ENGINEER
 | S0 | Ownership skeleton, instantiate offices, exclusive ownership, coordinator | **PASS** — `atlas:staff:check:s0` |
 | S1–S6 (slice) | Events, facades, Guard gate, delegation metrics | **Operational** — covered by `atlas:staff:check`; formal WP exits continue |
 | S7–S9 | Full automation cadence + observation evidence packaging | In progress / remaining |
-| ORR Stages 2–6 | ATLAS-ORG-VAL | Partial (2–5); Stage 6 pending; **not certified** |
+| ORR / Certification | ATLAS-ORR / RES-010 | **Certified** — Atlas Runtime Organization v1.0 (continued development); FOUNDER_VISIBLE still off |
 
 Staff completion does **not** enable `ATLAS_RUNTIME_FOUNDER_VISIBLE`.
 
