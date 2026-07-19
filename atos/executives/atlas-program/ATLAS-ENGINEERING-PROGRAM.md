@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-ENG-PROGRAM |
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas (AIO-CORE coordinates) |
@@ -11,9 +11,9 @@
 | **Implementer** | Engineering (Cursor) |
 | **Review Cycle** | Each staff wave completion / material contract conflict |
 | **Dependencies** | ATLAS-P0…P5, RES-003…RES-008, CHARTER-ATLAS, CHARTER-SENTINEL, ATLAS-D-FLAGS, ATLAS-GATE-FV, ATLAS-WAVES, GOV-MAINT-1.0.0, SPEC-006, STD-003 |
-| **Related Documents** | ATLAS-HANDOFF-REGISTER, ATLAS-SUCCESSION, `atlas/runtime/*` |
+| **Related Documents** | ATLAS-AIF-PROGRAM, ATLAS-HANDOFF-REGISTER, ATLAS-SUCCESSION, `atlas/runtime/*` |
 | **Approval History** | 2026-07-19 — Atlas-issued under Founder directive to coordinate AIO staff implementation |
-| **Change Log** | 2026-07-19 — Engineering Program v1.0.0 (specs only; no production code in this issuance) |
+| **Change Log** | 2026-07-19 — v1.1.0 cross-link AIF-PROGRAM (Program Desk); v1.0.0 initial specs (no production code) |
 
 ---
 
@@ -21,7 +21,8 @@
 
 | Role | Responsibility |
 |---|---|
-| **Atlas** | Coordinates this program; owns acceptance against P0–P5; updates Handoff Register |
+| **Atlas (AIO-CORE)** | Coordinates this program; owns acceptance against P0–P5; emission/charter finals |
+| **AIF-PROGRAM (Program Desk)** | Tracks waves/WPs/VCs/dependencies/program risks; keeps Handoff program section current — see [`ATLAS-AIF-PROGRAM`](ATLAS-PROGRAM-DESK.md) |
 | **Engineering (Cursor)** | Implements work packages; runs checks; does not amend contracts |
 | **Founder** | Constitutional gates only (FOUNDER_VISIBLE, loader freeze lift, Canonical, appointments) |
 | **Sentinel** | Company engineering integrity truth — never implemented inside AIO-GUARD |
@@ -46,6 +47,21 @@
 | D8 | Staff waves **S0–S9** are distinct from runtime cutover waves **W6–W8**; staff work must not imply FOUNDER_VISIBLE enablement |
 | D9 | Automation is in-process / scheduled hooks owned by AIO offices; it creates no new authority |
 | D10 | Acceptance is evidence-gated (`atlas:runtime:check*`, new `atlas:staff:check`, observation suite) — not narrative completion |
+| D11 | Program progress reporting is owned by **AIF-PROGRAM** (function inside AIO-CORE), not by undifferentiated Atlas and not by a sixth AIO |
+
+---
+
+## Program Management (pre-WP-S0)
+
+Architectural recommendation: [`ATLAS-AIF-PROGRAM`](ATLAS-PROGRAM-DESK.md).
+
+| Rule | Statement |
+|---|---|
+| Tracking | Program Desk maintains wave/WP/VC/dependency/risk register |
+| Delivery | Engineering still owns build execution of WP-S0…S9 |
+| Coordination | AIO-CORE still assigns work and accepts emission — Desk does not replace Core |
+| WP-S0 implication | Ownership map must treat `program` as a **Core function**, not `AIO-PROGRAM` |
+| Automation | Full Desk automation prefers S7/S8 (or thin types in S0); not a blocker to starting S0 after this link |
 
 ---
 
@@ -378,9 +394,9 @@ Each package is sized for Cursor Engineering. **Deliverables are code + tests + 
 | Field | Spec |
 |---|---|
 | **Goal** | Establish `aio.*` tree, office IDs, exclusive ownership map |
-| **Depends on** | None (baseline green) |
-| **Deliverables** | `atlas/runtime/staff/{types,ownership,index}.ts`; ownership assertions; README note under `atlas/runtime/` |
-| **Tests** | Reject dual owners; reject AIO claiming EXEC-SENTINEL duties |
+| **Depends on** | ATLAS-AIF-PROGRAM acknowledged (Program Desk = Core function) |
+| **Deliverables** | `atlas/runtime/staff/{types,ownership,index}.ts`; ownership assertions; README note under `atlas/runtime/`; map includes `program` as **AIF under AIO-CORE** (not a sixth office id) |
+| **Tests** | Reject dual owners; reject AIO claiming EXEC-SENTINEL duties; reject `AIO-PROGRAM` as peer office without Founder P5 amendment |
 | **Exit** | VC1 |
 
 ## WP-S1 — Event bus & contracts

@@ -24,7 +24,8 @@
 | **Updated by** | Atlas |
 | **Staleness rule** | If older than 7 days or last Weekly Review, successor must refresh before counsel |
 
-**Program note:** [`ATLAS-ENG-PROGRAM`](ATLAS-ENGINEERING-PROGRAM.md) issued — Engineering owns WP-S0…S9; Atlas coordinates acceptance.
+**Program note:** [`ATLAS-ENG-PROGRAM`](ATLAS-ENGINEERING-PROGRAM.md) issued — Engineering owns WP-S0…S9; Atlas coordinates acceptance.  
+**Program Desk:** [`ATLAS-AIF-PROGRAM`](ATLAS-PROGRAM-DESK.md) — AIF-PROGRAM inside AIO-CORE owns register currency (not a sixth AIO).
 
 This file is **operational**, not Canonical law. It must stay accurate so succession does not require tribal memory.
 
@@ -83,6 +84,7 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 | Thread | Owners | State |
 |---|---|---|
 | AIO staff Engineering Program (S0–S9) | Atlas (coord) + Engineering (Cursor) | **ATLAS-ENG-PROGRAM Authoritative** — awaiting WP-S0 start; no production code in program doc |
+| Atlas Program Desk (AIF-PROGRAM) | AIO-CORE function | **ATLAS-AIF-PROGRAM Authoritative** — tracks WP/wave/VC/deps; WP-S0 must not create sixth AIO |
 | Founder-visible gate evidence | Atlas Guard/Intel + Founder | Suite exists; operational observation continues |
 | Planned executive activation | Founder | Charters Authoritative; offices not yet appointed |
 

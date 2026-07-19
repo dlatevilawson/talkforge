@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-PROGRAM |
-| **Version** | 1.3.0 |
+| **Version** | 1.4.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -12,7 +12,7 @@
 | **Dependencies** | RES-002…RES-008, SPEC-006 |
 | **Related Documents** | ATLAS-P0…P5, CHARTER-*, MAN-002 |
 | **Approval History** | 2026-07-19 — Phases 0–5 ratified |
-| **Change Log** | 2026-07-19 — ATLAS-ENG-PROGRAM issued for AIO staff implementation via Engineering |
+| **Change Log** | 2026-07-19 — ATLAS-AIF-PROGRAM (Program Desk) recommended inside AIO-CORE |
 
 ---
 
@@ -56,8 +56,9 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 | Doc | Role |
 |---|---|
 | [ATLAS-ENGINEERING-PROGRAM.md](ATLAS-ENGINEERING-PROGRAM.md) (`ATLAS-ENG-PROGRAM`) | Implementation specs for AIO-* via Engineering (Cursor); no production code in the program itself |
+| [ATLAS-PROGRAM-DESK.md](ATLAS-PROGRAM-DESK.md) (`ATLAS-AIF-PROGRAM`) | Program Management as internal function under AIO-CORE (not a sixth office) |
 
-Atlas coordinates. Engineering implements. Contracts govern.
+Atlas coordinates. Program Desk tracks. Engineering implements. Contracts govern.
 
 ## Runtime implementation (Phase 3 waves)
 
