@@ -100,6 +100,17 @@ See [`references/README.md`](references/README.md).
 | CHARTER-ATLAS | Atlas Charter | [executives/charters/CHARTER-ATLAS.md](executives/charters/CHARTER-ATLAS.md) |
 | CHARTER-SENTINEL | Sentinel Charter | [executives/charters/CHARTER-SENTINEL.md](executives/charters/CHARTER-SENTINEL.md) |
 | CHARTER-FOUNDER | Founder Charter | [executives/charters/CHARTER-FOUNDER.md](executives/charters/CHARTER-FOUNDER.md) |
+| CHARTER-PRODUCT | Product Charter | [executives/charters/CHARTER-PRODUCT.md](executives/charters/CHARTER-PRODUCT.md) |
+| CHARTER-ENGINEERING | Engineering Charter | [executives/charters/CHARTER-ENGINEERING.md](executives/charters/CHARTER-ENGINEERING.md) |
+| CHARTER-GROWTH | Growth Charter | [executives/charters/CHARTER-GROWTH.md](executives/charters/CHARTER-GROWTH.md) |
+| CHARTER-KNOWLEDGE | Knowledge Charter | [executives/charters/CHARTER-KNOWLEDGE.md](executives/charters/CHARTER-KNOWLEDGE.md) |
+| CHARTER-CUSTOMER | Customer Charter | [executives/charters/CHARTER-CUSTOMER.md](executives/charters/CHARTER-CUSTOMER.md) |
+| CHARTER-FINANCE | Finance Charter | [executives/charters/CHARTER-FINANCE.md](executives/charters/CHARTER-FINANCE.md) |
+| CHARTER-OPERATIONS | Operations Charter | [executives/charters/CHARTER-OPERATIONS.md](executives/charters/CHARTER-OPERATIONS.md) |
+| ATLAS-P4 | Phase 4 Executive Organization | [executives/atlas-program/PHASE-4-EXECUTIVE-ORGANIZATION.md](executives/atlas-program/PHASE-4-EXECUTIVE-ORGANIZATION.md) |
+| EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |
+| EXEC-ORG-DECISIONS | Org Decision Governance | [executives/atlas-program/ORG-DECISION-GOVERNANCE.md](executives/atlas-program/ORG-DECISION-GOVERNANCE.md) |
+| EXEC-ORG-CADENCE | Org Cadence | [executives/atlas-program/ORG-CADENCE.md](executives/atlas-program/ORG-CADENCE.md) |
 | EXEC-COLLAB | Collaboration | [executives/collaboration.md](executives/collaboration.md) |
 | MAN-001 | Founder Manual | [manuals/MAN-001-founder-operating-manual.md](manuals/MAN-001-founder-operating-manual.md) |
 | MAN-002 | Atlas Manual | [manuals/MAN-002-atlas-operating-manual.md](manuals/MAN-002-atlas-operating-manual.md) |

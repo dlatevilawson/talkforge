@@ -96,7 +96,7 @@ Supporting systems: resolutions, governance, registries, schemas, knowledge, run
 2. [Maintenance Mode](atos/governance/GOV-MAINT-1.0.0.md)  
 3. [Repository Navigation](atos/NAVIGATION.md)  
 4. [RES-002](atos/resolutions/RES-002-atos-v1-ratification.md) · [RES-003 Atlas P0](atos/resolutions/RES-003-atlas-phase-0-design-contract.md) · [RES-004 Atlas P1](atos/resolutions/RES-004-atlas-phase-1-executive-architecture.md) · [RES-005 Atlas P2](atos/resolutions/RES-005-atlas-phase-2-executive-infrastructure.md) · [RES-006 Atlas P3](atos/resolutions/RES-006-atlas-phase-3-runtime-architecture.md)  
-5. [Atlas P0](atos/executives/atlas-program/PHASE-0-DESIGN-CONTRACT.md) · [Atlas P1](atos/executives/atlas-program/PHASE-1-EXECUTIVE-ARCHITECTURE.md) · [Atlas P2](atos/executives/atlas-program/PHASE-2-EXECUTIVE-INFRASTRUCTURE.md) · [Atlas P3 Runtime](atos/executives/atlas-program/PHASE-3-RUNTIME-ARCHITECTURE.md)  
+5. [Atlas P0](atos/executives/atlas-program/PHASE-0-DESIGN-CONTRACT.md) · [Atlas P1](atos/executives/atlas-program/PHASE-1-EXECUTIVE-ARCHITECTURE.md) · [Atlas P2](atos/executives/atlas-program/PHASE-2-EXECUTIVE-INFRASTRUCTURE.md) · [Atlas P3 Runtime](atos/executives/atlas-program/PHASE-3-RUNTIME-ARCHITECTURE.md) · [Atlas P4 Org](atos/executives/atlas-program/PHASE-4-EXECUTIVE-ORGANIZATION.md)  
 6. [Specifications](atos/specifications/README.md) (Authoritative)  
 7. [Standards](atos/standards/README.md) (Authoritative)  
 8. [Freeze Policy](atos/governance/GOV-FREEZE-1.0.0.md)  

@@ -12,7 +12,9 @@
 | **Dependencies** | SPEC-006, STD-003, CHARTER-ATLAS, CHARTER-SENTINEL |
 | **Related Documents** | REG-EXEC, RUNTIME-IFACE |
 | **Approval History** | 2026-07-18 — M6 Draft |
-| **Change Log** | 2026-07-18 — Collaboration rules for active executives |
+| **Change Log** | 2026-07-18 — Collaboration rules; 2026-07-19 — Supplemented by ATLAS-P4 ORG-COMM |
+
+> Phase 4 note: Full interface catalog is [`atlas-program/ORG-COMMUNICATION.md`](atlas-program/ORG-COMMUNICATION.md) (`EXEC-ORG-COMM`). On conflict with this M6 draft, Phase 4 design prevails until Founder reconciles.
 
 ---
 
