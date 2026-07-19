@@ -34,6 +34,6 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 
 | Phase | Document | Status | Role |
 |---|---|---|---|
-| 3 | [PHASE-3-RUNTIME-ARCHITECTURE.md](PHASE-3-RUNTIME-ARCHITECTURE.md) (`ATLAS-P3`) | Draft | Runtime architecture & implementation design |
+| 3 | [PHASE-3-RUNTIME-ARCHITECTURE.md](PHASE-3-RUNTIME-ARCHITECTURE.md) (`ATLAS-P3`) | Review | Runtime architecture — awaiting Founder ratification |
 
 All Atlas runtime design and implementation must satisfy Phase 0, Phase 1, and Phase 2. Conflicts change the design — not the ratified contracts.
