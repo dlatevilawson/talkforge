@@ -34,6 +34,12 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 | 3 | [PHASE-3-RUNTIME-ARCHITECTURE.md](PHASE-3-RUNTIME-ARCHITECTURE.md) (`ATLAS-P3`) | RES-006 | Runtime architecture that realizes Phase 2 |
 | 4 | [PHASE-4-EXECUTIVE-ORGANIZATION.md](PHASE-4-EXECUTIVE-ORGANIZATION.md) (`ATLAS-P4`) | RES-007 | Permanent executive organization Atlas coordinates |
 
+## Active design
+
+| Phase | Document | Status | Role |
+|---|---|---|---|
+| 5 | [PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md](PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md) (`ATLAS-P5`) | Review | Atlas internal staff proposal (AIO-*) |
+
 ### Phase 4 companion contracts
 
 | Doc | ID |

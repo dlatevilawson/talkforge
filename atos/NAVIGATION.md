@@ -109,6 +109,7 @@ See [`references/README.md`](references/README.md).
 | CHARTER-OPERATIONS | Operations Charter | [executives/charters/CHARTER-OPERATIONS.md](executives/charters/CHARTER-OPERATIONS.md) |
 | ATLAS-P4 | Phase 4 Executive Organization Contract | [executives/atlas-program/PHASE-4-EXECUTIVE-ORGANIZATION.md](executives/atlas-program/PHASE-4-EXECUTIVE-ORGANIZATION.md) |
 | RES-007 | Atlas Phase 4 Ratification | [resolutions/RES-007-atlas-phase-4-executive-organization.md](resolutions/RES-007-atlas-phase-4-executive-organization.md) |
+| ATLAS-P5 | Phase 5 Atlas Internal Organization (Proposal) | [executives/atlas-program/PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md](executives/atlas-program/PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md) |
 | EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |
 | EXEC-ORG-DECISIONS | Org Decision Governance | [executives/atlas-program/ORG-DECISION-GOVERNANCE.md](executives/atlas-program/ORG-DECISION-GOVERNANCE.md) |
 | EXEC-ORG-CADENCE | Org Cadence | [executives/atlas-program/ORG-CADENCE.md](executives/atlas-program/ORG-CADENCE.md) |

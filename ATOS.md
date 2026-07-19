@@ -96,7 +96,7 @@ Supporting systems: resolutions, governance, registries, schemas, knowledge, run
 2. [Maintenance Mode](atos/governance/GOV-MAINT-1.0.0.md)  
 3. [Repository Navigation](atos/NAVIGATION.md)  
 4. [RES-002](atos/resolutions/RES-002-atos-v1-ratification.md) · [RES-003…RES-007 Atlas P0–P4](atos/resolutions/RES-007-atlas-phase-4-executive-organization.md)  
-5. [Atlas P0–P4](atos/executives/atlas-program/README.md) · [P4 Org Contract](atos/executives/atlas-program/PHASE-4-EXECUTIVE-ORGANIZATION.md)  
+5. [Atlas P0–P4](atos/executives/atlas-program/README.md) · [P4 Org](atos/executives/atlas-program/PHASE-4-EXECUTIVE-ORGANIZATION.md) · [P5 Internal Staff Proposal](atos/executives/atlas-program/PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md)  
 6. [Specifications](atos/specifications/README.md) (Authoritative)  
 7. [Standards](atos/standards/README.md) (Authoritative)  
 8. [Freeze Policy](atos/governance/GOV-FREEZE-1.0.0.md)  
