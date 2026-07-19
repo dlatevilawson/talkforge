@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { loadAtlasContext } from "@/atlas/engine/loader";
 import { generateAtlasResponse } from "@/atlas/engine/reasoning";
 import {
+  getRuntimeFlagSnapshot,
   isTargetFounderVisibleEnabled,
   isTargetPlaneEnabled,
   runTargetPipeline,
@@ -19,9 +20,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Target plane Founder-visible delivery: both flags required.
-    // ATLAS-D-W4: do not enable for Founder exposure until separate Founder decision.
-    // Default remains Legacy Ask Atlas. Loader freeze preserved.
+    // Founder-visible target delivery — ATLAS-D-FLAGS: remains OFF (observation window).
     if (isTargetFounderVisibleEnabled()) {
       const result = await runTargetPipeline({ message, source: "founder" });
       if (!result.ok || !result.delivery || result.delivery.channel !== "founder") {
@@ -53,34 +52,61 @@ export async function POST(req: Request) {
       );
     }
 
-    // Shadow: run target pipeline for Trace/validation practice without serving it.
-    let shadow:
+    // ATLAS-D-FLAGS: TARGET is active internal implementation (observation window).
+    // Legacy continues to serve Founder-visible response.
+    let observation:
       | {
           request_id: string;
           validation: string | null;
+          authority: string | null;
+          disposition: string | null;
           ok: boolean;
+          audit_events: number;
+          delivery_suppressed: true;
         }
       | undefined;
+
     if (isTargetPlaneEnabled()) {
       try {
         const target = await runTargetPipeline({ message, source: "founder" });
-        shadow = {
+        observation = {
           request_id: target.state.request_id,
           validation: target.state.validation?.result ?? null,
+          authority: target.state.authority?.result ?? null,
+          disposition: target.state.disposition?.class ?? null,
           ok: target.ok,
+          audit_events: target.state.audit.length,
+          delivery_suppressed: true,
         };
-      } catch (shadowError) {
-        console.error("Target plane shadow run failed:", shadowError);
+      } catch (observationError) {
+        console.error("Target plane observation run failed:", observationError);
       }
     }
 
     const context = await loadAtlasContext();
     const response = await generateAtlasResponse(message, context);
+    const flags = getRuntimeFlagSnapshot();
 
     return NextResponse.json({
       response,
       plane: "legacy",
-      ...(shadow ? { shadow } : {}),
+      binding_surface: "legacy",
+      runtime: {
+        target_active: flags.target,
+        founder_visible: flags.founderVisible,
+        observation_window: flags.observationWindow,
+      },
+      ...(observation ? { observation } : {}),
+      // Backward-compatible alias for earlier shadow metadata consumers
+      ...(observation
+        ? {
+            shadow: {
+              request_id: observation.request_id,
+              validation: observation.validation,
+              ok: observation.ok,
+            },
+          }
+        : {}),
     });
   } catch (error) {
     console.error(error);

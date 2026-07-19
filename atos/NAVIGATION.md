@@ -162,6 +162,7 @@ See [`references/README.md`](references/README.md).
 | ATLAS-P3 | Atlas Phase 3 Runtime Architecture (Authoritative) | [executives/atlas-program/PHASE-3-RUNTIME-ARCHITECTURE.md](executives/atlas-program/PHASE-3-RUNTIME-ARCHITECTURE.md) |
 | RES-006 | Atlas Phase 3 Ratification | [resolutions/RES-006-atlas-phase-3-runtime-architecture.md](resolutions/RES-006-atlas-phase-3-runtime-architecture.md) |
 | ATLAS-D-W4 | W4 Operational Readiness Decision | [executives/atlas-program/DECISION-W4-OPERATIONAL-READINESS.md](executives/atlas-program/DECISION-W4-OPERATIONAL-READINESS.md) |
+| ATLAS-D-FLAGS | Runtime Flags Decision (TARGET on) | [executives/atlas-program/DECISION-RUNTIME-FLAGS.md](executives/atlas-program/DECISION-RUNTIME-FLAGS.md) |
 | RES-003 | Atlas Phase 0 Ratification | [resolutions/RES-003-atlas-phase-0-design-contract.md](resolutions/RES-003-atlas-phase-0-design-contract.md) |
 | GOV-COMPAT | Pre-ATOS Compatibility | [governance/compatibility-atlas-pre-atos.md](governance/compatibility-atlas-pre-atos.md) |
 | GOV-IDQ | ID Namespace Quarantine | [governance/id-namespace-quarantine.md](governance/id-namespace-quarantine.md) |

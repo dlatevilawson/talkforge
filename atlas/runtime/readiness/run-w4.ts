@@ -35,12 +35,13 @@ export type W4EvidencePack = {
 export async function collectW4Evidence(): Promise<W4EvidencePack> {
   const failures: string[] = [];
 
+  // ATLAS-D-FLAGS: TARGET authorized on; FOUNDER_VISIBLE stays off (observation window).
   if (isTargetFounderVisibleEnabled()) {
-    failures.push("FOUNDER_VISIBLE must remain off during W4");
+    failures.push("FOUNDER_VISIBLE must remain off (ATLAS-D-FLAGS observation window)");
   }
-  if (isTargetPlaneEnabled()) {
+  if (!isTargetPlaneEnabled()) {
     failures.push(
-      "TARGET should remain off for W4 evidence baseline (separate Founder decision to enable)"
+      "TARGET must be enabled as active internal implementation (ATLAS-D-FLAGS)"
     );
   }
 

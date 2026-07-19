@@ -7,6 +7,7 @@
  */
 
 export {
+  getRuntimeFlagSnapshot,
   isTargetFounderVisibleEnabled,
   isTargetPlaneEnabled,
 } from "./flags";

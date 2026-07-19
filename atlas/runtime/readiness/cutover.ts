@@ -19,6 +19,9 @@ export type CutoverReadinessReport = {
   target_enabled: boolean;
   loader_frozen: boolean;
   gates: CutoverGateEvidence[];
+  /** TARGET on + FOUNDER_VISIBLE off + loader frozen (ATLAS-D-FLAGS). */
+  observation_window_active: boolean;
+  /** Alias: ready for FOUNDER_VISIBLE decision review after observation. */
   ready_for_founder_flag_decision: boolean;
   blockers: string[];
 };
@@ -122,8 +125,8 @@ export function evaluateCutoverReadiness(): CutoverReadinessReport {
       gate: "Integrity Module V1–V8 active on Founder-visible path",
       status: "amber",
       evidence: [
-        "Integrity Module implemented on target plane",
-        "Founder-visible path remains disabled — gate not production-proven yet",
+        "Integrity Module runs on every request in observation window (TARGET on)",
+        "Founder-visible target path remains disabled (ATLAS-D-FLAGS) — not yet executive-proven",
       ],
     },
     {
@@ -131,8 +134,8 @@ export function evaluateCutoverReadiness(): CutoverReadinessReport {
       gate: "Dual-plane rollback plan documented before switch",
       status: "amber",
       evidence: [
-        "Rollback: keep FOUNDER_VISIBLE off; Legacy /api/atlas continues to serve",
-        "TARGET shadow can be disabled by unsetting ATLAS_RUNTIME_TARGET",
+        "Rollback Founder exposure: keep FOUNDER_VISIBLE off; Legacy continues to serve",
+        "Rollback TARGET: set ATLAS_RUNTIME_TARGET=off (emergency only; ATLAS-D-FLAGS)",
         "Loader freeze preserves Legacy knowledge set",
       ],
     },
@@ -141,7 +144,12 @@ export function evaluateCutoverReadiness(): CutoverReadinessReport {
   const blockers: string[] = [];
   if (founderVisible) {
     blockers.push(
-      "ATLAS_RUNTIME_FOUNDER_VISIBLE is ON — violates ATLAS-D-W4 (must remain off)"
+      "ATLAS_RUNTIME_FOUNDER_VISIBLE is ON — observation window requires it off (ATLAS-D-FLAGS)"
+    );
+  }
+  if (!targetOn) {
+    blockers.push(
+      "ATLAS_RUNTIME_TARGET is OFF — violates ATLAS-D-FLAGS (authorized active internal)"
     );
   }
   if (!loader.frozen) {
@@ -151,11 +159,12 @@ export function evaluateCutoverReadiness(): CutoverReadinessReport {
     if (g.status === "blocked") blockers.push(`${g.id}: ${g.gate}`);
   }
 
-  // Ready for Founder *flag decision* only when evidence pack is complete and flags still off.
-  // Does not mean cutover is approved — only that W4 objectives produced reviewable evidence.
   const evidenceComplete = gates.every((g) => g.status !== "blocked");
-  const ready_for_founder_flag_decision =
-    evidenceComplete && !founderVisible && !targetOn && loader.frozen;
+  /** Observation window active: TARGET on, FOUNDER_VISIBLE off, loader frozen. */
+  const observation_window_active =
+    evidenceComplete && targetOn && !founderVisible && loader.frozen;
+  /** Alias retained for W4 tooling: now means ready for FOUNDER_VISIBLE decision review. */
+  const ready_for_founder_flag_decision = observation_window_active;
 
   return {
     generated_at: new Date().toISOString(),
@@ -163,6 +172,7 @@ export function evaluateCutoverReadiness(): CutoverReadinessReport {
     target_enabled: targetOn,
     loader_frozen: loader.frozen,
     gates,
+    observation_window_active,
     ready_for_founder_flag_decision,
     blockers,
   };

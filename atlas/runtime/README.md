@@ -4,32 +4,27 @@
 |---|---|
 | **Document ID** | ATLAS-RT |
 | **Contract** | ATLAS-P3 / RES-006 |
-| **Decision** | ATLAS-D-W4 (no Founder-visible enablement yet) |
-| **Plane** | Target (dual-plane with Legacy Ask Atlas) |
+| **Decisions** | ATLAS-D-W4 · ATLAS-D-FLAGS |
+| **Plane** | Target = active internal; Legacy = Founder-visible surface |
 | **Loader** | Frozen — does not modify `atlas/engine/loader.ts` |
 
-## Purpose
+## Flags (ATLAS-D-FLAGS)
 
-Executable modules realizing ATLAS-P2 infrastructure units as ATLAS-P3 `rt.*` roles.
-
-## Flags
-
-| Env var | Default | Meaning |
+| Env var | Authorized default | Meaning |
 |---|---|---|
-| `ATLAS_RUNTIME_TARGET` | off | Allow target pipeline execution (shadow/canary prep) |
-| `ATLAS_RUNTIME_FOUNDER_VISIBLE` | off | Allow Founder delivery from target plane |
+| `ATLAS_RUNTIME_TARGET` | **on** | Active internal implementation (observation on each request) |
+| `ATLAS_RUNTIME_FOUNDER_VISIBLE` | **off** | Founder delivery from target — disabled during observation window |
 
-Per **ATLAS-D-W4**, do **not** enable these for Founder exposure until W4 evidence is accepted and the Founder issues a separate decision.
+Set `ATLAS_RUNTIME_TARGET=off` only for emergency rollback.  
+Do not set `ATLAS_RUNTIME_FOUNDER_VISIBLE=on` without a further Founder Decision.
 
-Legacy `/api/atlas` remains the production Founder path.
+## Observation window
 
-## Waves
+While TARGET is on and FOUNDER_VISIBLE is off:
 
-| Wave | Status |
-|---|---|
-| W0–W3 | Implemented (Founder-visible off) |
-| W4 Operational readiness | Evidence via `npm run atlas:runtime:check:w4` |
-| W5+ | Pending separate Founder decisions |
+1. `/api/atlas` runs the target pipeline internally (`observation` metadata).  
+2. Founder-visible `response` still comes from Legacy Ask Atlas.  
+3. Collect evidence that target Integrity/retention/exchange behave under normal use.  
 
 ## Checks
 

@@ -20,15 +20,15 @@ async function main(): Promise<void> {
 
 Generated: ${pack.cutover.generated_at}
 
-## Founder Decision
+## Founder Decisions
 
-Per **ATLAS-D-W4**: Founder-visible runtime remains **disabled**.  
-Flags require a **separate** Founder decision after this evidence is accepted.
+- **ATLAS-D-W4** — readiness proof before visibility  
+- **ATLAS-D-FLAGS** — TARGET authorized **on**; FOUNDER_VISIBLE remains **off** (observation window)
 
-| Flag | Value during W4 |
+| Flag | Value |
 |---|---|
-| ATLAS_RUNTIME_TARGET | \`${pack.flags.target}\` |
-| ATLAS_RUNTIME_FOUNDER_VISIBLE | \`${pack.flags.founderVisible}\` |
+| ATLAS_RUNTIME_TARGET | \`${pack.flags.target}\` (authorized active internal) |
+| ATLAS_RUNTIME_FOUNDER_VISIBLE | \`${pack.flags.founderVisible}\` (observation window) |
 
 ## 1. Production retention
 
@@ -54,10 +54,11 @@ Flags require a **separate** Founder decision after this evidence is accepted.
 
 Boundary violations: ${pack.exchange.boundary_violations.length === 0 ? "none" : pack.exchange.boundary_violations.join("; ")}
 
-## 3. Cutover readiness
+## 3. Cutover readiness / observation window
 
-Ready for Founder **flag decision** review: **${pack.cutover.ready_for_founder_flag_decision}**  
-(Does not enable flags. Does not lift loader freeze.)
+Observation window active (TARGET on, FOUNDER_VISIBLE off): **${pack.cutover.observation_window_active}**  
+Ready for later FOUNDER_VISIBLE decision review: **${pack.cutover.ready_for_founder_flag_decision}**  
+(Does not enable FOUNDER_VISIBLE. Does not lift loader freeze.)
 
 | Gate | Status | Evidence |
 |---|---|---|
@@ -96,7 +97,8 @@ Machine-readable: \`atlas/runtime/evidence/w4-readiness.json\`
           promo_staging: pack.retention.promoStaging.length,
         },
         exchange_violations: pack.exchange.boundary_violations.length,
-        ready_for_founder_flag_decision:
+        observation_window_active: pack.cutover.observation_window_active,
+        ready_for_founder_visible_decision:
           pack.cutover.ready_for_founder_flag_decision,
         evidence: ["atlas/runtime/evidence/W4-READINESS-EVIDENCE.md", jsonPath],
       },

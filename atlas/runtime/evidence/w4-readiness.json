@@ -1,66 +1,66 @@
 {
   "decision": "ATLAS-D-W4",
   "flags": {
-    "target": false,
+    "target": true,
     "founderVisible": false
   },
   "retention": {
     "ephemeral": [
       {
-        "record_id": "cb1a69b0-706f-491e-842b-b2ff5f0f5235",
-        "request_id": "cd0f4a6b-6d24-45db-b422-e1e46e3854cc",
+        "record_id": "9f8c1289-be06-48df-b658-fb9e61a9af7c",
+        "request_id": "cec04db5-2f04-4293-a7bc-b729c637823a",
         "class": "temporary",
         "summary": "W4 retention class=temporary; canonical=false",
         "refs": [
-          "e86dd42f-0b6c-4888-a1ec-6bad17588bf7",
-          "6baaa2fd-db21-4770-8607-70977462d107",
-          "15a33b27-ae89-4fb2-9e5a-0bdf2aaaabef",
-          "811dce6a-b9e7-4bdf-8c7f-81055c61aa51",
-          "430e819d-e018-4a78-ba56-bba7b91ea45b",
-          "18727e94-ab2a-428c-a9fe-43245b16d56d",
-          "81d7bbc1-a8f1-43ec-b04a-0c9c00d3aaeb",
-          "f56eed1f-7d85-4612-b6b8-1665ab0804f8",
-          "5c25d98d-41e7-40e7-9484-30b135c58b11",
-          "2975814a-6fd7-4069-9b1e-8fb281c82444"
+          "a1412831-a18e-4de6-9c77-eafefb931a86",
+          "c68abb98-4f7f-4dc8-b7d7-a6e223b81e48",
+          "3a2edf3a-b0d8-4c78-a987-8da00eb773ac",
+          "e3d18aee-3796-4479-91f4-d83e5898ca06",
+          "307e707d-64ef-4a48-8468-227529c4b9a7",
+          "3ec78a4c-30aa-44a7-97c3-9848e5d7c739",
+          "638c3dff-b9d1-4bd6-8a94-b88cf9cc2b59",
+          "6299486b-4b30-44c2-90d3-b2c7aa5dd24d",
+          "ffc1b7b5-c429-4fcc-b6d7-aa45ae5b9b4f",
+          "65596469-94ac-4608-9574-c86c474157f1"
         ],
         "canonical": false,
-        "stored_at": "2026-07-19T03:21:53.455Z",
+        "stored_at": "2026-07-19T03:30:14.018Z",
         "sink": "ephemeral"
       }
     ],
     "ops": [
       {
-        "record_id": "c4ea00b9-6fd2-4a22-ae56-1a1298ab95f5",
-        "request_id": "bb824de6-18ef-461f-be12-987f02837f01",
+        "record_id": "94af8caa-c43b-4ce8-8dd1-5f84eff166e8",
+        "request_id": "41f9b5fc-dfac-4bfe-90ba-146f70ef39b9",
         "class": "promotion_candidate",
-        "summary": "Promo staging f6ca2c82-1913-44c9-8f57-e063bd630eff",
+        "summary": "Promo staging 77290418-817a-42f7-aee9-92e0f4a3b1e3",
         "refs": [
-          "0f18f924-c5a7-4fc2-8c1c-290286ec76ed",
-          "7f44cadb-f77e-42b8-9c7a-ce2d2ac66f5f",
-          "19eb6988-3ac9-4dff-8887-1f043428fffc",
-          "450173d2-abce-4a22-8dc5-43e294ffdc04",
-          "36e20df4-c315-4e9a-b582-41e50f8051ef",
-          "ed92a3c7-a190-40d6-bb26-3c64efcb64ef",
-          "1330a929-f5ae-4632-a966-c656cb9dbfab",
-          "5464af63-82bb-425e-8aca-82863558f44b",
-          "54681d15-8ffa-48dd-b496-724d594dfd74",
-          "b8183dbf-ebff-4b7f-a6ec-0bf2cdc68737"
+          "c112bf6d-2916-4b33-8db7-328d82f7f25c",
+          "37044f7a-aa40-44f4-a539-312d22742e6e",
+          "57c7cab8-2dd6-4fea-921c-0f42591837a4",
+          "17ccf9ae-8abd-42f4-be50-78296dc1df57",
+          "8bf08460-2b05-4603-a316-c78074c380d3",
+          "a80475ee-78b2-4acd-bf37-42c98ed6bf7c",
+          "c87dc0aa-4eb6-4ec0-baae-48520ffc08be",
+          "ed3d34c2-af72-45d1-9c3d-c83b5c84b3b6",
+          "f197d038-b18a-4511-b15a-c752ba4d883f",
+          "e5f834ba-91c7-4097-9dee-385324af9f89"
         ],
         "canonical": false,
-        "stored_at": "2026-07-19T03:21:53.456Z",
+        "stored_at": "2026-07-19T03:30:14.019Z",
         "sink": "promo_staging"
       }
     ],
     "discarded": [],
     "promoStaging": [
       {
-        "staging_id": "f6ca2c82-1913-44c9-8f57-e063bd630eff",
-        "request_id": "bb824de6-18ef-461f-be12-987f02837f01",
+        "staging_id": "77290418-817a-42f7-aee9-92e0f4a3b1e3",
+        "request_id": "41f9b5fc-dfac-4bfe-90ba-146f70ef39b9",
         "stage": "Observation",
         "summary": "W4 retention class=promotion_candidate; canonical=false",
         "canonical": false,
         "auto_published": false,
-        "created_at": "2026-07-19T03:21:53.456Z",
+        "created_at": "2026-07-19T03:30:14.019Z",
         "notes": [
           "Staging only — not REG-PROMO-Q Canonical publication",
           "STD-002 stages required before institutional approval"
@@ -105,9 +105,9 @@
     "boundary_violations": []
   },
   "cutover": {
-    "generated_at": "2026-07-19T03:21:53.457Z",
+    "generated_at": "2026-07-19T03:30:14.020Z",
     "founder_visible_enabled": false,
-    "target_enabled": false,
+    "target_enabled": true,
     "loader_frozen": true,
     "gates": [
       {
@@ -162,8 +162,8 @@
         "gate": "Integrity Module V1–V8 active on Founder-visible path",
         "status": "amber",
         "evidence": [
-          "Integrity Module implemented on target plane",
-          "Founder-visible path remains disabled — gate not production-proven yet"
+          "Integrity Module runs on every request in observation window (TARGET on)",
+          "Founder-visible target path remains disabled (ATLAS-D-FLAGS) — not yet executive-proven"
         ]
       },
       {
@@ -171,22 +171,23 @@
         "gate": "Dual-plane rollback plan documented before switch",
         "status": "amber",
         "evidence": [
-          "Rollback: keep FOUNDER_VISIBLE off; Legacy /api/atlas continues to serve",
-          "TARGET shadow can be disabled by unsetting ATLAS_RUNTIME_TARGET",
+          "Rollback Founder exposure: keep FOUNDER_VISIBLE off; Legacy continues to serve",
+          "Rollback TARGET: set ATLAS_RUNTIME_TARGET=off (emergency only; ATLAS-D-FLAGS)",
           "Loader freeze preserves Legacy knowledge set"
         ]
       }
     ],
+    "observation_window_active": true,
     "ready_for_founder_flag_decision": true,
     "blockers": []
   },
   "pipeline": {
-    "request_id": "cd0f4a6b-6d24-45db-b422-e1e46e3854cc",
+    "request_id": "cec04db5-2f04-4293-a7bc-b729c637823a",
     "validation": "PASS",
     "disposition_class": "temporary"
   },
   "promo_pipeline": {
-    "request_id": "bb824de6-18ef-461f-be12-987f02837f01",
+    "request_id": "41f9b5fc-dfac-4bfe-90ba-146f70ef39b9",
     "disposition_class": "promotion_candidate",
     "staging_count": 1
   },

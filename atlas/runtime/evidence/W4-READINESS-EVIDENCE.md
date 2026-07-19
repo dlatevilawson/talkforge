@@ -1,16 +1,16 @@
 # W4 Operational Readiness Evidence
 
-Generated: 2026-07-19T03:21:53.457Z
+Generated: 2026-07-19T03:30:14.020Z
 
-## Founder Decision
+## Founder Decisions
 
-Per **ATLAS-D-W4**: Founder-visible runtime remains **disabled**.  
-Flags require a **separate** Founder decision after this evidence is accepted.
+- **ATLAS-D-W4** — readiness proof before visibility  
+- **ATLAS-D-FLAGS** — TARGET authorized **on**; FOUNDER_VISIBLE remains **off** (observation window)
 
-| Flag | Value during W4 |
+| Flag | Value |
 |---|---|
-| ATLAS_RUNTIME_TARGET | `false` |
-| ATLAS_RUNTIME_FOUNDER_VISIBLE | `false` |
+| ATLAS_RUNTIME_TARGET | `true` (authorized active internal) |
+| ATLAS_RUNTIME_FOUNDER_VISIBLE | `false` (observation window) |
 
 ## 1. Production retention
 
@@ -36,10 +36,11 @@ Flags require a **separate** Founder decision after this evidence is accepted.
 
 Boundary violations: none
 
-## 3. Cutover readiness
+## 3. Cutover readiness / observation window
 
-Ready for Founder **flag decision** review: **true**  
-(Does not enable flags. Does not lift loader freeze.)
+Observation window active (TARGET on, FOUNDER_VISIBLE off): **true**  
+Ready for later FOUNDER_VISIBLE decision review: **true**  
+(Does not enable FOUNDER_VISIBLE. Does not lift loader freeze.)
 
 | Gate | Status | Evidence |
 |---|---|---|
@@ -48,8 +49,8 @@ Ready for Founder **flag decision** review: **true**
 | G3 Memory Module can enqueue REG-PROMO-Q without auto-Canonicalizing | amber | W4 promo staging proves enqueue-without-Canonical (staging ≠ REG-PROMO-Q publish); Promo staging items: 1; Production REG-PROMO-Q write remains STD-002 Founder-gated |
 | G4 Explicit Founder approval to change loadAtlasContext() / loader file set | pending | loadAtlasContext() still loads the frozen Tier-D set (10 files); W4 did not modify atlas/engine/loader.ts; No Founder approval to lift loader freeze in W4 |
 | G5 Compatibility test: no silent authority upgrade of Draft Specs | amber | Label transport forbids upgrades in Context Module; Integrity V3 rejects unlabeled / scaffold-as-institutional |
-| G6 Integrity Module V1–V8 active on Founder-visible path | amber | Integrity Module implemented on target plane; Founder-visible path remains disabled — gate not production-proven yet |
-| G7 Dual-plane rollback plan documented before switch | amber | Rollback: keep FOUNDER_VISIBLE off; Legacy /api/atlas continues to serve; TARGET shadow can be disabled by unsetting ATLAS_RUNTIME_TARGET; Loader freeze preserves Legacy knowledge set |
+| G6 Integrity Module V1–V8 active on Founder-visible path | amber | Integrity Module runs on every request in observation window (TARGET on); Founder-visible target path remains disabled (ATLAS-D-FLAGS) — not yet executive-proven |
+| G7 Dual-plane rollback plan documented before switch | amber | Rollback Founder exposure: keep FOUNDER_VISIBLE off; Legacy continues to serve; Rollback TARGET: set ATLAS_RUNTIME_TARGET=off (emergency only; ATLAS-D-FLAGS); Loader freeze preserves Legacy knowledge set |
 
 Blockers: none
 

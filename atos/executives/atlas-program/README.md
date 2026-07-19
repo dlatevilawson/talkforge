@@ -38,7 +38,8 @@ Implementation waves **W0+** are active under the Phase 3 Runtime Architecture C
 | Doc | Role |
 |---|---|
 | [IMPLEMENTATION-WAVES.md](IMPLEMENTATION-WAVES.md) (`ATLAS-WAVES`) | Wave status tracker |
-| [DECISION-W4-OPERATIONAL-READINESS.md](DECISION-W4-OPERATIONAL-READINESS.md) (`ATLAS-D-W4`) | No Founder-visible yet; W4 readiness proof |
+| [DECISION-W4-OPERATIONAL-READINESS.md](DECISION-W4-OPERATIONAL-READINESS.md) (`ATLAS-D-W4`) | W4 readiness proof before visibility |
+| [DECISION-RUNTIME-FLAGS.md](DECISION-RUNTIME-FLAGS.md) (`ATLAS-D-FLAGS`) | TARGET on; FOUNDER_VISIBLE off (observation) |
 | [atlas/runtime/README.md](../../../atlas/runtime/README.md) | Target plane modules |
 
 All Atlas runtime design and implementation must satisfy Phase 0, Phase 1, Phase 2, and Phase 3. Conflicts change the design or implementation — not the ratified contracts.

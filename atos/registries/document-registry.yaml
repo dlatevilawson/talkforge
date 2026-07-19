@@ -7,7 +7,7 @@
 # Human Approver: Founder
 # Review Cycle: Each ATOS version
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
-# Change Log: 2026-07-19 — ATLAS-D-W4 Founder Decision; W4 readiness evidence
+# Change Log: 2026-07-19 — ATLAS-D-FLAGS TARGET on / FOUNDER_VISIBLE off
 
 version: 1.0.0
 updated_at: "2026-07-19"
@@ -653,13 +653,21 @@ documents:
     title: "Atlas Program — Implementation Waves Status"
     path: atos/executives/atlas-program/IMPLEMENTATION-WAVES.md
     state: draft
-    version: "0.2.0"
+    version: "0.3.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
   - id: ATLAS-D-W4
     title: "Founder Decision — W4 Operational Readiness (Pre-Visibility)"
     path: atos/executives/atlas-program/DECISION-W4-OPERATIONAL-READINESS.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: ATLAS-D-FLAGS
+    title: "Founder Decision — Runtime Flags (TARGET Enablement)"
+    path: atos/executives/atlas-program/DECISION-RUNTIME-FLAGS.md
     state: authoritative
     version: "1.0.0"
     owner: Founder

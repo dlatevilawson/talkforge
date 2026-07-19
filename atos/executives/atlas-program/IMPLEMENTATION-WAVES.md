@@ -3,28 +3,34 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-WAVES |
-| **Version** | 0.2.0 |
+| **Version** | 0.3.0 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Review Cycle** | Each implementation wave |
-| **Dependencies** | ATLAS-P3, RES-006, ATLAS-D-W4 |
-| **Related Documents** | `atlas/runtime/README.md`, `DECISION-W4-OPERATIONAL-READINESS.md` |
-| **Approval History** | 2026-07-19 — Opened with W0–W3; 2026-07-19 — ATLAS-D-W4 readiness decision |
-| **Change Log** | 2026-07-19 — W4 reframed as operational readiness proof; flags remain off |
+| **Dependencies** | ATLAS-P3, RES-006, ATLAS-D-W4, ATLAS-D-FLAGS |
+| **Related Documents** | `atlas/runtime/README.md`, `DECISION-W4-OPERATIONAL-READINESS.md`, `DECISION-RUNTIME-FLAGS.md` |
+| **Approval History** | 2026-07-19 — W0–W4; ATLAS-D-FLAGS TARGET enablement |
+| **Change Log** | 2026-07-19 — TARGET authorized on; FOUNDER_VISIBLE off (observation window) |
 
 ---
 
-## Founder Decision (ATLAS-D-W4)
+## Founder Decisions
 
-**Do not enable Founder-visible runtime yet.**
+### ATLAS-D-FLAGS (current)
 
-W4 must prove operational correctness — production retention, exchange exposure, and cutover readiness — before any visibility flag lift.
+| Flag | Stance |
+|---|---|
+| `ATLAS_RUNTIME_TARGET` | **Enabled** — active internal implementation |
+| `ATLAS_RUNTIME_FOUNDER_VISIBLE` | **Disabled** — observation window before executive exposure |
 
-Enabling `ATLAS_RUNTIME_TARGET` and/or `ATLAS_RUNTIME_FOUNDER_VISIBLE` requires a **separate** Founder decision after W4 evidence is accepted.
+See [DECISION-RUNTIME-FLAGS.md](DECISION-RUNTIME-FLAGS.md).
 
-See [DECISION-W4-OPERATIONAL-READINESS.md](DECISION-W4-OPERATIONAL-READINESS.md).
+### Observation window
+
+Target runtime runs on every Ask Atlas request for internal Trace/Integrity/retention observation.  
+Legacy Ask Atlas continues to serve Founder-visible responses until a further Founder Decision enables `ATLAS_RUNTIME_FOUNDER_VISIBLE`.
 
 ---
 
@@ -32,33 +38,19 @@ See [DECISION-W4-OPERATIONAL-READINESS.md](DECISION-W4-OPERATIONAL-READINESS.md)
 
 | Wave | Deliverable | Status | Notes |
 |---|---|---|---|
-| W0 | Module skeletons + envelopes + Trace stubs | **Done** | `atlas/runtime/**` |
-| W1 | Ingress → Authority → fail-closed Trace | **Done** | Escalation path included |
-| W2 | Knowledge → Context with label transport | **Done** | Parallel catalog; loader untouched |
-| W3 | Cognition → Composition → Integrity | **Done (flagged)** | Founder-visible remains **off** |
-| W4 | Operational readiness proof | **Done (evidence)** | Retention + exchange dry-run + cutover gates; flags **off** |
-| W5 | Exchange production exposure | Pending | Only after separate Founder flag decision |
-| W6 | Shadow dual-plane (TARGET on) | Pending | Separate Founder decision to enable TARGET |
+| W0–W3 | Target pipeline modules | **Done** | Integrity before any Founder delivery |
+| W4 | Operational readiness proof | **Done** | Evidence under ATLAS-D-W4 |
+| W5 | Observation window (TARGET on) | **Active** | Internal target; FOUNDER_VISIBLE off |
+| W6 | Founder-visible enablement | Pending | Requires further Founder Decision + observation evidence |
 | W7 | Canary / primary cutover | Pending | Cutover gates + Founder approval |
 | W8 | Loader freeze lift | Pending | Explicit Founder approval required |
 
-## Flags (current policy)
+## Flags (authorized defaults)
 
-| Flag | Status | May enable when |
+| Flag | Default | Override |
 |---|---|---|
-| `ATLAS_RUNTIME_TARGET` | **Off** | Separate Founder decision after W4 evidence |
-| `ATLAS_RUNTIME_FOUNDER_VISIBLE` | **Off** | Separate Founder decision after W4 evidence |
-
-## W4 evidence
-
-```bash
-npm run atlas:runtime:check:w4
-```
-
-Artifacts:
-
-- `atlas/runtime/evidence/W4-READINESS-EVIDENCE.md`
-- `atlas/runtime/evidence/w4-readiness.json`
+| `ATLAS_RUNTIME_TARGET` | **on** (authorized) | `off` / `0` / `false` emergency rollback only |
+| `ATLAS_RUNTIME_FOUNDER_VISIBLE` | **off** | Explicit `on` only after Founder Decision |
 
 ## Verification
 
