@@ -159,7 +159,8 @@ See [`references/README.md`](references/README.md).
 | RES-004 | Atlas Phase 1 Ratification | [resolutions/RES-004-atlas-phase-1-executive-architecture.md](resolutions/RES-004-atlas-phase-1-executive-architecture.md) |
 | ATLAS-P2 | Atlas Phase 2 Executive Infrastructure | [executives/atlas-program/PHASE-2-EXECUTIVE-INFRASTRUCTURE.md](executives/atlas-program/PHASE-2-EXECUTIVE-INFRASTRUCTURE.md) |
 | RES-005 | Atlas Phase 2 Ratification | [resolutions/RES-005-atlas-phase-2-executive-infrastructure.md](resolutions/RES-005-atlas-phase-2-executive-infrastructure.md) |
-| ATLAS-P3 | Atlas Phase 3 Runtime Architecture | [executives/atlas-program/PHASE-3-RUNTIME-ARCHITECTURE.md](executives/atlas-program/PHASE-3-RUNTIME-ARCHITECTURE.md) |
+| ATLAS-P3 | Atlas Phase 3 Runtime Architecture (Authoritative) | [executives/atlas-program/PHASE-3-RUNTIME-ARCHITECTURE.md](executives/atlas-program/PHASE-3-RUNTIME-ARCHITECTURE.md) |
+| RES-006 | Atlas Phase 3 Ratification | [resolutions/RES-006-atlas-phase-3-runtime-architecture.md](resolutions/RES-006-atlas-phase-3-runtime-architecture.md) |
 | RES-003 | Atlas Phase 0 Ratification | [resolutions/RES-003-atlas-phase-0-design-contract.md](resolutions/RES-003-atlas-phase-0-design-contract.md) |
 | GOV-COMPAT | Pre-ATOS Compatibility | [governance/compatibility-atlas-pre-atos.md](governance/compatibility-atlas-pre-atos.md) |
 | GOV-IDQ | ID Namespace Quarantine | [governance/id-namespace-quarantine.md](governance/id-namespace-quarantine.md) |

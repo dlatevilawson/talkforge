@@ -1,18 +1,34 @@
-# Atlas Program — Phase 3 Runtime Architecture & Implementation Design
+# Atlas Program — Phase 3 Runtime Architecture Contract
 
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-P3 |
-| **Version** | 1.0.0-review |
-| **Status** | Review |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | Until Founder ratification |
-| **Dependencies** | ATLAS-P0, ATLAS-P1, ATLAS-P2, RES-003, RES-004, RES-005 |
+| **Review Cycle** | Until Founder-amended |
+| **Dependencies** | RES-006, ATLAS-P0, ATLAS-P1, ATLAS-P2, RES-003, RES-004, RES-005 |
 | **Related Documents** | SPEC-005, STD-006, RUNTIME-IFACE, RUNTIME-CTX, RUNTIME-MEM, RUNTIME-LEGACY, GOV-COMPAT, GOV-MAINT-1.0.0 |
-| **Approval History** | 2026-07-19 — Step 1 approved; Steps 2–10 designed for Founder review |
-| **Change Log** | 2026-07-19 — Full Phase 3 runtime architecture design package |
+| **Approval History** | 2026-07-19 — Founder approved Phase 3 in full (RES-006) |
+| **Change Log** | 2026-07-19 — Full Phase 3 runtime architecture design package; ratified Authoritative |
+
+---
+
+## Ratification
+
+Phase 3 is the binding **Runtime Architecture Contract** for Atlas.
+
+| Rule | Statement |
+|---|---|
+| Implementation | Every implementation must conform to Phases 0–3 |
+| Evolution | Runtime architecture may evolve, but it must remain subordinate to governance |
+| Optimization | Engineering optimizations must never alter constitutional authority, executive boundaries, or knowledge governance |
+
+Phase 0 remains the design contract for *what Atlas is*. Phase 1 defines *how Atlas is organized*. Phase 2 defines the *infrastructure that realizes Phase 1*. Phase 3 defines the *runtime architecture that realizes Phase 2*.
+
+Implementation waves **W0+** proceed under this contract.
 
 ---
 
@@ -36,15 +52,15 @@ Request → Authority → Knowledge → Context → Reasoning → Recommendation
 | Step | Focus | Status |
 |---|---|---|
 | 1 | Runtime principles & constraints | **Approved** |
-| 2 | Runtime topology & execution model | Complete — awaiting review |
-| 3 | Request lifecycle runtime | Complete — awaiting review |
-| 4 | Knowledge & context injection runtime | Complete — awaiting review |
-| 5 | Cognition, recommendation & validation runtime | Complete — awaiting review |
-| 6 | Memory, audit & retention runtime | Complete — awaiting review |
-| 7 | Executive exchange & Founder surface runtime | Complete — awaiting review |
-| 8 | Dual-plane compatibility & cutover architecture | Complete — awaiting review |
-| 9 | Implementation sequencing, gates & acceptance | Complete — awaiting review |
-| 10 | Runtime architecture validation | Complete — awaiting Founder ratification |
+| 2 | Runtime topology & execution model | **Approved** |
+| 3 | Request lifecycle runtime | **Approved** |
+| 4 | Knowledge & context injection runtime | **Approved** |
+| 5 | Cognition, recommendation & validation runtime | **Approved** |
+| 6 | Memory, audit & retention runtime | **Approved** |
+| 7 | Executive exchange & Founder surface runtime | **Approved** |
+| 8 | Dual-plane compatibility & cutover architecture | **Approved** |
+| 9 | Implementation sequencing, gates & acceptance | **Approved** |
+| 10 | Runtime architecture validation | **Approved** |
 
 ---
 
@@ -425,14 +441,9 @@ Both may coexist. Target must not silently replace Legacy.
 
 ---
 
-## Founder ratification request
+## Ratification record
 
-Phase 3 Steps 1–10 are complete for review.
+Founder Decision (2026-07-19): **Phase 3 Approved in Full.**
 
-Please rule:
-
-1. **Approve Phase 3 in full** as the Runtime Architecture & Implementation Design Contract, or  
-2. **Approve with corrections**, or  
-3. **Reject pending corrections**
-
-On approval, Phase 3 should be ratified (RES + ATLAS-P3 Authoritative) to guide every future Atlas runtime implementation — without changing ATOS, Phase 0, Phase 1, or Phase 2.
+Recorded as [`RES-006`](../../resolutions/RES-006-atlas-phase-3-runtime-architecture.md).  
+Implementation waves **W0+** proceed under this contract.
