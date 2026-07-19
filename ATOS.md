@@ -95,11 +95,12 @@ Supporting systems: resolutions, governance, registries, schemas, knowledge, run
 1. [Release 1.0.0](atos/RELEASE-1.0.0.md)  
 2. [Maintenance Mode](atos/governance/GOV-MAINT-1.0.0.md)  
 3. [Repository Navigation](atos/NAVIGATION.md)  
-4. [RES-002 — Ratification](atos/resolutions/RES-002-atos-v1-ratification.md) · [RES-001](atos/resolutions/RES-001-atos-v1-implementation.md)  
-5. [Specifications](atos/specifications/README.md) (Authoritative)  
-6. [Standards](atos/standards/README.md) (Authoritative)  
-7. [Freeze Policy](atos/governance/GOV-FREEZE-1.0.0.md)  
-8. [Document Registry](atos/registries/document-registry.yaml)  
+4. [RES-002 — ATOS Ratification](atos/resolutions/RES-002-atos-v1-ratification.md) · [RES-003 — Atlas Phase 0](atos/resolutions/RES-003-atlas-phase-0-design-contract.md)  
+5. [Atlas Phase 0 Design Contract](atos/executives/atlas-program/PHASE-0-DESIGN-CONTRACT.md)  
+6. [Specifications](atos/specifications/README.md) (Authoritative)  
+7. [Standards](atos/standards/README.md) (Authoritative)  
+8. [Freeze Policy](atos/governance/GOV-FREEZE-1.0.0.md)  
+9. [Document Registry](atos/registries/document-registry.yaml)  
 
 ---
 
@@ -134,3 +135,4 @@ Supporting systems: resolutions, governance, registries, schemas, knowledge, run
 7. Obey GOV-FREEZE-1.0.0 — amend constitutional layers only through approved governance.  
 8. Build new work **on** ATOS (product / executive operations); do not expand ATOS **inside** without a formal amendment.  
 9. Do not open new ATOS implementation milestones unless the Founder authorizes an amendment or version program.  
+10. Atlas Program architecture and implementation must satisfy [`ATLAS-P0`](atos/executives/atlas-program/PHASE-0-DESIGN-CONTRACT.md) (RES-003). If a design conflicts with Phase 0, change the design — not Phase 0.  

@@ -7,10 +7,10 @@
 # Human Approver: Founder
 # Review Cycle: Each milestone
 # Approval History: 2026-07-18 — M6 executive charters
-# Change Log: 2026-07-18 — Charters and manuals linked for Founder/Atlas/Sentinel
+# Change Log: 2026-07-19 — EXEC-ATLAS bound to ATLAS-P0 (RES-003)
 
 version: 1.0.0-m6
-updated_at: "2026-07-18"
+updated_at: "2026-07-19"
 milestone: M6
 governing_spec: SPEC-006
 governing_resolution: RES-001
@@ -58,6 +58,10 @@ executives:
     charter: CHARTER-ATLAS
     charter_path: atos/executives/charters/CHARTER-ATLAS.md
     charter_state: draft
+    design_contract: ATLAS-P0
+    design_contract_path: atos/executives/atlas-program/PHASE-0-DESIGN-CONTRACT.md
+    design_contract_state: authoritative
+    design_contract_resolution: RES-003
     ai_conduct: MAN-016
     interfaces:
       - Founder briefings

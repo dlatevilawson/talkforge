@@ -7,7 +7,7 @@
 # Human Approver: Founder
 # Review Cycle: Each ATOS version
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
-# Change Log: 2026-07-19 — RES-002 Version 1.0 ratification; freeze/release Authoritative
+# Change Log: 2026-07-19 — RES-003 / ATLAS-P0 Phase 0 Design Contract ratified
 
 version: 1.0.0
 updated_at: "2026-07-19"
@@ -17,10 +17,10 @@ description: >
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
 
 counts:
-  total: 120
-  with_path: 117
+  total: 123
+  with_path: 120
   planned: 3
-  authoritative: 33
+  authoritative: 36
 
 documents:
   - id: ATOS-NAV
@@ -80,6 +80,14 @@ documents:
   - id: RES-002
     title: "ATOS Resolution 002 — Ratification of ATOS Version 1.0"
     path: atos/resolutions/RES-002-atos-v1-ratification.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: resolutions
+  - id: RES-003
+    title: "ATOS Resolution 003 — Ratification of Atlas Program Phase 0 Design Contract"
+    path: atos/resolutions/RES-003-atlas-phase-0-design-contract.md
     state: authoritative
     version: "1.0.0"
     owner: Founder
@@ -582,6 +590,22 @@ documents:
     path: atos/executives/charters/CHARTER-ATLAS.md
     state: draft
     version: "1.0.0-m6"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: ATLAS-P0
+    title: "Atlas Program — Phase 0 Design Contract"
+    path: atos/executives/atlas-program/PHASE-0-DESIGN-CONTRACT.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: ATLAS-PROGRAM
+    title: "Atlas Program"
+    path: atos/executives/atlas-program/README.md
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives

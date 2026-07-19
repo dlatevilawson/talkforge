@@ -10,11 +10,15 @@
 | **Human Approver** | Founder |
 | **Review Cycle** | Each milestone / on SPEC-006 change |
 | **Dependencies** | SPEC-006, STD-003, RES-001, MAN-002, CHARTER-FOUNDER |
-| **Related Documents** | REG-EXEC, RUNTIME-CTX, GOV-KNOW |
-| **Approval History** | 2026-07-18 — M6 Draft charter (RES-001 MVI) |
-| **Change Log** | 2026-07-18 — Initial Atlas charter |
+| **Related Documents** | REG-EXEC, RUNTIME-CTX, GOV-KNOW, ATLAS-P0, RES-003 |
+| **Approval History** | 2026-07-18 — M6 Draft charter (RES-001 MVI); 2026-07-19 — Bound to ATLAS-P0 (RES-003) |
+| **Change Log** | 2026-07-18 — Initial Atlas charter; 2026-07-19 — Phase 0 Design Contract binding |
 
 ---
+
+## Design contract
+
+All Atlas architecture and implementation must satisfy the Founder-ratified **[Phase 0 Design Contract](../atlas-program/PHASE-0-DESIGN-CONTRACT.md)** (`ATLAS-P0`, RES-003). If a design conflicts with Phase 0, the design changes — not Phase 0.
 
 ## Role
 

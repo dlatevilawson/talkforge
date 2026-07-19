@@ -12,7 +12,7 @@
 | **Dependencies** | RES-001, RES-002, ATOS-ROOT, ADR-0001 |
 | **Related Documents** | `atos/registries/INDEX.md`, `atos/RELEASE-1.0.0.md` |
 | **Approval History** | 2026-07-18 — M1 Draft; 2026-07-18 — v1.0.0 package; 2026-07-19 — MS-SYNC links |
-| **Change Log** | 2026-07-19 — GOV-MAINT-1.0.0 Maintenance Mode link |
+| **Change Log** | 2026-07-19 — ATLAS-P0 / RES-003 Phase 0 Design Contract |
 
 ---
 
@@ -154,6 +154,8 @@ See [`references/README.md`](references/README.md).
 | REG-OWN | Ownership Registry | [registries/ownership-registry.yaml](registries/ownership-registry.yaml) |
 | GOV-REG | Registry Framework | [governance/registry-framework.md](governance/registry-framework.md) |
 | GOV-MAINT-1.0.0 | Maintenance Mode | [governance/GOV-MAINT-1.0.0.md](governance/GOV-MAINT-1.0.0.md) |
+| ATLAS-P0 | Atlas Phase 0 Design Contract | [executives/atlas-program/PHASE-0-DESIGN-CONTRACT.md](executives/atlas-program/PHASE-0-DESIGN-CONTRACT.md) |
+| RES-003 | Atlas Phase 0 Ratification | [resolutions/RES-003-atlas-phase-0-design-contract.md](resolutions/RES-003-atlas-phase-0-design-contract.md) |
 | GOV-COMPAT | Pre-ATOS Compatibility | [governance/compatibility-atlas-pre-atos.md](governance/compatibility-atlas-pre-atos.md) |
 | GOV-IDQ | ID Namespace Quarantine | [governance/id-namespace-quarantine.md](governance/id-namespace-quarantine.md) |
 

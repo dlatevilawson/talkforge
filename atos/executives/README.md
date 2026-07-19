@@ -21,3 +21,7 @@
 | [charters/](charters/) | Executive charters (Atlas, Sentinel, Founder) |
 | [collaboration.md](collaboration.md) | Collaboration interfaces |
 | Manuals | `atos/manuals/MAN-00x-*.md` |
+
+## Atlas Program
+
+Founder-ratified Phase 0 Design Contract: [`atlas-program/PHASE-0-DESIGN-CONTRACT.md`](atlas-program/PHASE-0-DESIGN-CONTRACT.md) (RES-003).
