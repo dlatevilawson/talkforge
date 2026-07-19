@@ -122,6 +122,7 @@ See [`references/README.md`](references/README.md).
 | ATLAS-ORR | Operational Readiness Report (Certified) | [executives/atlas-program/ATLAS-ORR.md](executives/atlas-program/ATLAS-ORR.md) |
 | RES-010 | Atlas Runtime Organization v1.0 Certification | [resolutions/RES-010-atlas-runtime-organization-certification.md](resolutions/RES-010-atlas-runtime-organization-certification.md) |
 | RES-011 | TalkForge Primary; Atlas in Service | [resolutions/RES-011-talkforge-primary-atlas-service.md](resolutions/RES-011-talkforge-primary-atlas-service.md) |
+| STRAT-001 | TalkForge Evolution Executive Brief (Working) | [executives/atlas-program/STRAT-001-talkforge-evolution.md](executives/atlas-program/STRAT-001-talkforge-evolution.md) |
 | EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |
 | EXEC-ORG-DECISIONS | Org Decision Governance | [executives/atlas-program/ORG-DECISION-GOVERNANCE.md](executives/atlas-program/ORG-DECISION-GOVERNANCE.md) |
 | EXEC-ORG-CADENCE | Org Cadence | [executives/atlas-program/ORG-CADENCE.md](executives/atlas-program/ORG-CADENCE.md) |

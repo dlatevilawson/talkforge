@@ -12,7 +12,7 @@
 | **Dependencies** | ATLAS-SUCCESSION, ATLAS-P4, ATLAS-P5, CHARTER-ATLAS |
 | **Related Documents** | ATLAS-GATE-FV, ATLAS-D-FLAGS, REG-EXEC |
 | **Approval History** | 2026-07-19 — Initial register for succession continuity |
-| **Change Log** | 2026-07-19 — Seeded; RES-010 cert; RES-011 TalkForge-primary posture; Atlas org-building closed |
+| **Change Log** | 2026-07-19 — Seeded; RES-010/011; STRAT-001 TalkForge Evolution brief issued (Working) |
 
 ---
 
@@ -96,7 +96,8 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 
 | Thread | Owners | State |
 |---|---|---|
-| **TalkForge product** | Founder + Engineering + Atlas (coord) | **PRIMARY** (RES-011) — await Founder direction on next product work |
+| **TalkForge Evolution (STRAT-001)** | Atlas (counsel) → Founder | **BRIEF ISSUED** — Working Recommendation; Decision Requests on wedge ICP, North Star, gamification, capacity rule |
+| **TalkForge product** | Founder + Engineering + Atlas (coord) | **PRIMARY** (RES-011) — Forge-loop excellence on high-stakes wedge recommended |
 | Atlas Program Desk (AIF-PROGRAM) | AIO-CORE function | Live — tracks cadence; does not expand org structure |
 | `ATLAS_RUNTIME_FOUNDER_VISIBLE` | Founder | **Still off** — separate Decision required |
 | Loader freeze | Founder | **Still frozen** — separate Decision required |
@@ -121,7 +122,8 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 
 | ID | Type | Status |
 |---|---|---|
-| — | None open at seed | — |
+| STRAT-001 §8 items 1–4 | C1 Decision Requests | **Open** — wedge ICP; North Star metric; gamification disposition; product-vs-Atlas capacity rule |
+| STRAT-001 §8 items 5–8 | C0/C1 as noted | Open — pricing test; EXEC appointments; FOUNDER_VISIBLE keep-off; optional Forge Law #011 |
 
 ---
 
