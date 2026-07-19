@@ -7,7 +7,7 @@
 # Human Approver: Founder
 # Review Cycle: Each ATOS version
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
-# Change Log: 2026-07-19 — RES-007 / ATLAS-P4 Executive Organization Contract ratified
+# Change Log: 2026-07-19 — ATLAS-P5 Atlas Internal Organization proposal (Review)
 
 version: 1.0.0
 updated_at: "2026-07-19"
@@ -662,6 +662,14 @@ documents:
     path: atos/executives/atlas-program/PHASE-4-EXECUTIVE-ORGANIZATION.md
     state: authoritative
     version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: ATLAS-P5
+    title: "Atlas Program — Phase 5 Atlas Internal Organization (Proposal)"
+    path: atos/executives/atlas-program/PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md
+    state: review
+    version: "1.0.0-review"
     owner: Founder
     ai_steward: Atlas
     layer: executives

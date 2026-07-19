@@ -12,7 +12,7 @@
 | **Dependencies** | RES-002…RES-007, SPEC-006 |
 | **Related Documents** | ATLAS-P0…P4, CHARTER-*, MAN-002 |
 | **Approval History** | 2026-07-19 — Phases 0–4 ratified |
-| **Change Log** | 2026-07-19 — Phase 4 ratified (RES-007) as Executive Organization Contract |
+| **Change Log** | 2026-07-19 — Phase 5 Atlas Internal Organization proposal opened |
 
 ---
 
