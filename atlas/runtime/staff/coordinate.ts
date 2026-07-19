@@ -14,6 +14,7 @@ import { resetStaffBus, getEventLog, hasEvent } from "./bus";
 import { resetBrokerStore, brokerIngestStatus } from "./broker";
 import { coreAssignTask, corePermitEmission } from "./core";
 import { counselDraftPack } from "./counsel";
+import { isOfficeDisabledError } from "./fault";
 import { guardPackageEscalation, guardValidate } from "./guard";
 import { intelBuildAndLockContext } from "./intel";
 import {
@@ -87,11 +88,100 @@ export async function runStaffCoordinatedPipeline(
   }
 
   if (state.authority?.result === "escalate") {
-    coreAssignTask(state.request_id, "AIO-GUARD", "Package escalation");
-    state = guardPackageEscalation(state);
-    coreAssignTask(state.request_id, "AIO-GUARD", "Validate escalation path");
+    try {
+      coreAssignTask(state.request_id, "AIO-GUARD", "Package escalation");
+      state = guardPackageEscalation(state);
+      coreAssignTask(state.request_id, "AIO-GUARD", "Validate escalation path");
+      state = guardValidate(state);
+      const permitted = corePermitEmission(state.request_id);
+      let delivery: ExchangeDelivery | undefined;
+      if (founderVisible && permitted) {
+        const exchanged = runExchange(state);
+        state = exchanged.state;
+        delivery = exchanged.delivery;
+      } else {
+        state = traceStage(
+          state,
+          "exchange",
+          "Escalation Founder delivery suppressed or emission not permitted"
+        );
+      }
+      state = runMemory(state);
+      programUpdateWave(state.request_id, "P6-staff-run", "PASS");
+      return {
+        plane: "target",
+        mode: "staff-coordinated",
+        enabled,
+        founderVisible,
+        state,
+        delivery,
+        ok: true,
+        tasks: [...getTasks()],
+        events: [...getEventLog()],
+        metrics: snapshotMetrics(),
+        emissionPermitted: permitted,
+      };
+    } catch (err) {
+      if (isOfficeDisabledError(err)) {
+        state = {
+          ...state,
+          error: err instanceof Error ? err.message : "OFFICE_DISABLED",
+        };
+        state = runMemory(state);
+        programUpdateWave(state.request_id, "P6-staff-run", "FAIL");
+        return emptyResult(state, enabled, founderVisible, false, snapshotMetrics());
+      }
+      throw err;
+    }
+  }
+
+  try {
+    // Broker intake (optional company interface)
+    if (options?.execStatus) {
+      coreAssignTask(state.request_id, "AIO-BROKER", "Ingest EXEC status");
+      brokerIngestStatus(
+        state.request_id,
+        options.execStatus.statusId,
+        options.execStatus.sourceExec,
+        options.execStatus.authorityLabel
+      );
+    } else {
+      coreAssignTask(state.request_id, "AIO-BROKER", "Standby EXEC interface watch");
+      brokerIngestStatus(
+        state.request_id,
+        `auto-${state.request_id}`,
+        "EXEC-ENGINEERING",
+        "operational"
+      );
+    }
+
+    coreAssignTask(state.request_id, "AIO-INTEL", "Build and lock labeled context");
+    state = await intelBuildAndLockContext(state);
+    if (state.error) {
+      state = runMemory(state);
+      programUpdateWave(state.request_id, "P6-staff-run", "FAIL");
+      return emptyResult(state, enabled, founderVisible, false, snapshotMetrics());
+    }
+
+    coreAssignTask(state.request_id, "AIO-COUNSEL", "Draft STD-003 counsel pack");
+    state = counselDraftPack(state);
+    if (state.error) {
+      state = runMemory(state);
+      programUpdateWave(state.request_id, "P6-staff-run", "FAIL");
+      return emptyResult(state, enabled, founderVisible, false, snapshotMetrics());
+    }
+
+    coreAssignTask(state.request_id, "AIO-GUARD", "Integrity validation");
     state = guardValidate(state);
+
     const permitted = corePermitEmission(state.request_id);
+    if (
+      !permitted ||
+      !hasEvent("atlas.guard.validation", state.request_id)
+    ) {
+      state = traceStage(state, "hub", "Emission blocked — Guard gate");
+    }
+
     let delivery: ExchangeDelivery | undefined;
     if (founderVisible && permitted) {
       const exchanged = runExchange(state);
@@ -101,11 +191,21 @@ export async function runStaffCoordinatedPipeline(
       state = traceStage(
         state,
         "exchange",
-        "Escalation Founder delivery suppressed or emission not permitted"
+        "Founder-visible target delivery suppressed (ATLAS_RUNTIME_FOUNDER_VISIBLE off) or emission not permitted"
       );
     }
+
     state = runMemory(state);
-    programUpdateWave(state.request_id, "P6-staff-run", "PASS");
+    const ok =
+      (state.validation?.result === "PASS" ||
+        state.validation?.result === "ESCALATE") &&
+      permitted;
+    programUpdateWave(
+      state.request_id,
+      "P6-staff-run",
+      ok ? "PASS" : "FAIL"
+    );
+
     return {
       plane: "target",
       mode: "staff-coordinated",
@@ -113,97 +213,30 @@ export async function runStaffCoordinatedPipeline(
       founderVisible,
       state,
       delivery,
-      ok: true,
+      ok,
       tasks: [...getTasks()],
       events: [...getEventLog()],
       metrics: snapshotMetrics(),
       emissionPermitted: permitted,
     };
+  } catch (err) {
+    // WP-S4: office disable / dependency failure — contain, do not invent authority
+    if (isOfficeDisabledError(err)) {
+      state = {
+        ...state,
+        error: err instanceof Error ? err.message : "OFFICE_DISABLED",
+      };
+      state = traceStage(
+        state,
+        "hub",
+        `Fail-closed: ${state.error}`
+      );
+      state = runMemory(state);
+      programUpdateWave(state.request_id, "P6-staff-run", "FAIL");
+      return emptyResult(state, enabled, founderVisible, false, snapshotMetrics());
+    }
+    throw err;
   }
-
-  // Broker intake (optional company interface)
-  if (options?.execStatus) {
-    coreAssignTask(state.request_id, "AIO-BROKER", "Ingest EXEC status");
-    brokerIngestStatus(
-      state.request_id,
-      options.execStatus.statusId,
-      options.execStatus.sourceExec,
-      options.execStatus.authorityLabel
-    );
-  } else {
-    // Still exercise Broker on happy path so delegation metrics reflect full staff
-    coreAssignTask(state.request_id, "AIO-BROKER", "Standby EXEC interface watch");
-    brokerIngestStatus(
-      state.request_id,
-      `auto-${state.request_id}`,
-      "EXEC-ENGINEERING",
-      "operational"
-    );
-  }
-
-  coreAssignTask(state.request_id, "AIO-INTEL", "Build and lock labeled context");
-  state = await intelBuildAndLockContext(state);
-  if (state.error) {
-    state = runMemory(state);
-    programUpdateWave(state.request_id, "P6-staff-run", "FAIL");
-    return emptyResult(state, enabled, founderVisible, false, snapshotMetrics());
-  }
-
-  coreAssignTask(state.request_id, "AIO-COUNSEL", "Draft STD-003 counsel pack");
-  state = counselDraftPack(state);
-  if (state.error) {
-    state = runMemory(state);
-    programUpdateWave(state.request_id, "P6-staff-run", "FAIL");
-    return emptyResult(state, enabled, founderVisible, false, snapshotMetrics());
-  }
-
-  coreAssignTask(state.request_id, "AIO-GUARD", "Integrity validation");
-  state = guardValidate(state);
-
-  const permitted = corePermitEmission(state.request_id);
-  if (
-    !permitted ||
-    !hasEvent("atlas.guard.validation", state.request_id)
-  ) {
-    state = traceStage(state, "hub", "Emission blocked — Guard gate");
-  }
-
-  let delivery: ExchangeDelivery | undefined;
-  if (founderVisible && permitted) {
-    const exchanged = runExchange(state);
-    state = exchanged.state;
-    delivery = exchanged.delivery;
-  } else {
-    state = traceStage(
-      state,
-      "exchange",
-      "Founder-visible target delivery suppressed (ATLAS_RUNTIME_FOUNDER_VISIBLE off) or emission not permitted"
-    );
-  }
-
-  state = runMemory(state);
-  const ok =
-    state.validation?.result === "PASS" ||
-    state.validation?.result === "ESCALATE";
-  programUpdateWave(
-    state.request_id,
-    "P6-staff-run",
-    ok ? "PASS" : "FAIL"
-  );
-
-  return {
-    plane: "target",
-    mode: "staff-coordinated",
-    enabled,
-    founderVisible,
-    state,
-    delivery,
-    ok,
-    tasks: [...getTasks()],
-    events: [...getEventLog()],
-    metrics: snapshotMetrics(),
-    emissionPermitted: permitted,
-  };
 }
 
 function emptyResult(

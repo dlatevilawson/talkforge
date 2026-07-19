@@ -2,6 +2,7 @@ import type { WorkflowState } from "../types/envelopes";
 import { runCognition } from "../modules/cognition";
 import { runComposition } from "../modules/composition";
 import { hasEvent, publish } from "./bus";
+import { assertOfficeEnabled } from "./fault";
 import { recordExecution } from "./metrics";
 import { getOfficePack } from "./offices/packs";
 
@@ -20,6 +21,7 @@ function std003Complete(state: WorkflowState): boolean {
 }
 
 export function counselDraftPack(state: WorkflowState): WorkflowState {
+  assertOfficeEnabled("AIO-COUNSEL");
   recordExecution("AIO-COUNSEL", "stage");
   void getOfficePack("AIO-COUNSEL").prompt;
 

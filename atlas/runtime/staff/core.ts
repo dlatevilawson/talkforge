@@ -1,5 +1,6 @@
 import type { AioId, TaskAssignment } from "./types";
 import { publish, hasEvent, findEvent } from "./bus";
+import { assertOfficeEnabled } from "./fault";
 import {
   markEmissionPermitted,
   recordExecution,
@@ -14,6 +15,7 @@ export function coreAssignTask(
   assignee: AioId,
   objective: string
 ): TaskAssignment {
+  assertOfficeEnabled("AIO-CORE");
   recordExecution("AIO-CORE", "final");
   void getOfficePack("AIO-CORE").prompt;
   taskSeq += 1;
@@ -41,6 +43,7 @@ export function coreAssignTask(
 }
 
 export function corePermitEmission(requestId: string): boolean {
+  assertOfficeEnabled("AIO-CORE");
   recordExecution("AIO-CORE", "final");
   const validationOk = hasEvent("atlas.guard.validation", requestId);
   if (!validationOk) {
@@ -49,6 +52,11 @@ export function corePermitEmission(requestId: string): boolean {
   }
   const ev = findEvent("atlas.guard.validation", requestId);
   const result = ev?.payload?.result;
+  // Reject corrupted Guard payloads that attempt Canonical upgrade
+  if (ev?.payload?.corrupted === true || ev?.payload?.canonical === true) {
+    markEmissionPermitted(false);
+    return false;
+  }
   if (result !== "PASS" && result !== "ESCALATE") {
     markEmissionPermitted(false);
     return false;

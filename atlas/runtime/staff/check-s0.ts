@@ -7,6 +7,7 @@ import { writeFileSync, mkdirSync } from "fs";
 import path from "path";
 import { resetTraceSinkForTests } from "../modules/trace";
 import { runStaffCoordinatedPipeline } from "./coordinate";
+import { resetFaults } from "./fault";
 import {
   assertAllOfficesRegistered,
   instantiateAllOffices,
@@ -25,6 +26,7 @@ function assert(cond: unknown, msg: string): asserts cond {
 }
 
 async function main(): Promise<void> {
+  resetFaults();
   const evidenceDir = path.join(
     process.cwd(),
     "atlas/runtime/evidence"

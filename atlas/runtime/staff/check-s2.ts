@@ -6,9 +6,11 @@
 
 import { writeFileSync, mkdirSync } from "fs";
 import path from "path";
+import { resetFaults } from "./fault";
 import { runCoordinationSuite } from "./validate-coordination";
 
 async function main(): Promise<void> {
+  resetFaults();
   const scenarios = await runCoordinationSuite();
   const allOk = scenarios.every((s) => s.ok);
   const verdict = allOk ? "PASS" : "FAIL";

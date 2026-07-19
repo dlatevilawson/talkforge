@@ -1,5 +1,6 @@
 import type { AuthorityLabel } from "../types/envelopes";
 import { publish } from "./bus";
+import { assertOfficeEnabled } from "./fault";
 import { recordExecution } from "./metrics";
 import {
   preserveRiskNotice,
@@ -20,6 +21,7 @@ export function brokerIngestStatus(
   sourceExec: string,
   authorityLabel: AuthorityLabel
 ): void {
+  assertOfficeEnabled("AIO-BROKER");
   recordExecution("AIO-BROKER", "stage");
   void getOfficePack("AIO-BROKER").prompt;
   publish({
@@ -39,6 +41,7 @@ export function brokerIngestRiskNotice(
   requestId: string,
   notice: SentinelRiskNotice
 ): SentinelRiskNotice {
+  assertOfficeEnabled("AIO-BROKER");
   recordExecution("AIO-BROKER", "stage");
   const frozen = preserveRiskNotice(notice);
   riskStore.set(frozen.id, frozen);

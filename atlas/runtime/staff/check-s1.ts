@@ -6,11 +6,13 @@
 
 import { writeFileSync, mkdirSync } from "fs";
 import path from "path";
+import { resetFaults } from "./fault";
 import { validateAllOfficesIndependent } from "./validate-office";
 import { RESPONSIBILITY_OWNER } from "./ownership";
 import { listCapabilities } from "./offices/capabilities";
 
 async function main(): Promise<void> {
+  resetFaults();
   const results = await validateAllOfficesIndependent();
   const allOk = results.every((r) => r.ok);
   const failed = results.filter((r) => !r.ok);

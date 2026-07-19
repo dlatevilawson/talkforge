@@ -3,12 +3,15 @@ import { runAwareness } from "../modules/awareness";
 import { runContext } from "../modules/context";
 import { runKnowledge } from "../modules/knowledge";
 import { publish } from "./bus";
+import { applyInjectedDelay, assertOfficeEnabled } from "./fault";
 import { recordExecution } from "./metrics";
 import { getOfficePack } from "./offices/packs";
 
 export async function intelBuildAndLockContext(
   state: WorkflowState
 ): Promise<WorkflowState> {
+  assertOfficeEnabled("AIO-INTEL");
+  await applyInjectedDelay();
   recordExecution("AIO-INTEL", "stage");
   const pack = getOfficePack("AIO-INTEL");
   void pack.prompt;

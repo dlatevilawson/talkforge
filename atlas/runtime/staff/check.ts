@@ -4,6 +4,7 @@
  */
 
 import { resetTraceSinkForTests } from "../modules/trace";
+import { resetFaults } from "./fault";
 import {
   brokerIngestRiskNotice,
   brokerSignalDeadlock,
@@ -32,6 +33,7 @@ function assert(cond: unknown, msg: string): asserts cond {
 }
 
 async function main(): Promise<void> {
+  resetFaults();
   // --- S0 ownership + office packs + instantiation ---
   assertAllOfficesRegistered();
   const instantiated = instantiateAllOffices();
