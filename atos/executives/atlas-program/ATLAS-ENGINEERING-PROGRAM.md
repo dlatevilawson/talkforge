@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-ENG-PROGRAM |
-| **Version** | 1.2.0 |
+| **Version** | 1.3.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas (AIO-CORE coordinates) |
@@ -13,7 +13,7 @@
 | **Dependencies** | ATLAS-P0…P5, RES-003…RES-008, CHARTER-ATLAS, CHARTER-SENTINEL, ATLAS-D-FLAGS, ATLAS-GATE-FV, ATLAS-WAVES, GOV-MAINT-1.0.0, SPEC-006, STD-003 |
 | **Related Documents** | ATLAS-AIF-PROGRAM, ATLAS-ORG-VAL, ATLAS-HANDOFF-REGISTER, ATLAS-SUCCESSION, `atlas/runtime/*` |
 | **Approval History** | 2026-07-19 — Atlas-issued under Founder directive to coordinate AIO staff implementation |
-| **Change Log** | 2026-07-19 — v1.2.0 ATLAS-ORG-VAL link; v1.1.0 Program Desk; v1.0.0 initial specs |
+| **Change Log** | 2026-07-19 — v1.3.0 WP-S0 PASS (Sprint 1); v1.2.0 ORG-VAL; v1.1.0 Program Desk |
 
 ---
 
@@ -396,9 +396,10 @@ Each package is sized for Cursor Engineering. **Deliverables are code + tests + 
 |---|---|
 | **Goal** | Establish `aio.*` tree, office IDs, exclusive ownership map |
 | **Depends on** | ATLAS-AIF-PROGRAM acknowledged (Program Desk = Core function) |
-| **Deliverables** | `atlas/runtime/staff/{types,ownership,index}.ts`; ownership assertions; README note under `atlas/runtime/`; map includes `program` as **AIF under AIO-CORE** (not a sixth office id) |
-| **Tests** | Reject dual owners; reject AIO claiming EXEC-SENTINEL duties; reject `AIO-PROGRAM` as peer office without Founder P5 amendment |
+| **Deliverables** | `atlas/runtime/staff/{types,ownership,index,coordinate}.ts`; `offices/registry.ts`; ownership assertions; map includes `program` as **AIF under AIO-CORE** (not a sixth office id) |
+| **Tests** | Reject dual owners; reject orphans; reject `AIO-PROGRAM`; instantiate all offices; delegation E2E |
 | **Exit** | VC1 |
+| **Status** | **PASS** (Sprint 1) — `npm run atlas:staff:check:s0` → `atlas/runtime/evidence/WP-S0-OWNERSHIP.md` |
 
 ## WP-S1 — Event bus & contracts
 

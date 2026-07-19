@@ -67,7 +67,8 @@ Distinct from cutover waves W6–W8. Specs: [`ATLAS-ENG-PROGRAM`](ATLAS-ENGINEER
 
 | Wave | Deliverable | Status |
 |---|---|---|
-| S0–S6 (slice) | AIO facades, events, Guard gate, delegation metrics, `atlas:staff:check` | **Operational under ATLAS-P6** — see `atlas/runtime/staff/` |
+| S0 | Ownership skeleton, instantiate offices, exclusive ownership, coordinator | **PASS** — `atlas:staff:check:s0` |
+| S1–S6 (slice) | Events, facades, Guard gate, delegation metrics | **Operational** — covered by `atlas:staff:check`; formal WP exits continue |
 | S7–S9 | Full automation cadence + observation evidence packaging | In progress / remaining |
 | ORR Stages 2–6 | ATLAS-ORG-VAL | Partial (2–5); Stage 6 pending; **not certified** |
 

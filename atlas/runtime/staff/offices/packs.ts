@@ -5,6 +5,7 @@ import type { AioId, OfficePack } from "../types";
  * These are the living office definitions (ATLAS-P6 Steps 2–3).
  */
 
+/** Exported for registry instantiation (WP-S0). */
 export const OFFICE_PACKS: Record<AioId, OfficePack> = {
   "AIO-CORE": {
     id: "AIO-CORE",

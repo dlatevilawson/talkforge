@@ -15,10 +15,15 @@ import { runStaffCoordinatedPipeline } from "./coordinate";
 import { corePermitEmission } from "./core";
 import { EVENT_CATALOG } from "./events";
 import { listOfficePacks } from "./offices/packs";
+import {
+  assertAllOfficesRegistered,
+  instantiateAllOffices,
+} from "./offices/registry";
 import { resetDelegationMetrics } from "./metrics";
 import {
   assertNotSixthAio,
   assertOwnershipInvariants,
+  validateExclusiveOwnership,
 } from "./ownership";
 import { runSentinelWallConformance } from "./sentinel-wall";
 
@@ -27,7 +32,13 @@ function assert(cond: unknown, msg: string): asserts cond {
 }
 
 async function main(): Promise<void> {
-  // --- S0 ownership + office packs ---
+  // --- S0 ownership + office packs + instantiation ---
+  assertAllOfficesRegistered();
+  const instantiated = instantiateAllOffices();
+  assert(instantiated.length === 5, "instantiate every AIO office");
+  const ownership = validateExclusiveOwnership();
+  assert(ownership.ok, `ownership: ${ownership.errors.join("; ")}`);
+  assert(ownership.orphans.length === 0, "no orphaned responsibilities");
   assertOwnershipInvariants();
   try {
     assertNotSixthAio("AIO-PROGRAM");

@@ -16,5 +16,8 @@ This directory **is** the organization — executable AIO offices, not a documen
 | `check.ts` | `npm run atlas:staff:check` |
 
 ```bash
-npm run atlas:staff:check
+npm run atlas:staff:check:s0   # WP-S0 Ownership Skeleton
+npm run atlas:staff:check      # full staff suite
 ```
+
+**WP-S0 evidence:** `atlas/runtime/evidence/WP-S0-OWNERSHIP.md`
