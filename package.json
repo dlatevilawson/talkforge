@@ -28,7 +28,8 @@
     "atlas:staff:check:s1": "npx --yes tsx atlas/runtime/staff/check-s1.ts",
     "atlas:staff:check:s2": "npx --yes tsx atlas/runtime/staff/check-s2.ts",
     "atlas:staff:check:s3": "npx --yes tsx atlas/runtime/staff/check-s3.ts",
-    "atlas:staff:check:s4": "npx --yes tsx atlas/runtime/staff/check-s4.ts"
+    "atlas:staff:check:s4": "npx --yes tsx atlas/runtime/staff/check-s4.ts",
+    "atlas:staff:check:s5": "npx --yes tsx atlas/runtime/staff/check-s5.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.6",

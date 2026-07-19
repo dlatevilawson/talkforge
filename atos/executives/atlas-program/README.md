@@ -12,7 +12,7 @@
 | **Dependencies** | RES-002…RES-009, SPEC-006 |
 | **Related Documents** | ATLAS-P0…P5, CHARTER-*, MAN-002 |
 | **Approval History** | 2026-07-19 — Phases 0–5 ratified |
-| **Change Log** | 2026-07-19 — WP-S4 PASS; WP-S5 awaiting Founder approval |
+| **Change Log** | 2026-07-19 — WP-S5 PASS; ATLAS-ORR Draft awaiting Founder certification |
 
 ---
 
@@ -61,6 +61,7 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 | [ATLAS-PROGRAM-DESK.md](ATLAS-PROGRAM-DESK.md) (`ATLAS-AIF-PROGRAM`) | Program Management as internal function under AIO-CORE (not a sixth office) |
 | [ATLAS-ORG-VALIDATION.md](ATLAS-ORG-VALIDATION.md) (`ATLAS-ORG-VAL`) | Stages 1–7 validation; ORR + Founder Decision before “next phase” |
 | [ORG-VAL-STATUS.md](../../../atlas/runtime/evidence/org-val/ORG-VAL-STATUS.md) | Live stage rollup |
+| [ATLAS-ORR.md](ATLAS-ORR.md) | Operational Readiness Report (**Draft** — Founder decides) |
 
 **Living org:** [`atlas/runtime/staff/`](../../../atlas/runtime/staff/) — `npm run atlas:staff:check`
 

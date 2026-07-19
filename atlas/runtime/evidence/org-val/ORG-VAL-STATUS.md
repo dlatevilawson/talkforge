@@ -8,12 +8,12 @@
 
 | Stage | Result | Evidence |
 |---|---|---|
-| 1 Structural | **PASS WITH FINDINGS** | [ORG-VAL-S1-STRUCTURE.md](ORG-VAL-S1-STRUCTURE.md) |
-| 2 Integration | **PASS** (WP-S2) | [../WP-S2-COORDINATION.md](../WP-S2-COORDINATION.md) |
-| 3 Automation | PARTIAL | staff checks |
-| 4 Failure injection | **PASS** (WP-S4) | [../WP-S4-FAILURE.md](../WP-S4-FAILURE.md) |
-| 5 Team effectiveness | PARTIAL | prior TE harness; re-score after WP-S3–S5 |
-| 6 Operational stress | PENDING | WP-S5 |
-| 7 ORR / Certification | **Not issued / Not certified** | WP-S6 + Founder |
+| 1 Structural | PASS WITH FINDINGS | ORG-VAL-S1-STRUCTURE.md |
+| 2 Integration | PASS | ../WP-S2-COORDINATION.md |
+| 3 Automation | PARTIAL/strengthened | staff checks |
+| 4 Failure injection | PASS | ../WP-S4-FAILURE.md |
+| 5 Team effectiveness | Supported | S2/S5 metrics |
+| 6 Operational stress | **PASS** | ../WP-S5-STRESS.md |
+| 7 ORR / Certification | **Draft ORR — await Founder** | ATLAS-ORR.md |
 
-**P6-EXEC:** WP-S1–S3 Founder-approved · WP-S4 PASS · WP-S5 **BLOCKED**
+**P6-EXEC:** WP-S1–S4 Founder-approved · WP-S5 PASS · **Awaiting Founder certification**

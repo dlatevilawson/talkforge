@@ -50,9 +50,37 @@ export type StaffPipelineOptions = {
 };
 
 /**
+ * Serialize staff pipeline executions.
+ * Concurrent callers queue (high coordination demand) without corrupting
+ * shared bus/metrics state — WP-S5 stress posture.
+ */
+let staffPipelineTail: Promise<unknown> = Promise.resolve();
+
+async function withStaffPipelineLock<T>(fn: () => Promise<T>): Promise<T> {
+  const prev = staffPipelineTail;
+  let release!: () => void;
+  staffPipelineTail = new Promise<void>((r) => {
+    release = r;
+  });
+  await prev.catch(() => undefined);
+  try {
+    return await fn();
+  } finally {
+    release();
+  }
+}
+
+/**
  * Run the governing flow with mandatory AIO delegation.
  */
 export async function runStaffCoordinatedPipeline(
+  input: IngressInput,
+  options?: StaffPipelineOptions
+): Promise<StaffPipelineResult> {
+  return withStaffPipelineLock(() => runStaffCoordinatedPipelineUnlocked(input, options));
+}
+
+async function runStaffCoordinatedPipelineUnlocked(
   input: IngressInput,
   options?: StaffPipelineOptions
 ): Promise<StaffPipelineResult> {

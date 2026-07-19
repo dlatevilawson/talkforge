@@ -119,6 +119,7 @@ See [`references/README.md`](references/README.md).
 | ATLAS-P6 | Phase 6 Operationalization | [executives/atlas-program/PHASE-6-OPERATIONALIZATION.md](executives/atlas-program/PHASE-6-OPERATIONALIZATION.md) |
 | RES-009 | Atlas Phase 6 Ratification | [resolutions/RES-009-atlas-phase-6-operationalization.md](resolutions/RES-009-atlas-phase-6-operationalization.md) |
 | ATLAS-P6-EXEC | Phase 6 Execution Program (ORR WPs) | [executives/atlas-program/ATLAS-P6-EXECUTION.md](executives/atlas-program/ATLAS-P6-EXECUTION.md) |
+| ATLAS-ORR | Operational Readiness Report (Draft) | [executives/atlas-program/ATLAS-ORR.md](executives/atlas-program/ATLAS-ORR.md) |
 | EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |
 | EXEC-ORG-DECISIONS | Org Decision Governance | [executives/atlas-program/ORG-DECISION-GOVERNANCE.md](executives/atlas-program/ORG-DECISION-GOVERNANCE.md) |
 | EXEC-ORG-CADENCE | Org Cadence | [executives/atlas-program/ORG-CADENCE.md](executives/atlas-program/ORG-CADENCE.md) |

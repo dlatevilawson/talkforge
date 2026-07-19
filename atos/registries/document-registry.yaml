@@ -7,7 +7,7 @@
 # Human Approver: Founder
 # Review Cycle: Each ATOS version
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
-# Change Log: 2026-07-19 — ATLAS-P6-EXEC remaining ORR execution program
+# Change Log: 2026-07-19 — ATLAS-ORR draft after WP-S5 stress
 
 version: 1.0.0
 updated_at: "2026-07-19"
@@ -742,6 +742,14 @@ documents:
     path: atos/executives/atlas-program/ATLAS-P6-EXECUTION.md
     state: authoritative
     version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: ATLAS-ORR
+    title: "Atlas — Operational Readiness Report (Recommendation)"
+    path: atos/executives/atlas-program/ATLAS-ORR.md
+    state: draft
+    version: "1.0.0-draft"
     owner: Founder
     ai_steward: Atlas
     layer: executives
