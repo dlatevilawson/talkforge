@@ -7,7 +7,7 @@
 # Human Approver: Founder
 # Review Cycle: Each ATOS version
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
-# Change Log: 2026-07-19 — ATLAS-AIF-PROGRAM Program Desk architecture
+# Change Log: 2026-07-19 — ATLAS-ORG-VAL organizational validation Stages 1–7
 
 version: 1.0.0
 updated_at: "2026-07-19"
@@ -701,13 +701,21 @@ documents:
     title: "Atlas — Engineering Program for Internal Staff Implementation"
     path: atos/executives/atlas-program/ATLAS-ENGINEERING-PROGRAM.md
     state: authoritative
-    version: "1.1.0"
+    version: "1.2.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives
   - id: ATLAS-AIF-PROGRAM
     title: "Atlas — Program Management Capability (Program Desk)"
     path: atos/executives/atlas-program/ATLAS-PROGRAM-DESK.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: ATLAS-ORG-VAL
+    title: "Atlas — Organizational Validation & Certification Program"
+    path: atos/executives/atlas-program/ATLAS-ORG-VALIDATION.md
     state: authoritative
     version: "1.0.0"
     owner: Founder

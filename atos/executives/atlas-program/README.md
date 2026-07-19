@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-PROGRAM |
-| **Version** | 1.4.0 |
+| **Version** | 1.5.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -12,7 +12,7 @@
 | **Dependencies** | RES-002…RES-008, SPEC-006 |
 | **Related Documents** | ATLAS-P0…P5, CHARTER-*, MAN-002 |
 | **Approval History** | 2026-07-19 — Phases 0–5 ratified |
-| **Change Log** | 2026-07-19 — ATLAS-AIF-PROGRAM (Program Desk) recommended inside AIO-CORE |
+| **Change Log** | 2026-07-19 — ATLAS-ORG-VAL seven-stage validation & certification program |
 
 ---
 
@@ -57,8 +57,10 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 |---|---|
 | [ATLAS-ENGINEERING-PROGRAM.md](ATLAS-ENGINEERING-PROGRAM.md) (`ATLAS-ENG-PROGRAM`) | Implementation specs for AIO-* via Engineering (Cursor); no production code in the program itself |
 | [ATLAS-PROGRAM-DESK.md](ATLAS-PROGRAM-DESK.md) (`ATLAS-AIF-PROGRAM`) | Program Management as internal function under AIO-CORE (not a sixth office) |
+| [ATLAS-ORG-VALIDATION.md](ATLAS-ORG-VALIDATION.md) (`ATLAS-ORG-VAL`) | Stages 1–7 validation; ORR + Founder Decision before “next phase” |
+| [evidence/ORG-VAL-STATUS.md](evidence/ORG-VAL-STATUS.md) | Live stage rollup |
 
-Atlas coordinates. Program Desk tracks. Engineering implements. Contracts govern.
+Atlas coordinates. Program Desk tracks. Engineering implements. Validation precedes certification. Contracts govern.
 
 ## Runtime implementation (Phase 3 waves)
 

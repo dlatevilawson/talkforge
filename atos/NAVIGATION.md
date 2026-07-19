@@ -115,6 +115,7 @@ See [`references/README.md`](references/README.md).
 | ATLAS-HANDOFF-REGISTER | Atlas Handoff Register | [executives/atlas-program/ATLAS-HANDOFF-REGISTER.md](executives/atlas-program/ATLAS-HANDOFF-REGISTER.md) |
 | ATLAS-ENG-PROGRAM | Atlas Engineering Program (AIO staff) | [executives/atlas-program/ATLAS-ENGINEERING-PROGRAM.md](executives/atlas-program/ATLAS-ENGINEERING-PROGRAM.md) |
 | ATLAS-AIF-PROGRAM | Atlas Program Desk (AIF under Core) | [executives/atlas-program/ATLAS-PROGRAM-DESK.md](executives/atlas-program/ATLAS-PROGRAM-DESK.md) |
+| ATLAS-ORG-VAL | Org Validation & Certification (Stages 1–7) | [executives/atlas-program/ATLAS-ORG-VALIDATION.md](executives/atlas-program/ATLAS-ORG-VALIDATION.md) |
 | EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |
 | EXEC-ORG-DECISIONS | Org Decision Governance | [executives/atlas-program/ORG-DECISION-GOVERNANCE.md](executives/atlas-program/ORG-DECISION-GOVERNANCE.md) |
 | EXEC-ORG-CADENCE | Org Cadence | [executives/atlas-program/ORG-CADENCE.md](executives/atlas-program/ORG-CADENCE.md) |

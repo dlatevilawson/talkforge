@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-ENG-PROGRAM |
-| **Version** | 1.1.0 |
+| **Version** | 1.2.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas (AIO-CORE coordinates) |
@@ -11,9 +11,9 @@
 | **Implementer** | Engineering (Cursor) |
 | **Review Cycle** | Each staff wave completion / material contract conflict |
 | **Dependencies** | ATLAS-P0…P5, RES-003…RES-008, CHARTER-ATLAS, CHARTER-SENTINEL, ATLAS-D-FLAGS, ATLAS-GATE-FV, ATLAS-WAVES, GOV-MAINT-1.0.0, SPEC-006, STD-003 |
-| **Related Documents** | ATLAS-AIF-PROGRAM, ATLAS-HANDOFF-REGISTER, ATLAS-SUCCESSION, `atlas/runtime/*` |
+| **Related Documents** | ATLAS-AIF-PROGRAM, ATLAS-ORG-VAL, ATLAS-HANDOFF-REGISTER, ATLAS-SUCCESSION, `atlas/runtime/*` |
 | **Approval History** | 2026-07-19 — Atlas-issued under Founder directive to coordinate AIO staff implementation |
-| **Change Log** | 2026-07-19 — v1.1.0 cross-link AIF-PROGRAM (Program Desk); v1.0.0 initial specs (no production code) |
+| **Change Log** | 2026-07-19 — v1.2.0 ATLAS-ORG-VAL link; v1.1.0 Program Desk; v1.0.0 initial specs |
 
 ---
 
@@ -48,6 +48,7 @@
 | D9 | Automation is in-process / scheduled hooks owned by AIO offices; it creates no new authority |
 | D10 | Acceptance is evidence-gated (`atlas:runtime:check*`, new `atlas:staff:check`, observation suite) — not narrative completion |
 | D11 | Program progress reporting is owned by **AIF-PROGRAM** (function inside AIO-CORE), not by undifferentiated Atlas and not by a sixth AIO |
+| D12 | Organizational readiness follows **ATLAS-ORG-VAL** Stages 1–7; staff WPs must feed harnesses — certification ≠ FOUNDER_VISIBLE |
 
 ---
 
