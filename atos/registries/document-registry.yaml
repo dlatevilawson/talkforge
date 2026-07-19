@@ -620,8 +620,8 @@ documents:
   - id: ATLAS-P2
     title: "Atlas Program — Phase 2 Executive Infrastructure Design"
     path: atos/executives/atlas-program/PHASE-2-EXECUTIVE-INFRASTRUCTURE.md
-    state: draft
-    version: "0.1.0-draft"
+    state: review
+    version: "1.0.0-review"
     owner: Founder
     ai_steward: Atlas
     layer: executives

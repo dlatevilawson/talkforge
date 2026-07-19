@@ -28,6 +28,6 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 |---|---|---|---|
 | 0 | [PHASE-0-DESIGN-CONTRACT.md](PHASE-0-DESIGN-CONTRACT.md) (`ATLAS-P0`) | RES-003 | What Atlas is |
 | 1 | [PHASE-1-EXECUTIVE-ARCHITECTURE.md](PHASE-1-EXECUTIVE-ARCHITECTURE.md) (`ATLAS-P1`) | RES-004 | How Atlas is organized |
-| 2 | [PHASE-2-EXECUTIVE-INFRASTRUCTURE.md](PHASE-2-EXECUTIVE-INFRASTRUCTURE.md) (`ATLAS-P2`) | Pending | Infrastructure design (in progress) |
+| 2 | [PHASE-2-EXECUTIVE-INFRASTRUCTURE.md](PHASE-2-EXECUTIVE-INFRASTRUCTURE.md) (`ATLAS-P2`) | Review | Infrastructure design — awaiting Founder ratification |
 
 All Atlas infrastructure and implementation must satisfy Phase 0 and Phase 1. Conflicts change the design — not the ratified contracts.

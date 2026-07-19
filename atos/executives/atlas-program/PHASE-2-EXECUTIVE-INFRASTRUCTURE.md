@@ -3,106 +3,345 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-P2 |
-| **Version** | 0.1.0-draft |
-| **Status** | Draft |
+| **Version** | 1.0.0-review |
+| **Status** | Review |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | Each Phase 2 step |
+| **Review Cycle** | Until Founder ratification |
 | **Dependencies** | ATLAS-P0, ATLAS-P1, RES-003, RES-004 |
-| **Related Documents** | SPEC-005, STD-006, RUNTIME-IFACE, GOV-MAINT-1.0.0 |
-| **Approval History** | 2026-07-19 — Phase 2 opened after Phase 1 approval |
-| **Change Log** | 2026-07-19 — Phase 2 package opened; Step 1 principles recorded |
+| **Related Documents** | SPEC-005, STD-006, RUNTIME-IFACE, RUNTIME-CTX, RUNTIME-MEM, GOV-MAINT-1.0.0 |
+| **Approval History** | 2026-07-19 — Step 1 approved; Steps 2–10 designed for Founder review |
+| **Change Log** | 2026-07-19 — Full Phase 2 infrastructure design package |
 
 ---
 
 ## Purpose
 
-Phase 2 designs the **Executive Infrastructure** that realizes ATLAS-P1 — still design, not production implementation.
+Phase 2 designs the **Executive Infrastructure** that realizes ATLAS-P1 — design only, not production implementation.
 
-**Must satisfy:** Phase 0 · Phase 1 · ATOS · Specs/Standards applicable · Maintenance Mode (build on ATOS, not rewrite ATOS).
+**Must satisfy:** Phase 0 · Phase 1 · ATOS · applicable Specs/Standards · Maintenance Mode.  
+**Must not:** Production code · Product UI · ATOS Spec/Standard rewrite · Redefine Phase 0/1.
 
-**Must not:** Write production code · Design product UI · Change ATOS Specs/Standards · Redefine Phase 0 or Phase 1.
+**Governing flow:**
+
+```text
+Request → Authority → Knowledge → Context → Reasoning → Recommendation → Validation → Founder → Audit
+```
 
 ---
 
-## Phase 2 step sequence
+## Phase 2 step status
 
 | Step | Focus | Status |
 |---|---|---|
-| 1 | Infrastructure principles & constraints | In progress |
-| 2 | Component infrastructure map | Pending |
-| 3 | Inter-component contracts | Pending |
-| 4 | Knowledge & context infrastructure | Pending |
-| 5 | Memory & audit infrastructure | Pending |
-| 6 | Reasoning → recommendation → validation pipeline infrastructure | Pending |
-| 7 | Executive interface infrastructure | Pending |
-| 8 | Reporting infrastructure | Pending |
-| 9 | Failure & recovery infrastructure | Pending |
-| 10 | Infrastructure design validation & Founder ratification request | Pending |
-
-Every step ends with: **Step X complete. Awaiting Founder review.**
+| 1 | Infrastructure principles & constraints | **Approved** |
+| 2 | Component infrastructure map | Complete — awaiting review |
+| 3 | Inter-component contracts | Complete — awaiting review |
+| 4 | Knowledge & context infrastructure | Complete — awaiting review |
+| 5 | Memory & audit infrastructure | Complete — awaiting review |
+| 6 | Pipeline infrastructure (Reason→Recommend→Validate) | Complete — awaiting review |
+| 7 | Executive interface infrastructure | Complete — awaiting review |
+| 8 | Reporting infrastructure | Complete — awaiting review |
+| 9 | Failure & recovery infrastructure | Complete — awaiting review |
+| 10 | Infrastructure design validation | Complete — awaiting Founder ratification |
 
 ---
 
-## Step 1 — Infrastructure principles & constraints (discovery)
+## Step 1 — Principles & constraints (Approved)
 
-### Verified constraints (from ATLAS-P0 / P1 / ATOS)
+### Verified constraints
 
-1. Infrastructure exists to serve the Phase 1 flow — it may not invent new authority.  
+1. Serve Phase 1 flow — invent no new authority.  
 2. One logical ingress; authority before knowledge/context/reasoning.  
 3. No raw-memory reasoning path.  
 4. Validation hard gate before Founder-visible output.  
 5. Audit must not silently Canonicalize.  
-6. Atlas infrastructure must not become Sentinel, Founder, or domain executives.  
-7. ATOS Program CLOSED / Maintenance Mode — infrastructure is Atlas Program work **on** ATOS.  
-8. Hub / Context Injector / Memory Keeper production cutover remains Founder-gated (SPEC-005 / GOV-COMPAT).  
+6. Must not become Sentinel, Founder, or domain executives.  
+7. Atlas Program work **on** ATOS (Maintenance Mode).  
+8. Hub / Context Injector / Memory Keeper production cutover remains Founder-gated.  
 
-### Proposed infrastructure principles
+### Principles
 
-| Principle | Meaning |
+| ID | Principle |
 |---|---|
-| **P-Flow** | Every execution path must be expressible as Request → Authority → Knowledge → Context → Reasoning → Recommendation → Validation → Founder → Audit |
-| **P-Stage-Isolation** | Stages do not absorb each other’s SRP |
-| **P-Label-Transport** | Authority labels survive every hop; never upgrade silently |
-| **P-Fail-Closed** | On authority/knowledge/validation failure, deny PASS — do not soften |
-| **P-Founder-Final** | No infrastructure shortcut grants binding decisions |
-| **P-Trace-Always** | Material interactions leave audit records |
-| **P-Promote-Only-by-Governance** | Persistence ≠ Canonical |
-| **P-Minimal-Surface** | Smallest sufficient interfaces between components |
-| **P-No-Impl-Leak** | Phase 2 specifies contracts and responsibilities, not production code or UI |
-| **P-Conflict-Rule** | If infrastructure conflicts with P0/P1, change infrastructure |
+| P-Flow | Preserve governing sequence always |
+| P-Stage-Isolation | No SRP absorption |
+| P-Label-Transport | Labels survive hops; never silent upgrade |
+| P-Fail-Closed | Deny PASS on authority/knowledge/validation failure |
+| P-Founder-Final | No binding shortcut |
+| P-Trace-Always | Material interactions audited |
+| P-Promote-Only-by-Governance | Persistence ≠ Canonical |
+| P-Minimal-Surface | Smallest sufficient contracts |
+| P-No-Impl-Leak | Contracts/responsibilities only — not code/UI |
+| P-Conflict-Rule | Conflict with P0/P1 → change infrastructure |
 
-### Infrastructure planes (proposed logical, not deployment)
+### Logical planes
 
-| Plane | Holds |
-|---|---|
-| Control plane | Ingress, Authority Guard, Escalation, Integrity Watch |
-| Knowledge plane | Knowledge Reader access to governed sources + labels |
-| Context plane | Context Assembler session for a request |
-| Cognition plane | Reasoning Engine |
-| Composition plane | Recommendation / Briefing Composers |
-| Coordination plane | Coordination Broker |
-| Awareness plane | Situation Monitor (operational) |
-| Retention plane | Memory Classifier + Trace Recorder |
+Control · Knowledge · Context · Cognition · Composition · Coordination · Awareness · Retention  
 
-Deployment topology is **out of scope for Step 1** (deferred to later Phase 2 steps / implementation phases).
-
-### Explicit non-goals (Step 1)
-
-- Choosing languages, frameworks, hosts, or databases  
-- Designing Ask Atlas UI  
-- Implementing Hub/Context Injector/Memory Keeper  
-- Amending ATOS  
+*(Deployment topology deferred to implementation phases.)*
 
 ---
 
-## Step 1 success test
+## Step 2 — Component infrastructure map
 
-Infrastructure principles are adequate when every later Phase 2 artifact can be checked against:
+Maps each ATLAS-P1 component to a logical infrastructure unit and plane.
 
-1. Does it preserve the governing flow?  
-2. Does it preserve Phase 0 authority?  
-3. Does it preserve Phase 1 SRPs?  
-4. Does it fail closed?  
-5. Does it avoid implementation leakage?
+| Component | Plane | Infrastructure unit (logical) | Upstream | Downstream |
+|---|---|---|---|---|
+| Ingress Gate | Control | Request Intake | External callers | Authority Guard |
+| Authority Guard | Control | Authority Checkpoint | Ingress | Knowledge Reader **or** Escalation |
+| Knowledge Reader | Knowledge | Knowledge Access Adapter | Authority Guard | Context Assembler |
+| Situation Monitor | Awareness | Ops Awareness Adapter | (async/ops feeds) | Knowledge Reader (as operational sources) |
+| Context Assembler | Context | Context Session Builder | Knowledge Reader | Reasoning Engine |
+| Reasoning Engine | Cognition | Reasoning Processor | Context Assembler | Recommendation Composer |
+| Recommendation Composer | Composition | Recommendation Builder | Reasoning | Integrity Watch |
+| Briefing Composer | Composition | Briefing Builder | Reasoning / Recommendations | Integrity Watch |
+| Coordination Broker | Coordination | Executive Exchange | Ingress / Composer | Ingress (responses) / Composer |
+| Escalation path | Control | Escalation Builder | Authority Guard / Reasoning / Validation | Integrity Watch → Founder |
+| Integrity Watch | Control | Validation Gate | Composers / Escalation | Founder **or** RETURN/STOP |
+| Memory Classifier | Retention | Memory Disposition | Post-Founder / post-attempt | Retention sinks / promo queue |
+| Trace Recorder | Retention | Audit Log | All material stages | Audit store (non-Canonical) |
+
+**Forbidden infra units:** Decision Authority Service · Canonical Publisher · Priority Sovereign · Sentinel Override Proxy · Domain Executive Simulator.
+
+**Relation to ATOS runtime (SPEC-005 / RUNTIME-IFACE) — alignment, not cutover:**
+
+| ATOS runtime concept | Atlas infra relationship |
+|---|---|
+| Hub | May eventually orchestrate; must not grant Atlas extra authority; cutover Founder-gated |
+| Context Injector | Aligns with Knowledge Reader + Context Assembler rules (RUNTIME-CTX) |
+| Memory Keeper | Aligns with Memory Classifier (RUNTIME-MEM); never Canonical alone |
+| Sandbox | Proposal-only inputs via Ingress; labeled `proposal` |
+
+---
+
+## Step 3 — Inter-component contracts
+
+### Shared envelope types (logical)
+
+**RequestEnvelope**  
+`request_id`, `source` (Founder/cadence/executive/ops/correction), `intent`, `payload_ref`, `received_at`
+
+**AuthorityVerdict**  
+`request_id`, `result` (pass/escalate/reject), `reasons[]`, `limits_applied[]`
+
+**KnowledgeItem**  
+`source_id`, `authority_label`, `status`, `excerpt_or_ref`, `plane`
+
+**ContextBundle**  
+`request_id`, `items[]` (KnowledgeItems), `objective`, `constraints[]`, `assembled_at`  
+*Locked before Reasoning.*
+
+**ReasoningProduct**  
+STD-003 intermediate: objective, evidence[], facts/assumptions/inferences, alternatives[], tradeoffs, risks[], long_term_notes, missing_info, draft_recommendation, confidence, escalation_flag
+
+**RecommendationArtifact**  
+STD-003 fields + metadata (`recommendation_id`, `type`, `binding=false`, `escalation`, `authority_labels_used[]`)
+
+**ValidationVerdict**  
+`result` (PASS/RETURN/ESCALATE/STOP), `failed_stages[]`, `notes`
+
+**AuditEvent**  
+`event_id`, `request_id`, `stage`, `summary`, `refs[]`, `canonical=false` (always)
+
+### Stage contracts (must / must not)
+
+| From → To | Must pass | Must not pass |
+|---|---|---|
+| Ingress → Authority | RequestEnvelope | Pre-reasoned recommendations |
+| Authority → Knowledge | RequestEnvelope + AuthorityVerdict=pass | Failed authority |
+| Knowledge → Context | KnowledgeItem[] labeled | Unlabeled / Scaffold-as-institutional |
+| Context → Reasoning | ContextBundle locked | Raw memory handles |
+| Reasoning → Recommendation | ReasoningProduct | Binding decisions |
+| Recommendation → Validation | RecommendationArtifact | Direct Founder channel |
+| Validation → Founder | Artifact + ValidationVerdict=PASS (or validated Escalation) | Failed validation |
+| Any → Trace | AuditEvent | Canonical publish flag true |
+| Post-path → Memory Classifier | Disposition candidate | Auto-Canonical |
+
+**Label transport rule:** Downstream may narrow use of items; may never upgrade `authority_label`.
+
+---
+
+## Step 4 — Knowledge & context infrastructure
+
+### Knowledge Access Adapter
+
+| Concern | Design |
+|---|---|
+| Sources | Authoritative docs, Canonical library, operational registries/ops, legacy-atlas (labeled), Draft (non-binding), Proposal (sandbox) |
+| Filter | Scaffold excluded as institutional/Canonical |
+| Preference | Authoritative → Canonical → Operational → Legacy → Draft → Proposal |
+| Output | KnowledgeItem[] with mandatory labels |
+| Gaps | Emit explicit missing-knowledge records — no invention |
+| ATOS alignment | Obeys RUNTIME-CTX injection rules; Ask Atlas loader cutover Founder-gated |
+
+### Context Session Builder
+
+| Concern | Design |
+|---|---|
+| Input | RequestEnvelope + KnowledgeItem[] (+ ops items via Situation Monitor) |
+| Selection | Smallest sufficient set for current request only |
+| Lock | ContextBundle immutable for Reasoning pass |
+| Re-entry | New knowledge requires new Authority→Knowledge→Context cycle (no mid-reason hot-patch with unlabeled data) |
+
+### Ops Awareness Adapter
+
+Provides **operational**-labeled items only (priorities, projects, blockers). Never Identity/Canonical by itself.
+
+---
+
+## Step 5 — Memory & audit infrastructure
+
+### Memory Disposition
+
+| Class | Sink (logical) | Notes |
+|---|---|---|
+| Temporary | Ephemeral store / TTL | Working/session/scratch |
+| Operational | Ops plane / registries | Not Canonical |
+| Promotion Candidate | REG-PROMO-Q via STD-002 process | Founder institutional approval for Canonical |
+| Discarded | Explicit discard (+ optional audit crumb) | |
+
+**Recall rule:** Anything retained may re-enter cognition **only** as KnowledgeItem through Knowledge → Context — never as raw memory into Reasoning.
+
+### Audit Log
+
+- Record material stage transitions and ValidationVerdicts  
+- `canonical=false` always on AuditEvent  
+- Supports Founder challenge and failure learning  
+- Does not publish institutional knowledge  
+
+Aligns with Memory Keeper spirit (RUNTIME-IFACE) without implementing cutover.
+
+---
+
+## Step 6 — Pipeline infrastructure (Reason → Recommend → Validate)
+
+### Reasoning Processor
+
+- Input: locked ContextBundle only  
+- Process: STD-003 pipeline (ATLAS-P1 Step 3)  
+- Output: ReasoningProduct  
+- On escalation_flag: hand to Escalation Builder (still Validation before Founder)  
+
+### Recommendation Builder / Briefing Builder
+
+- Input: ReasoningProduct (+ Coordination attachments if any)  
+- Output: RecommendationArtifact / Brief embedding  
+- Enforces STD-003 fields, non-binding posture, Sentinel-intact risks  
+
+### Validation Gate (Integrity Watch)
+
+Mandatory V1–V8 (ATLAS-P1 Step 5).  
+Results: PASS → Founder channel; RETURN → upstream; ESCALATE → Escalation artifact path; STOP → no clean Founder brief.  
+**No urgency bypass.**
+
+---
+
+## Step 7 — Executive interface infrastructure
+
+### Executive Exchange (Coordination Broker infra)
+
+| Channel | Direction | Payload |
+|---|---|---|
+| Founder delivery channel | Atlas → Founder | Validated briefs / packs / escalations only |
+| Founder intake | Founder → Ingress | Requests/corrections |
+| Sentinel exchange | Bidirectional | Requests for findings; shared options; **findings not rewritten** |
+| Domain executive exchange | Bidirectional | Status/options requests; coordination reports |
+| Knowledge promotion channel | Atlas → Governance | Promotion candidates only (STD-002) |
+
+**Boundary enforcement:** Exchange cannot invoke Decision Authority, Canonical publish, or domain execution ownership.
+
+**Future executives:** Same channel template; activation follows charter + REG-EXEC.
+
+---
+
+## Step 8 — Reporting infrastructure
+
+| Output | Builder | Delivery rule |
+|---|---|---|
+| Daily Brief | Briefing Builder | Validation gate; REF-R1104 fields |
+| Weekly Review | Briefing Builder | Sentinel risks attributed |
+| Decision Pack | Recommendation Builder | STD-003; Validation |
+| Priority Proposal | Recommendation Builder | Labeled proposal |
+| Risk / Opportunity / Project summaries | Briefing / Recommendation | Validation for material recommend sections |
+| Escalation Report | Escalation Builder | Validation as escalation |
+| Dashboard intelligence feed | Awareness → Briefing contract | Labels required; FWS-DASH information contract |
+| Quarterly support | Briefing + Recommendation | Founder decides |
+
+**Incident Brief infrastructure:** Sentinel-owned; Atlas may reference, not own.
+
+**Storage posture:** Operational brief stores allowed; ATOS Canonical only via promotion governance.
+
+---
+
+## Step 9 — Failure & recovery infrastructure
+
+| Capability | Design |
+|---|---|
+| Detection | Authority Checkpoint, Validation Gate stages, Trace anomalies |
+| Containment | Fail-closed verdicts (RETURN/ESCALATE/STOP); block Founder PASS |
+| Correction | Upstream re-entry only; Validation must not invent evidence |
+| Surfacing | Failure class recorded on AuditEvent + Founder-visible when STOP/ESCALATE |
+| Learning | Audit review; optional Promotion Candidate for institutional lessons via STD-002 |
+
+**Recovery sequence:** Stop → Surface → Contain → Correct → Learn through governance.
+
+---
+
+## Step 10 — Infrastructure design validation
+
+### Checklist
+
+| Check | Result |
+|---|---|
+| Preserves governing flow | **Met** |
+| Phase 0 authority preserved | **Met** |
+| Phase 1 SRPs preserved | **Met** |
+| Fail closed | **Met** |
+| No raw-memory reasoning path | **Met** |
+| Validation before Founder | **Met** |
+| Audit ≠ Canonical | **Met** |
+| Executive non-absorption | **Met** |
+| ATOS Maintenance Mode respected | **Met** |
+| RUNTIME-CTX / RUNTIME-MEM aligned (design) | **Met** |
+| Hub/Context/Memory cutover not assumed | **Met** |
+| No production code / UI leakage | **Met** |
+| No ATOS Spec/Standard rewrite | **Met** |
+
+### Remaining unknowns
+
+1. Physical deployment topology (services vs modular monolith, etc.) — implementation phase.  
+2. Exact persistence technology for audit/ops — implementation phase.  
+3. Founder-gated cutover schedule for Ask Atlas → ATOS context injection.  
+4. Optional deeper context-selection scoring algorithm (deferred addendum).  
+
+### Architectural risks
+
+| Risk | Mitigation |
+|---|---|
+| Future Hub orchestrator grants implicit authority | P-Founder-Final + Authority Checkpoint remain mandatory |
+| Ops store treated as Canonical | Label transport + Memory Disposition rules |
+| Coordination channels become command bus | Executive Exchange boundaries |
+| Validation bypass “for demo” | No urgency exception in contract |
+
+### Open questions
+
+1. Ratify Phase 2 as Authoritative Executive Infrastructure Contract?  
+2. Any plane/contract rename before implementation phase?  
+3. Require Context-selection addendum before implementation?
+
+---
+
+## Founder ratification request
+
+Phase 2 Steps 1–10 are complete for review.
+
+Please rule:
+
+1. **Approve Phase 2 in full** as the Executive Infrastructure Contract, or  
+2. **Approve with corrections**, or  
+3. **Reject pending corrections**
+
+On approval, Phase 2 should be ratified (RES + ATLAS-P2 Authoritative) to guide every future Atlas implementation — without changing ATOS, Phase 0, or Phase 1.
