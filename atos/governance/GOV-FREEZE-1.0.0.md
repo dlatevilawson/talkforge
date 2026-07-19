@@ -4,25 +4,25 @@
 |---|---|
 | **Document ID** | GOV-FREEZE-1.0.0 |
 | **Version** | 1.0.0 |
-| **Status** | Review |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Review Cycle** | Until next ATOS version |
 | **Dependencies** | RES-001, RES-002, ATOS-RELEASE-1.0.0, GOV-AUTH, ADR-0001 |
 | **Related Documents** | GOV-REPO, MS-M9, MS-SYNC |
-| **Approval History** | 2026-07-18 — Drafted with M9 package; 2026-07-19 — Status → Review (effective upon Founder Version 1.0 ratification) |
-| **Change Log** | 2026-07-19 — MS-SYNC: pending-ratification state; freeze list references Authoritative GOV-AUTH and ADR-0001 |
+| **Approval History** | 2026-07-19 — Authoritative upon Founder ratification of ATOS Version 1.0 (RES-002) |
+| **Change Log** | 2026-07-19 — Freeze in effect; Version 1.0 ratified |
 
 ---
 
 ## Purpose
 
-Defines what becomes frozen when the Founder ratifies ATOS Version 1.0.0, and how post-release changes must proceed.
+Defines what is frozen at ATOS Version 1.0.0 and how post-release changes must proceed.
 
-**Effectiveness:** This policy is **Review** until Founder approval of M9 / Version 1.0 ratification. Upon that approval, Status becomes **Authoritative** and the freeze takes effect.
+**Effectiveness:** Authoritative as of Founder ratification under RES-002 (2026-07-19).
 
-## Frozen upon ratification (require Founder approval to change)
+## Frozen (require Founder approval to change)
 
 - SPEC-001…SPEC-006 (Authoritative text)  
 - STD-001…STD-006 (Authoritative text)  
@@ -49,3 +49,5 @@ Defines what becomes frozen when the Founder ratifies ATOS Version 1.0.0, and ho
 3. Update registries + change logs in the same change set.  
 4. Pass `npm run atos:check`.  
 5. Founder approval for constitutional layers.  
+
+ATOS is not rewritten outside this process. Future development occurs within ATOS.

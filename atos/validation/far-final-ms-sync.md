@@ -4,28 +4,26 @@
 |---|---|
 | **Document ID** | VAL-FAR-SYNC |
 | **Version** | 1.0.0 |
-| **Status** | Review |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | On Version 1.0 ratification |
+| **Review Cycle** | Historical |
 | **Dependencies** | RES-001, RES-002, MS-SYNC, VAL-MVI |
 | **Related Documents** | MS-M9, GOV-FREEZE-1.0.0, ATOS-RELEASE-1.0.0 |
-| **Approval History** | Pending Founder acceptance |
-| **Change Log** | 2026-07-19 — Final FAR after governance state synchronization |
+| **Approval History** | 2026-07-19 — Accepted with Founder ratification of ATOS Version 1.0 (RES-002) |
+| **Change Log** | 2026-07-19 — Closed; Version 1.0 ratified |
 
 ---
 
 ## Result
 
-Governance state synchronization completed. Automated suite `npm run atos:check` (M0–M9 + MS-SYNC) **PASS**. REG-DOC ↔ file Status reconciliation **CLEAN**.
+Governance state synchronization completed and accepted. Founder ratified ATOS Version 1.0 under RES-002.
 
-## Governance Compliance Score
+## Governance Compliance Score (pre-ratification)
 
-**96 / 100**
+**96 / 100** — Ready for Ratification (met).
 
-Residual deductions: intentional dual-plane interim (ops/identity components under `atlas/`); deferred manuals MAN-004/009/012; release/freeze instruments remain **Review** until Founder ratification.
+## Recommendation (closed)
 
-## Recommendation
-
-**ATOS Version 1.0 Ready for Ratification**
+**ATOS Version 1.0 Ready for Ratification** → **Ratified** (2026-07-19).

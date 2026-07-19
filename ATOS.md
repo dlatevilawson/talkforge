@@ -11,8 +11,8 @@
 | **Review Cycle** | Per ATOS version / on governance change |
 | **Dependencies** | RES-001, RES-002 |
 | **Related Documents** | `atos/NAVIGATION.md`, `atos/RELEASE-1.0.0.md`, `atos/VERSION` |
-| **Approval History** | RES-001 authorized implementation; RES-002 ratified Specs/Standards; M9 package prepared; MS-SYNC governance state synchronized |
-| **Change Log** | 2026-07-18 — M0–M9 package; 2026-07-19 — MS-SYNC state synchronization for Version 1.0 ratification readiness |
+| **Approval History** | RES-001 authorized implementation; RES-002 ratified ATOS Version 1.0 (2026-07-19) |
+| **Change Log** | 2026-07-19 — Version 1.0 ratified; ATOS implementation project complete |
 
 ---
 
@@ -20,9 +20,20 @@
 
 This file is the **canonical entrypoint** for humans and AI agents working with ATOS.
 
-**Version:** `1.0.0` (see [`atos/VERSION`](atos/VERSION) and [`atos/RELEASE-1.0.0.md`](atos/RELEASE-1.0.0.md)).
+**Version:** `1.0.0` — **ratified** (see [`atos/VERSION`](atos/VERSION), [`atos/RELEASE-1.0.0.md`](atos/RELEASE-1.0.0.md), [`RES-002`](atos/resolutions/RES-002-atos-v1-ratification.md)).
 
-ATOS is the organizational operating system for TalkForge. It is not the product application. Product code lives under `app/`, `lib/`, and related paths. Pre-ATOS knowledge remains under `atlas/` until migrated through Knowledge Governance (GOV-COMPAT).
+ATOS is the constitution of TalkForge — the governing organizational operating system. It is not the product application. Product code lives under `app/`, `lib/`, and related paths. Pre-ATOS knowledge remains under `atlas/` until migrated through Knowledge Governance (GOV-COMPAT).
+
+---
+
+## Standing order (RES-002)
+
+| Role | Standing |
+|---|---|
+| **ATOS** | The constitution |
+| **Atlas** | The government operating under that constitution |
+| **Sentinel** | Protects implementation |
+| **TalkForge** | The product built on top of both |
 
 ---
 
@@ -30,12 +41,13 @@ ATOS is the organizational operating system for TalkForge. It is not the product
 
 | Instrument | Role |
 |---|---|
-| **RES-001** | Implementation authorization for Version 1.0 |
-| **RES-002** | Ratification of Specifications and Standards as Authoritative |
-| **SPEC-001…006** | Authoritative constitutional layer |
-| **STD-001…006** | Authoritative organizational rules |
+| **RES-001** | Implementation authorization for Version 1.0 (historical) |
+| **RES-002** | Founder ratification of ATOS Version 1.0 |
+| **SPEC-001…006** | Constitutional documents |
+| **STD-001…006** | Official governance rules |
+| **GOV-FREEZE-1.0.0** | Freeze — amendments only via approved process |
 
-Constitutional amendments and version releases remain Founder-exclusive.
+Constitutional amendments and version releases remain Founder-exclusive. Future development occurs within ATOS, not by rewriting it.
 
 ---
 
@@ -66,19 +78,17 @@ Supporting systems: resolutions, governance, registries, schemas, knowledge, run
 
 ## Quick Navigation
 
-1. [Release 1.0.0](atos/RELEASE-1.0.0.md) (Review — pending Founder ratification)
-2. [Repository Navigation](atos/NAVIGATION.md)
-3. [RES-001](atos/resolutions/RES-001-atos-v1-implementation.md) · [RES-002](atos/resolutions/RES-002-atos-v1-ratification.md)
-4. [Specifications](atos/specifications/README.md) (Authoritative)
-5. [Standards](atos/standards/README.md) (Authoritative)
-6. [MVI Readiness](atos/validation/mvi-readiness.md)
-7. [Freeze Policy](atos/governance/GOV-FREEZE-1.0.0.md) (Review — pending Founder ratification)
-8. [Document Registry](atos/registries/document-registry.yaml)
-9. [MS-SYNC](atos/milestones/MS-SYNC-governance-state.md)
+1. [Release 1.0.0](atos/RELEASE-1.0.0.md)  
+2. [Repository Navigation](atos/NAVIGATION.md)  
+3. [RES-002 — Ratification](atos/resolutions/RES-002-atos-v1-ratification.md) · [RES-001](atos/resolutions/RES-001-atos-v1-implementation.md)  
+4. [Specifications](atos/specifications/README.md) (Authoritative)  
+5. [Standards](atos/standards/README.md) (Authoritative)  
+6. [Freeze Policy](atos/governance/GOV-FREEZE-1.0.0.md)  
+7. [Document Registry](atos/registries/document-registry.yaml)  
 
 ---
 
-## Milestone Sequence (RES-001)
+## Milestone Sequence (RES-001) — Project Complete
 
 | Milestone | Focus | Status |
 |---|---|---|
@@ -91,17 +101,20 @@ Supporting systems: resolutions, governance, registries, schemas, knowledge, run
 | M6 | Executive Systems | Complete — Founder approved |
 | M7 | Founder Workspace | Complete — Founder approved |
 | M8 | Operational Validation | Complete — Founder approved |
-| M9 | Version 1.0 Release | Package prepared — awaiting Founder ratification |
-| MS-SYNC | Governance State Synchronization | Complete — awaiting Founder acceptance of Final FAR |
+| M9 | Version 1.0 Release | Complete — Founder ratified |
+| MS-SYNC | Governance State Synchronization | Complete — Founder ratified |
+
+**The ATOS Version 1.0 implementation project is complete.**
 
 ---
 
 ## Agent Instructions
 
-1. Read this file, RES-001, and RES-002 before changing ATOS artifacts.  
-2. Obey Authoritative Specifications and Standards.  
+1. Read this file and RES-002 before changing ATOS artifacts.  
+2. Obey Authoritative Specifications and Standards — they are constitutional law.  
 3. Do not invent institutional knowledge.  
 4. Do not modify `atlas/` load paths without Founder-gated cutover approval.  
 5. Update registries when creating or modifying governed documents.  
 6. Pass `npm run atos:check` before completing ATOS structural changes.  
-7. Treat GOV-FREEZE-1.0.0 as Review until Founder Version 1.0 ratification; Specs/Standards remain Authoritative per RES-002.  
+7. Obey GOV-FREEZE-1.0.0 — amend constitutional layers only through approved governance.  
+8. Operate within ATOS; do not rewrite the constitution.  

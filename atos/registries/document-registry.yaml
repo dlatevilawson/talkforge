@@ -6,12 +6,12 @@
 # AI Steward: Atlas
 # Human Approver: Founder
 # Review Cycle: Each ATOS version
-# Approval History: 2026-07-18 — M9 publication; 2026-07-19 — MS-SYNC state alignment
-# Change Log: 2026-07-19 — Synchronized registry/doc states; added REF-R1101 and MS-SYNC
+# Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
+# Change Log: 2026-07-19 — RES-002 Version 1.0 ratification; freeze/release Authoritative
 
 version: 1.0.0
 updated_at: "2026-07-19"
-milestone: MS-SYNC
+milestone: M9
 description: >
   Canonical index of governed ATOS document IDs. Completeness means every known ID
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
@@ -20,7 +20,7 @@ counts:
   total: 119
   with_path: 116
   planned: 3
-  authoritative: 26
+  authoritative: 32
 
 documents:
   - id: ATOS-NAV
@@ -44,7 +44,7 @@ documents:
   - id: ATOS-RELEASE-1.0.0
     title: "ATOS Version 1.0.0 — Release Notes"
     path: atos/RELEASE-1.0.0.md
-    state: review
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
@@ -78,7 +78,7 @@ documents:
     layer: resolutions
 
   - id: RES-002
-    title: "ATOS Resolution 002 — Ratification of Specifications and Standards for Version 1.0"
+    title: "ATOS Resolution 002 — Ratification of ATOS Version 1.0"
     path: atos/resolutions/RES-002-atos-v1-ratification.md
     state: authoritative
     version: "1.0.0"
@@ -116,7 +116,7 @@ documents:
   - id: GOV-FREEZE-1.0.0
     title: "ATOS Repository Freeze — Version 1.0.0"
     path: atos/governance/GOV-FREEZE-1.0.0.md
-    state: review
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
@@ -224,7 +224,7 @@ documents:
   - id: MS-M9
     title: "Milestone Record — M9 Version 1.0 Release"
     path: atos/milestones/M9-version-1-release.md
-    state: review
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas (CIO execution)
@@ -233,7 +233,7 @@ documents:
   - id: MS-SYNC
     title: "Milestone Record — Governance State Synchronization"
     path: atos/milestones/MS-SYNC-governance-state.md
-    state: review
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
@@ -905,15 +905,16 @@ documents:
   - id: VAL-MVI
     title: "RES-001 MVI Readiness Scorecard"
     path: atos/validation/mvi-readiness.md
-    state: review
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: validation
+
   - id: VAL-FAR-SYNC
     title: "Final Founder Acceptance Record — MS-SYNC"
     path: atos/validation/far-final-ms-sync.md
-    state: review
+    state: authoritative
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas

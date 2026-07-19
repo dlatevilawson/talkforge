@@ -96,10 +96,11 @@ if (!regDocSelf || !regDocSelf[0].includes("state: authoritative")) {
 for (const [rel, status] of [
   ["atos/governance/ADR-0001-repository-layout.md", "Authoritative"],
   ["atos/governance/authority-model.md", "Authoritative"],
-  ["atos/governance/GOV-FREEZE-1.0.0.md", "Review"],
-  ["atos/RELEASE-1.0.0.md", "Review"],
+  ["atos/governance/GOV-FREEZE-1.0.0.md", "Authoritative"],
+  ["atos/RELEASE-1.0.0.md", "Authoritative"],
   ["atos/references/templates/REF-R1101-architecture-decision-record-template.md", "Draft"],
-  ["atos/milestones/MS-SYNC-governance-state.md", "Review"],
+  ["atos/milestones/MS-SYNC-governance-state.md", "Authoritative"],
+  ["atos/resolutions/RES-002-atos-v1-ratification.md", "Authoritative"],
 ]) {
   if (!existsSync(path.join(root, rel))) {
     fail(`missing ${rel}`);
@@ -107,6 +108,14 @@ for (const [rel, status] of [
   }
   const body = read(rel);
   if (!body.includes(`**Status** | ${status}`)) fail(`${rel} Status must be ${status}`);
+}
+
+const res2 = read("atos/resolutions/RES-002-atos-v1-ratification.md");
+if (!res2.includes("ATOS Version 1.0 is ratified")) {
+  fail("RES-002 must declare ATOS Version 1.0 is ratified");
+}
+if (!res2.includes("The ATOS Version 1.0 implementation project is complete")) {
+  fail("RES-002 must declare the ATOS Version 1.0 implementation project complete");
 }
 
 // Cross-ref: REF-R1101 exists and is referenced by STD-001
