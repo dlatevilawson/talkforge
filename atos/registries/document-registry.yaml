@@ -7,7 +7,7 @@
 # Human Approver: Founder
 # Review Cycle: Each ATOS version
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
-# Change Log: 2026-07-19 — RES-008 / ATLAS-P5 ratified; GUARD≠Sentinel boundary
+# Change Log: 2026-07-19 — ATLAS-SUCCESSION continuity dossier + handoff register
 
 version: 1.0.0
 updated_at: "2026-07-19"
@@ -677,6 +677,22 @@ documents:
     title: "Atlas Program — Phase 5 Atlas Internal Organization Contract"
     path: atos/executives/atlas-program/PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md
     state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: ATLAS-SUCCESSION
+    title: "Atlas — Chief of Staff Continuity & Succession Dossier"
+    path: atos/executives/atlas-program/ATLAS-SUCCESSION.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: ATLAS-HANDOFF-REGISTER
+    title: "Atlas — Handoff Register (Live Operational State)"
+    path: atos/executives/atlas-program/ATLAS-HANDOFF-REGISTER.md
+    state: draft
     version: "1.0.0"
     owner: Founder
     ai_steward: Atlas

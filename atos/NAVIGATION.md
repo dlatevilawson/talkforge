@@ -111,6 +111,8 @@ See [`references/README.md`](references/README.md).
 | RES-007 | Atlas Phase 4 Ratification | [resolutions/RES-007-atlas-phase-4-executive-organization.md](resolutions/RES-007-atlas-phase-4-executive-organization.md) |
 | ATLAS-P5 | Phase 5 Atlas Internal Organization Contract | [executives/atlas-program/PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md](executives/atlas-program/PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md) |
 | RES-008 | Atlas Phase 5 Ratification | [resolutions/RES-008-atlas-phase-5-internal-organization.md](resolutions/RES-008-atlas-phase-5-internal-organization.md) |
+| ATLAS-SUCCESSION | CoS Continuity & Succession | [executives/atlas-program/ATLAS-SUCCESSION.md](executives/atlas-program/ATLAS-SUCCESSION.md) |
+| ATLAS-HANDOFF-REGISTER | Atlas Handoff Register | [executives/atlas-program/ATLAS-HANDOFF-REGISTER.md](executives/atlas-program/ATLAS-HANDOFF-REGISTER.md) |
 | EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |
 | EXEC-ORG-DECISIONS | Org Decision Governance | [executives/atlas-program/ORG-DECISION-GOVERNANCE.md](executives/atlas-program/ORG-DECISION-GOVERNANCE.md) |
 | EXEC-ORG-CADENCE | Org Cadence | [executives/atlas-program/ORG-CADENCE.md](executives/atlas-program/ORG-CADENCE.md) |

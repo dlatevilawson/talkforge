@@ -44,6 +44,13 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 | [ORG-CADENCE.md](ORG-CADENCE.md) | EXEC-ORG-CADENCE |
 | [../charters/](../charters/) | CHARTER-* |
 
+## Continuity (succession test)
+
+| Doc | Role |
+|---|---|
+| [ATLAS-SUCCESSION.md](ATLAS-SUCCESSION.md) | Can another CoS take over from docs? |
+| [ATLAS-HANDOFF-REGISTER.md](ATLAS-HANDOFF-REGISTER.md) | Live open state for handoff |
+
 ## Runtime implementation (Phase 3 waves)
 
 | Doc | Role |
