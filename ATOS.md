@@ -95,8 +95,8 @@ Supporting systems: resolutions, governance, registries, schemas, knowledge, run
 1. [Release 1.0.0](atos/RELEASE-1.0.0.md)  
 2. [Maintenance Mode](atos/governance/GOV-MAINT-1.0.0.md)  
 3. [Repository Navigation](atos/NAVIGATION.md)  
-4. [RES-002](atos/resolutions/RES-002-atos-v1-ratification.md) · [RES-003…RES-007 Atlas P0–P4](atos/resolutions/RES-007-atlas-phase-4-executive-organization.md)  
-5. [Atlas P0–P4](atos/executives/atlas-program/README.md) · [P4 Org](atos/executives/atlas-program/PHASE-4-EXECUTIVE-ORGANIZATION.md) · [P5 Internal Staff Proposal](atos/executives/atlas-program/PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md)  
+4. [RES-002](atos/resolutions/RES-002-atos-v1-ratification.md) · [RES-003…RES-008 Atlas P0–P5](atos/resolutions/RES-008-atlas-phase-5-internal-organization.md)  
+5. [Atlas P0–P5](atos/executives/atlas-program/README.md) · [P5 Internal Staff](atos/executives/atlas-program/PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md)  
 6. [Specifications](atos/specifications/README.md) (Authoritative)  
 7. [Standards](atos/standards/README.md) (Authoritative)  
 8. [Freeze Policy](atos/governance/GOV-FREEZE-1.0.0.md)  
@@ -135,4 +135,4 @@ Supporting systems: resolutions, governance, registries, schemas, knowledge, run
 7. Obey GOV-FREEZE-1.0.0 — amend constitutional layers only through approved governance.  
 8. Build new work **on** ATOS (product / executive operations); do not expand ATOS **inside** without a formal amendment.  
 9. Do not open new ATOS implementation milestones unless the Founder authorizes an amendment or version program.  
-10. Atlas Program must satisfy ATLAS-P0…P4 (RES-003…RES-007). Atlas coordinates the organization; it does not constitute it. If a design or implementation conflicts with ratified Phase contracts, change the design or implementation — not the contracts. Future organizational growth extends Phase 4 rather than bypasses it.  
+10. Atlas Program must satisfy ATLAS-P0…P5 (RES-003…RES-008). Atlas coordinates the organization; it does not constitute it. AIO-GUARD must never replace or duplicate Sentinel. If a design or implementation conflicts with ratified Phase contracts, change the design or implementation — not the contracts.  

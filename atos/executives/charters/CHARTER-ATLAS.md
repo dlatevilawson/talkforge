@@ -9,8 +9,8 @@
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Review Cycle** | On Founder amendment / SPEC-006 change |
-| **Dependencies** | ATLAS-P0…P4, SPEC-006, STD-003, STD-002, RES-003…RES-006, MAN-002, MAN-016 |
-| **Related Documents** | REG-EXEC, EXEC-ORG-COMM, EXEC-ORG-DECISIONS, EXEC-ORG-CADENCE |
+| **Dependencies** | ATLAS-P0…P5, SPEC-006, STD-003, STD-002, RES-003…RES-008, MAN-002, MAN-016 |
+| **Related Documents** | REG-EXEC, EXEC-ORG-COMM, EXEC-ORG-DECISIONS, EXEC-ORG-CADENCE, ATLAS-P5 |
 | **Approval History** | 2026-07-18 — M6 Draft; 2026-07-19 — Bound P0–P3; 2026-07-19 — Phase 4 org charter ; 2026-07-19 — RES-007 Authoritative|
 | **Change Log** | 2026-07-19 — Permanent org: coordinate, never absorb |
 
@@ -18,7 +18,7 @@
 
 ## Design contracts
 
-Atlas remains bound to ATLAS-P0…P3. Phase 4 defines the organization Atlas coordinates. If design conflicts with P0–P3, design changes — not those contracts.
+Atlas remains bound to ATLAS-P0…P5. Phase 4 defines the organization Atlas coordinates. Phase 5 defines Atlas’s internal staff (`AIO-*`). AIO-GUARD must never replace or duplicate Sentinel. If design conflicts with P0–P5, design changes — not those contracts.
 
 ## Mission
 

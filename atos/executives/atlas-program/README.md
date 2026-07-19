@@ -9,10 +9,10 @@
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Review Cycle** | On Atlas Program phase change |
-| **Dependencies** | RES-002…RES-007, SPEC-006 |
-| **Related Documents** | ATLAS-P0…P4, CHARTER-*, MAN-002 |
-| **Approval History** | 2026-07-19 — Phases 0–4 ratified |
-| **Change Log** | 2026-07-19 — Phase 5 Atlas Internal Organization proposal opened |
+| **Dependencies** | RES-002…RES-008, SPEC-006 |
+| **Related Documents** | ATLAS-P0…P5, CHARTER-*, MAN-002 |
+| **Approval History** | 2026-07-19 — Phases 0–5 ratified |
+| **Change Log** | 2026-07-19 — Phase 5 ratified (RES-008); GUARD–Sentinel boundary normative |
 
 ---
 
@@ -33,12 +33,7 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 | 2 | [PHASE-2-EXECUTIVE-INFRASTRUCTURE.md](PHASE-2-EXECUTIVE-INFRASTRUCTURE.md) (`ATLAS-P2`) | RES-005 | Infrastructure that realizes Phase 1 |
 | 3 | [PHASE-3-RUNTIME-ARCHITECTURE.md](PHASE-3-RUNTIME-ARCHITECTURE.md) (`ATLAS-P3`) | RES-006 | Runtime architecture that realizes Phase 2 |
 | 4 | [PHASE-4-EXECUTIVE-ORGANIZATION.md](PHASE-4-EXECUTIVE-ORGANIZATION.md) (`ATLAS-P4`) | RES-007 | Permanent executive organization Atlas coordinates |
-
-## Active design
-
-| Phase | Document | Status | Role |
-|---|---|---|---|
-| 5 | [PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md](PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md) (`ATLAS-P5`) | Review | Atlas internal staff proposal (AIO-*) |
+| 5 | [PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md](PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md) (`ATLAS-P5`) | RES-008 | Atlas internal staff (AIO-*); GUARD ≠ Sentinel |
 
 ### Phase 4 companion contracts
 
@@ -57,4 +52,4 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 | [GATE-FOUNDER-VISIBLE.md](GATE-FOUNDER-VISIBLE.md) | FOUNDER_VISIBLE gate |
 | [atlas/runtime/README.md](../../../atlas/runtime/README.md) | Target plane |
 
-Future organizational growth shall **extend** Phase 4 rather than bypass it. Conflicts with ratified contracts change the design — not the contracts.
+Future organizational growth shall **extend** Phase 4 rather than bypass it. Atlas staff growth extends Phase 5. Conflicts with ratified contracts change the design — not the contracts.

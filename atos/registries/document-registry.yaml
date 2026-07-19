@@ -7,7 +7,7 @@
 # Human Approver: Founder
 # Review Cycle: Each ATOS version
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
-# Change Log: 2026-07-19 — ATLAS-P5 Atlas Internal Organization proposal (Review)
+# Change Log: 2026-07-19 — RES-008 / ATLAS-P5 ratified; GUARD≠Sentinel boundary
 
 version: 1.0.0
 updated_at: "2026-07-19"
@@ -120,6 +120,14 @@ documents:
   - id: RES-007
     title: "ATOS Resolution 007 — Ratification of Atlas Program Phase 4 Executive Organization"
     path: atos/resolutions/RES-007-atlas-phase-4-executive-organization.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: resolutions
+  - id: RES-008
+    title: "ATOS Resolution 008 — Ratification of Atlas Program Phase 5 Internal Organization"
+    path: atos/resolutions/RES-008-atlas-phase-5-internal-organization.md
     state: authoritative
     version: "1.0.0"
     owner: Founder
@@ -666,10 +674,10 @@ documents:
     ai_steward: Atlas
     layer: executives
   - id: ATLAS-P5
-    title: "Atlas Program — Phase 5 Atlas Internal Organization (Proposal)"
+    title: "Atlas Program — Phase 5 Atlas Internal Organization Contract"
     path: atos/executives/atlas-program/PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md
-    state: review
-    version: "1.0.0-review"
+    state: authoritative
+    version: "1.0.0"
     owner: Founder
     ai_steward: Atlas
     layer: executives

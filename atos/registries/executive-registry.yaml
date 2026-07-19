@@ -80,6 +80,9 @@ executives:
     organization_contract: ATLAS-P4
     organization_contract_path: atos/executives/atlas-program/PHASE-4-EXECUTIVE-ORGANIZATION.md
     organization_contract_resolution: RES-007
+    internal_organization_contract: ATLAS-P5
+    internal_organization_contract_path: atos/executives/atlas-program/PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md
+    internal_organization_contract_resolution: RES-008
     ai_conduct: MAN-016
     interfaces:
       - Founder briefings

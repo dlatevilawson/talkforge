@@ -1,26 +1,39 @@
-# Atlas Program — Phase 5 Atlas Internal Organization (Proposal)
+# Atlas Program — Phase 5 Atlas Internal Organization Contract
 
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-P5 |
-| **Version** | 1.0.0-review |
-| **Status** | Review |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | Until Founder Decision |
-| **Dependencies** | ATLAS-P0…P4, RES-003…RES-007, CHARTER-ATLAS, SPEC-006, STD-003, STD-002 |
+| **Review Cycle** | Until Founder-amended |
+| **Dependencies** | RES-008, ATLAS-P0…P4, RES-003…RES-007, CHARTER-ATLAS, CHARTER-SENTINEL, SPEC-006, STD-003, STD-002 |
 | **Related Documents** | EXEC-ORG-*, PHASE-3 runtime, MAN-002 |
-| **Approval History** | 2026-07-19 — Phase 5 opened by Founder Directive (Atlas designs own staff) |
-| **Change Log** | 2026-07-19 — Full Phase 5 proposal package (deliverables 1–12) |
+| **Approval History** | 2026-07-19 — Founder approved with GUARD↔Sentinel boundary correction (RES-008) |
+| **Change Log** | 2026-07-19 — Proposal package; §4.6 GUARD–Sentinel boundary; ratified Authoritative |
 
 ---
 
-## Proposal posture
+## Ratification
 
-This is **Atlas’s recommendation** to the Founder for Atlas’s **internal staff** — not a redesign of TalkForge’s executive organization (ATLAS-P4).
+Phase 5 is the binding **Atlas Internal Organization Contract**.
 
-**Constitutional boundaries remain Founder-defined.** Atlas proposes how to staff itself to fulfill CHARTER-ATLAS inside those boundaries.
+| Rule | Statement |
+|---|---|
+| Staff vs company | `AIO-*` offices staff Atlas; they do not constitute TalkForge’s `EXEC-*` organization |
+| GUARD ≠ Sentinel | AIO-GUARD must never replace, duplicate, override, absorb, or speak as Sentinel |
+| Growth | Future Atlas staff growth extends this contract rather than bypasses it |
+| Conflict | Implementation changes — not Phase 5 — unless Founder amends |
+
+---
+
+## Contract posture
+
+This contract defines Atlas’s **internal staff** — not a redesign of TalkForge’s executive organization (ATLAS-P4).
+
+**Constitutional boundaries remain Founder-defined.** Atlas staff exists only to fulfill CHARTER-ATLAS inside those boundaries.
 
 **Must satisfy:** ATOS · Knowledge Governance · P1–P3 · P4 Executive Organization Contract · Founder authority · Sentinel authority · One responsibility → one owner · Atlas coordinates; Atlas does not own the company.
 
@@ -267,6 +280,75 @@ Philosophy in one line:
 
 ---
 
+## 4.6 Boundary Specification — AIO-GUARD vs Sentinel (EXEC-SENTINEL)
+
+**Normative.** Future implementations must treat this boundary as hard law under ATLAS-P5. Misreading GUARD as Sentinel (or as a duplicate/replacement) is a charter breach.
+
+### Distinct identities
+
+| | **AIO-GUARD** (Atlas Internal Office) | **Sentinel / EXEC-SENTINEL** (Company Executive) |
+|---|---|---|
+| **What it is** | Staff office **inside Atlas** | Permanent **company** executive office (ATLAS-P4 / CHARTER-SENTINEL) |
+| **Who it serves** | Atlas emission quality | TalkForge engineering integrity & technical truth |
+| **Authority plane** | Atlas-internal validation only | Company engineering domain (delegated by Founder) |
+| **Namespace** | `AIO-GUARD` · `atlas.guard.*` | `EXEC-SENTINEL` · company Risk Notices / investigations |
+
+### Exclusive ownership (non-overlapping)
+
+| Responsibility | Sole owner | GUARD must |
+|---|---|---|
+| Engineering integrity truth & architecture protection | **Sentinel** | Preserve and pass through; never rewrite, dilute, or supersede |
+| Incident investigation quality (company engineering) | **Sentinel** | Route / package only; never conduct as Sentinel |
+| STD-001 architecture integrity conclusions (company) | **Sentinel** | Cite; never replace with Atlas judgment |
+| Validation of **Atlas outputs** (V1–V8 Integrity Watch) | **AIO-GUARD** | Own this only — does not extend to company engineering sign-off |
+| Atlas escalation **packaging** to Founder | **AIO-GUARD** (+ Core emission) | Package Sentinel findings unedited when material |
+| Atlas audit trail (`canonical=false`) | **AIO-GUARD** | Emit; never treat as engineering incident record of record |
+| Company engineering Risk Notices | **Sentinel** (content) | Broker/Guard may transport; content ownership stays Sentinel |
+
+### GUARD may
+
+1. Validate that Atlas counsel/briefs meet Atlas integrity stages before Founder-facing emission.  
+2. STOP/RETURN/ESCALATE **Atlas** emission when Atlas charter, labels, evidence, or posture fail.  
+3. Require that material Sentinel Risk Notices appear in Founder-facing Atlas packs.  
+4. Package escalations that **include** Sentinel findings for Founder attention.  
+
+### GUARD must not (forbidden interpretations)
+
+1. **Replace Sentinel** — GUARD is not Chief Engineering Officer and holds no company engineering domain.  
+2. **Duplicate Sentinel** — GUARD does not run parallel engineering investigations, architecture vetoes, or integrity ownership for TalkForge product/ATOS engineering.  
+3. **Override Sentinel** — GUARD cannot edit, soften, contradict, or “re-validate away” a Sentinel Risk Notice.  
+4. **Absorb Sentinel** — Scaling Atlas must never fold EXEC-SENTINEL duties into AIO-GUARD.  
+5. **Speak as Sentinel** — Events and artifacts must remain `atlas.guard.*` / Atlas-integrity typed, never presented as Sentinel conclusions.  
+6. **Bypass Sentinel** — Engineering integrity conflicts remain C4 with Sentinel truth visible; GUARD cannot settle them by Atlas-only PASS.  
+
+### Required relationship pattern
+
+```text
+Sentinel Risk Notice (company truth)
+        │
+        ▼
+AIO-BROKER (transport, preserve verbatim)
+        │
+        ├──► AIO-INTEL (context cite)
+        ├──► AIO-COUNSEL (must not erase)
+        └──► AIO-GUARD (emission gate: finding present & unedited)
+                    │
+                    ▼
+              AIO-CORE → Founder (when permitted)
+```
+
+**One-line rule:** Sentinel owns whether engineering truth is sound; GUARD owns whether Atlas is allowed to speak.
+
+### Implementation conformance test (mandatory)
+
+Any future implementation fails ATLAS-P5 conformance if it:
+
+- Names GUARD as engineering authority, CEO-equivalent, or “Sentinel inside Atlas,” or  
+- Lets GUARD conclusions substitute for Sentinel investigation/architecture findings, or  
+- Allows Atlas PASS while dropping or altering a material Sentinel Risk Notice.  
+
+---
+
 ### Responsibility ownership matrix (internal — exclusive)
 
 | Responsibility | Owner |
@@ -429,12 +511,9 @@ Aligns with EXEC-ORG-CADENCE; does not replace company Ops ownership of logistic
 
 ---
 
-## Founder Decision request
+## Ratification record
 
-Please rule:
+Founder Decision (2026-07-19): **Approved with correction** — explicit GUARD↔Sentinel boundary (§4.6) required and included.
 
-1. **Approve Phase 5 in full** as the Atlas Internal Organization Contract, or  
-2. **Approve with corrections**, or  
-3. **Reject pending corrections**
-
-On approval, ratify via Resolution + ATLAS-P5 Authoritative. Until then, this remains a proposal — Atlas must not implement staff offices as company executives or bypass P4.
+Recorded as [`RES-008`](../../resolutions/RES-008-atlas-phase-5-internal-organization.md).  
+ATLAS-P5 is Authoritative.
