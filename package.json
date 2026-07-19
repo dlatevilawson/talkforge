@@ -19,7 +19,8 @@
     "atos:check:m8": "node scripts/atos-check-m8.mjs",
     "atos:check:m9": "node scripts/atos-check-m9.mjs",
     "atos:check:sync": "node scripts/atos-check-sync.mjs",
-    "atos:check": "node scripts/atos-check-m0.mjs && node scripts/atos-check-m1.mjs && node scripts/atos-check-m2.mjs && node scripts/atos-check-m3.mjs && node scripts/atos-check-m4.mjs && node scripts/atos-check-m5.mjs && node scripts/atos-check-m6.mjs && node scripts/atos-check-m7.mjs && node scripts/atos-check-m8.mjs && node scripts/atos-check-m9.mjs && node scripts/atos-check-sync.mjs"
+    "atos:check": "node scripts/atos-check-m0.mjs && node scripts/atos-check-m1.mjs && node scripts/atos-check-m2.mjs && node scripts/atos-check-m3.mjs && node scripts/atos-check-m4.mjs && node scripts/atos-check-m5.mjs && node scripts/atos-check-m6.mjs && node scripts/atos-check-m7.mjs && node scripts/atos-check-m8.mjs && node scripts/atos-check-m9.mjs && node scripts/atos-check-sync.mjs",
+    "atlas:runtime:check": "npx --yes tsx atlas/runtime/check.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.6",
