@@ -38,7 +38,11 @@ Synchronize organizational state across the repository so every governed artifac
 
 ## Exit criteria
 
-- No state conflicts across Specs, Standards, registries, and indexes
-- No stale Draft labels on Authoritative Specs/Standards
-- Cross references validate
-- Final Founder Acceptance Report recommends ratification readiness or further corrections
+- No state conflicts across Specs, Standards, registries, and indexes — **MET**
+- No stale Draft labels on Authoritative Specs/Standards — **MET**
+- Cross references validate — **MET** (`atos:check:sync`)
+- Final Founder Acceptance Report recommends ratification readiness — see `VAL-FAR-SYNC`
+
+## Verification
+
+`npm run atos:check` (M0–M9 + MS-SYNC) PASS. REG-DOC ↔ file Status reconciliation CLEAN.
