@@ -12,7 +12,7 @@
 | **Dependencies** | RES-002…RES-011, SPEC-006 |
 | **Related Documents** | ATLAS-P0…P5, CHARTER-*, MAN-002 |
 | **Approval History** | 2026-07-19 — Phases 0–5 ratified |
-| **Change Log** | 2026-07-19 — RES-011: TalkForge primary; Atlas in service; org changes need governance review |
+| **Change Log** | 2026-07-19 — RES-011 posture; STRAT-001 TalkForge Evolution brief (Working) |
 
 ---
 
@@ -47,6 +47,12 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 | [ORG-DECISION-GOVERNANCE.md](ORG-DECISION-GOVERNANCE.md) | EXEC-ORG-DECISIONS |
 | [ORG-CADENCE.md](ORG-CADENCE.md) | EXEC-ORG-CADENCE |
 | [../charters/](../charters/) | CHARTER-* |
+
+## Company strategy counsel (TalkForge-primary)
+
+| Doc | Role |
+|---|---|
+| [STRAT-001-talkforge-evolution.md](STRAT-001-talkforge-evolution.md) | Executive Intelligence brief — Phases 1–9; **non-binding** Working Recommendation |
 
 ## Continuity (succession test)
 
