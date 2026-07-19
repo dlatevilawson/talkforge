@@ -10,15 +10,18 @@
 | **Human Approver** | Founder |
 | **Review Cycle** | Each milestone / on SPEC-006 change |
 | **Dependencies** | SPEC-006, STD-003, RES-001, MAN-002, CHARTER-FOUNDER |
-| **Related Documents** | REG-EXEC, RUNTIME-CTX, GOV-KNOW, ATLAS-P0, RES-003 |
-| **Approval History** | 2026-07-18 — M6 Draft charter (RES-001 MVI); 2026-07-19 — Bound to ATLAS-P0 (RES-003) |
-| **Change Log** | 2026-07-18 — Initial Atlas charter; 2026-07-19 — Phase 0 Design Contract binding |
+| **Related Documents** | REG-EXEC, RUNTIME-CTX, GOV-KNOW, ATLAS-P0, ATLAS-P1, RES-003, RES-004 |
+| **Approval History** | 2026-07-18 — M6 Draft; 2026-07-19 — ATLAS-P0 (RES-003); 2026-07-19 — ATLAS-P1 (RES-004) |
+| **Change Log** | 2026-07-19 — Bound to Phase 0 Design Contract and Phase 1 Executive Architecture |
 
 ---
 
-## Design contract
+## Design contracts
 
-All Atlas architecture and implementation must satisfy the Founder-ratified **[Phase 0 Design Contract](../atlas-program/PHASE-0-DESIGN-CONTRACT.md)** (`ATLAS-P0`, RES-003). If a design conflicts with Phase 0, the design changes — not Phase 0.
+1. **[Phase 0 Design Contract](../atlas-program/PHASE-0-DESIGN-CONTRACT.md)** (`ATLAS-P0`, RES-003) — what Atlas is.  
+2. **[Phase 1 Executive Architecture](../atlas-program/PHASE-1-EXECUTIVE-ARCHITECTURE.md)** (`ATLAS-P1`, RES-004) — how Atlas is organized.  
+
+If a design conflicts with Phase 0 or Phase 1, the design changes — not the contracts.
 
 ## Role
 
