@@ -182,7 +182,11 @@ Founder Decision Record → Broker distribute → Program Desk / Intel ingest
 
 ### Current status
 
-**PENDING** (requires staff facades for full instrumented E2E; dry-run tabletop allowed for early signal but does not PASS Stage 2).
+| Field | Value |
+|---|---|
+| **Result** | **PARTIAL PASS** (2026-07-19) |
+| **Evidence** | [`ORG-VAL-S2-INTEGRATION.md`](../../../atlas/runtime/evidence/org-val/ORG-VAL-S2-INTEGRATION.md) |
+| **Harness** | `npm run atlas:staff:check` |
 
 ---
 
@@ -218,7 +222,7 @@ Confirm every automated workflow behaves correctly under ENG-PROGRAM / P5 automa
 
 ### Current status
 
-**PENDING** (blocked on S1–S7 staff automation implementation).
+**PARTIAL** — in-process bus, Guard-before-emission, audit events, fail-closed emission without Guard (`atlas:staff:check`). Full cadence automation catalog still open.
 
 ---
 
@@ -251,7 +255,7 @@ Deliberately fault the system; verify detect → contain → report → recover 
 
 ### Current status
 
-**PENDING**.
+**PARTIAL** — F1/F3/F7/F8/F9-class cases covered in staff harness; full F1–F10 matrix not complete.
 
 ---
 
@@ -293,7 +297,10 @@ If structure exists but TE fails: **organization is decorative.** Do not certify
 
 ### Current status
 
-**PENDING**.
+| Field | Value |
+|---|---|
+| **Result** | **PARTIAL** (avg TE ≈ 1.71) |
+| **Evidence** | [`ORG-VAL-S5-TEAM.md`](../../../atlas/runtime/evidence/org-val/ORG-VAL-S5-TEAM.md) |
 
 ---
 
@@ -444,10 +451,10 @@ Handoff Register must show Stage 1–7 rollup while validation is active.
 | Stage | Intent | Now |
 |---|---|---|
 | 1 Structural | Spec fidelity | **PASS WITH FINDINGS** |
-| 2 Integration | Collaboration | PENDING |
-| 3 Automation | Safe workflows | PENDING |
-| 4 Failure | Fail closed | PENDING |
-| 5 Team effectiveness | **Uses the team** | PENDING |
+| 2 Integration | Collaboration | **PARTIAL PASS** |
+| 3 Automation | Safe workflows | **PARTIAL** |
+| 4 Failure | Fail closed | **PARTIAL** |
+| 5 Team effectiveness | **Uses the team** | **PARTIAL** (delegates) |
 | 6 Stress | Order under load | PENDING |
 | 7 ORR + Founder Decision | Certify or not | **Not issued / Not certified** |
 

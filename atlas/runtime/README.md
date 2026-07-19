@@ -34,10 +34,19 @@ Observation suite for the next Founder Gate (does **not** enable FOUNDER_VISIBLE
 npm run atlas:runtime:observe
 ```
 
+## Staff organization (ATLAS-P6)
+
+Living AIO offices: [`staff/`](staff/) — coordination layer, office packs, delegation metrics.
+
+```bash
+npm run atlas:staff:check
+```
+
 ## Checks
 
 ```bash
 npm run atlas:runtime:check
 npm run atlas:runtime:check:w4
 npm run atlas:runtime:observe
+npm run atlas:staff:check
 ```

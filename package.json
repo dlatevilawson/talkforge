@@ -22,7 +22,8 @@
     "atos:check": "node scripts/atos-check-m0.mjs && node scripts/atos-check-m1.mjs && node scripts/atos-check-m2.mjs && node scripts/atos-check-m3.mjs && node scripts/atos-check-m4.mjs && node scripts/atos-check-m5.mjs && node scripts/atos-check-m6.mjs && node scripts/atos-check-m7.mjs && node scripts/atos-check-m8.mjs && node scripts/atos-check-m9.mjs && node scripts/atos-check-sync.mjs",
     "atlas:runtime:check": "npx --yes tsx atlas/runtime/check.ts",
     "atlas:runtime:check:w4": "npx --yes tsx atlas/runtime/check-w4.ts",
-    "atlas:runtime:observe": "npx --yes tsx atlas/runtime/check-observe.ts"
+    "atlas:runtime:observe": "npx --yes tsx atlas/runtime/check-observe.ts",
+    "atlas:staff:check": "npx --yes tsx atlas/runtime/staff/check.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.110.6",

@@ -116,6 +116,8 @@ See [`references/README.md`](references/README.md).
 | ATLAS-ENG-PROGRAM | Atlas Engineering Program (AIO staff) | [executives/atlas-program/ATLAS-ENGINEERING-PROGRAM.md](executives/atlas-program/ATLAS-ENGINEERING-PROGRAM.md) |
 | ATLAS-AIF-PROGRAM | Atlas Program Desk (AIF under Core) | [executives/atlas-program/ATLAS-PROGRAM-DESK.md](executives/atlas-program/ATLAS-PROGRAM-DESK.md) |
 | ATLAS-ORG-VAL | Org Validation & Certification (Stages 1–7) | [executives/atlas-program/ATLAS-ORG-VALIDATION.md](executives/atlas-program/ATLAS-ORG-VALIDATION.md) |
+| ATLAS-P6 | Phase 6 Operationalization | [executives/atlas-program/PHASE-6-OPERATIONALIZATION.md](executives/atlas-program/PHASE-6-OPERATIONALIZATION.md) |
+| RES-009 | Atlas Phase 6 Ratification | [resolutions/RES-009-atlas-phase-6-operationalization.md](resolutions/RES-009-atlas-phase-6-operationalization.md) |
 | EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |
 | EXEC-ORG-DECISIONS | Org Decision Governance | [executives/atlas-program/ORG-DECISION-GOVERNANCE.md](executives/atlas-program/ORG-DECISION-GOVERNANCE.md) |
 | EXEC-ORG-CADENCE | Org Cadence | [executives/atlas-program/ORG-CADENCE.md](executives/atlas-program/ORG-CADENCE.md) |

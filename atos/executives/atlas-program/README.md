@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ATLAS-PROGRAM |
-| **Version** | 1.5.0 |
+| **Version** | 2.0.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Review Cycle** | On Atlas Program phase change |
-| **Dependencies** | RES-002…RES-008, SPEC-006 |
+| **Dependencies** | RES-002…RES-009, SPEC-006 |
 | **Related Documents** | ATLAS-P0…P5, CHARTER-*, MAN-002 |
 | **Approval History** | 2026-07-19 — Phases 0–5 ratified |
-| **Change Log** | 2026-07-19 — ATLAS-ORG-VAL seven-stage validation & certification program |
+| **Change Log** | 2026-07-19 — Phase 6 Operationalization: living staff under `atlas/runtime/staff/` |
 
 ---
 
@@ -34,6 +34,7 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 | 3 | [PHASE-3-RUNTIME-ARCHITECTURE.md](PHASE-3-RUNTIME-ARCHITECTURE.md) (`ATLAS-P3`) | RES-006 | Runtime architecture that realizes Phase 2 |
 | 4 | [PHASE-4-EXECUTIVE-ORGANIZATION.md](PHASE-4-EXECUTIVE-ORGANIZATION.md) (`ATLAS-P4`) | RES-007 | Permanent executive organization Atlas coordinates |
 | 5 | [PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md](PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md) (`ATLAS-P5`) | RES-008 | Atlas internal staff (AIO-*); GUARD ≠ Sentinel |
+| 6 | [PHASE-6-OPERATIONALIZATION.md](PHASE-6-OPERATIONALIZATION.md) (`ATLAS-P6`) | RES-009 | Make the organization exist (runtime staff) |
 
 ### Phase 4 companion contracts
 
@@ -60,7 +61,9 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 | [ATLAS-ORG-VALIDATION.md](ATLAS-ORG-VALIDATION.md) (`ATLAS-ORG-VAL`) | Stages 1–7 validation; ORR + Founder Decision before “next phase” |
 | [ORG-VAL-STATUS.md](../../../atlas/runtime/evidence/org-val/ORG-VAL-STATUS.md) | Live stage rollup |
 
-Atlas coordinates. Program Desk tracks. Engineering implements. Validation precedes certification. Contracts govern.
+**Living org:** [`atlas/runtime/staff/`](../../../atlas/runtime/staff/) — `npm run atlas:staff:check`
+
+Atlas coordinates. Program Desk tracks. Offices execute. Validation precedes certification. Contracts govern.
 
 ## Runtime implementation (Phase 3 waves)
 

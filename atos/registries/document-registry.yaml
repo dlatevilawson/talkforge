@@ -7,7 +7,7 @@
 # Human Approver: Founder
 # Review Cycle: Each ATOS version
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
-# Change Log: 2026-07-19 — ATLAS-ORG-VAL organizational validation Stages 1–7
+# Change Log: 2026-07-19 — ATLAS-P6 / RES-009 Operationalization
 
 version: 1.0.0
 updated_at: "2026-07-19"
@@ -721,6 +721,22 @@ documents:
     owner: Founder
     ai_steward: Atlas
     layer: executives
+  - id: ATLAS-P6
+    title: "Atlas Program — Phase 6 Operationalization Contract"
+    path: atos/executives/atlas-program/PHASE-6-OPERATIONALIZATION.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: executives
+  - id: RES-009
+    title: "Resolution — Atlas Phase 6 Operationalization"
+    path: atos/resolutions/RES-009-atlas-phase-6-operationalization.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: resolutions
   - id: EXEC-ORG-COMM
     title: "Executive Organization — Communication Interfaces"
     path: atos/executives/atlas-program/ORG-COMMUNICATION.md

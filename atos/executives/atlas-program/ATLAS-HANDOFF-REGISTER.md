@@ -85,7 +85,8 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 |---|---|---|
 | AIO staff Engineering Program (S0–S9) | Atlas (coord) + Engineering (Cursor) | **ATLAS-ENG-PROGRAM Authoritative** — awaiting WP-S0 start; no production code in program doc |
 | Atlas Program Desk (AIF-PROGRAM) | AIO-CORE function | **ATLAS-AIF-PROGRAM Authoritative** — tracks WP/wave/VC/deps; WP-S0 must not create sixth AIO |
-| Organizational Validation (Stages 1–7) | Atlas + Engineering harnesses | **ATLAS-ORG-VAL** — Stage 1 PASS WITH FINDINGS; Stages 2–7 PENDING; **not certified** |
+| Organizational Validation (Stages 1–7) | Atlas + Engineering harnesses | Stage 1 PASS; Stages 2–5 PARTIAL via `atlas:staff:check`; Stage 6 PENDING; **not certified** |
+| Phase 6 Operationalization | Atlas + Engineering | **ATLAS-P6 / RES-009** — five AIO packs + staff pipeline live; ORR not issued |
 | Founder-visible gate evidence | Atlas Guard/Intel + Founder | Suite exists; operational observation continues |
 | Planned executive activation | Founder | Charters Authoritative; offices not yet appointed |
 

@@ -21,4 +21,9 @@ export {
 export { evaluateCutoverReadiness } from "./readiness/cutover";
 export { collectW4Evidence } from "./readiness/run-w4";
 export { runObservationSuite } from "./observation/run";
+export {
+  runStaffCoordinatedPipeline,
+  listOfficePacks,
+  assertOwnershipInvariants,
+} from "./staff";
 export type * from "./types/envelopes";
