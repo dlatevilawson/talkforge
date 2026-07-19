@@ -88,7 +88,8 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 | Organizational Validation (Stages 1–7) | Atlas + Engineering harnesses | Stage 1 PASS; Stages 2–5 PARTIAL via `atlas:staff:check`; Stage 6 PENDING; **not certified** |
 | Phase 6 Operationalization | Atlas + Engineering | **ATLAS-P6 / RES-009** — five AIO packs + staff pipeline live; ORR not issued |
 | Sprint 1 / WP-S0 Ownership Skeleton | Engineering | **PASS** — evidence `atlas/runtime/evidence/WP-S0-OWNERSHIP.md`; VC1 met |
-| P6-EXEC WP-S1 Office Capability | Engineering + Atlas | **PASS** — `WP-S1-OFFICE-CAPABILITY.md`; **WP-S2 blocked** pending Founder approval |
+| P6-EXEC WP-S1 Office Capability | Engineering + Atlas | **PASS** — Founder-approved 2026-07-19 |
+| P6-EXEC WP-S2 Cross-Office Coordination | Engineering + Atlas | **PASS** — `WP-S2-COORDINATION.md`; **WP-S3 blocked** pending Founder approval |
 | Founder-visible gate evidence | Atlas Guard/Intel + Founder | Suite exists; operational observation continues |
 | Planned executive activation | Founder | Charters Authoritative; offices not yet appointed |
 
