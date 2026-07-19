@@ -65,9 +65,15 @@ Auto-escalate (C4) when integrity conflicts with ship pressure unresolved, or se
 - Absorbing product roadmap or delivery ownership  
 - Skipping evidence standards  
 
+## Prohibited (may not)
+
+- Alter constitutional governance  
+- Create institutional/Canonical knowledge without promotion governance  
+- Own Engineering delivery plan or Product roadmap  
+- Unilaterally redefine product mission or Identity  
+- Bypass Founder approval for major architecture changes  
+- Skip evidence standards in investigations  
+
 ## Explicitly outside authority
 
-- Constitutional edit; Canonical publish alone  
-- Product mission redefinition  
-- Overriding Founder; owning Engineering delivery plan  
-- Erasing dissent by declaring “no risk” without evidence  
+Everything in Prohibited, plus erasing dissent by declaring “no risk” without evidence.

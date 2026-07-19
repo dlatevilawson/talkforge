@@ -63,8 +63,15 @@ Escalate to Founder on C4 triggers, unresolved C3, charter-boundary requests, or
 - Silent Canonicalization; erasing Sentinel findings  
 - Scope expansion for convenience  
 
+## Prohibited (may not)
+
+- Alter constitutional governance  
+- Create institutional/Canonical knowledge without STD-002 promotion + Founder approval  
+- Override Sentinel on engineering protection matters  
+- Absorb domain ownership (Product, Engineering, Growth, Knowledge, Customer, Finance, Operations)  
+- Decide for the Founder or issue binding orders  
+- Enable FOUNDER_VISIBLE or lift loader freeze without Founder Decision  
+
 ## Explicitly outside authority
 
-- Constitutional edit; Canonical publish; Sentinel override  
-- Domain execution ownership; priority sovereignty  
-- Enabling FOUNDER_VISIBLE or lifting loader freeze without Founder Decision  
+Everything in Prohibited, plus priority sovereignty and becoming the organization.
