@@ -11,8 +11,8 @@
 | **Review Cycle** | On ATOS version / structural nav change |
 | **Dependencies** | RES-001, RES-002, ATOS-ROOT, ADR-0001 |
 | **Related Documents** | `atos/registries/INDEX.md`, `atos/RELEASE-1.0.0.md` |
-| **Approval History** | 2026-07-18 — M1 Draft; 2026-07-18 — v1.0.0 publication |
-| **Change Log** | 2026-07-18 — M1–M8 navigation; M9 release links |
+| **Approval History** | 2026-07-18 — M1 Draft; 2026-07-18 — v1.0.0 package; 2026-07-19 — MS-SYNC links |
+| **Change Log** | 2026-07-19 — Manuals status corrected; REF-R1101 and MS-SYNC added |
 
 ---
 
@@ -53,17 +53,18 @@
 
 ---
 
-## Level 3 — Operating Manuals
+## Level 3 — Operating Manuals (Draft)
 
-Core manuals are **planned** (RES-001 priority). Bodies arrive in later milestones.
+Core manuals present as **Draft**: MAN-001, MAN-002, MAN-003, MAN-013, MAN-016, MAN-017.  
+Deferred planned (not in v1.0 package): MAN-004, MAN-009, MAN-012.
 
-See [`manuals/README.md`](manuals/README.md) and Document Registry entries `MAN-001`…`MAN-013`.
+See [`manuals/README.md`](manuals/README.md) and Document Registry.
 
 ---
 
 ## Level 4 — References
 
-Sparse tree. Templates and historical folders are scaffolds.
+Sparse tree. Templates include REF-R1100, REF-R1101 (ADR template), REF-R1104, REF-R1108, REF-R1109, REF-R1110. Historical archive is scaffold.
 
 See [`references/README.md`](references/README.md).
 
@@ -149,6 +150,7 @@ See [`references/README.md`](references/README.md).
 | GOV-META | Metadata Framework | [governance/metadata-framework.md](governance/metadata-framework.md) |
 | GOV-META-APP | Metadata Application | [governance/metadata-application.md](governance/metadata-application.md) |
 | REF-R1100 | Metadata Template | [references/templates/REF-R1100-document-metadata-template.md](references/templates/REF-R1100-document-metadata-template.md) |
+| REF-R1101 | ADR Template | [references/templates/REF-R1101-architecture-decision-record-template.md](references/templates/REF-R1101-architecture-decision-record-template.md) |
 | REG-OWN | Ownership Registry | [registries/ownership-registry.yaml](registries/ownership-registry.yaml) |
 | GOV-REG | Registry Framework | [governance/registry-framework.md](governance/registry-framework.md) |
 | GOV-COMPAT | Pre-ATOS Compatibility | [governance/compatibility-atlas-pre-atos.md](governance/compatibility-atlas-pre-atos.md) |
@@ -186,4 +188,4 @@ Operations: [governance/registry-operations.md](governance/registry-operations.m
 1. Every Spec lists Dependencies and Related Documents in metadata.  
 2. Every Standard lists its parent Spec(s).  
 3. Navigation and Document Registry must agree on paths.  
-4. `Scaffold` / unapproved `Draft` Specs are **not** institutional law for AI context loaders.
+4. Specs/Standards are **Authoritative** (RES-002). `Scaffold` / `Draft` / `Review` artifacts are **not** Canonical for AI context loaders.

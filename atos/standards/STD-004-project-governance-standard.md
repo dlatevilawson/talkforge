@@ -20,7 +20,8 @@
 
 ATOS Standard 004 — Project Governance Standard (PGS)
 
-Version: 1.0 (Draft)
+Version: 1.0.0
+Status: Authoritative
 
 Purpose
 

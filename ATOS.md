@@ -11,8 +11,8 @@
 | **Review Cycle** | Per ATOS version / on governance change |
 | **Dependencies** | RES-001, RES-002 |
 | **Related Documents** | `atos/NAVIGATION.md`, `atos/RELEASE-1.0.0.md`, `atos/VERSION` |
-| **Approval History** | RES-001 authorized implementation; RES-002 ratified Specs/Standards; M9 publishes Version 1.0.0 |
-| **Change Log** | 2026-07-18 — M0–M8 delivery; 2026-07-18 — Version 1.0.0 publication (M9) |
+| **Approval History** | RES-001 authorized implementation; RES-002 ratified Specs/Standards; M9 package prepared; MS-SYNC governance state synchronized |
+| **Change Log** | 2026-07-18 — M0–M9 package; 2026-07-19 — MS-SYNC state synchronization for Version 1.0 ratification readiness |
 
 ---
 
@@ -66,18 +66,19 @@ Supporting systems: resolutions, governance, registries, schemas, knowledge, run
 
 ## Quick Navigation
 
-1. [Release 1.0.0](atos/RELEASE-1.0.0.md)
+1. [Release 1.0.0](atos/RELEASE-1.0.0.md) (Review — pending Founder ratification)
 2. [Repository Navigation](atos/NAVIGATION.md)
 3. [RES-001](atos/resolutions/RES-001-atos-v1-implementation.md) · [RES-002](atos/resolutions/RES-002-atos-v1-ratification.md)
 4. [Specifications](atos/specifications/README.md) (Authoritative)
 5. [Standards](atos/standards/README.md) (Authoritative)
 6. [MVI Readiness](atos/validation/mvi-readiness.md)
-7. [Freeze Policy](atos/governance/GOV-FREEZE-1.0.0.md)
+7. [Freeze Policy](atos/governance/GOV-FREEZE-1.0.0.md) (Review — pending Founder ratification)
 8. [Document Registry](atos/registries/document-registry.yaml)
+9. [MS-SYNC](atos/milestones/MS-SYNC-governance-state.md)
 
 ---
 
-## Milestone Sequence (RES-001) — Complete
+## Milestone Sequence (RES-001)
 
 | Milestone | Focus | Status |
 |---|---|---|
@@ -90,7 +91,8 @@ Supporting systems: resolutions, governance, registries, schemas, knowledge, run
 | M6 | Executive Systems | Complete — Founder approved |
 | M7 | Founder Workspace | Complete — Founder approved |
 | M8 | Operational Validation | Complete — Founder approved |
-| M9 | Version 1.0 Release | Complete — awaiting Founder approval |
+| M9 | Version 1.0 Release | Package prepared — awaiting Founder ratification |
+| MS-SYNC | Governance State Synchronization | Complete — awaiting Founder acceptance of Final FAR |
 
 ---
 
@@ -102,4 +104,4 @@ Supporting systems: resolutions, governance, registries, schemas, knowledge, run
 4. Do not modify `atlas/` load paths without Founder-gated cutover approval.  
 5. Update registries when creating or modifying governed documents.  
 6. Pass `npm run atos:check` before completing ATOS structural changes.  
-7. Respect GOV-FREEZE-1.0.0 for constitutional layers.  
+7. Treat GOV-FREEZE-1.0.0 as Review until Founder Version 1.0 ratification; Specs/Standards remain Authoritative per RES-002.  

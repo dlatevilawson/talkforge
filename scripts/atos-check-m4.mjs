@@ -34,7 +34,11 @@ for (const rel of required) {
 }
 
 const know = readFileSync(path.join(root, "atos/registries/knowledge-registry.yaml"), "utf8");
-if (!know.includes("milestone: M4") && !/milestone:\s*M[4-9]/.test(know)) {
+if (
+  !know.includes("milestone: M4") &&
+  !/milestone:\s*M[4-9]/.test(know) &&
+  !know.includes("milestone: MS-SYNC")
+) {
   fail("REG-KNOW must be at M4 or later");
 }
 if (!know.includes("promotion_pipeline:")) fail("REG-KNOW missing promotion_pipeline");

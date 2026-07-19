@@ -1,17 +1,17 @@
 # Knowledge Registry
 # Document ID: REG-KNOW
-# Version: 1.0.0-m4
-# Status: Draft
+# Version: 1.0.0
+# Status: Authoritative
 # Owner: Founder
 # AI Steward: Atlas
 # Human Approver: Founder
 # Review Cycle: Each milestone
-# Approval History: 2026-07-18 — M4 knowledge governance operationalized
-# Change Log: 2026-07-18 — Promotion pipeline, stores, canonical authority, legacy classification
+# Approval History: 2026-07-18 — M4; 2026-07-19 — Authority notes synchronized (MS-SYNC)
+# Change Log: 2026-07-19 — Cleared stale identity Draft wording; aligned plane notes
 
-version: 1.0.0-m4
-updated_at: "2026-07-18"
-milestone: M4
+version: 1.0.0
+updated_at: "2026-07-19"
+milestone: M9
 governing_spec: SPEC-003
 governing_standard: STD-002
 operations: atos/governance/knowledge-governance-operations.md
@@ -30,7 +30,7 @@ planes:
     name: ATOS Governance Plane
     root: atos/
     authority: target
-    state: draft
+    state: authoritative
     loadable_as_canonical: false  # ATOS governance plane docs; Canonical library separate
     notes: Specs/Standards Authoritative (RES-002); Ask Atlas still legacy plane until cutover; knowledge stores under atos/knowledge/
 
@@ -117,7 +117,7 @@ domains:
       - atlas/founder-brief.md
       - atlas/forge-laws.md
       - atlas/philosophy.md
-    note: Dual plane until Founder cutover; SPEC-002 Draft is not yet Authoritative Canonical
+    note: Dual plane until Founder cutover; SPEC-002 is Authoritative governance law; Identity component files remain interim-legacy under atlas/ until Canonical promotion
   - id: DOMAIN-ENGINEERING-PROTOCOL
     canonical_source: null
     interim_legacy:

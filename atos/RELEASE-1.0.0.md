@@ -4,52 +4,55 @@
 |---|---|
 | **Document ID** | ATOS-RELEASE-1.0.0 |
 | **Version** | 1.0.0 |
-| **Status** | Authoritative |
+| **Status** | Review |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Review Cycle** | On next ATOS version |
-| **Dependencies** | RES-001, RES-002, VAL-MVI |
-| **Related Documents** | ATOS.md, GOV-FREEZE-1.0.0, MS-M9 |
-| **Approval History** | 2026-07-18 — ATOS Version 1.0.0 published (M9) |
-| **Change Log** | 2026-07-18 — Official publication of ATOS v1.0 |
+| **Dependencies** | RES-001, RES-002, VAL-MVI, MS-SYNC |
+| **Related Documents** | ATOS.md, GOV-FREEZE-1.0.0, MS-M9, MS-SYNC |
+| **Approval History** | 2026-07-18 — M9 package prepared; 2026-07-19 — Status → Review (awaiting Founder Version 1.0 ratification) |
+| **Change Log** | 2026-07-19 — MS-SYNC: pending-ratification publication state |
 
 ---
 
-## Publication
+## Publication status
 
-**Atlas TalkForge Operating System (ATOS) Version 1.0.0** is published as the governing organizational operating system documentation for TalkForge.
+**Atlas TalkForge Operating System (ATOS) Version 1.0.0** is prepared for Founder ratification as the governing organizational operating system documentation for TalkForge.
 
 | Item | Value |
 |---|---|
 | Version | 1.0.0 |
 | Authorization | RES-001 |
-| Ratification | RES-002 |
+| Spec/Standard ratification instrument | RES-002 |
 | Entrypoint | [`/ATOS.md`](../ATOS.md) |
-| Git tag | `atos-v1.0.0` |
-| Validation | `npm run atos:check` (M0–M9) |
+| Proposed git tag | `atos-v1.0.0` |
+| Validation | `npm run atos:check` (M0–M9 + sync integrity) |
+| Package status | **Review** — effective upon Founder ratification |
 
 ## What Version 1.0 includes
 
 - Level 1 Specifications (Authoritative via RES-002)  
 - Level 2 Standards (Authoritative via RES-002)  
-- Core Operating Manuals (Founder, Atlas, Sentinel, Runtime, AIEM, Founder Intelligence)  
+- Core Operating Manuals (Founder, Atlas, Sentinel, Runtime, AIEM, Founder Intelligence) — Draft  
 - Registry infrastructure and metadata framework  
 - Knowledge governance stores + promotion pipeline  
 - Runtime interface definitions (docs; code cutover Founder-gated)  
-- Executive charters (Atlas, Sentinel, Founder)  
+- Executive charters (Atlas, Sentinel, Founder) — Draft  
 - Founder Workspace contracts  
 - Operational validation scorecard  
+- Governance state synchronization (MS-SYNC)  
 
 ## What Version 1.0 intentionally excludes
 
-Per RES-001 out-of-scope and VAL-MVI AMBER acceptances:
+Per RES-001 out-of-scope and VAL-MVI interim acceptances:
 
 - Full multi-department executive activation  
 - Ask Atlas loader cutover to ATOS Canonical plane  
 - Hub/Memory Keeper production code implementation  
 - Complete ops SoT migration off legacy `atlas/` files  
 - Large product UI redesign  
+- MAN-004 / MAN-009 / MAN-012 (explicitly deferred; remain planned)  
 
 ## How to use
 
@@ -61,4 +64,4 @@ Per RES-001 out-of-scope and VAL-MVI AMBER acceptances:
 
 ## Freeze
 
-See [`GOV-FREEZE-1.0.0.md`](governance/GOV-FREEZE-1.0.0.md).
+See [`GOV-FREEZE-1.0.0.md`](governance/GOV-FREEZE-1.0.0.md) (Review until Founder ratification).

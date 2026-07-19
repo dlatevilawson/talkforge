@@ -10,7 +10,7 @@
 | **Human Approver** | Founder |
 | **Review Cycle** | Each milestone |
 | **Dependencies** | SPEC-005, STD-006, GOV-RUNTIME, RUNTIME-IFACE |
-| **Related Documents** | atos/runtime/*, MAN-012, GOV-KNOW |
+| **Related Documents** | atos/runtime/*, MAN-012 (planned), GOV-KNOW |
 | **Approval History** | 2026-07-18 — M5 Draft (RES-001 core manual) |
 | **Change Log** | 2026-07-18 — Initial Runtime Operations Manual |
 

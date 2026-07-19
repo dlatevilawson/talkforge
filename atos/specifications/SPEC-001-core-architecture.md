@@ -245,17 +245,17 @@ Superseded versions shall be retained as part of the organization’s historical
 
 12. Approval
 
-Version: 1.0 (Draft)
-Status: Draft
+Version: 1.0.0
+Status: Authoritative
 
-This specification becomes authoritative only upon formal approval by the designated governing authority of TalkForge.
+This specification is Authoritative for ATOS Version 1.0.0 per RES-002, with Founder as approving authority.
 
-Upon approval:
+Effect:
 
-* This document becomes the foundational specification of the Atlas TalkForge Operating System (ATOS).
-* All subsequent specifications shall derive their authority from this document.
+* This document is the foundational specification of the Atlas TalkForge Operating System (ATOS).
+* All subsequent specifications derive their authority from this document.
 * Any future amendments shall follow the governance process defined within this specification.
 
 Approval Authority: Founder of TalkForge
 
-Specification Status: Draft → Approved upon formal adoption.
+Specification Status: Authoritative (RES-002 / ATOS Version 1.0.0).

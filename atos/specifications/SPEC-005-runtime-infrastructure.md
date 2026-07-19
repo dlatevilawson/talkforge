@@ -20,8 +20,8 @@
 
 Specification 005 — Runtime Infrastructure Specification
 
-Version: 1.0 (Draft)
-Status: Draft
+Version: 1.0.0
+Status: Authoritative
 
 ⸻
 

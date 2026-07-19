@@ -10,7 +10,7 @@
 | **Human Approver** | Founder |
 | **Review Cycle** | On constitutional amendment |
 | **Dependencies** | SPEC-001, SPEC-002 |
-| **Related Documents** | STD-002, MAN-012, REG-KNOW |
+| **Related Documents** | STD-002, MAN-012 (planned), REG-KNOW |
 | **Approval History** | 2026-07-18 — Persisted under RES-001 / M1 as Draft (content from Founder architecture dictation) ; 2026-07-18 — Ratified Authoritative via RES-002 (ATOS v1.0.0) |
 | **Change Log** | 2026-07-18 — M1 repository organization: file created with cross-links ; 2026-07-18 — Status → Authoritative (RES-002) |
 
@@ -20,8 +20,8 @@
 
 Specification 003 — Knowledge Governance Specification (TKGS)
 
-Version: 1.0 (Draft)
-Status: Draft
+Version: 1.0.0
+Status: Authoritative
 
 ⸻
 

@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | VAL-MVI |
-| **Version** | 1.0.0-m8 |
-| **Status** | Draft |
+| **Version** | 1.0.0 |
+| **Status** | Review |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | Through M9 |
-| **Dependencies** | RES-001, VAL-CHECK |
-| **Related Documents** | MS-M8, MS-M9 |
-| **Approval History** | 2026-07-18 — M8 assessment |
-| **Change Log** | 2026-07-18 — Initial MVI readiness after M0–M7 delivery |
+| **Review Cycle** | Through Version 1.0 ratification |
+| **Dependencies** | RES-001, RES-002, VAL-CHECK, MS-SYNC |
+| **Related Documents** | MS-M8, MS-M9, MS-SYNC |
+| **Approval History** | 2026-07-18 — M8 assessment; 2026-07-19 — Updated after MS-SYNC |
+| **Change Log** | 2026-07-19 — Version/status normalized; interim acceptances reaffirmed for ratification |
 
 ---
 
@@ -78,13 +78,14 @@
 
 ---
 
-## Summary for M9
+## Summary for Version 1.0 ratification
 
 | Dimension | Rollup |
 |---|---|
 | Docs/OS implementability | GREEN |
-| Constitutional ratification | GREEN — RES-002 (M9) |
-| Ops SoT consolidation | AMBER — acceptable for v1.0 with documented interim |
-| Runtime code cutover | AMBER — intentionally out of M8; Founder-gated |
+| Spec/Standard authority (RES-002) | GREEN — Authoritative; body/registry synchronized (MS-SYNC) |
+| Ops SoT consolidation | AMBER — **Founder-accepted interim** (REG-PROJ + legacy sources) |
+| Runtime code cutover | AMBER — Founder-gated; out of docs OS scope |
+| Release/freeze instruments | Review — become Authoritative upon Founder M9 ratification |
 
-**M8 conclusion:** ATOS Version 1.0 documentation operating system is **operationally validated** for progression to M9 release preparation, with AMBER items explicitly reserved for Founder decisions at release (or accepted as interim).
+**Conclusion:** ATOS Version 1.0 documentation operating system is ready for Founder ratification with documented interim acceptances.

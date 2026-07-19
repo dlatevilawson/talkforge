@@ -20,7 +20,8 @@
 
 ATOS Standard 006 — Runtime Workflow Standard (RWS)
 
-Version: 1.0 (Draft)
+Version: 1.0.0
+Status: Authoritative
 
 Purpose
 

@@ -20,7 +20,8 @@
 
 ATOS Standard 001 — Architecture Decision Standard (ADS)
 
-Version: 1.0 (Draft)
+Version: 1.0.0
+Status: Authoritative
 
 Purpose
 

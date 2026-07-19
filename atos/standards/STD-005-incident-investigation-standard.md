@@ -20,7 +20,8 @@
 
 ATOS Standard 005 — Incident & Investigation Standard (IIS)
 
-Version: 1.0 (Draft)
+Version: 1.0.0
+Status: Authoritative
 
 Purpose
 

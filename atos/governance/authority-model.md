@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | GOV-AUTH |
-| **Version** | 1.0.0-m0 |
-| **Status** | Draft |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Review Cycle** | On constitutional change |
-| **Dependencies** | RES-001, Spec 002/003 (when present) |
-| **Related Documents** | `metadata-framework.md`, `compatibility-atlas-pre-atos.md` |
-| **Approval History** | 2026-07-18 — M0 Draft |
-| **Change Log** | 2026-07-18 — Initial authority state machine |
+| **Dependencies** | RES-001, SPEC-002, SPEC-003 |
+| **Related Documents** | GOV-META, GOV-COMPAT, GOV-FREEZE-1.0.0 |
+| **Approval History** | 2026-07-18 — M0 Draft; 2026-07-19 — Authoritative (MS-SYNC) |
+| **Change Log** | 2026-07-18 — Initial authority state machine; 2026-07-19 — Status → Authoritative; stale M4 preview removed |
 
 ---
 
@@ -61,10 +61,9 @@ Scaffold → Draft → Review → Authoritative
 3. `Draft` Specs/Standards are not organizational law until `Authoritative`.
 4. Registries may list `planned` artifacts that have no file yet.
 
-## Knowledge authority (preview for M4)
+## Knowledge authority (dual plane)
 
-Until M4 completes:
-
-- Pre-ATOS `atlas/*.md` remains the **live Ask Atlas corpus** (legacy plane).
-- ATOS documents are the **target governance plane**.
+- Pre-ATOS `atlas/*.md` remains the **live Ask Atlas corpus** (legacy plane) under GOV-COMPAT until Founder-gated cutover.
+- ATOS Specs/Standards are **Authoritative governance law** (RES-002); the ATOS Canonical library under `atos/knowledge/canonical/` remains empty until STD-002 promotions.
 - Neither plane may silently overwrite the other.
+- `Draft` / `Scaffold` ATOS artifacts are not Canonical.

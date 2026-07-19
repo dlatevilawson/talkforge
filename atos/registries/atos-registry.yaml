@@ -1,17 +1,17 @@
 # ATOS Registry — master index
 # Document ID: REG-ATOS
-# Version: 1.0.0-m2
-# Status: Draft
+# Version: 1.0.0
+# Status: Authoritative
 # Owner: Founder
 # AI Steward: Atlas
 # Human Approver: Founder
 # Review Cycle: Each milestone
-# Approval History: 2026-07-18 — M3 header completion
-# Change Log: 2026-07-18 — Metadata headers completed in M3
+# Approval History: 2026-07-18 — M2/M3; 2026-07-19 — State synchronization (MS-SYNC)
+# Change Log: 2026-07-19 — Aligned registry/layer states for v1.0.0 ratification readiness
 
 version: 1.0.0
-updated_at: "2026-07-18"
-milestone: M9
+updated_at: "2026-07-19"
+milestone: MS-SYNC
 authorization: RES-001
 entrypoint: ATOS.md
 navigation: atos/NAVIGATION.md
@@ -22,11 +22,11 @@ registries:
     - id: REG-ATOS
       file: atos/registries/atos-registry.yaml
       role: master_index
-      state: draft
+      state: authoritative
     - id: REG-DOC
       file: atos/registries/document-registry.yaml
       role: document_index
-      state: draft
+      state: authoritative
     - id: REG-EXEC
       file: atos/registries/executive-registry.yaml
       role: executive_index
@@ -38,13 +38,13 @@ registries:
   supporting:
     - id: REG-KNOW
       file: atos/registries/knowledge-registry.yaml
-      state: draft
+      state: authoritative
     - id: REG-ARCH
       file: atos/registries/architecture-registry.yaml
-      state: draft
+      state: authoritative
     - id: REG-REPO
       file: atos/registries/repository-index.yaml
-      state: draft
+      state: authoritative
     - id: REG-INDEX
       file: atos/registries/INDEX.md
       state: draft
@@ -100,6 +100,7 @@ systems:
     name: Governance Frameworks
     path: atos/governance
     state: draft
+    note: ADR-0001 and GOV-AUTH Authoritative; other GOV-* docs may remain Draft
   - id: SYS-REG
     name: Registries
     path: atos/registries
@@ -141,10 +142,12 @@ systems:
   - id: SYS-RES
     name: Resolutions
     path: atos/resolutions
-    state: draft
+    state: authoritative
 
 milestones:
-  current: M9
-  sequence: [M0, M1, M2, M3, M4, M5, M6, M7, M8, M9]
+  current: MS-SYNC
+  sequence: [M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, MS-SYNC]
   completed: [M0, M1, M2, M3, M4, M5, M6, M7, M8]
   in_progress: M9
+  maintenance: MS-SYNC
+  note: M9 package prepared; MS-SYNC synchronizes governance state before Founder Version 1.0 ratification

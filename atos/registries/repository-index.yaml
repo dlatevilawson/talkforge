@@ -1,16 +1,16 @@
 # Repository Index
 # Document ID: REG-REPO
-# Version: 1.0.0-m0
-# Status: Draft
+# Version: 1.0.0
+# Status: Authoritative
 # Owner: Founder
 # AI Steward: Atlas
 # Human Approver: Founder
 # Review Cycle: Each milestone
-# Approval History: 2026-07-18 — M3 header completion
-# Change Log: 2026-07-18 — Metadata headers completed in M3
+# Approval History: 2026-07-18 — M3 headers; 2026-07-19 — Level states synchronized (MS-SYNC)
+# Change Log: 2026-07-19 — Governance state synchronization for ATOS v1.0.0 ratification readiness
 
-version: 1.0.0-m2
-updated_at: "2026-07-18"
+version: 1.0.0
+updated_at: "2026-07-19"
 
 entrypoint: ATOS.md
 
@@ -35,13 +35,13 @@ atos_tree:
     role: registry_human_index
   - path: atos/specifications/
     role: level_1
-    state: draft
+    state: authoritative
   - path: atos/standards/
     role: level_2
-    state: draft
+    state: authoritative
   - path: atos/manuals/
     role: level_3
-    state: scaffold
+    state: draft
   - path: atos/references/
     role: level_4
     state: scaffold

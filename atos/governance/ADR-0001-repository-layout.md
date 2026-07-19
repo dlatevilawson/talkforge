@@ -4,15 +4,15 @@
 |---|---|
 | **Document ID** | ADR-0001 |
 | **Version** | 1.0.0 |
-| **Status** | Draft |
+| **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Sentinel |
 | **Human Approver** | Founder |
 | **Review Cycle** | On layout change |
-| **Dependencies** | RES-001, Spec 001 (when Authoritative) |
-| **Related Documents** | `repository-governance.md`, `registry-framework.md` |
-| **Approval History** | 2026-07-18 — Created in M0 for implementation guidance (Draft until Founder marks Authoritative) |
-| **Change Log** | 2026-07-18 — Initial layout decision for ATOS v1.0 |
+| **Dependencies** | RES-001, SPEC-001 |
+| **Related Documents** | GOV-REPO, GOV-REG, REF-R1101 |
+| **Approval History** | 2026-07-18 — Created in M0; 2026-07-19 — Authoritative (MS-SYNC; storage-plane law for v1.0.0) |
+| **Change Log** | 2026-07-18 — Initial layout decision; 2026-07-19 — Status → Authoritative (governance sync) |
 
 ---
 

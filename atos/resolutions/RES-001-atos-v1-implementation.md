@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | RES-001 |
-| **Version** | 1.0 |
+| **Version** | 1.0.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -169,5 +169,5 @@ All implementation activities shall proceed under this Resolution until supersed
 |---|---|
 | **Approved By** | Founder |
 | **Approval Date** | 2026-07-18 |
-| **Version** | 1.0 |
+| **Version** | 1.0.0 |
 | **Status Upon Signature** | Approved / Authoritative |

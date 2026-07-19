@@ -1,22 +1,22 @@
 # Architecture Registry
 # Document ID: REG-ARCH
-# Version: 1.0.0-m0
-# Status: Draft
+# Version: 1.0.0
+# Status: Authoritative
 # Owner: Founder
 # AI Steward: Sentinel
 # Human Approver: Founder
 # Review Cycle: Each milestone
-# Approval History: 2026-07-18 — M3 header completion
-# Change Log: 2026-07-18 — Metadata headers completed in M3
+# Approval History: 2026-07-18 — M3 headers; 2026-07-19 — Synchronized Spec/Standard states to Authoritative (MS-SYNC)
+# Change Log: 2026-07-19 — Governance state synchronization for ATOS v1.0.0 ratification readiness
 
-version: 1.0.0-m0
-updated_at: "2026-07-18"
+version: 1.0.0
+updated_at: "2026-07-19"
 
 adrs:
   - id: ADR-0001
     title: ATOS Repository Layout
     path: atos/governance/ADR-0001-repository-layout.md
-    state: draft
+    state: authoritative
 
 systems:
   - id: ARCH-PRODUCT
@@ -31,7 +31,7 @@ systems:
   - id: ARCH-ATOS
     title: ATOS Governance Tree
     roots: [atos/, ATOS.md]
-    state: draft
+    state: authoritative
 
 storage_planes:
   - id: STORE-GIT
@@ -47,39 +47,39 @@ storage_planes:
 specifications:
   - id: SPEC-001
     path: atos/specifications/SPEC-001-core-architecture.md
-    state: draft
+    state: authoritative
   - id: SPEC-002
     path: atos/specifications/SPEC-002-identity.md
-    state: draft
+    state: authoritative
   - id: SPEC-003
     path: atos/specifications/SPEC-003-knowledge-governance.md
-    state: draft
+    state: authoritative
   - id: SPEC-004
     path: atos/specifications/SPEC-004-operations.md
-    state: draft
+    state: authoritative
   - id: SPEC-005
     path: atos/specifications/SPEC-005-runtime-infrastructure.md
-    state: draft
+    state: authoritative
   - id: SPEC-006
     path: atos/specifications/SPEC-006-executive-systems.md
-    state: draft
+    state: authoritative
 
 standards:
   - id: STD-001
     path: atos/standards/STD-001-architecture-decision-standard.md
-    state: draft
+    state: authoritative
   - id: STD-002
     path: atos/standards/STD-002-knowledge-promotion-standard.md
-    state: draft
+    state: authoritative
   - id: STD-003
     path: atos/standards/STD-003-executive-decision-standard.md
-    state: draft
+    state: authoritative
   - id: STD-004
     path: atos/standards/STD-004-project-governance-standard.md
-    state: draft
+    state: authoritative
   - id: STD-005
     path: atos/standards/STD-005-incident-investigation-standard.md
-    state: draft
+    state: authoritative
   - id: STD-006
     path: atos/standards/STD-006-runtime-workflow-standard.md
-    state: draft
+    state: authoritative

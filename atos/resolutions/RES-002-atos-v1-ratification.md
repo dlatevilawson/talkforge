@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | RES-002 |
-| **Version** | 1.0 |
+| **Version** | 1.0.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Review Cycle** | Until superseded |
 | **Dependencies** | RES-001, SPEC-001…SPEC-006, STD-001…STD-006, VAL-MVI |
-| **Related Documents** | ATOS-RELEASE-1.0.0, MS-M9 |
-| **Approval History** | 2026-07-18 — Ratified as part of ATOS Version 1.0 Release (M9) under RES-001 |
-| **Change Log** | 2026-07-18 — Constitutional ratification for v1.0 |
+| **Related Documents** | ATOS-RELEASE-1.0.0, MS-M9, MS-SYNC |
+| **Approval History** | 2026-07-18 — Spec/Standard ratification instrument for ATOS v1.0 under RES-001; 2026-07-19 — Version normalized (MS-SYNC) |
+| **Change Log** | 2026-07-18 — Constitutional ratification for Specs/Standards; 2026-07-19 — Clarified Version freeze awaits Founder M9 |
 
 ---
 
@@ -64,4 +64,6 @@ Accepted for v1.0 without blocking release:
 
 ## Declaration
 
-Upon Founder approval of ATOS Version 1.0 Release (M9), this Resolution is Authoritative and the listed Specs/Standards are Authoritative.
+1. The listed Specs and Standards are **Authoritative** under this Resolution.  
+2. Full ATOS Version 1.0.0 **release ratification** (GOV-FREEZE-1.0.0 and ATOS-RELEASE-1.0.0 becoming Authoritative) awaits Founder approval of M9.  
+3. Interim acceptances above remain in force unless the Founder directs otherwise at ratification.

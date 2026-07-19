@@ -20,7 +20,8 @@
 
 ATOS Standard 003 — Executive Decision Standard (EDS)
 
-Version: 1.0 (Draft)
+Version: 1.0.0
+Status: Authoritative
 
 Purpose
 
