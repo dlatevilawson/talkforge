@@ -117,6 +117,14 @@ documents:
     owner: Founder
     ai_steward: Atlas
     layer: resolutions
+  - id: RES-007
+    title: "ATOS Resolution 007 — Ratification of Atlas Program Phase 4 Executive Organization"
+    path: atos/resolutions/RES-007-atlas-phase-4-executive-organization.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: resolutions
 
   - id: ADR-0001
     title: "ADR-0001 — ATOS Repository Layout"
