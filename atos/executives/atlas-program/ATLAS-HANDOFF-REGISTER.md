@@ -12,7 +12,7 @@
 | **Dependencies** | ATLAS-SUCCESSION, ATLAS-P4, ATLAS-P5, CHARTER-ATLAS |
 | **Related Documents** | ATLAS-GATE-FV, ATLAS-D-FLAGS, REG-EXEC |
 | **Approval History** | 2026-07-19 — Initial register for succession continuity |
-| **Change Log** | 2026-07-19 — Seeded from ratified program state |
+| **Change Log** | 2026-07-19 — Seeded; RES-010 cert; RES-011 TalkForge-primary posture; Atlas org-building closed |
 
 ---
 
@@ -22,10 +22,11 @@
 |---|---|
 | **Last updated** | 2026-07-19 |
 | **Updated by** | Atlas |
-| **Standing priority** | TalkForge first (RES-011); Atlas coordinates in service of that |
+| **Standing priority** | **Building TalkForge** (RES-011); Atlas serves that objective |
 | **Staleness rule** | If older than 7 days or last Weekly Review, successor must refresh before counsel |
 
-**Program note:** [`ATLAS-ENG-PROGRAM`](ATLAS-ENGINEERING-PROGRAM.md) issued — Engineering owns WP-S0…S9; Atlas coordinates acceptance.  
+**Company posture (RES-011):** Primary objective is building TalkForge. Atlas Runtime Organization v1.0 is certified (RES-010). Atlas exists to help achieve TalkForge — not as the product. Future Atlas organizational changes require governance review.
+
 **Program Desk:** [`ATLAS-AIF-PROGRAM`](ATLAS-PROGRAM-DESK.md) — AIF-PROGRAM inside AIO-CORE owns register currency (not a sixth AIO).
 
 This file is **operational**, not Canonical law. It must stay accurate so succession does not require tribal memory.
@@ -80,27 +81,27 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 
 ---
 
-## 5. Open coordination threads
+## 5. Coordination threads
+
+### Closed / certified (Atlas org-building)
+
+| Thread | State |
+|---|---|
+| P6-EXEC WP-S0…S5 | **PASS** — evidence under `atlas/runtime/evidence/` |
+| Organizational Validation + ORR | **CERTIFIED** — RES-010 / ATLAS-ORR v1.0 |
+| Atlas Runtime Organization v1.0 | **CERTIFIED** — continued use within validated framework |
+| Atlas org redesign / new AIOs | **Closed unless governance review** — RES-011 |
+
+### Active (company)
 
 | Thread | Owners | State |
 |---|---|---|
-| AIO staff Engineering Program (S0–S9) | Atlas (coord) + Engineering (Cursor) | **ATLAS-ENG-PROGRAM Authoritative** — awaiting WP-S0 start; no production code in program doc |
-| Atlas Program Desk (AIF-PROGRAM) | AIO-CORE function | **ATLAS-AIF-PROGRAM Authoritative** — tracks WP/wave/VC/deps; WP-S0 must not create sixth AIO |
-| Organizational Validation (Stages 1–7) | Atlas + Engineering harnesses | Stage 1 PASS; Stages 2–5 PARTIAL via `atlas:staff:check`; Stage 6 PENDING; **not certified** |
-| Phase 6 Operationalization | Atlas + Engineering | **ATLAS-P6 / RES-009** — five AIO packs + staff pipeline live; ORR not issued |
-| Sprint 1 / WP-S0 Ownership Skeleton | Engineering | **PASS** — evidence `atlas/runtime/evidence/WP-S0-OWNERSHIP.md`; VC1 met |
-| P6-EXEC WP-S1 Office Capability | Engineering + Atlas | **PASS** — Founder-approved 2026-07-19 |
-| P6-EXEC WP-S2 Cross-Office Coordination | Engineering + Atlas | **PASS** — Founder-approved 2026-07-19 |
-| P6-EXEC WP-S3 Authority & Conflict | Engineering + Atlas | **PASS** — Founder-approved 2026-07-19 |
-| P6-EXEC WP-S4 Failure Injection | Engineering + Atlas | **PASS** — Founder-approved 2026-07-19 |
-| P6-EXEC WP-S5 Operational Stress | Engineering + Atlas | **PASS** — Founder-approved |
-| Atlas Runtime Organization v1.0 | Founder | **CERTIFIED** (RES-010 / ATLAS-ORR) — continued development within validated framework |
-| Company primary objective | Founder | **Building TalkForge** (RES-011) — Atlas serves that objective; not the product |
-| Atlas org changes | Founder | Require **governance review** before structural change |
-| `ATLAS_RUNTIME_FOUNDER_VISIBLE` | Founder | **Still off** — certification does not enable; separate Decision required |
+| **TalkForge product** | Founder + Engineering + Atlas (coord) | **PRIMARY** (RES-011) — await Founder direction on next product work |
+| Atlas Program Desk (AIF-PROGRAM) | AIO-CORE function | Live — tracks cadence; does not expand org structure |
+| `ATLAS_RUNTIME_FOUNDER_VISIBLE` | Founder | **Still off** — separate Decision required |
 | Loader freeze | Founder | **Still frozen** — separate Decision required |
-| Founder-visible gate evidence | Atlas Guard/Intel + Founder | Suite exists; operational observation continues |
-| Planned executive activation | Founder | Charters Authoritative; offices not yet appointed |
+| Founder-visible gate evidence | Atlas Guard/Intel + Founder | Suite exists; observation continues |
+| Planned EXEC-* activation | Founder | Charters Authoritative; appointments Founder-exclusive |
 
 *(Add rows as threads open. Close rows when Decision Record exists.)*
 
@@ -128,6 +129,9 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 
 | Priority | Source | Binding? |
 |---|---|---|
+| **Build TalkForge** (primary company objective) | RES-011 | Yes |
+| Atlas serves TalkForge; is not the product | RES-011 / CHARTER-ATLAS | Yes |
+| Atlas org changes require governance review | RES-011 / RES-010 | Yes |
 | Maintain ATOS Maintenance Mode | RES-002 / GOV-MAINT | Yes |
 | Atlas coordinates; does not become the org | ATLAS-P4 / P5 | Yes |
 | Keep FOUNDER_VISIBLE off until gate + Decision | ATLAS-D-FLAGS / GATE-FV | Yes |
@@ -141,9 +145,11 @@ Do **not** invent new binding priorities here. Propose via Decision Pack.
 
 | Cadence | Next Atlas action |
 |---|---|
+| Product | Coordinate TalkForge work per Founder direction — prefer product over Atlas org expansion |
 | Daily | Counsel → Guard → Core brief draft when Founder surface active |
 | Weekly | Broker intake + weekly pack when exec review runs |
 | Observation | Keep `atlas:runtime:observe` green; do not enable FOUNDER_VISIBLE unilaterally |
+| Org | Do not redesign Atlas staff/AIOs without governance review |
 
 ---
 
