@@ -100,6 +100,8 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 | Thread | Owners | State |
 |---|---|---|
 | **PPS-001 Product Proof Sprint** | Engineering + Atlas (coord) + Founder | **ACTIVE** — technical interview wedge; transfer proof |
+| **CE-001 Communication Engine** | Engineering + Atlas (coord) | **Design done** — implement CE-M1→ before other feature expansion |
+| **PCM-001** | Engineering | Draft contract — ingest from CE transcripts |
 | **FLA-001 conformance** | Product/Engineering/Atlas | Binding on coaches, sims, progress mechanics |
 | Atlas Program Desk (AIF-PROGRAM) | AIO-CORE function | Live — product execution tracking; no org expansion |
 | `ATLAS_RUNTIME_FOUNDER_VISIBLE` | Founder | **Still off** — not on PPS-001 critical path |

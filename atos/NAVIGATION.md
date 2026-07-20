@@ -126,6 +126,8 @@ See [`references/README.md`](references/README.md).
 | RES-012 | STRAT-001 Acceptance; FLA; PPS-001 | [resolutions/RES-012-strat-001-acceptance-product-proof.md](resolutions/RES-012-strat-001-acceptance-product-proof.md) |
 | FLA-001 | Forge Learning Architecture v1.0 (Product Canonical) | [product/FLA-001-forge-learning-architecture.md](product/FLA-001-forge-learning-architecture.md) |
 | PPS-001 | Product Proof Sprint 001 (Active) | [product/PPS-001-product-proof-sprint.md](product/PPS-001-product-proof-sprint.md) |
+| CE-001 | Communication Engine v1.0 (Voice Architecture) | [product/CE-001-communication-engine.md](product/CE-001-communication-engine.md) |
+| PCM-001 | Personal Communication Model (Contract) | [product/PCM-001-personal-communication-model.md](product/PCM-001-personal-communication-model.md) |
 | EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |
 | EXEC-ORG-DECISIONS | Org Decision Governance | [executives/atlas-program/ORG-DECISION-GOVERNANCE.md](executives/atlas-program/ORG-DECISION-GOVERNANCE.md) |
 | EXEC-ORG-CADENCE | Org Cadence | [executives/atlas-program/ORG-CADENCE.md](executives/atlas-program/ORG-CADENCE.md) |

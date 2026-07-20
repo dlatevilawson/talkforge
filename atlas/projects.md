@@ -74,16 +74,16 @@ Prove transfer on the V1 wedge — high-agency technical professionals × high-s
 ## Current Priorities
 
 Priority 1
-PPS-001 proof loop (event → practice → reality).
+CE-001 Communication Engine (voice) — CE-M1→ per checklist; block other feature expansion.
 
 Priority 2
-Coaching quality under FLA-001 evidence rules.
+PPS-001 proof loop (event → voice/text practice → reality).
 
 Priority 3
-Transfer instrumentation and reality-informed iteration.
+Coaching quality under FLA-001 evidence rules + PCM ingest.
 
 Priority 4
-Reliability of auth/persistence for returning practitioners.
+Transfer instrumentation and reality-informed iteration.
 
 ---
 

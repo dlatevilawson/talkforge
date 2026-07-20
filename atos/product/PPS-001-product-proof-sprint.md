@@ -12,7 +12,7 @@
 | **Dependencies** | RES-012, FLA-001, STRAT-001 |
 | **Related Documents** | atlas/projects.md, atlas/roadmap.md, CHARTER-PRODUCT |
 | **Approval History** | 2026-07-20 — Founder directed: strategic planning complete; execution is the bottleneck |
-| **Change Log** | 2026-07-20 — Sprint opened: prove measurable prep improvement + reality-informed coaching |
+| **Change Log** | 2026-07-20 — Sprint opened; CE-001 voice engine required before further feature expansion |
 
 ---
 
@@ -52,6 +52,7 @@ If a technical professional:
 
 | Workstream | Outcome |
 |---|---|
+| **CE-001 Communication Engine** | Voice architecture implemented per CE-001 checklist before expanding other features |
 | **Event-first entry** | User can start from an upcoming technical interview event (not a generic mission picker as the primary path) |
 | **Technical interview simulations** | At least one high-quality system-design or behavioral-tech interview path aligned to FLA competencies (engine-invisible) |
 | **Evidence-based coach** | Coach responses cite observed behaviors; pass coaching-contract checks |
