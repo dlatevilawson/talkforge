@@ -63,11 +63,11 @@ export default function PreparePage() {
       });
 
       const params = new URLSearchParams({
-        mission: "1",
-        event: forgeEvent.id,
         track: forgeEvent.track,
+        title: forgeEvent.title,
+        success: forgeEvent.successCriteria,
       });
-      router.push(`/interview?${params.toString()}`);
+      router.push(`/voice?${params.toString()}`);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Could not start preparation."
@@ -80,14 +80,14 @@ export default function PreparePage() {
     <AppShell>
       <section className="max-w-2xl">
         <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
-          Event-first · PPS-001
+          Seconds to practice
         </p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-          What interview are you preparing for?
+          What are you preparing for?
         </h1>
         <p className="mt-4 text-base leading-7 text-zinc-400">
-          Forge begins with the event. We prepare you to perform despite fear —
-          confidence comes from capability.
+          Name the moment, then begin with Forge. Optional — or go straight to
+          voice from the dashboard.
         </p>
       </section>
 
@@ -181,9 +181,9 @@ export default function PreparePage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-full bg-blue-500 px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-400 disabled:opacity-60"
+          className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-zinc-200 disabled:opacity-60"
         >
-          {saving ? "Starting…" : "Start deliberate practice"}
+          {saving ? "Starting…" : "Begin with Forge"}
         </button>
       </form>
     </AppShell>

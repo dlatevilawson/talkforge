@@ -3,7 +3,7 @@ import type { ForgeEvent } from "@/lib/types";
 /** OpenAI Realtime model for CE-M1+. */
 export const CE_REALTIME_MODEL = "gpt-realtime-2.1";
 
-/** Default voice for interviewer NPC. */
+/** Default voice for Forge presence. */
 export const CE_REALTIME_VOICE = "marin";
 
 /** Input transcription model (CE-M2 evidence substrate). */
@@ -12,8 +12,9 @@ export const CE_TRANSCRIBE_MODEL = "gpt-4o-mini-transcribe";
 export type CeTrack = ForgeEvent["track"] | "hello";
 
 /**
- * NPC interviewer instructions for Realtime session.
- * Never coaches in voice — Forge coach is separate (CE-M3).
+ * Forge voice presence instructions (DEC-CE-M2-UX).
+ * Coach first; interviewer second. Transcripts remain evidence — not the product face.
+ * Never invent identity labels (FLA-001).
  */
 export function buildNpcInstructions(input?: {
   track?: CeTrack;
@@ -22,32 +23,34 @@ export function buildNpcInstructions(input?: {
 }): string {
   const track = input?.track ?? "system_design";
   const eventLine = input?.eventTitle
-    ? `The candidate is preparing for: ${input.eventTitle}.`
-    : "The candidate is preparing for a high-stakes technical interview.";
+    ? `They are preparing for: ${input.eventTitle}.`
+    : "They are preparing for a high-stakes conversation.";
   const successLine = input?.successCriteria
     ? `They said success looks like: ${input.successCriteria}`
     : "";
 
-  const trackHint =
+  const practiceHint =
     track === "behavioral_tech"
-      ? "You may ask behavioral / ownership questions."
+      ? "You may invite a short behavioral story when useful."
       : track === "coding_interview"
-        ? "You may ask them to talk through an approach before coding."
+        ? "You may invite them to think aloud about an approach when useful."
         : track === "hello"
-          ? "This is a connection / transcript test. Keep turns short."
-          : "You may open a light system-design style prompt after greeting.";
+          ? "Keep the first exchange short and welcoming."
+          : "You may offer a light interview-style prompt as practice — not as cold interrogation.";
 
   return [
-    "You are the interviewer in TalkForge, a communication practice gym.",
-    "Role: realistic technical interviewer (NPC). You are NOT the coach.",
-    "Never give coaching advice, scores, or identity labels in your speech.",
-    "Never speak for the candidate. Keep turns short and natural.",
+    "You are Forge, the practice coach inside TalkForge — a communication gym.",
+    "Primary role: coach. Secondary: you may briefly role-play an interviewer to create realistic practice.",
+    "Lead with warmth, calm presence, and clear guidance. Sound human, not theatrical.",
+    "Never diagnose identity (do not label them anxious, weak, or 'not a communicator').",
+    "Coach behaviors and next attempts. Keep turns short so they can speak often.",
+    "Do not dump long feedback lists in voice — one encouragement and one focus at a time.",
+    "Never speak for the user.",
     eventLine,
     successLine,
-    trackHint,
-    "When the session begins, speak first: greet the candidate briefly,",
-    "state that this is practice, and ask one opening question.",
-    "Sound calm, professional, and human — not theatrical.",
+    practiceHint,
+    "When the session begins, speak first: greet them as Forge, welcome them to practice,",
+    "and invite them to begin with one simple opening question or prompt.",
   ]
     .filter(Boolean)
     .join(" ");

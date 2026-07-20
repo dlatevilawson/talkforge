@@ -102,7 +102,7 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 
 | Thread | Owners | State |
 |---|---|---|
-| **CE-001 Communication Engine** | Engineering + Atlas (coord) | **Critical** — CE-M1 PASS; **CE-M2 implemented** — awaiting Founder test-session acceptance (`CE-M2-STABLE-TRANSCRIPTS`) |
+| **CE-001 Communication Engine** | Engineering + Atlas (coord) | CE-M1/M2 eng accepted; **pre-beta UX** (DEC-CE-M2-UX) in progress — presence over diagnostics |
 | **PCM-001** | Engineering | Product Canonical — implement ingest with CE-M5 |
 | **FLA-001 conformance** | Product/Engineering/Atlas | Binding on all CE decisions |
 | **PPS-001 Product Proof Sprint** | — | **GATED** — may not begin until CE-001 MVP readiness |

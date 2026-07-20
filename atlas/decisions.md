@@ -215,6 +215,20 @@ Approved (RES-013)
 
 ---
 
+# Decision 015
+
+Title:
+CE-M2 Accepted (Engineering); pre-beta UX priorities binding.
+
+Reason:
+
+Transcript engineering accepted. UX Review 5/10. Before beta: hide diagnostics; presence over transcripts; coach-first Forge; seconds-to-session onboarding; conversation as visual center (DEC-CE-M2-UX).
+
+Status:
+Approved
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

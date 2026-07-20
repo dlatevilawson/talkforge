@@ -6,9 +6,10 @@
 | **Milestone** | CE-M2 |
 | **Directive** | DIR-CE-001 / RES-013 |
 | **Prerequisite** | CE-M1 APPROVED |
-| **Status** | Implemented — **Founder test sessions required for acceptance** |
+| **Status** | **✅ Accepted (Engineering)** — UX Review 5/10 (see DEC-CE-M2-UX) |
 | **Date** | 2026-07-20 |
-| **CE-M3** | **Not started** |
+| **CE-M3** | Unblocked for engineering after UX presence pass starts |
+| **Founder Decision** | [DEC-CE-M2-UX-PRIORITIES.md](../DEC-CE-M2-UX-PRIORITIES.md) |
 
 ---
 
@@ -113,4 +114,6 @@ Validation source: **Founder test sessions only** (per directive).
 
 ## Gate
 
-CE-M3 must not begin until Founder signs CE-M2 acceptance above.
+**CE-M2 engineering: Accepted.**  
+Pre-beta UX priorities (DEC-CE-M2-UX) are the highest-priority product work before beta.  
+CE-M3 must not restore diagnostic chrome to the primary interface.

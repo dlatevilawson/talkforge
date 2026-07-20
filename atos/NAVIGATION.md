@@ -128,7 +128,7 @@ See [`references/README.md`](references/README.md).
 | PPS-001 | Product Proof Sprint 001 (**Gated** on CE-001 MVP) | [product/PPS-001-product-proof-sprint.md](product/PPS-001-product-proof-sprint.md) |
 | DIR-CE-001 | Founder Directive — CE-001 Critical / Approved for Execution | [product/DIR-CE-001-founder-directive.md](product/DIR-CE-001-founder-directive.md) |
 | RES-013 | CE-001 Approved; PPS-001 Gated | [resolutions/RES-013-ce-001-approved-for-execution.md](resolutions/RES-013-ce-001-approved-for-execution.md) |
-| CE-001 | Communication Engine v1.0 (Approved for Execution) | [product/CE-001-communication-engine.md](product/CE-001-communication-engine.md) |
+| DEC-CE-M2-UX | CE-M2 Accepted (Eng) + pre-beta UX priorities | [product/DEC-CE-M2-UX-PRIORITIES.md](product/DEC-CE-M2-UX-PRIORITIES.md) |
 | PCM-001 | Personal Communication Model (Product Canonical) | [product/PCM-001-personal-communication-model.md](product/PCM-001-personal-communication-model.md) |
 | EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |
 | EXEC-ORG-DECISIONS | Org Decision Governance | [executives/atlas-program/ORG-DECISION-GOVERNANCE.md](executives/atlas-program/ORG-DECISION-GOVERNANCE.md) |

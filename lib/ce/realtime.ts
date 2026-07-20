@@ -163,7 +163,7 @@ function createSilentAudioStream(): MediaStream {
   return stream;
 }
 
-/** Ask the model to produce the opening interviewer turn (Forge speaks first). */
+/** Ask Forge to open with coach-first presence (DEC-CE-M2-UX). */
 export function requestOpeningSpeech(dc: RTCDataChannel): void {
   if (dc.readyState !== "open") {
     throw new Error("Data channel not open — cannot request opening speech.");
@@ -175,7 +175,7 @@ export function requestOpeningSpeech(dc: RTCDataChannel): void {
       response: {
         output_modalities: ["audio"],
         instructions:
-          "Speak now as the interviewer. Greet the candidate briefly, say this is practice, and ask one short opening question. Do not coach.",
+          "Speak now as Forge the coach. Greet them warmly, say you're here to practice with them, and ask one short opening question. Coach first — not a cold interviewer. Do not give a long lecture.",
       },
     })
   );
