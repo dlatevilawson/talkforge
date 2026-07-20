@@ -25,7 +25,7 @@ Governing docs:
 - PCM-001
 
 Milestones:
-CE-M1 → CE-M8 (sequential)
+CE-M1 **PASS** (Realtime Hello) → CE-M2 blocked until Founder accepts M1 → CE-M3…M8
 
 ---
 

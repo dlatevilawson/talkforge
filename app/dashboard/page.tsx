@@ -136,8 +136,14 @@ export default function DashboardPage() {
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
-            href="/prepare"
+            href="/voice"
             className="rounded-full bg-blue-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-400"
+          >
+            CE-M1 Voice Hello
+          </Link>
+          <Link
+            href="/prepare"
+            className="rounded-full border border-white/15 px-5 py-3 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
           >
             Prepare for an interview
           </Link>
