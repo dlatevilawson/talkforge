@@ -12,7 +12,7 @@
 | **Dependencies** | ATLAS-SUCCESSION, ATLAS-P4, ATLAS-P5, CHARTER-ATLAS |
 | **Related Documents** | ATLAS-GATE-FV, ATLAS-D-FLAGS, REG-EXEC |
 | **Approval History** | 2026-07-19 — Initial register for succession continuity |
-| **Change Log** | 2026-07-20 — RES-013: CE-001 Critical Approved for Execution; PPS-001 gated |
+| **Change Log** | 2026-07-20 — MR-001 Mission Review counsel; RES-013 CE Critical / PPS gated |
 
 ---
 
@@ -22,7 +22,8 @@
 |---|---|
 | **Last updated** | 2026-07-20 |
 | **Updated by** | Atlas |
-| **Standing priority** | **CE-001 Communication Engine** (DIR-CE-001 / RES-013) — Critical; PPS-001 gated |
+| **Standing priority** | **CE-001 Communication Engine** (DIR-CE-001 / RES-013) — Critical; pre-beta UX presence/trust (DEC-CE-M2-UX); PPS-001 gated |
+| **Mission review** | [MR-001](../../product/MR-001-mission-review-strategic-reinforcement.md) — Working counsel; Identity unchanged; reinforce, do not redesign |
 | **Staleness rule** | If older than 7 days or last Weekly Review, successor must refresh before counsel |
 
 **Company posture (RES-013):** Immediate engineering priority is **CE-001** (Approved for Execution). **PPS-001 may not begin** until CE-001 MVP readiness. FLA-001 + PCM-001 Product Canonical. Atlas org frozen. North Star remains transfer (for PPS after gate).
@@ -144,7 +145,9 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 | Priority | Source | Binding? |
 |---|---|---|
 | **Execute CE-001** (Critical — Approved for Execution) | DIR-CE-001 / RES-013 | Yes |
+| **Pre-beta presence/trust UX** (do not restore diagnostic chrome) | DEC-CE-M2-UX | Yes |
 | **PPS-001 gated** until CE-001 MVP readiness | RES-013 | Yes |
+| Mission Review counsel: reinforce foundation; no competing frameworks | MR-001 | Counsel (not binding law) |
 | PCM-001 = canonical user growth model | RES-013 | Yes |
 | North Star = transfer (for PPS after gate) | RES-012 / FLA-001 | Yes |
 | FLA-001 governs coaching & learning | RES-012 | Yes |
