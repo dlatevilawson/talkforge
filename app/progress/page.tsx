@@ -10,7 +10,14 @@ import {
   listReflections,
   listSessions,
 } from "@/lib/storage";
-import type { PracticeSession, ProgressSummary, Reflection } from "@/lib/types";
+import { getTransferSummary, listRealityCaptures } from "@/lib/transfer";
+import type {
+  PracticeSession,
+  ProgressSummary,
+  RealityCapture,
+  Reflection,
+  TransferSummary,
+} from "@/lib/types";
 
 export default function ProgressPage() {
   const [progress, setProgress] = useState<ProgressSummary>({
@@ -19,8 +26,15 @@ export default function ProgressPage() {
     lastSessionAt: null,
     lastScenarioTitle: null,
   });
+  const [transfer, setTransfer] = useState<TransferSummary>({
+    eventsNamed: 0,
+    sessionsLinkedToEvents: 0,
+    realityCaptures: 0,
+    conversationsAttempted: 0,
+  });
   const [sessions, setSessions] = useState<PracticeSession[]>([]);
   const [reflections, setReflections] = useState<Reflection[]>([]);
+  const [realities, setRealities] = useState<RealityCapture[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -35,11 +49,15 @@ export default function ProgressPage() {
           ? (await listSessions(user.id)).filter((session) => session.completedAt)
           : [];
         const allReflections = user ? await listReflections(user.id) : [];
+        const transferSummary = getTransferSummary(user?.id);
+        const allRealities = listRealityCaptures(user?.id);
 
         if (cancelled) return;
         setProgress(summary);
         setSessions(allSessions);
         setReflections(allReflections);
+        setTransfer(transferSummary);
+        setRealities(allRealities);
       } catch (err) {
         if (!cancelled) {
           setError(
@@ -68,10 +86,37 @@ export default function ProgressPage() {
         </p>
         <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">Your results</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">
-          Measure outcomes, not activity. Sessions completed and coaching quality
-          matter more than time spent.
+          North Star is transfer. Events named, reality captures, and real
+          conversation attempts outrank time in the app.
         </p>
       </section>
+
+      {!loading && (
+        <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <p className="text-sm text-zinc-500">Events named</p>
+            <p className="mt-2 text-3xl font-semibold">{transfer.eventsNamed}</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <p className="text-sm text-zinc-500">Event-linked sessions</p>
+            <p className="mt-2 text-3xl font-semibold">
+              {transfer.sessionsLinkedToEvents}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <p className="text-sm text-zinc-500">Reality captures</p>
+            <p className="mt-2 text-3xl font-semibold">
+              {transfer.realityCaptures}
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+            <p className="text-sm text-zinc-500">Real attempts</p>
+            <p className="mt-2 text-3xl font-semibold">
+              {transfer.conversationsAttempted}
+            </p>
+          </div>
+        </section>
+      )}
 
       {error && (
         <p className="mt-4 text-sm text-red-300" role="alert">
@@ -106,10 +151,10 @@ export default function ProgressPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-xl font-semibold">Completed sessions</h2>
               <Link
-                href="/training"
+                href="/prepare"
                 className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-200 hover:bg-white/10"
               >
-                Practice again
+                Prepare for an interview
               </Link>
             </div>
 
@@ -122,6 +167,9 @@ export default function ProgressPage() {
               <ul className="mt-4 space-y-3">
                 {sessions.map((session) => {
                   const reflection = reflections.find(
+                    (item) => item.sessionId === session.id
+                  );
+                  const reality = realities.find(
                     (item) => item.sessionId === session.id
                   );
                   return (
@@ -146,6 +194,21 @@ export default function ProgressPage() {
                         <p className="mt-3 text-sm leading-6 text-zinc-400">
                           Next focus: {reflection.improveNext}
                         </p>
+                      )}
+                      {reality ? (
+                        <p className="mt-2 text-sm text-emerald-300/90">
+                          Reality: {reality.status}
+                          {reality.outcomeSignal !== "na"
+                            ? ` · ${reality.outcomeSignal}`
+                            : ""}
+                        </p>
+                      ) : (
+                        <Link
+                          href={`/reality/${session.id}`}
+                          className="mt-3 inline-block text-sm text-blue-300 hover:text-blue-200"
+                        >
+                          Capture reality →
+                        </Link>
                       )}
                     </li>
                   );

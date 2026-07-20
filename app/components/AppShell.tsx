@@ -7,6 +7,7 @@ import { getUser } from "@/lib/storage";
 
 const links = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/prepare", label: "Prepare" },
   { href: "/training", label: "Practice" },
   { href: "/progress", label: "Progress" },
   { href: "/profile", label: "Profile" },

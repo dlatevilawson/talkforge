@@ -40,10 +40,10 @@ export default function Home() {
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href="/auth"
+            href="/prepare"
             className="rounded-full bg-white px-8 py-4 font-semibold text-black transition hover:bg-gray-200"
           >
-            Start Forging
+            Prepare for an Interview
           </Link>
           <Link
             href="/dashboard"

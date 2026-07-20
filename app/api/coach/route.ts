@@ -22,6 +22,15 @@ type Scenario = {
   missionPrompt?: string;
 };
 
+type EventContext = {
+  title?: string;
+  whenLabel?: string;
+  audience?: string;
+  successCriteria?: string;
+  track?: string;
+  companyContext?: string;
+};
+
 function parseCoachOutput(raw: string): { npc: string; forge: unknown } {
   const cleaned = raw
     .trim()
@@ -76,6 +85,8 @@ export async function POST(req: Request) {
       : [];
     const scenario: Scenario =
       body.scenario && typeof body.scenario === "object" ? body.scenario : {};
+    const event: EventContext =
+      body.event && typeof body.event === "object" ? body.event : {};
 
     if (!message) {
       return NextResponse.json(
@@ -87,7 +98,7 @@ export async function POST(req: Request) {
     const client = getClient();
     if (!client) {
       return NextResponse.json(
-        buildMockCoachResponse(message, history, scenario)
+        buildMockCoachResponse(message, history, scenario, event)
       );
     }
 
@@ -97,38 +108,62 @@ Mission: ${scenario.mission ?? "Practice deliberate communication."}
 Mission prompt: ${scenario.missionPrompt ?? "Continue the conversation."}
 `;
 
+    const eventBlock =
+      event.title || event.successCriteria
+        ? `
+Target real-world event (PRIMARY — coach toward this):
+- Event: ${event.title ?? "Upcoming technical interview"}
+- When: ${event.whenLabel ?? "soon"}
+- Audience: ${event.audience ?? "interviewers"}
+- Track: ${event.track ?? "technical_interview"}
+- User success criteria: ${event.successCriteria ?? "Clear, structured performance"}
+- Context: ${event.companyContext ?? "(none)"}
+`
+        : `
+Target: Improve communication performance that transfers outside the app.
+`;
+
     const completion = await client.responses.create({
       model: "gpt-5",
       input: `
-You are Forge, the AI coach inside TalkForge.
+You are Forge, the AI coach inside TalkForge (Forge Learning Architecture).
 
-The user is practicing this communication scenario:
+TalkForge is a Performance Laboratory: prepare people to perform despite fear.
+Confidence is a byproduct of capability. Coach behaviors — never identity labels.
+
+The user is practicing this scenario:
 ${scenarioBlock}
+${eventBlock}
 
 Your job is to return TWO things:
 
-1. The next thing the OTHER PERSON says.
+1. The next thing the OTHER PERSON (interviewer / counterpart) says.
 2. Forge's structured coaching on the user's latest message.
 
 Conversation rules (do not change the flow):
 
 - Stay inside the scenario above.
 - Continue the conversation naturally from the prior turns.
-- The other person should sound realistic.
+- The other person should sound realistic for a technical interview when applicable.
 - Never restart the scenario.
 - Never repeat the mission prompt.
 - Never answer for the user.
 - Never put coaching advice inside "npc".
 
-Coaching rules:
+Coaching rules (FLA-001 — mandatory):
 
-- Focus on helping the user become a better communicator, not just a better conversationalist.
-- Keep feedback concise, practical, and encouraging.
+- Every claim must cite observed behavior from the user's turns (evidence).
+- Never diagnose identity ("you are anxious", "you lack confidence as a person").
+- Coach behaviors and patterns across turns when possible.
+- Keep feedback concise, practical, and encouraging toward the target event.
 - Score each dimension from 1–100 based on the user's latest message.
-- "doneWell" = one specific strength in their message.
-- "improve" = one concrete, actionable improvement.
-- "rewrite" = a short rewritten version of their message that demonstrates that improvement. Keep their intent; do not invent a new conversation turn.
+- "doneWell" = one specific strength with behavioral citation.
+- "improve" = one concrete, actionable behavioral improvement.
+- "whyItMatters" = why that improvement helps the real event / outside performance.
+- "evidence" = short quote or turn reference from what the user actually said.
+- "rewrite" = a short rewritten version of their message that demonstrates the improvement. Keep their intent; do not invent a new conversation turn.
 - Do not ask a follow-up question in the coaching. The rewrite is the demonstration.
+- Optimize for transfer: better performance in the real conversation, not time in the app.
 
 Return ONLY valid JSON with this exact shape:
 
@@ -138,11 +173,13 @@ Return ONLY valid JSON with this exact shape:
     "score": 72,
     "clarity": 70,
     "confidence": 68,
-    "warmth": 75,
-    "curiosity": 80,
-    "doneWell": "You opened with a genuine question instead of a generic compliment.",
-    "improve": "Add one short personal detail so the exchange feels mutual, not interview-like.",
-    "rewrite": "This place has such a great vibe — I come here to reset after long weeks. What usually brings you in?"
+    "warmth": 60,
+    "curiosity": 75,
+    "doneWell": "In this turn you clarified the goal before proposing a design.",
+    "improve": "State one explicit tradeoff (latency vs cost) before expanding the design.",
+    "whyItMatters": "Interviewers probe tradeoffs; naming them early shows structured thinking under pressure.",
+    "evidence": "You said: \\"I'll just use Redis\\" without naming what problem Redis solves here.",
+    "rewrite": "I'll start with requirements: we need low latency reads at 100M users. One option is Redis for hot keys — tradeoff is cost and consistency. Want me to walk that path?"
   }
 }
 

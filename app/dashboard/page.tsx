@@ -6,7 +6,13 @@ import AppShell from "@/app/components/AppShell";
 import MissionPicker from "@/app/components/MissionPicker";
 import PersistenceStatus from "@/app/components/PersistenceStatus";
 import { getProgressSummary, getUser, listSessions } from "@/lib/storage";
-import type { PracticeSession, ProgressSummary, TalkForgeUser } from "@/lib/types";
+import { getTransferSummary } from "@/lib/transfer";
+import type {
+  PracticeSession,
+  ProgressSummary,
+  TalkForgeUser,
+  TransferSummary,
+} from "@/lib/types";
 
 function formatDate(value: string | null): string {
   if (!value) return "No sessions yet";
@@ -27,6 +33,12 @@ export default function DashboardPage() {
     lastScenarioTitle: null,
   });
   const [recent, setRecent] = useState<PracticeSession[]>([]);
+  const [transfer, setTransfer] = useState<TransferSummary>({
+    eventsNamed: 0,
+    sessionsLinkedToEvents: 0,
+    realityCaptures: 0,
+    conversationsAttempted: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -42,11 +54,13 @@ export default function DashboardPage() {
               (session) => session.completedAt
             )
           : [];
+        const transferSummary = getTransferSummary(currentUser?.id);
 
         if (cancelled) return;
         setUser(currentUser);
         setProgress(summary);
         setRecent(sessions.slice(0, 3));
+        setTransfer(transferSummary);
       } catch (err) {
         if (!cancelled) {
           setError(
@@ -77,8 +91,8 @@ export default function DashboardPage() {
           Welcome back{user ? `, ${user.displayName}` : ""}
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">
-          Practice, get coaching, reflect, and track progress. Success is
-          measured by conversations outside the app.
+          V1 wedge: technical interview prep. North Star is transfer — better
+          performance in the real conversation, not time in Forge.
         </p>
 
         {error && (
@@ -90,26 +104,31 @@ export default function DashboardPage() {
         {loading ? (
           <p className="mt-8 text-sm text-zinc-500">Loading stats from Supabase…</p>
         ) : (
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-              <p className="text-sm text-zinc-500">Sessions completed</p>
+              <p className="text-sm text-zinc-500">Events named</p>
+              <p className="mt-2 text-3xl font-semibold">{transfer.eventsNamed}</p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+              <p className="text-sm text-zinc-500">Reality captures</p>
+              <p className="mt-2 text-3xl font-semibold">
+                {transfer.realityCaptures}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+              <p className="text-sm text-zinc-500">Real attempts</p>
+              <p className="mt-2 text-3xl font-semibold">
+                {transfer.conversationsAttempted}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+              <p className="text-sm text-zinc-500">Sessions · avg score</p>
               <p className="mt-2 text-3xl font-semibold">
                 {progress.sessionsCompleted}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-              <p className="text-sm text-zinc-500">Average score</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {progress.averageScore}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-              <p className="text-sm text-zinc-500">Last session</p>
-              <p className="mt-2 text-lg font-medium">
-                {progress.lastScenarioTitle ?? "None yet"}
-              </p>
-              <p className="mt-1 text-sm text-zinc-500">
-                {formatDate(progress.lastSessionAt)}
+                <span className="text-lg text-zinc-400">
+                  {" "}
+                  · {progress.averageScore}
+                </span>
               </p>
             </div>
           </div>
@@ -117,10 +136,10 @@ export default function DashboardPage() {
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
-            href="/training"
+            href="/prepare"
             className="rounded-full bg-blue-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-400"
           >
-            Start practicing
+            Prepare for an interview
           </Link>
           <Link
             href="/progress"
