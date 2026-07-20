@@ -1,40 +1,59 @@
 # TALKFORGE PROJECTS
-Version 1.2
+Version 1.3
 
 ---
 
 # Active Projects
 
 ## Project
-Product Proof Sprint 001 (PPS-001)
+CE-001 Communication Engine v1.0
 
 Status:
-🟢 Active — Critical
+🟢 **Critical — Approved for Execution** (DIR-CE-001 / RES-013)
 
 Purpose:
-Demonstrate that Forge measurably improves preparation for a real high-stakes technical interview, and use real-world outcomes to strengthen future coaching.
+Foundational voice interaction layer. Natural voice practice with finalized transcripts, FLA coaching evidence, and PCM updates.
 
 Priority:
-Critical
+**Critical — immediate engineering priority**
 
 Governing docs:
-- RES-012
+- DIR-CE-001
+- RES-013
+- CE-001
 - FLA-001
-- PPS-001
+- PCM-001
+
+Milestones:
+CE-M1 → CE-M8 (sequential)
 
 ---
 
 ## Project
-TalkForge MVP (wedge-aligned)
+Product Proof Sprint 001 (PPS-001)
 
 Status:
-🟢 In Progress — under PPS-001
+🟡 **Gated** — may not begin until CE-001 MVP readiness (RES-013)
 
 Purpose:
-Ship the Event → Practice → Coach → Reflect → Reality capture loop for technical interview prep.
+Prove transfer on the technical-interview wedge using the voice communication engine.
 
 Priority:
-Critical
+Primary proof objective — **blocked on CE-001 MVP**
+
+---
+
+## Project
+TalkForge MVP scaffolding (event / text / reality)
+
+Status:
+⚪ Infrastructure only (not PPS execution)
+
+Purpose:
+Prior event-first prepare, text coach, and reality capture remain available as scaffolding. Do not treat as Product Proof start.
+
+Priority:
+Support CE-001; no feature expansion ahead of CE
 
 ---
 
@@ -42,10 +61,10 @@ Critical
 Atlas Runtime Organization / Founder OS
 
 Status:
-⚪ Maintenance only (RES-011 / RES-012)
+⚪ Maintenance only (RES-011 / RES-012 / RES-013)
 
 Purpose:
-Certified infrastructure (v1.0). Not the primary project. Changes only when product execution reveals architectural need; org structure frozen pending governance review.
+Certified frozen infrastructure. Not the primary project.
 
 Priority:
 Maintenance
@@ -54,96 +73,59 @@ Maintenance
 
 ## Current Objectives
 
-- Execute PPS-001
-- Event-first technical interview path
-- Evidence-based coaching (FLA-001)
-- Reality capture + transfer instrumentation
-- Mastery mechanics only if transfer-justified
+- Bind CE-001 as Critical (done — RES-013)
+- Execute CE-M1 Realtime session establishment
+- Complete CE-M1…CE-M5 for MVP readiness gate
+- Only then open PPS-001
 
 ---
 
 ## Current Sprint
 
-Product Proof Sprint 001
+**CE-001 execution** (not PPS-001)
 
 Goal:
-Prove transfer on the V1 wedge — high-agency technical professionals × high-stakes technical interviews.
+User presses Start → Forge speaks → transcripts → FLA coaching → PCM updates → personalized next session.
 
 ---
 
 ## Current Priorities
 
 Priority 1
-CE-001 Communication Engine (voice) — CE-M1→ per checklist; block other feature expansion.
+**CE-001** under DIR-CE-001 (CE-M1→ sequential).
 
 Priority 2
-PPS-001 proof loop (event → voice/text practice → reality).
+Declare CE-001 MVP readiness → ungate PPS-001.
 
 Priority 3
-Coaching quality under FLA-001 evidence rules + PCM ingest.
+PPS-001 voice product proof (after gate).
 
 Priority 4
-Transfer instrumentation and reality-informed iteration.
+Atlas maintenance only if product reveals need.
 
 ---
 
 ## Completed
 
-- Atlas Engine
-- Founder Dashboard (chat)
-- OpenAI Integration
-- Forge Coach v1
-- Mission Screen
-- Start Mission Flow
-- Supabase persistence for profiles, sessions, and reflections
-- Atlas Founder OS dashboard v1
-- Atlas Phase 3 executive dashboard (mission control, health, metrics, notes, daily brief)
 - Atlas Runtime Organization v1.0 certified (RES-010)
 - STRAT-001 Accepted with Amendments (RES-012)
 - FLA-001 Product Canonical
+- CE-001 design + DIR-CE-001 / RES-013 authorization
+- PCM-001 Product Canonical
+- Event/text/reality scaffolding (pre-voice)
 
 ---
 
 ## Known Issues
 
-- Supabase authentication not yet connected (guest session pointer still in use)
-- UI polish ongoing
-- Generic mission picker not yet event-first for wedge
-- Reality capture loop not yet instrumented as North Star
-- GitHub activity depends on public API rate limits unless GITHUB_TOKEN is set
-
----
-
-## Long-Term Projects
-
-Voice Conversations
-
-Adaptive Conversation Practice
-
-Context-Aware Coaching
-
-Long-Term Learning / competency compounding
-
-Executive & life conversations (post-wedge)
-
-Community Platform
-
-Communication Certification
-
-Enterprise Platform
+- Voice Communication Engine not yet implemented (authorized; engineering next)
+- PPS-001 gated
+- Supabase auth guest path still in use
 
 ---
 
 ## Success Metrics
 
-North Star: transfer — better real-world conversation performance.
+CE-001 exit (DIR-CE-001): voice session → natural Forge response → transcripts → evidence coaching → PCM update → next session more personalized.
 
-Users name a real event and practice for it.
-
-Users complete reality capture after meaningful conversations.
-
-Coaching changes because of reality evidence.
-
-Mission remains aligned.
-
-Founder always knows the next move.
+North Star (after PPS opens): transfer — better real-world conversation performance.

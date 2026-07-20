@@ -187,6 +187,34 @@ Approved (RES-012)
 
 ---
 
+# Decision 013
+
+Title:
+CE-001 Communication Engine — Critical, Approved for Execution.
+
+Reason:
+
+Voice is the foundational interaction layer. Product Proof cannot begin without it. DIR-CE-001 / RES-013 bind CE-M1→ as immediate engineering priority; PPS-001 gated on CE-001 MVP readiness.
+
+Status:
+Approved (RES-013)
+
+---
+
+# Decision 014
+
+Title:
+PCM-001 is the canonical representation of user growth.
+
+Reason:
+
+Founder Directive: Personal Communication Model is Product Canonical for observed behavioral growth feeding coaching and next-session personalization.
+
+Status:
+Approved (RES-013)
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

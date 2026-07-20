@@ -4,17 +4,17 @@
 |---|---|
 | **Document ID** | CE-001 |
 | **Version** | 1.0.0 |
-| **Status** | Authoritative (Product Design) — ready for implementation |
+| **Status** | **Approved for Execution** (Critical) — RES-013 / DIR-CE-001 |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | Per milestone close / PPS-001 evidence |
-| **Dependencies** | FLA-001, PPS-001, RES-012, PCM-001 |
-| **Related Documents** | `app/api/coach/route.ts`, `lib/transfer.ts`, `app/prepare/page.tsx` |
-| **Approval History** | 2026-07-20 — Founder directed: implement CE-001 before expanding other product features |
-| **Change Log** | 2026-07-20 — v1.0.0 voice architecture, flows, plan, UI, PCM data flow, milestones, risks, checklist |
+| **Review Cycle** | Per milestone close / DIR-CE-001 exit |
+| **Dependencies** | FLA-001, DIR-CE-001, RES-013, PCM-001, RES-012 |
+| **Related Documents** | PPS-001 (gated), `app/api/coach/route.ts`, `lib/transfer.ts`, `app/prepare/page.tsx` |
+| **Approval History** | 2026-07-20 — Design issued; 2026-07-20 — Founder Approved for Execution (RES-013) |
+| **Change Log** | 2026-07-20 — Bound Critical priority; PPS-001 gated on CE MVP |
 
-> **Authority:** Product design for TalkForge voice practice. Built **on** ATOS. **No** Atlas Organization changes. **No** constitutional amendments. Loader freeze / `FOUNDER_VISIBLE` untouched. Every decision must comply with **FLA-001**.
+> **Authority:** Founder-authorized engineering of TalkForge’s foundational voice interaction layer. Built **on** ATOS. **No** Atlas Organization changes. **No** constitutional amendments. Loader freeze / `FOUNDER_VISIBLE` untouched. Every decision must comply with **FLA-001**. Binding directive: [`DIR-CE-001-founder-directive.md`](DIR-CE-001-founder-directive.md).
 
 ---
 
@@ -519,17 +519,19 @@ Use this as the engineering backlog. Check items in order.
 
 ---
 
-## 9. Relationship to PPS-001
+## 9. Relationship to PPS-001 (RES-013)
 
-CE-001 is a **blocking capability** inside Product Proof Sprint 001 for voice-realistic preparation. It does not replace transfer proof — it makes the practice modality match real interviews.
+Per **DIR-CE-001 / RES-013**: Product Proof Sprint 001 **may not begin** until CE-001 reaches **MVP readiness**.
 
-| PPS workstream | CE-001 contribution |
+CE-001 is not a workstream inside an active PPS — it is the **prerequisite**. PPS-001 status is **Gated** until that gate opens.
+
+| After CE MVP | CE-001 contribution to PPS |
 |---|---|
 | Event-first entry | Voice requires event |
 | Technical interview sims | NPC voice interviewer |
 | Evidence-based coach | Transcript-grounded FLA coach |
-| Reality capture | Unchanged; feeds PCM |
-| Transfer instrumentation | Modality + funnel |
+| Reality capture | Feeds PCM |
+| Transfer instrumentation | Voice modality + funnel |
 
 ---
 
@@ -542,4 +544,4 @@ CE-001 is a **blocking capability** inside Product Proof Sprint 001 for voice-re
 
 | Field | Value |
 |---|---|
-| **Status Upon Signature** | Authoritative (Product Design) — implement per §8 checklist |
+| **Status Upon Signature** | Approved for Execution (Critical) — implement per §8 checklist under DIR-CE-001 |

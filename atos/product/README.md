@@ -1,25 +1,28 @@
-# TalkForge Product Doctrine & Proof
+# TalkForge Product Doctrine & Execution
 
 | Field | Value |
 |---|---|
 | **Document ID** | PRODUCT-README |
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Dependencies** | RES-012 |
-| **Approval History** | 2026-07-20 — Product layer opened under RES-012 |
+| **Dependencies** | RES-012, RES-013 |
+| **Approval History** | 2026-07-20 — Product layer opened; 2026-07-20 — CE-001 Critical (RES-013) |
 
 Product doctrine built **on** ATOS (not inside constitutional Specs).
 
-| ID | Document | Role |
-|---|---|---|
-| FLA-001 | [FLA-001-forge-learning-architecture.md](FLA-001-forge-learning-architecture.md) | Product Canonical — learning & coaching architecture |
-| CE-001 | [CE-001-communication-engine.md](CE-001-communication-engine.md) | Communication Engine v1.0 — voice architecture (implement next) |
-| PCM-001 | [PCM-001-personal-communication-model.md](PCM-001-personal-communication-model.md) | Personal Communication Model — transcript → model contract |
-| PPS-001 | [PPS-001-product-proof-sprint.md](PPS-001-product-proof-sprint.md) | Active Product Proof Sprint |
-| RES-012 | [../resolutions/RES-012-strat-001-acceptance-product-proof.md](../resolutions/RES-012-strat-001-acceptance-product-proof.md) | Founder ratification |
+## Priority (RES-013)
 
-**Active objective:** PPS-001 — prove transfer on the technical-interview wedge.  
-**Blocking capability before feature expansion:** Implement **CE-001** per its §8 checklist (CE-M1→).
+| Rank | ID | Role | Status |
+|---|---|---|---|
+| **1** | [DIR-CE-001](DIR-CE-001-founder-directive.md) | Founder Directive — Communication Engine | **Critical — Approved for Execution** |
+| **1** | [CE-001](CE-001-communication-engine.md) | Voice architecture + implementation plan | **Execute CE-M1→** |
+| — | [FLA-001](FLA-001-forge-learning-architecture.md) | Canonical product learning specification | Authoritative |
+| — | [PCM-001](PCM-001-personal-communication-model.md) | Canonical representation of user growth | Product Canonical |
+| **Gated** | [PPS-001](PPS-001-product-proof-sprint.md) | Product Proof Sprint 001 | **May not begin until CE-001 MVP** |
+| — | [RES-013](../resolutions/RES-013-ce-001-approved-for-execution.md) | Ratification of DIR-CE-001 | Authoritative |
+
+**Immediate engineering priority:** CE-001 under DIR-CE-001.  
+**Do not start PPS-001** until CE-001 MVP readiness is declared.

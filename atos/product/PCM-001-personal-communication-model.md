@@ -3,18 +3,18 @@
 | Field | Value |
 |---|---|
 | **Document ID** | PCM-001 |
-| **Version** | 0.1.0 |
-| **Status** | Draft (Product Contract) |
+| **Version** | 1.0.0 |
+| **Status** | **Authoritative (Product Canonical)** — RES-013 |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Review Cycle** | With CE-001 milestones / Product Proof evidence |
-| **Dependencies** | FLA-001, CE-001, RES-012 |
-| **Related Documents** | PPS-001, lib/transfer.ts (events/reality) |
-| **Approval History** | 2026-07-20 — Interface opened so CE-001 can define transcript → model data flow |
-| **Change Log** | 2026-07-20 — v0.1.0 contract only; no full model implementation required before CE-M1 |
+| **Review Cycle** | With CE-001 milestones / Founder amendment |
+| **Dependencies** | FLA-001, CE-001, DIR-CE-001, RES-013 |
+| **Related Documents** | PPS-001 (gated), lib/transfer.ts (events/reality) |
+| **Approval History** | 2026-07-20 — Interface opened; 2026-07-20 — Founder: canonical representation of user growth (RES-013) |
+| **Change Log** | 2026-07-20 — Elevated to Product Canonical under DIR-CE-001 / RES-013 |
 
-> **Authority:** Product contract for how observed communication evidence is stored and consumed. Does **not** amend ATOS Specs. Does **not** redesign Atlas. Competencies remain **engine-visible / user-invisible** per FLA-001.
+> **Authority:** Product Canonical for how observed communication evidence is stored and consumed — the canonical representation of user growth. Does **not** amend ATOS Specs. Does **not** redesign Atlas. Competencies remain **engine-visible / user-invisible** per FLA-001.
 
 ---
 
@@ -179,4 +179,4 @@ Do not block CE-M1 voice on full PCM UI. Ship ingest + coach-context read first.
 
 | Field | Value |
 |---|---|
-| **Status** | Draft contract — bind further via Founder when CE-M3+ lands |
+| **Status Upon Signature** | Authoritative (Product Canonical) — implement ingest with CE-M5 |

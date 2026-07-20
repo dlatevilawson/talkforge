@@ -23,5 +23,7 @@ Constitutional Specs/Standards remain in `atos/specifications/` and `atos/standa
 | ID | Title | Path | Approval |
 |---|---|---|---|
 | FLA-001 | Forge Learning Architecture v1.0 | [`../../product/FLA-001-forge-learning-architecture.md`](../../product/FLA-001-forge-learning-architecture.md) | RES-012 |
+| PCM-001 | Personal Communication Model | [`../../product/PCM-001-personal-communication-model.md`](../../product/PCM-001-personal-communication-model.md) | RES-013 |
+| DIR-CE-001 | Founder Directive — CE-001 | [`../../product/DIR-CE-001-founder-directive.md`](../../product/DIR-CE-001-founder-directive.md) | RES-013 |
 
-FLA-001 is **Product Canonical** for coaching agents, simulations, and product design. It does not amend ATOS Level-1 Specs.
+FLA-001 / PCM-001 are **Product Canonical**. CE-001 is **Approved for Execution** (Critical). They do not amend ATOS Level-1 Specs.

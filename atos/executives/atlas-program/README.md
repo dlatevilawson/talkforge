@@ -54,9 +54,11 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 |---|---|
 | [STRAT-001-talkforge-evolution.md](STRAT-001-talkforge-evolution.md) | Executive Intelligence brief — **Accepted with Amendments** (RES-012) |
 | [../../product/FLA-001-forge-learning-architecture.md](../../product/FLA-001-forge-learning-architecture.md) | Forge Learning Architecture — Product Canonical |
-| [../../product/PPS-001-product-proof-sprint.md](../../product/PPS-001-product-proof-sprint.md) | Product Proof Sprint 001 — **ACTIVE** |
-| [../../product/CE-001-communication-engine.md](../../product/CE-001-communication-engine.md) | Communication Engine v1.0 — voice architecture |
-| [../../product/PCM-001-personal-communication-model.md](../../product/PCM-001-personal-communication-model.md) | PCM interface — transcripts → model |
+| [../../product/DIR-CE-001-founder-directive.md](../../product/DIR-CE-001-founder-directive.md) | Founder Directive — CE-001 **Critical / Approved for Execution** |
+| [../../resolutions/RES-013-ce-001-approved-for-execution.md](../../resolutions/RES-013-ce-001-approved-for-execution.md) | RES-013 — CE authorized; PPS gated |
+| [../../product/CE-001-communication-engine.md](../../product/CE-001-communication-engine.md) | Communication Engine v1.0 — implement CE-M1→ |
+| [../../product/PCM-001-personal-communication-model.md](../../product/PCM-001-personal-communication-model.md) | PCM — Product Canonical (user growth) |
+| [../../product/PPS-001-product-proof-sprint.md](../../product/PPS-001-product-proof-sprint.md) | Product Proof Sprint 001 — **GATED** on CE MVP |
 
 ## Continuity (succession test)
 

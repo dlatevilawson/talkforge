@@ -12,7 +12,7 @@
 | **Dependencies** | ATLAS-SUCCESSION, ATLAS-P4, ATLAS-P5, CHARTER-ATLAS |
 | **Related Documents** | ATLAS-GATE-FV, ATLAS-D-FLAGS, REG-EXEC |
 | **Approval History** | 2026-07-19 — Initial register for succession continuity |
-| **Change Log** | 2026-07-20 — RES-012: STRAT-001 accepted w/ amendments; FLA-001; PPS-001 active |
+| **Change Log** | 2026-07-20 — RES-013: CE-001 Critical Approved for Execution; PPS-001 gated |
 
 ---
 
@@ -22,10 +22,10 @@
 |---|---|
 | **Last updated** | 2026-07-20 |
 | **Updated by** | Atlas |
-| **Standing priority** | **PPS-001 Product Proof** on technical-interview wedge (RES-012); Atlas coordinates |
+| **Standing priority** | **CE-001 Communication Engine** (DIR-CE-001 / RES-013) — Critical; PPS-001 gated |
 | **Staleness rule** | If older than 7 days or last Weekly Review, successor must refresh before counsel |
 
-**Company posture (RES-011 / RES-012):** Primary objective is building TalkForge. Atlas Organization v1.0 is **frozen infrastructure**. Active objective: **PPS-001**. Product Canonical: **FLA-001**. North Star: **transfer**.
+**Company posture (RES-013):** Immediate engineering priority is **CE-001** (Approved for Execution). **PPS-001 may not begin** until CE-001 MVP readiness. FLA-001 + PCM-001 Product Canonical. Atlas org frozen. North Star remains transfer (for PPS after gate).
 
 **Program Desk:** [`ATLAS-AIF-PROGRAM`](ATLAS-PROGRAM-DESK.md) — AIF-PROGRAM inside AIO-CORE owns register currency (not a sixth AIO).
 
@@ -45,7 +45,10 @@ This file is **operational**, not Canonical law. It must stay accurate so succes
 | Atlas staff | ATLAS-P5 / RES-008 | Authoritative |
 | Continuity | ATLAS-SUCCESSION | Authoritative |
 | Product doctrine | FLA-001 / RES-012 | Authoritative (Product Canonical) |
-| Active sprint | PPS-001 / RES-012 | Authoritative (Active) |
+| User growth model | PCM-001 / RES-013 | Authoritative (Product Canonical) |
+| Founder Directive | DIR-CE-001 / RES-013 | **Critical — Approved for Execution** |
+| Communication Engine | CE-001 | Approved for Execution (CE-M1→) |
+| Product Proof | PPS-001 / RES-013 | **Gated** on CE-001 MVP |
 
 ---
 
@@ -99,12 +102,12 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 
 | Thread | Owners | State |
 |---|---|---|
-| **PPS-001 Product Proof Sprint** | Engineering + Atlas (coord) + Founder | **ACTIVE** — technical interview wedge; transfer proof |
-| **CE-001 Communication Engine** | Engineering + Atlas (coord) | **Design done** — implement CE-M1→ before other feature expansion |
-| **PCM-001** | Engineering | Draft contract — ingest from CE transcripts |
-| **FLA-001 conformance** | Product/Engineering/Atlas | Binding on coaches, sims, progress mechanics |
-| Atlas Program Desk (AIF-PROGRAM) | AIO-CORE function | Live — product execution tracking; no org expansion |
-| `ATLAS_RUNTIME_FOUNDER_VISIBLE` | Founder | **Still off** — not on PPS-001 critical path |
+| **CE-001 Communication Engine** | Engineering + Atlas (coord) | **Critical — Approved for Execution** (DIR-CE-001 / RES-013); start CE-M1 |
+| **PCM-001** | Engineering | Product Canonical — implement ingest with CE-M5 |
+| **FLA-001 conformance** | Product/Engineering/Atlas | Binding on all CE decisions |
+| **PPS-001 Product Proof Sprint** | — | **GATED** — may not begin until CE-001 MVP readiness |
+| Atlas Program Desk (AIF-PROGRAM) | AIO-CORE function | Track CE milestones; no org expansion |
+| `ATLAS_RUNTIME_FOUNDER_VISIBLE` | Founder | **Still off** |
 | Loader freeze | Founder | **Still frozen** |
 | Planned EXEC-* activation | Founder | Charters Authoritative; appointments Founder-exclusive |
 
@@ -126,10 +129,12 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 
 | ID | Type | Status |
 |---|---|---|
-| STRAT-001 / RES-012 | C1 | **Closed** — Decisions 1–4 bound |
-| PPS-001 exit (N users, ship calls) | C1/C2 as needed | Open during sprint — Founder sets thresholds; default N=10 instrumented attempts |
+| STRAT-001 / RES-012 | C1 | **Closed** |
+| DIR-CE-001 / RES-013 | C1 | **Closed** — CE Critical; PPS gated |
+| CE-001 MVP readiness declaration | C1/C2 | **Open** — required to ungate PPS-001 |
+| PPS-001 exit (N users) | C1/C2 | Deferred until gate opens |
 | Pricing hypothesis | C2/C1 | Deferred until transfer signal exists |
-| EXEC appointments | C0 | Open — not blocking PPS-001 if Founder+Atlas interim labeled |
+| EXEC appointments | C0 | Open — not blocking CE-001 |
 | FOUNDER_VISIBLE / loader | C1 | Keep off/frozen unless product reveals need |
 
 ---
@@ -138,12 +143,15 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 
 | Priority | Source | Binding? |
 |---|---|---|
-| **Execute PPS-001** (prove transfer on tech-interview wedge) | RES-012 | Yes |
-| North Star = transfer | RES-012 / FLA-001 | Yes |
+| **Execute CE-001** (Critical — Approved for Execution) | DIR-CE-001 / RES-013 | Yes |
+| **PPS-001 gated** until CE-001 MVP readiness | RES-013 | Yes |
+| PCM-001 = canonical user growth model | RES-013 | Yes |
+| North Star = transfer (for PPS after gate) | RES-012 / FLA-001 | Yes |
 | FLA-001 governs coaching & learning | RES-012 | Yes |
+| Voice-first; typing fallback only | DIR-CE-001 | Yes |
 | Gamification only if transfer-justified | RES-012 | Yes |
 | **Build TalkForge** (primary company objective) | RES-011 | Yes |
-| Atlas serves TalkForge; org frozen as infrastructure | RES-011 / RES-012 | Yes |
+| Atlas serves TalkForge; org frozen as infrastructure | RES-011 / RES-012 / RES-013 | Yes |
 | Atlas org changes require governance review | RES-011 / RES-010 | Yes |
 | Maintain ATOS Maintenance Mode | RES-002 / GOV-MAINT | Yes |
 | Atlas coordinates; does not become the org | ATLAS-P4 / P5 | Yes |
@@ -158,7 +166,7 @@ Do **not** invent new binding priorities here. Propose via Decision Pack.
 
 | Cadence | Next Atlas action |
 |---|---|
-| Product | Execute PPS-001; challenge any work that is not wedge proof or FLA-conformant |
+| Product | Execute CE-001 CE-M1→; refuse PPS start and feature expansion until CE MVP gate |
 | Daily | Counsel → Guard → Core brief draft when Founder surface active |
 | Weekly | Broker intake + weekly pack when exec review runs |
 | Observation | Keep `atlas:runtime:observe` green; do not enable FOUNDER_VISIBLE unilaterally |

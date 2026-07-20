@@ -11,9 +11,11 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 | **Sentinel** | Protects implementation |
 | **TalkForge** | The product — **primary company objective** (RES-011 / RES-012) |
 
-**Active objective:** [Product Proof Sprint 001](atos/product/PPS-001-product-proof-sprint.md) — prove transfer on the technical-interview wedge. Product doctrine: [FLA-001](atos/product/FLA-001-forge-learning-architecture.md).
+**Immediate priority:** [CE-001 Communication Engine](atos/product/CE-001-communication-engine.md) — [Founder Directive DIR-CE-001](atos/product/DIR-CE-001-founder-directive.md) / [RES-013](atos/resolutions/RES-013-ce-001-approved-for-execution.md) (**Critical — Approved for Execution**).
 
-Future ATOS changes require the governance amendment process. New work is built **on** ATOS, not **inside** ATOS, unless a formal amendment is approved. Atlas Organization v1.0 is frozen infrastructure; net-new engineering builds TalkForge.
+**Gated:** [PPS-001](atos/product/PPS-001-product-proof-sprint.md) may not begin until CE-001 MVP readiness. Doctrine: [FLA-001](atos/product/FLA-001-forge-learning-architecture.md) · [PCM-001](atos/product/PCM-001-personal-communication-model.md).
+
+Future ATOS changes require the governance amendment process. New work is built **on** ATOS, not **inside** ATOS, unless a formal amendment is approved. Atlas Organization v1.0 is frozen infrastructure; net-new engineering builds TalkForge (CE-001 first).
 
 - **Entrypoint:** [`ATOS.md`](./ATOS.md)
 - **Maintenance:** [`atos/governance/GOV-MAINT-1.0.0.md`](./atos/governance/GOV-MAINT-1.0.0.md)
