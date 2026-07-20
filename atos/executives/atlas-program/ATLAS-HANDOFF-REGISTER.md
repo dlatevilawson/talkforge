@@ -12,7 +12,7 @@
 | **Dependencies** | ATLAS-SUCCESSION, ATLAS-P4, ATLAS-P5, CHARTER-ATLAS |
 | **Related Documents** | ATLAS-GATE-FV, ATLAS-D-FLAGS, REG-EXEC |
 | **Approval History** | 2026-07-19 — Initial register for succession continuity |
-| **Change Log** | 2026-07-19 — Seeded; RES-010/011; STRAT-001 TalkForge Evolution brief issued (Working) |
+| **Change Log** | 2026-07-20 — RES-012: STRAT-001 accepted w/ amendments; FLA-001; PPS-001 active |
 
 ---
 
@@ -20,12 +20,12 @@
 
 | Field | Value |
 |---|---|
-| **Last updated** | 2026-07-19 |
+| **Last updated** | 2026-07-20 |
 | **Updated by** | Atlas |
-| **Standing priority** | **Building TalkForge** (RES-011); Atlas serves that objective |
+| **Standing priority** | **PPS-001 Product Proof** on technical-interview wedge (RES-012); Atlas coordinates |
 | **Staleness rule** | If older than 7 days or last Weekly Review, successor must refresh before counsel |
 
-**Company posture (RES-011):** Primary objective is building TalkForge. Atlas Runtime Organization v1.0 is certified (RES-010). Atlas exists to help achieve TalkForge — not as the product. Future Atlas organizational changes require governance review.
+**Company posture (RES-011 / RES-012):** Primary objective is building TalkForge. Atlas Organization v1.0 is **frozen infrastructure**. Active objective: **PPS-001**. Product Canonical: **FLA-001**. North Star: **transfer**.
 
 **Program Desk:** [`ATLAS-AIF-PROGRAM`](ATLAS-PROGRAM-DESK.md) — AIF-PROGRAM inside AIO-CORE owns register currency (not a sixth AIO).
 
@@ -44,6 +44,8 @@ This file is **operational**, not Canonical law. It must stay accurate so succes
 | Company org | ATLAS-P4 / RES-007 | Authoritative |
 | Atlas staff | ATLAS-P5 / RES-008 | Authoritative |
 | Continuity | ATLAS-SUCCESSION | Authoritative |
+| Product doctrine | FLA-001 / RES-012 | Authoritative (Product Canonical) |
+| Active sprint | PPS-001 / RES-012 | Authoritative (Active) |
 
 ---
 
@@ -83,25 +85,25 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 
 ## 5. Coordination threads
 
-### Closed / certified (Atlas org-building)
+### Closed / certified
 
 | Thread | State |
 |---|---|
 | P6-EXEC WP-S0…S5 | **PASS** — evidence under `atlas/runtime/evidence/` |
 | Organizational Validation + ORR | **CERTIFIED** — RES-010 / ATLAS-ORR v1.0 |
-| Atlas Runtime Organization v1.0 | **CERTIFIED** — continued use within validated framework |
-| Atlas org redesign / new AIOs | **Closed unless governance review** — RES-011 |
+| Atlas Runtime Organization v1.0 | **CERTIFIED + FROZEN** — RES-012; infrastructure only |
+| Atlas org redesign / new AIOs | **Frozen** — RES-011 / RES-012 |
+| STRAT-001 Decision Requests 1–4 | **CLOSED** — RES-012 Accepted with Amendments |
 
 ### Active (company)
 
 | Thread | Owners | State |
 |---|---|---|
-| **TalkForge Evolution (STRAT-001)** | Atlas (counsel) → Founder | **BRIEF ISSUED** — Working Recommendation; Decision Requests on wedge ICP, North Star, gamification, capacity rule |
-| **TalkForge product** | Founder + Engineering + Atlas (coord) | **PRIMARY** (RES-011) — Forge-loop excellence on high-stakes wedge recommended |
-| Atlas Program Desk (AIF-PROGRAM) | AIO-CORE function | Live — tracks cadence; does not expand org structure |
-| `ATLAS_RUNTIME_FOUNDER_VISIBLE` | Founder | **Still off** — separate Decision required |
-| Loader freeze | Founder | **Still frozen** — separate Decision required |
-| Founder-visible gate evidence | Atlas Guard/Intel + Founder | Suite exists; observation continues |
+| **PPS-001 Product Proof Sprint** | Engineering + Atlas (coord) + Founder | **ACTIVE** — technical interview wedge; transfer proof |
+| **FLA-001 conformance** | Product/Engineering/Atlas | Binding on coaches, sims, progress mechanics |
+| Atlas Program Desk (AIF-PROGRAM) | AIO-CORE function | Live — product execution tracking; no org expansion |
+| `ATLAS_RUNTIME_FOUNDER_VISIBLE` | Founder | **Still off** — not on PPS-001 critical path |
+| Loader freeze | Founder | **Still frozen** |
 | Planned EXEC-* activation | Founder | Charters Authoritative; appointments Founder-exclusive |
 
 *(Add rows as threads open. Close rows when Decision Record exists.)*
@@ -122,8 +124,11 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 
 | ID | Type | Status |
 |---|---|---|
-| STRAT-001 §8 items 1–4 | C1 Decision Requests | **Open** — wedge ICP; North Star metric; gamification disposition; product-vs-Atlas capacity rule |
-| STRAT-001 §8 items 5–8 | C0/C1 as noted | Open — pricing test; EXEC appointments; FOUNDER_VISIBLE keep-off; optional Forge Law #011 |
+| STRAT-001 / RES-012 | C1 | **Closed** — Decisions 1–4 bound |
+| PPS-001 exit (N users, ship calls) | C1/C2 as needed | Open during sprint — Founder sets thresholds; default N=10 instrumented attempts |
+| Pricing hypothesis | C2/C1 | Deferred until transfer signal exists |
+| EXEC appointments | C0 | Open — not blocking PPS-001 if Founder+Atlas interim labeled |
+| FOUNDER_VISIBLE / loader | C1 | Keep off/frozen unless product reveals need |
 
 ---
 
@@ -131,8 +136,12 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 
 | Priority | Source | Binding? |
 |---|---|---|
+| **Execute PPS-001** (prove transfer on tech-interview wedge) | RES-012 | Yes |
+| North Star = transfer | RES-012 / FLA-001 | Yes |
+| FLA-001 governs coaching & learning | RES-012 | Yes |
+| Gamification only if transfer-justified | RES-012 | Yes |
 | **Build TalkForge** (primary company objective) | RES-011 | Yes |
-| Atlas serves TalkForge; is not the product | RES-011 / CHARTER-ATLAS | Yes |
+| Atlas serves TalkForge; org frozen as infrastructure | RES-011 / RES-012 | Yes |
 | Atlas org changes require governance review | RES-011 / RES-010 | Yes |
 | Maintain ATOS Maintenance Mode | RES-002 / GOV-MAINT | Yes |
 | Atlas coordinates; does not become the org | ATLAS-P4 / P5 | Yes |
@@ -147,7 +156,7 @@ Do **not** invent new binding priorities here. Propose via Decision Pack.
 
 | Cadence | Next Atlas action |
 |---|---|
-| Product | Coordinate TalkForge work per Founder direction — prefer product over Atlas org expansion |
+| Product | Execute PPS-001; challenge any work that is not wedge proof or FLA-conformant |
 | Daily | Counsel → Guard → Core brief draft when Founder surface active |
 | Weekly | Broker intake + weekly pack when exec review runs |
 | Observation | Keep `atlas:runtime:observe` green; do not enable FOUNDER_VISIBLE unilaterally |

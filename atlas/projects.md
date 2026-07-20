@@ -1,18 +1,37 @@
 # TALKFORGE PROJECTS
-Version 1.1
+Version 1.2
 
 ---
 
 # Active Projects
 
 ## Project
-TalkForge MVP
+Product Proof Sprint 001 (PPS-001)
 
 Status:
-🟢 In Progress
+🟢 Active — Critical
 
 Purpose:
-Build the world's best AI communication gym.
+Demonstrate that Forge measurably improves preparation for a real high-stakes technical interview, and use real-world outcomes to strengthen future coaching.
+
+Priority:
+Critical
+
+Governing docs:
+- RES-012
+- FLA-001
+- PPS-001
+
+---
+
+## Project
+TalkForge MVP (wedge-aligned)
+
+Status:
+🟢 In Progress — under PPS-001
+
+Purpose:
+Ship the Event → Practice → Coach → Reflect → Reality capture loop for technical interview prep.
 
 Priority:
 Critical
@@ -20,54 +39,51 @@ Critical
 ---
 
 ## Project
-Atlas Founder Operating System
+Atlas Runtime Organization / Founder OS
 
 Status:
-🟢 In Progress
+⚪ Maintenance only (RES-011 / RES-012)
 
 Purpose:
-Turn Atlas into the TalkForge Founder Operating System — mission control, company health, notes, and daily brief.
+Certified infrastructure (v1.0). Not the primary project. Changes only when product execution reveals architectural need; org structure frozen pending governance review.
 
 Priority:
-Critical
-
-Phase:
-3 — Executive Dashboard
+Maintenance
 
 ---
 
 ## Current Objectives
 
-- Operate Atlas as the founder operating system
-- Keep the practice → coach → reflect loop reliable
-- Improve Forge Coach quality
-- Prepare real authentication after guest MVP
-- Launch MVP
+- Execute PPS-001
+- Event-first technical interview path
+- Evidence-based coaching (FLA-001)
+- Reality capture + transfer instrumentation
+- Mastery mechanics only if transfer-justified
 
 ---
 
 ## Current Sprint
 
-Sprint 001
+Product Proof Sprint 001
 
 Goal:
-Deliver a complete end-to-end communication coaching experience.
+Prove transfer on the V1 wedge — high-agency technical professionals × high-stakes technical interviews.
 
 ---
 
 ## Current Priorities
 
 Priority 1
-Protect the communication loop.
+PPS-001 proof loop (event → practice → reality).
 
 Priority 2
-Improve coaching quality.
+Coaching quality under FLA-001 evidence rules.
 
 Priority 3
-Increase stability.
+Transfer instrumentation and reality-informed iteration.
 
 Priority 4
-Improve user experience.
+Reliability of auth/persistence for returning practitioners.
 
 ---
 
@@ -82,6 +98,9 @@ Improve user experience.
 - Supabase persistence for profiles, sessions, and reflections
 - Atlas Founder OS dashboard v1
 - Atlas Phase 3 executive dashboard (mission control, health, metrics, notes, daily brief)
+- Atlas Runtime Organization v1.0 certified (RES-010)
+- STRAT-001 Accepted with Amendments (RES-012)
+- FLA-001 Product Canonical
 
 ---
 
@@ -89,13 +108,23 @@ Improve user experience.
 
 - Supabase authentication not yet connected (guest session pointer still in use)
 - UI polish ongoing
+- Generic mission picker not yet event-first for wedge
+- Reality capture loop not yet instrumented as North Star
 - GitHub activity depends on public API rate limits unless GITHUB_TOKEN is set
 
 ---
 
 ## Long-Term Projects
 
-Atlas Operating System
+Voice Conversations
+
+Adaptive Conversation Practice
+
+Context-Aware Coaching
+
+Long-Term Learning / competency compounding
+
+Executive & life conversations (post-wedge)
 
 Community Platform
 
@@ -103,21 +132,17 @@ Communication Certification
 
 Enterprise Platform
 
-Voice Conversations
-
-Real-time AI Coaching
-
 ---
 
 ## Success Metrics
 
-Users improve communication.
+North Star: transfer — better real-world conversation performance.
 
-Users return consistently.
+Users name a real event and practice for it.
 
-Users complete practice sessions.
+Users complete reality capture after meaningful conversations.
 
-Users become more confident.
+Coaching changes because of reality evidence.
 
 Mission remains aligned.
 

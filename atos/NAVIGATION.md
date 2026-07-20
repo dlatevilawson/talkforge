@@ -122,7 +122,10 @@ See [`references/README.md`](references/README.md).
 | ATLAS-ORR | Operational Readiness Report (Certified) | [executives/atlas-program/ATLAS-ORR.md](executives/atlas-program/ATLAS-ORR.md) |
 | RES-010 | Atlas Runtime Organization v1.0 Certification | [resolutions/RES-010-atlas-runtime-organization-certification.md](resolutions/RES-010-atlas-runtime-organization-certification.md) |
 | RES-011 | TalkForge Primary; Atlas in Service | [resolutions/RES-011-talkforge-primary-atlas-service.md](resolutions/RES-011-talkforge-primary-atlas-service.md) |
-| STRAT-001 | TalkForge Evolution Executive Brief (Working) | [executives/atlas-program/STRAT-001-talkforge-evolution.md](executives/atlas-program/STRAT-001-talkforge-evolution.md) |
+| STRAT-001 | TalkForge Evolution Executive Brief (Accepted w/ Amendments) | [executives/atlas-program/STRAT-001-talkforge-evolution.md](executives/atlas-program/STRAT-001-talkforge-evolution.md) |
+| RES-012 | STRAT-001 Acceptance; FLA; PPS-001 | [resolutions/RES-012-strat-001-acceptance-product-proof.md](resolutions/RES-012-strat-001-acceptance-product-proof.md) |
+| FLA-001 | Forge Learning Architecture v1.0 (Product Canonical) | [product/FLA-001-forge-learning-architecture.md](product/FLA-001-forge-learning-architecture.md) |
+| PPS-001 | Product Proof Sprint 001 (Active) | [product/PPS-001-product-proof-sprint.md](product/PPS-001-product-proof-sprint.md) |
 | EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |
 | EXEC-ORG-DECISIONS | Org Decision Governance | [executives/atlas-program/ORG-DECISION-GOVERNANCE.md](executives/atlas-program/ORG-DECISION-GOVERNANCE.md) |
 | EXEC-ORG-CADENCE | Org Cadence | [executives/atlas-program/ORG-CADENCE.md](executives/atlas-program/ORG-CADENCE.md) |

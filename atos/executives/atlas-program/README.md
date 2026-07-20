@@ -52,7 +52,9 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 
 | Doc | Role |
 |---|---|
-| [STRAT-001-talkforge-evolution.md](STRAT-001-talkforge-evolution.md) | Executive Intelligence brief — Phases 1–9; **non-binding** Working Recommendation |
+| [STRAT-001-talkforge-evolution.md](STRAT-001-talkforge-evolution.md) | Executive Intelligence brief — **Accepted with Amendments** (RES-012) |
+| [../../product/FLA-001-forge-learning-architecture.md](../../product/FLA-001-forge-learning-architecture.md) | Forge Learning Architecture — Product Canonical |
+| [../../product/PPS-001-product-proof-sprint.md](../../product/PPS-001-product-proof-sprint.md) | Product Proof Sprint 001 — **ACTIVE** |
 
 ## Continuity (succession test)
 

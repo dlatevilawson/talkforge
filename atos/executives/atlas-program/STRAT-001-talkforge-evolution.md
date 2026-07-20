@@ -4,16 +4,16 @@
 |---|---|
 | **Document ID** | STRAT-001 |
 | **Version** | 1.0.0 |
-| **Status** | Draft (Working Recommendation) |
+| **Status** | **Accepted with Amendments** (RES-012) — historical counsel |
 | **Owner** | Founder |
 | **AI Steward** | Atlas (AIO-CORE / COUNSEL synthesis; GUARD-validated posture) |
-| **Human Approver** | Founder (binding only upon Decision Record) |
-| **Review Cycle** | Until Founder Decision or superseding brief |
-| **Dependencies** | RES-010, RES-011, SPEC-002, SPEC-003, CHARTER-ATLAS, EXEC-ORG-*, atlas/founder-brief.md, atlas/constitution.md, atlas/philosophy.md, atlas/forge-laws.md, atlas/roadmap.md, atlas/decisions.md, atlas/projects.md, atlas/metrics.md |
-| **Related Documents** | ATLAS-HANDOFF-REGISTER, REF-R1104, STD-003 |
-| **Authority labels** | Identity & ATOS specs = Authoritative; legacy roadmap/projects/metrics = Operational / legacy-atlas; this brief = **non-binding counsel** |
-| **Approval History** | 2026-07-19 — Issued under Founder Executive Mission (Company Strategy & TalkForge Evolution) |
-| **Change Log** | 2026-07-19 — Phases 1–9 complete; no constitutional redesign proposed |
+| **Human Approver** | Founder |
+| **Review Cycle** | Superseded for binding direction by RES-012 / FLA-001 / PPS-001 |
+| **Dependencies** | RES-010, RES-011, RES-012, SPEC-002, SPEC-003, CHARTER-ATLAS, EXEC-ORG-*, atlas/founder-brief.md, atlas/constitution.md, atlas/philosophy.md, atlas/forge-laws.md, atlas/roadmap.md, atlas/decisions.md, atlas/projects.md, atlas/metrics.md |
+| **Related Documents** | ATLAS-HANDOFF-REGISTER, FLA-001, PPS-001, REF-R1104, STD-003 |
+| **Authority labels** | Binding outcomes in RES-012; this brief remains the diagnostic record |
+| **Approval History** | 2026-07-19 — Issued; 2026-07-20 — Founder Accepted with Amendments (RES-012) |
+| **Change Log** | 2026-07-20 — Status → Accepted with Amendments; execution → PPS-001 |
 
 ---
 
@@ -466,15 +466,20 @@ Prioritized by expected long-term impact:
 
 ---
 
-## Decision Request (for Founder)
+## Decision Request (for Founder) — CLOSED
 
-Atlas requests Founder binding choices on items **1–4** in §8 within the next planning cycle. Until then, Atlas will treat **TalkForge Forge-loop excellence on a high-stakes wedge** as the standing recommended priority under RES-011.
+Founder Review Complete (2026-07-20). Binding record: **RES-012**.
 
-| Field | Value |
+| Item | Founder outcome |
 |---|---|
-| **Binding** | False — counsel only |
-| **Confidence (overall brief)** | Medium-High on diagnosis; Medium on wedge selection (Difficult vs Interview) pending customer evidence |
-| **Expected outcome if adopted** | Higher probability TalkForge becomes trusted category leader; lower probability of elegant internal systems with a weak product |
+| Wedge ICP + spear | **Approved refined** — high-agency technical professionals × high-stakes technical interviews (V1 wedge) |
+| North Star | **Approved** — transfer, not engagement |
+| Gamification | **Redesign** (not remove) — mastery/transfer test required |
+| Engineering capacity | **Approved** — TalkForge primary; Atlas org v1.0 frozen |
+| Product doctrine | **FLA-001** ratified Product Canonical |
+| Next objective | **PPS-001** Product Proof Sprint 001 — execution, not further strategy |
+
+Amendment note vs original counsel: Atlas recommended removing XP pillars; Founder requires **redesign under transfer test** instead of elimination. Atlas accepts the amendment.
 
 ---
 

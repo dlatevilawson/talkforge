@@ -9,9 +9,11 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 | **ATOS** | The constitution |
 | **Atlas** | Government under that constitution (certified Runtime Org v1.0 — RES-010) |
 | **Sentinel** | Protects implementation |
-| **TalkForge** | The product — **primary company objective** (RES-011) |
+| **TalkForge** | The product — **primary company objective** (RES-011 / RES-012) |
 
-Future ATOS changes require the governance amendment process. New work is built **on** ATOS, not **inside** ATOS, unless a formal amendment is approved. Atlas exists to help build TalkForge; future Atlas organizational changes require governance review.
+**Active objective:** [Product Proof Sprint 001](atos/product/PPS-001-product-proof-sprint.md) — prove transfer on the technical-interview wedge. Product doctrine: [FLA-001](atos/product/FLA-001-forge-learning-architecture.md).
+
+Future ATOS changes require the governance amendment process. New work is built **on** ATOS, not **inside** ATOS, unless a formal amendment is approved. Atlas Organization v1.0 is frozen infrastructure; net-new engineering builds TalkForge.
 
 - **Entrypoint:** [`ATOS.md`](./ATOS.md)
 - **Maintenance:** [`atos/governance/GOV-MAINT-1.0.0.md`](./atos/governance/GOV-MAINT-1.0.0.md)
