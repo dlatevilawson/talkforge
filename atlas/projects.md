@@ -25,7 +25,7 @@ Governing docs:
 - PCM-001
 
 Milestones:
-CE-M1 **PASS** (Realtime Hello) → CE-M2 blocked until Founder accepts M1 → CE-M3…M8
+CE-M1 **PASS** → CE-M2 **implemented / Founder validation pending** → CE-M3 blocked until M2 accepted
 
 ---
 

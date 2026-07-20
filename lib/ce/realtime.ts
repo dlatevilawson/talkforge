@@ -1,5 +1,7 @@
+import { buildSessionUpdateForTranscription } from "./session-config";
+
 /**
- * CE-M1 WebRTC helpers for OpenAI Realtime.
+ * CE-M1/M2 WebRTC helpers for OpenAI Realtime.
  * Browser-only — do not import from server components.
  */
 
@@ -91,6 +93,13 @@ export async function connectRealtime(
 
   await waitForDataChannelOpen(dc, 10_000);
 
+  // CE-M2: reinforce input transcription on the live session
+  try {
+    dc.send(JSON.stringify(buildSessionUpdateForTranscription()));
+  } catch {
+    /* non-fatal — client_secrets already requested transcription */
+  }
+
   return {
     pc,
     dc,
@@ -170,6 +179,17 @@ export function requestOpeningSpeech(dc: RTCDataChannel): void {
       },
     })
   );
+}
+
+/** Mute/unmute local mic tracks (push-to-talk). */
+export function setMicrophoneEnabled(
+  connection: RealtimeConnection | null,
+  enabled: boolean
+): void {
+  if (!connection || connection.usedSilentMicFallback) return;
+  for (const track of connection.localStream.getAudioTracks()) {
+    track.enabled = enabled;
+  }
 }
 
 export function disconnectRealtime(connection: RealtimeConnection | null): void {

@@ -18,8 +18,9 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | Rank | ID | Role | Status |
 |---|---|---|---|
 | **1** | [DIR-CE-001](DIR-CE-001-founder-directive.md) | Founder Directive — Communication Engine | **Critical — Approved for Execution** |
-| **1** | [CE-001](CE-001-communication-engine.md) | Voice architecture + implementation | **CE-M1 PASS** — await Founder before CE-M2 |
-| — | [CE-M1 evidence](evidence/CE-M1-REALTIME-HELLO.md) | Realtime Hello verification | PASS |
+| **1** | [CE-001](CE-001-communication-engine.md) | Voice architecture + implementation | CE-M1 PASS · **CE-M2 awaiting Founder validation** |
+| — | [CE-M1 evidence](evidence/CE-M1-REALTIME-HELLO.md) | Realtime Hello | PASS |
+| — | [CE-M2 evidence](evidence/CE-M2-STABLE-TRANSCRIPTS.md) | Stable Transcripts | Implemented — Founder sessions |
 | — | [FLA-001](FLA-001-forge-learning-architecture.md) | Canonical product learning specification | Authoritative |
 | — | [PCM-001](PCM-001-personal-communication-model.md) | Canonical representation of user growth | Product Canonical |
 | **Gated** | [PPS-001](PPS-001-product-proof-sprint.md) | Product Proof Sprint 001 | **May not begin until CE-001 MVP** |

@@ -6,11 +6,14 @@ export const CE_REALTIME_MODEL = "gpt-realtime-2.1";
 /** Default voice for interviewer NPC. */
 export const CE_REALTIME_VOICE = "marin";
 
+/** Input transcription model (CE-M2 evidence substrate). */
+export const CE_TRANSCRIBE_MODEL = "gpt-4o-mini-transcribe";
+
 export type CeTrack = ForgeEvent["track"] | "hello";
 
 /**
  * NPC interviewer instructions for Realtime session.
- * CE-M1: Forge speaks first as interviewer greeting — never coaches in voice.
+ * Never coaches in voice — Forge coach is separate (CE-M3).
  */
 export function buildNpcInstructions(input?: {
   track?: CeTrack;
@@ -31,7 +34,7 @@ export function buildNpcInstructions(input?: {
       : track === "coding_interview"
         ? "You may ask them to talk through an approach before coding."
         : track === "hello"
-          ? "This is a connection test. Keep the greeting short."
+          ? "This is a connection / transcript test. Keep turns short."
           : "You may open a light system-design style prompt after greeting.";
 
   return [
@@ -50,7 +53,7 @@ export function buildNpcInstructions(input?: {
     .join(" ");
 }
 
-/** Body for POST /v1/realtime/client_secrets */
+/** Body for POST /v1/realtime/client_secrets — includes CE-M2 input transcription. */
 export function buildClientSecretRequest(input?: {
   track?: CeTrack;
   eventTitle?: string;
@@ -62,8 +65,32 @@ export function buildClientSecretRequest(input?: {
       model: CE_REALTIME_MODEL,
       instructions: buildNpcInstructions(input),
       audio: {
+        input: {
+          transcription: {
+            model: CE_TRANSCRIBE_MODEL,
+            language: "en",
+          },
+        },
         output: {
           voice: CE_REALTIME_VOICE,
+        },
+      },
+    },
+  };
+}
+
+/** session.update payload to reinforce transcription after connect. */
+export function buildSessionUpdateForTranscription() {
+  return {
+    type: "session.update" as const,
+    session: {
+      type: "realtime" as const,
+      audio: {
+        input: {
+          transcription: {
+            model: CE_TRANSCRIBE_MODEL,
+            language: "en",
+          },
         },
       },
     },
