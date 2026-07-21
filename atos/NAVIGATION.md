@@ -133,6 +133,7 @@ See [`references/README.md`](references/README.md).
 | RES-014 | MR-001 Accepted; doctrine unchanged; CE priority holds | [resolutions/RES-014-mr-001-acceptance.md](resolutions/RES-014-mr-001-acceptance.md) |
 | BR-001 | Beta Readiness Assessment (**Accepted** — NOT READY; deploy mitigated) | [product/BR-001-beta-readiness-assessment.md](product/BR-001-beta-readiness-assessment.md) |
 | DEPLOY-001 | Founder Vercel production URL | [product/DEPLOY-001-founder-vercel.md](product/DEPLOY-001-founder-vercel.md) |
+| BETA-REC-002 | Beta Recommendations v2.0 — welcoming first experience | [product/BETA-REC-002-welcoming-first-experience.md](product/BETA-REC-002-welcoming-first-experience.md) |
 | RES-015 | BR-001 Accepted; external invite blocked | [resolutions/RES-015-br-001-acceptance.md](resolutions/RES-015-br-001-acceptance.md) |
 | PCM-001 | Personal Communication Model (Product Canonical) | [product/PCM-001-personal-communication-model.md](product/PCM-001-personal-communication-model.md) |
 | EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |

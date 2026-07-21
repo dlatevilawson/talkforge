@@ -33,7 +33,14 @@ type Phase =
   | "speaking"
   | "listening"
   | "connected"
+  | "momentum"
   | "error";
+
+type Momentum = {
+  strength: string;
+  improve: string;
+  nextAction: string;
+};
 
 export default function VoiceArena({
   track = "hello",
@@ -55,6 +62,10 @@ export default function VoiceArena({
   );
   const [turns, setTurns] = useState<TranscriptTurn[]>([]);
   const [micLive, setMicLive] = useState(false);
+  const [momentum, setMomentum] = useState<Momentum | null>(null);
+  const [momentumLoading, setMomentumLoading] = useState(false);
+
+  const showDevDiagnostics = process.env.NODE_ENV === "development";
 
   useEffect(() => {
     return () => {
@@ -149,6 +160,7 @@ export default function VoiceArena({
     turnsRef.current = [];
     setMicLive(false);
     setEvents([]);
+    setMomentum(null);
     setPhase("minting");
     pushEvent("Minting session…");
 
@@ -244,15 +256,52 @@ export default function VoiceArena({
     setMicLive(false);
   }
 
-  function handleStop() {
+  async function handleStop() {
     if (voiceSessionIdRef.current && turnsRef.current.length > 0) {
       persistTurns(turnsRef.current);
     }
     disconnectRealtime(connectionRef.current);
     connectionRef.current = null;
-    setPhase("idle");
     setMicLive(false);
     pushEvent("Ended");
+
+    const snapshot = [...turnsRef.current];
+    setPhase("momentum");
+    setMomentumLoading(true);
+    setMomentum(null);
+
+    try {
+      const res = await fetch("/api/session-momentum", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          turns: snapshot,
+          eventTitle,
+        }),
+      });
+      const data = (await res.json()) as Momentum;
+      setMomentum({
+        strength:
+          data.strength ||
+          "You showed up and practiced — that already builds readiness.",
+        improve:
+          data.improve ||
+          "Next time, say one full thought so we can coach something specific.",
+        nextAction:
+          data.nextAction ||
+          "Try one clearer opening line in your next real conversation.",
+      });
+    } catch {
+      setMomentum({
+        strength: "You showed up and practiced — that already builds readiness.",
+        improve:
+          "Next time, say one full thought so we can coach something specific.",
+        nextAction:
+          "Try one clearer opening line in your next real conversation.",
+      });
+    } finally {
+      setMomentumLoading(false);
+    }
   }
 
   const busy =
@@ -278,11 +327,12 @@ export default function VoiceArena({
             ? "Listening to you"
             : phase === "error"
               ? "Something went wrong"
-              : "Your turn";
+              : phase === "momentum"
+                ? "Nice work"
+                : "Your turn";
 
   return (
     <main className="relative min-h-[100dvh] overflow-hidden bg-[#07070a] text-white">
-      {/* Atmosphere */}
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_30%,rgba(59,130,246,0.18),transparent_55%)]"
         aria-hidden
@@ -295,7 +345,7 @@ export default function VoiceArena({
       <div className="relative mx-auto flex min-h-[100dvh] max-w-3xl flex-col px-5 py-6 sm:px-8">
         <header className="flex items-center justify-between gap-3">
           <Link
-            href="/dashboard"
+            href="/"
             className="text-sm text-white/45 transition hover:text-white/80"
           >
             TalkForge
@@ -303,17 +353,18 @@ export default function VoiceArena({
           {inSession ? (
             <button
               type="button"
-              onClick={handleStop}
+              onClick={() => void handleStop()}
               className="text-sm text-white/45 transition hover:text-white/80"
             >
               End
             </button>
+          ) : phase === "momentum" ? (
+            <span className="text-sm text-white/30">Session wrap</span>
           ) : (
-            <span className="text-sm text-white/30">Voice practice</span>
+            <span className="text-sm text-white/30">Practice floor</span>
           )}
         </header>
 
-        {/* Presence center */}
         <section className="flex flex-1 flex-col items-center justify-center pb-8 pt-6 text-center">
           {phase === "idle" ? (
             <>
@@ -321,12 +372,17 @@ export default function VoiceArena({
                 Forge
               </p>
               <h1 className="mt-5 max-w-xl text-4xl font-semibold tracking-tight sm:text-5xl">
-                {eventTitle?.trim() || "Practice with presence"}
+                {eventTitle?.trim() || "I’m ready when you are"}
               </h1>
               <p className="mt-5 max-w-md text-base leading-7 text-white/55">
-                One tap. Forge greets you. Hold to speak. The conversation stays
-                at the center.
+                You don’t have to perform here. One tap — I’ll greet you. Hold to
+                speak when you’re ready. We’ll practice gently.
               </p>
+              {successCriteria?.trim() && (
+                <p className="mt-4 max-w-md text-sm leading-6 text-white/40">
+                  You’re aiming for: {successCriteria.trim()}
+                </p>
+              )}
               <button
                 type="button"
                 onClick={handleStart}
@@ -334,6 +390,70 @@ export default function VoiceArena({
               >
                 Begin
               </button>
+            </>
+          ) : phase === "momentum" ? (
+            <>
+              <div className="flex h-28 w-28 items-center justify-center rounded-full bg-blue-500/20 shadow-[0_0_50px_rgba(59,130,246,0.25)]">
+                <span className="text-sm font-medium text-white/90">
+                  {presenceLabel}
+                </span>
+              </div>
+              <h1 className="mt-8 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
+                Leave with momentum
+              </h1>
+              <p className="mt-3 max-w-md text-base leading-7 text-white/50">
+                One strength. One improvement. One thing to try in the real
+                conversation.
+              </p>
+
+              {momentumLoading ? (
+                <p className="mt-10 text-sm text-white/45">
+                  Forge is wrapping up your session…
+                </p>
+              ) : momentum ? (
+                <div className="mt-10 w-full max-w-xl space-y-5 text-left">
+                  <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
+                    <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+                      Strength
+                    </p>
+                    <p className="mt-2 text-base leading-7 text-white/90">
+                      {momentum.strength}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
+                    <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+                      Improve
+                    </p>
+                    <p className="mt-2 text-base leading-7 text-white/90">
+                      {momentum.improve}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-blue-400/30 bg-blue-500/10 px-5 py-4">
+                    <p className="text-xs uppercase tracking-[0.2em] text-blue-200/70">
+                      Try next
+                    </p>
+                    <p className="mt-2 text-base leading-7 text-white">
+                      {momentum.nextAction}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleStart}
+                  className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                >
+                  Practice again
+                </button>
+                <Link
+                  href="/dashboard"
+                  className="rounded-full border border-white/20 px-6 py-3.5 text-sm text-white/80 transition hover:bg-white/10"
+                >
+                  Done for now
+                </Link>
+              </div>
             </>
           ) : (
             <>
@@ -361,7 +481,6 @@ export default function VoiceArena({
                 </span>
               </div>
 
-              {/* Conversation as visual center */}
               <div className="mt-10 w-full max-w-xl space-y-6">
                 {lastForge ? (
                   <blockquote className="text-xl leading-8 text-white/90 sm:text-2xl sm:leading-9">
@@ -396,7 +515,9 @@ export default function VoiceArena({
               )}
 
               <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
-                {(phase === "error" || phase === "connected" || phase === "listening") &&
+                {(phase === "error" ||
+                  phase === "connected" ||
+                  phase === "listening") &&
                   !busy && (
                     <button
                       type="button"
@@ -438,39 +559,40 @@ export default function VoiceArena({
           )}
         </section>
 
-        {/* Diagnostics — hidden by default (DEC-CE-M2-UX #1) */}
-        <footer className="pb-2">
-          <button
-            type="button"
-            onClick={() => setShowDiagnostics((v) => !v)}
-            className="text-xs text-white/25 transition hover:text-white/45"
-          >
-            {showDiagnostics ? "Hide diagnostics" : "Diagnostics"}
-          </button>
-          {showDiagnostics && (
-            <div className="mt-3 space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-left">
-              <p className="text-xs uppercase tracking-[0.2em] text-white/40">
-                Evidence log · not part of the product surface
-              </p>
-              <ul className="space-y-1 font-mono text-[11px] text-white/45">
-                {events.length === 0 ? (
-                  <li>No events</li>
-                ) : (
-                  events.map((line) => <li key={line}>{line}</li>)
+        {showDevDiagnostics && (
+          <footer className="pb-2">
+            <button
+              type="button"
+              onClick={() => setShowDiagnostics((v) => !v)}
+              className="text-xs text-white/25 transition hover:text-white/45"
+            >
+              {showDiagnostics ? "Hide diagnostics" : "Diagnostics"}
+            </button>
+            {showDiagnostics && (
+              <div className="mt-3 space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-left">
+                <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+                  Evidence log · not part of the product surface
+                </p>
+                <ul className="space-y-1 font-mono text-[11px] text-white/45">
+                  {events.length === 0 ? (
+                    <li>No events</li>
+                  ) : (
+                    events.map((line) => <li key={line}>{line}</li>)
+                  )}
+                </ul>
+                {turns.length > 0 && (
+                  <ol className="space-y-2 border-t border-white/10 pt-3 text-xs text-white/55">
+                    {turns.map((turn) => (
+                      <li key={`${turn.turnIndex}-${turn.finalizedAt}`}>
+                        #{turn.turnIndex} {turn.role}: {turn.text}
+                      </li>
+                    ))}
+                  </ol>
                 )}
-              </ul>
-              {turns.length > 0 && (
-                <ol className="space-y-2 border-t border-white/10 pt-3 text-xs text-white/55">
-                  {turns.map((turn) => (
-                    <li key={`${turn.turnIndex}-${turn.finalizedAt}`}>
-                      #{turn.turnIndex} {turn.role}: {turn.text}
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </div>
-          )}
-        </footer>
+              </div>
+            )}
+          </footer>
+        )}
       </div>
     </main>
   );

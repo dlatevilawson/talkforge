@@ -271,6 +271,20 @@ Approved (executed)
 
 ---
 
+# Decision 019
+
+Title:
+Beta Recommendations v2.0 — build welcoming first experience.
+
+Reason:
+
+First impression earns trust; last impression earns return. Welcome before work; one path; comfort before challenge; screens invite action; sessions end with momentum (BETA-REC-002). Implements BR-001 trust/completion gaps without new doctrine.
+
+Status:
+Approved (execute)
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

@@ -26,6 +26,7 @@
 | **Mission review** | [MR-001](../../product/MR-001-mission-review-strategic-reinforcement.md) — **Accepted (RES-014)**; governance checkpoint for significant new ideas; doctrine unchanged |
 | **Beta readiness** | [BR-001](../../product/BR-001-beta-readiness-assessment.md) — **Accepted (RES-015)**; **NOT READY**; public deploy mitigated |
 | **Production URL** | **https://talkforge-virid.vercel.app** ([DEPLOY-001](../../product/DEPLOY-001-founder-vercel.md)) — abandon `talkforge.vercel.app` for beta |
+| **Beta UX** | [BETA-REC-002](../../product/BETA-REC-002-welcoming-first-experience.md) — Accepted; welcoming first version shipping |
 | **Staleness rule** | If older than 7 days or last Weekly Review, successor must refresh before counsel |
 
 **Company posture (RES-013 / RES-014 / RES-015):** Immediate engineering priority is **CE-001** (Approved for Execution). **PPS-001 may not begin** until CE-001 MVP readiness. FLA-001 + PCM-001 Product Canonical. Atlas org frozen. North Star remains transfer (for PPS after gate). **MR-001 Accepted** — governance checkpoint. **BR-001 Accepted** — external beta **NOT READY** until Criticals clear; no doctrine changes; no new frameworks.

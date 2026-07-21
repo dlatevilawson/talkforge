@@ -45,7 +45,7 @@ export default function PreparePage() {
     setError("");
 
     if (!title.trim() || !whenLabel.trim() || !successCriteria.trim()) {
-      setError("Name the interview, when it is, and what success looks like.");
+      setError("Name the conversation, when it is, and what success looks like.");
       return;
     }
 
@@ -86,15 +86,15 @@ export default function PreparePage() {
           What are you preparing for?
         </h1>
         <p className="mt-4 text-base leading-7 text-zinc-400">
-          Name the moment, then begin with Forge. Optional — or go straight to
-          voice from the dashboard.
+          Name the real conversation on your mind. Then begin with Forge — you
+          don’t have to perform here.
         </p>
       </section>
 
       <form onSubmit={handleStart} className="mt-10 max-w-2xl space-y-8">
         <fieldset>
           <legend className="text-sm font-medium text-zinc-200">
-            Interview track
+            Conversation type
           </legend>
           <div className="mt-3 grid gap-3">
             {TRACKS.map((item) => (

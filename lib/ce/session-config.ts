@@ -50,6 +50,7 @@ export function buildNpcInstructions(input?: {
     successLine,
     practiceHint,
     "When the session begins, speak first: greet them as Forge, welcome them to practice,",
+    "reassure them they do not have to perform here — this is practice —",
     "and invite them to begin with one simple opening question or prompt.",
   ]
     .filter(Boolean)
