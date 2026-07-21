@@ -12,7 +12,7 @@
 | **Dependencies** | ATLAS-SUCCESSION, ATLAS-P4, ATLAS-P5, CHARTER-ATLAS |
 | **Related Documents** | ATLAS-GATE-FV, ATLAS-D-FLAGS, REG-EXEC |
 | **Approval History** | 2026-07-19 — Initial register for succession continuity |
-| **Change Log** | 2026-07-21 — RES-015: BR-001 Accepted (NOT READY binding); MR-001 Accepted; CE Critical / PPS gated |
+| **Change Log** | 2026-07-21 — DEPLOY-001: talkforge-virid.vercel.app live; old host abandoned; BR-001/RES-015 NOT READY remains |
 
 ---
 
@@ -24,7 +24,8 @@
 | **Updated by** | Atlas |
 | **Standing priority** | **CE-001 Communication Engine** (DIR-CE-001 / RES-013) — Critical; pre-beta UX presence/trust (DEC-CE-M2-UX); PPS-001 gated |
 | **Mission review** | [MR-001](../../product/MR-001-mission-review-strategic-reinforcement.md) — **Accepted (RES-014)**; governance checkpoint for significant new ideas; doctrine unchanged |
-| **Beta readiness** | [BR-001](../../product/BR-001-beta-readiness-assessment.md) — **Accepted (RES-015)**; **NOT READY** binding until Criticals clear |
+| **Beta readiness** | [BR-001](../../product/BR-001-beta-readiness-assessment.md) — **Accepted (RES-015)**; **NOT READY**; public deploy mitigated |
+| **Production URL** | **https://talkforge-virid.vercel.app** ([DEPLOY-001](../../product/DEPLOY-001-founder-vercel.md)) — abandon `talkforge.vercel.app` for beta |
 | **Staleness rule** | If older than 7 days or last Weekly Review, successor must refresh before counsel |
 
 **Company posture (RES-013 / RES-014 / RES-015):** Immediate engineering priority is **CE-001** (Approved for Execution). **PPS-001 may not begin** until CE-001 MVP readiness. FLA-001 + PCM-001 Product Canonical. Atlas org frozen. North Star remains transfer (for PPS after gate). **MR-001 Accepted** — governance checkpoint. **BR-001 Accepted** — external beta **NOT READY** until Criticals clear; no doctrine changes; no new frameworks.

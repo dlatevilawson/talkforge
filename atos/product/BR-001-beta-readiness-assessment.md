@@ -12,7 +12,7 @@
 | **Dependencies** | MR-001 / RES-014, DIR-CE-001 / RES-013, CE-001, DEC-CE-M2-UX, FLA-001, RES-015 |
 | **Related Documents** | ATLAS-HANDOFF-REGISTER, PPS-001 (still Gated), RES-015 |
 | **Approval History** | 2026-07-21 — Assessment issued; **2026-07-21 — Founder Accept (RES-015)** |
-| **Change Log** | 2026-07-21 — v1.0.0 assessment; v1.0.1 Accepted — NOT READY binding until Criticals clear |
+| **Change Log** | 2026-07-21 — v1.0.0 assessment; v1.0.1 Accepted — NOT READY binding; **v1.0.2 DEPLOY-001: this app live at talkforge-virid.vercel.app; old host abandoned** |
 
 > **Objective:** Prepare TalkForge so a small group of real users can use the application on their phones for one week.  
 > **Not the objective:** Build more features for their own sake.  
@@ -27,13 +27,13 @@ TalkForge’s **in-repo product** (Next.js Communication Engine + gym surfaces) 
 
 It is **not ready** to invite external users via a text-message link.
 
-**Primary blocker:** There is **no public deployment of this application**. The hostname `https://talkforge.vercel.app` returns **200** but serves a **different product** (static “Signal Room / practice floor” HTML). Routes that define this TalkForge — `/voice`, `/dashboard`, `/prepare`, `/api/realtime/session` — return **404** on that host.
+**Primary blocker (updated 2026-07-21):** ~~There is no public deployment of this application.~~ **Mitigated by DEPLOY-001:** this Next.js TalkForge is live at **https://talkforge-virid.vercel.app** under the Founder’s accessible Vercel account. The hostname `https://talkforge.vercel.app` remains a **different product** and is **abandoned for beta** (not owned by the accessible account — do not chase).
 
-**Secondary blockers for a one-week phone beta:**
+**Remaining blockers for a one-week phone beta:**
 
 1. Voice session **End** does not complete a user-visible learning loop (no CE-M3 coaching handoff → reflect/reality).  
 2. First-run product language still mixes **strategy jargon**, **infrastructure names**, and **interview-as-identity** CTAs.  
-3. Mobile mic / Safari / PTT behavior is **unproven on a real public HTTPS deploy of this app**.
+3. Mobile mic / Safari / PTT behavior still needs **Founder/device smoke** on the new HTTPS URL.
 
 **Final recommendation: NOT READY**
 
@@ -127,18 +127,18 @@ Issues ranked **highest → lowest impact** within each band.
 
 | Item | Status | Notes |
 |---|---|---|
-| Public deployment (this app) | 🔴 Blocking | Current public host ≠ this codebase |
-| Mobile accessibility | 🟡 Needs Improvement | Layout OK locally; unproven on real phones against this app in prod |
-| HTTPS | 🔴 Blocking *for this app* | Vercel host has HTTPS but wrong product; this app needs its own HTTPS deploy |
-| Microphone permissions | 🟡 Needs Improvement | Code path exists; phone Safari/Chrome unproven on correct host |
-| Voice conversations | 🟡 Needs Improvement | CE-M1/M2 work locally; not available on public link |
+| Public deployment (this app) | ✅ Complete | **https://talkforge-virid.vercel.app** (DEPLOY-001). Old `talkforge.vercel.app` abandoned. |
+| Mobile accessibility | 🟡 Needs Improvement | Layout OK; real-phone pass still required on new URL |
+| HTTPS | ✅ Complete | Vercel HTTPS on new project |
+| Microphone permissions | 🟡 Needs Improvement | API mint works in prod; device prompt unproven |
+| Voice conversations | 🟡 Needs Improvement | Session mint OK in prod; full duplex on phone pending |
 | Responsive UI | 🟡 Needs Improvement | Generally usable at 390px; nav crowded |
-| Loading performance | 🟡 Needs Improvement | Local OK; no prod RUM for this app |
+| Loading performance | 🟡 Needs Improvement | Prod responds; no RUM yet |
 | First-time onboarding | 🔴 Blocking | Unclear single path; jargon; form friction before first win |
 | Error handling | 🟡 Needs Improvement | Some errors surface; recovery/return path thin |
 | Session completion | 🔴 Blocking | End ≠ complete gym loop (coach/reflect/return) |
 | Conversation quality | 🟡 Needs Improvement | Warm coach-first voice present; FLA coaching cards not yet on voice (CE-M3) |
-| Founder confidence | 🔴 Blocking | Cannot honestly text a link to *this* product today |
+| Founder confidence | 🟡 Needs Improvement | Correct link exists; still need phone smoke + completion/trust before unsupervised invite |
 
 ---
 
@@ -171,8 +171,8 @@ Ordered for **highest impact on invite confidence**. No new frameworks. Build on
 
 | Order | Action | Band | Why it raises invite probability |
 |---|---|---|---|
-| 1 | **Deploy this Next.js TalkForge** to a dedicated HTTPS URL (or replace the wrong Vercel project). Verify `/`, `/voice`, `/api/realtime/session` on that host. | Critical | Without a correct link, there is no beta |
-| 2 | **Smoke-test on real iPhone + Android**: open link → mic prompt → Forge speaks → hold-to-speak → End. | Critical | Phone is the stated environment |
+| 1 | ~~**Deploy this Next.js TalkForge**~~ **Done (DEPLOY-001)** — https://talkforge-virid.vercel.app | Critical → ✅ | Correct link exists |
+| 2 | **Smoke-test on real iPhone + Android** on the new URL: open link → mic prompt → Forge speaks → hold-to-speak → End. | Critical | Phone is the stated environment |
 | 3 | **Define a minimal “session complete” for beta** (even thin): End → short coaching from transcript (CE-M3 intent) or clear next step + save — so users feel a finished practice. | Critical | Return requires a closed loop |
 | 4 | **Strip beta-facing jargon**: remove/hide Supabase banner, V1/North Star dashboard copy; hide Diagnostics by default with no primary affordance (or remove for beta). | High | Trust |
 | 5 | **One obvious start path** on home + dashboard; soften interview-as-identity CTA per MR-001. | High | 30-second clarity |

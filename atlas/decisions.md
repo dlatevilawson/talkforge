@@ -257,6 +257,20 @@ Approved (RES-015)
 
 ---
 
+# Decision 018
+
+Title:
+Abandon inaccessible talkforge.vercel.app; deploy this repo to Founder Vercel.
+
+Reason:
+
+talkforge.vercel.app is not owned by the accessible Founder Vercel account (dlatevilawson-7440). Do not chase. New project talkforge → production https://talkforge-virid.vercel.app (DEPLOY-001). BR-001 NOT READY remains until phone smoke + session complete + trust path.
+
+Status:
+Approved (executed)
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

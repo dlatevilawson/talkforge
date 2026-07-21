@@ -24,7 +24,8 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [CE-M2 evidence](evidence/CE-M2-STABLE-TRANSCRIPTS.md) | Stable Transcripts | **Accepted (Engineering)** |
 | — | [MR-001](MR-001-mission-review-strategic-reinforcement.md) | Mission Review & Strategic Reinforcement | **Accepted** (RES-014) — governance checkpoint |
 | — | [RES-014](../resolutions/RES-014-mr-001-acceptance.md) | MR-001 Accepted; doctrine unchanged; CE priority holds | Authoritative |
-| — | [BR-001](BR-001-beta-readiness-assessment.md) | Beta Readiness Assessment | **Accepted** (RES-015) — **NOT READY** until Criticals clear |
+| — | [BR-001](BR-001-beta-readiness-assessment.md) | Beta Readiness Assessment | **Accepted** (RES-015) — **NOT READY**; deploy mitigated (DEPLOY-001) |
+| — | [DEPLOY-001](DEPLOY-001-founder-vercel.md) | Founder Vercel deploy — https://talkforge-virid.vercel.app | Authoritative ops |
 | — | [RES-015](../resolutions/RES-015-br-001-acceptance.md) | BR-001 Accepted; external invite blocked | Authoritative |
 | — | [FLA-001](FLA-001-forge-learning-architecture.md) | Canonical product learning specification | Authoritative |
 | — | [PCM-001](PCM-001-personal-communication-model.md) | Canonical representation of user growth | Product Canonical |
