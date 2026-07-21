@@ -27,7 +27,7 @@
 | **Beta readiness** | [BR-001](../../product/BR-001-beta-readiness-assessment.md) — **Accepted (RES-015)**; **NOT READY** binding until Criticals clear |
 | **Staleness rule** | If older than 7 days or last Weekly Review, successor must refresh before counsel |
 
-**Company posture (RES-013 / RES-014):** Immediate engineering priority is **CE-001** (Approved for Execution). **PPS-001 may not begin** until CE-001 MVP readiness. FLA-001 + PCM-001 Product Canonical. Atlas org frozen. North Star remains transfer (for PPS after gate). **MR-001 Accepted** — governance checkpoint; no doctrine changes; no new frameworks.
+**Company posture (RES-013 / RES-014 / RES-015):** Immediate engineering priority is **CE-001** (Approved for Execution). **PPS-001 may not begin** until CE-001 MVP readiness. FLA-001 + PCM-001 Product Canonical. Atlas org frozen. North Star remains transfer (for PPS after gate). **MR-001 Accepted** — governance checkpoint. **BR-001 Accepted** — external beta **NOT READY** until Criticals clear; no doctrine changes; no new frameworks.
 
 **Program Desk:** [`ATLAS-AIF-PROGRAM`](ATLAS-PROGRAM-DESK.md) — AIF-PROGRAM inside AIO-CORE owns register currency (not a sixth AIO).
 
