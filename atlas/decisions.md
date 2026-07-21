@@ -229,6 +229,20 @@ Approved
 
 ---
 
+# Decision 016
+
+Title:
+MR-001 Accepted — Mission Review as governance checkpoint.
+
+Reason:
+
+Preserves mission; strengthens execution discipline; protects against drift; adds no unnecessary complexity; reinforces philosophy rather than replacing it. No doctrine changes. No new frameworks. Continue CE-001; use MR-001 to stress-test significant new ideas (RES-014).
+
+Status:
+Approved (RES-014)
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

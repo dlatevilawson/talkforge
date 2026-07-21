@@ -3,18 +3,20 @@
 | Field | Value |
 |---|---|
 | **Document ID** | MR-001 |
-| **Version** | 1.0.0 |
-| **Status** | Working (Atlas counsel — Founder Review) |
-| **Authority** | Atlas recommends; Founder decides |
+| **Version** | 1.0.1 |
+| **Status** | **Accepted** (Authoritative governance checkpoint) |
+| **Authority** | Founder Accepted — RES-014 |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Dependencies** | SPEC-002, Constitution, Founder Brief, Philosophy, Forge Laws, Metrics, FLA-001, PCM-001, CE-001, DIR-CE-001, PPS-001, RES-011…013, DEC-CE-M2-UX, STRAT-001 |
-| **Related Documents** | ATLAS-HANDOFF-REGISTER |
-| **Approval History** | 2026-07-20 — Issued under Founder Directive: Mission Review & Strategic Reinforcement |
-| **Change Log** | 2026-07-20 — v1.0.0 Phase 1–5 review complete; no Identity rewrite |
+| **Dependencies** | SPEC-002, Constitution, Founder Brief, Philosophy, Forge Laws, Metrics, FLA-001, PCM-001, CE-001, DIR-CE-001, PPS-001, RES-011…014, DEC-CE-M2-UX, STRAT-001 |
+| **Related Documents** | ATLAS-HANDOFF-REGISTER, RES-014 |
+| **Approval History** | 2026-07-20 — Issued under Founder Directive; **2026-07-21 — Founder Accept (RES-014)** |
+| **Change Log** | 2026-07-20 — v1.0.0 Phase 1–5 review; 2026-07-21 — v1.0.1 Accepted; governance checkpoint; doctrine unchanged |
 
 > **Intent:** Strengthen what already exists. Do **not** redesign the company, rewrite doctrine, or introduce competing frameworks. This report is counsel, not a new operating system.
+>
+> **Accepted use:** Governance checkpoint for significant new ideas. Does **not** change doctrine or current Critical priority (CE-001).
 
 ---
 
@@ -287,7 +289,22 @@ It needs **disciplined execution of the philosophy it already has**: a trustwort
 **What is gated is PPS-001.**  
 **What is forbidden without Founder approval is interruption by future ideas.**
 
+### Founder Acceptance (RES-014)
+
+**Status: ✅ Accepted**
+
+Reasons recorded by Founder:
+
+- Preserves the mission  
+- Strengthens execution discipline  
+- Protects against mission drift  
+- Does not introduce unnecessary complexity  
+- Reinforces existing philosophy rather than replacing it  
+
+**Current priority (unchanged):** Continue Communication Engine execution. No doctrine changes. No new frameworks. Use this report as a governance checkpoint whenever a significant new idea arises.
+
 | Field | Value |
 |---|---|
-| **Status Upon Signature** | Working — awaiting Founder acknowledgment |
-| **Recommend ≠ Decide** | Atlas does not amend Identity or Priority by publishing this report |
+| **Status Upon Signature** | **Accepted** — Authoritative governance checkpoint (RES-014) |
+| **Doctrine** | Unchanged |
+| **Execution priority** | Unchanged — CE-001 Critical; PPS-001 Gated |

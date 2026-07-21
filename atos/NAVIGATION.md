@@ -129,7 +129,8 @@ See [`references/README.md`](references/README.md).
 | DIR-CE-001 | Founder Directive — CE-001 Critical / Approved for Execution | [product/DIR-CE-001-founder-directive.md](product/DIR-CE-001-founder-directive.md) |
 | RES-013 | CE-001 Approved; PPS-001 Gated | [resolutions/RES-013-ce-001-approved-for-execution.md](resolutions/RES-013-ce-001-approved-for-execution.md) |
 | DEC-CE-M2-UX | CE-M2 Accepted (Eng) + pre-beta UX priorities | [product/DEC-CE-M2-UX-PRIORITIES.md](product/DEC-CE-M2-UX-PRIORITIES.md) |
-| MR-001 | Mission Review & Strategic Reinforcement (Working counsel) | [product/MR-001-mission-review-strategic-reinforcement.md](product/MR-001-mission-review-strategic-reinforcement.md) |
+| MR-001 | Mission Review & Strategic Reinforcement (**Accepted** — governance checkpoint) | [product/MR-001-mission-review-strategic-reinforcement.md](product/MR-001-mission-review-strategic-reinforcement.md) |
+| RES-014 | MR-001 Accepted; doctrine unchanged; CE priority holds | [resolutions/RES-014-mr-001-acceptance.md](resolutions/RES-014-mr-001-acceptance.md) |
 | PCM-001 | Personal Communication Model (Product Canonical) | [product/PCM-001-personal-communication-model.md](product/PCM-001-personal-communication-model.md) |
 | EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |
 | EXEC-ORG-DECISIONS | Org Decision Governance | [executives/atlas-program/ORG-DECISION-GOVERNANCE.md](executives/atlas-program/ORG-DECISION-GOVERNANCE.md) |
