@@ -83,8 +83,8 @@ Issues ranked **highest → lowest impact** within each band.
 
 | Rank | Issue | Impact |
 |---|---|---|
-| C1 | **This TalkForge app is not publicly deployed.** `talkforge.vercel.app` is a different static product; CE routes 404. No reliable SMS deep-link to `/voice`. | Users cannot open the real product |
-| C2 | **No production HTTPS host for CE mic path.** Browser mic requires secure context; without a correct deploy, phone beta cannot validate voice. | Voice practice fails before it starts |
+| C1 | ~~**This TalkForge app is not publicly deployed.**~~ **Mitigated (DEPLOY-001):** live at https://talkforge-virid.vercel.app. Old host abandoned. | Was: users cannot open product |
+| C2 | ~~**No production HTTPS host for CE mic path.**~~ **Mitigated** — HTTPS on new project; **device mic still unverified**. | Voice on phone still pending smoke |
 | C3 | **Voice session completion loop incomplete for beta value.** End stops WebRTC; no CE-M3 evidence coaching → reflect/reality → reason to return next day. | Users may try once and leave with “cool demo,” not a gym habit |
 
 ### High Priority (confidence / confusion)
