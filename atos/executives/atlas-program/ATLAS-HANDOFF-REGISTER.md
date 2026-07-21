@@ -12,7 +12,7 @@
 | **Dependencies** | ATLAS-SUCCESSION, ATLAS-P4, ATLAS-P5, CHARTER-ATLAS |
 | **Related Documents** | ATLAS-GATE-FV, ATLAS-D-FLAGS, REG-EXEC |
 | **Approval History** | 2026-07-19 — Initial register for succession continuity |
-| **Change Log** | 2026-07-21 — DEPLOY-001: talkforge-virid.vercel.app live; old host abandoned; BR-001/RES-015 NOT READY remains |
+| **Change Log** | 2026-07-21 — RES-016 / PCI-001 craftsmanship stage; BETA-REC-002; DEPLOY-001; BR-001 NOT READY |
 
 ---
 
@@ -22,14 +22,15 @@
 |---|---|
 | **Last updated** | 2026-07-21 |
 | **Updated by** | Atlas |
-| **Standing priority** | **CE-001 Communication Engine** (DIR-CE-001 / RES-013) — Critical; pre-beta UX presence/trust (DEC-CE-M2-UX); PPS-001 gated |
-| **Mission review** | [MR-001](../../product/MR-001-mission-review-strategic-reinforcement.md) — **Accepted (RES-014)**; governance checkpoint for significant new ideas; doctrine unchanged |
-| **Beta readiness** | [BR-001](../../product/BR-001-beta-readiness-assessment.md) — **Accepted (RES-015)**; **NOT READY**; public deploy mitigated |
-| **Production URL** | **https://talkforge-virid.vercel.app** ([DEPLOY-001](../../product/DEPLOY-001-founder-vercel.md)) — abandon `talkforge.vercel.app` for beta |
-| **Beta UX** | [BETA-REC-002](../../product/BETA-REC-002-welcoming-first-experience.md) — Accepted; welcoming first version shipping |
-| **Staleness rule** | If older than 7 days or last Weekly Review, successor must refresh before counsel |
+| **Standing priority** | **Love-of-use craftsmanship (PCI-001)** + **CE-001** substrate; PPS-001 gated; BR-001 phone smoke still required before unsupervised invite |
+| **Mission review** | [MR-001](../../product/MR-001-mission-review-strategic-reinforcement.md) — **Accepted (RES-014)**; governance checkpoint; doctrine unchanged |
+| **Craftsmanship** | [PCI-001](../../product/PCI-001-product-craftsmanship-initiative.md) — **Accepted (RES-016)**; Craftsmanship Review mandatory on every product review |
+| **Baseline CR** | [PCI-CR-001](../../product/PCI-CR-001-baseline-craftsmanship-review.md) — Working; share-test not yet passed |
+| **Beta readiness** | [BR-001](../../product/BR-001-beta-readiness-assessment.md) — **Accepted (RES-015)**; **NOT READY**; deploy mitigated |
+| **Production URL** | **https://talkforge-virid.vercel.app** ([DEPLOY-001](../../product/DEPLOY-001-founder-vercel.md)) |
+| **Beta UX** | [BETA-REC-002](../../product/BETA-REC-002-welcoming-first-experience.md) — Accepted; deepened by PCI-001 |
 
-**Company posture (RES-013 / RES-014 / RES-015):** Immediate engineering priority is **CE-001** (Approved for Execution). **PPS-001 may not begin** until CE-001 MVP readiness. FLA-001 + PCM-001 Product Canonical. Atlas org frozen. North Star remains transfer (for PPS after gate). **MR-001 Accepted** — governance checkpoint. **BR-001 Accepted** — external beta **NOT READY** until Criticals clear; no doctrine changes; no new frameworks.
+**Company posture (RES-013…016):** Stage = **build a product people immediately love using** (PCI-001). Engineering + craftsmanship equal discipline. CE-001 remains substrate. **PPS-001 gated.** Atlas org **frozen**. Mission unchanged (MR-001). **Craftsmanship Review mandatory** on every product review. External beta still **NOT READY** until BR-001 phone smoke + share-test trajectory.
 
 **Program Desk:** [`ATLAS-AIF-PROGRAM`](ATLAS-PROGRAM-DESK.md) — AIF-PROGRAM inside AIO-CORE owns register currency (not a sixth AIO).
 
@@ -55,6 +56,7 @@ This file is **operational**, not Canonical law. It must stay accurate so succes
 | Product Proof | PPS-001 / RES-013 | **Gated** on CE-001 MVP |
 | Mission Review checkpoint | MR-001 / RES-014 | **Accepted** — governance checkpoint (not new doctrine) |
 | Beta readiness | BR-001 / RES-015 | **Accepted** — **NOT READY**; no external invite until Criticals clear |
+| Product craftsmanship | PCI-001 / RES-016 | **Accepted** — Craftsmanship Review mandatory; Atlas org unchanged |
 
 ---
 
@@ -154,6 +156,7 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 | **PPS-001 gated** until CE-001 MVP readiness | RES-013 | Yes |
 | **MR-001 Accepted** — governance checkpoint for significant new ideas; no new frameworks / no doctrine change | RES-014 / MR-001 | Yes |
 | **BR-001 Accepted** — NOT READY; no external invite until Criticals clear | RES-015 / BR-001 | Yes |
+| **PCI-001 Accepted** — love-of-use; Craftsmanship Review on every product review; Atlas org unchanged | RES-016 / PCI-001 | Yes |
 | PCM-001 = canonical user growth model | RES-013 | Yes |
 | North Star = transfer (for PPS after gate) | RES-012 / FLA-001 | Yes |
 | FLA-001 governs coaching & learning | RES-012 | Yes |
@@ -175,7 +178,7 @@ Do **not** invent new binding priorities here. Propose via Decision Pack.
 
 | Cadence | Next Atlas action |
 |---|---|
-| Product | Execute CE-001 (CE-M3→MVP) + DEC-CE-M2-UX presence/trust; BR-001 Criticals before external invite (deploy this app, phone smoke, session complete); refuse PPS start until CE MVP gate; MR-001 checkpoint |
+| Product | PCI-001 craftsmanship + CE substrate; BETA-REC-002 welcome/momentum; BR-001 phone smoke before unsupervised invite; Craftsmanship Review on every product counsel; MR-001 checkpoint; refuse PPS until CE MVP |
 | Daily | Counsel → Guard → Core brief draft when Founder surface active |
 | Weekly | Broker intake + weekly pack when exec review runs |
 | Observation | Keep `atlas:runtime:observe` green; do not enable FOUNDER_VISIBLE unilaterally |

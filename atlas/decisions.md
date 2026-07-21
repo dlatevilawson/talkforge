@@ -285,6 +285,20 @@ Approved (execute)
 
 ---
 
+# Decision 020
+
+Title:
+PCI-001 Accepted — Product Craftsmanship Initiative.
+
+Reason:
+
+Stage shift: build a product people immediately love using. Care before capability. Four-dimension standard + mandatory Craftsmanship Review. Share test. Mission protected. Atlas org unchanged (RES-016). Design disciplines are a reasoning lens only.
+
+Status:
+Approved (RES-016)
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

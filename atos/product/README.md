@@ -27,6 +27,9 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [BR-001](BR-001-beta-readiness-assessment.md) | Beta Readiness Assessment | **Accepted** (RES-015) — **NOT READY**; deploy mitigated (DEPLOY-001) |
 | — | [DEPLOY-001](DEPLOY-001-founder-vercel.md) | Founder Vercel deploy — https://talkforge-virid.vercel.app | Authoritative ops |
 | — | [BETA-REC-002](BETA-REC-002-welcoming-first-experience.md) | Beta Recommendations v2.0 — welcoming first experience | **Accepted — execute** |
+| — | [PCI-001](PCI-001-product-craftsmanship-initiative.md) | Product Craftsmanship Initiative | **Accepted (RES-016)** |
+| — | [PCI-CR-001](PCI-CR-001-baseline-craftsmanship-review.md) | Baseline Craftsmanship Review (current prod) | Working counsel |
+| — | [RES-016](../resolutions/RES-016-pci-001-acceptance.md) | PCI-001 Accepted; Craftsmanship Review mandatory | Authoritative |
 | — | [RES-015](../resolutions/RES-015-br-001-acceptance.md) | BR-001 Accepted; external invite blocked | Authoritative |
 | — | [FLA-001](FLA-001-forge-learning-architecture.md) | Canonical product learning specification | Authoritative |
 | — | [PCM-001](PCM-001-personal-communication-model.md) | Canonical representation of user growth | Product Canonical |

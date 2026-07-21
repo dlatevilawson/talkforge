@@ -134,6 +134,9 @@ See [`references/README.md`](references/README.md).
 | BR-001 | Beta Readiness Assessment (**Accepted** — NOT READY; deploy mitigated) | [product/BR-001-beta-readiness-assessment.md](product/BR-001-beta-readiness-assessment.md) |
 | DEPLOY-001 | Founder Vercel production URL | [product/DEPLOY-001-founder-vercel.md](product/DEPLOY-001-founder-vercel.md) |
 | BETA-REC-002 | Beta Recommendations v2.0 — welcoming first experience | [product/BETA-REC-002-welcoming-first-experience.md](product/BETA-REC-002-welcoming-first-experience.md) |
+| PCI-001 | Product Craftsmanship Initiative (**Accepted**) | [product/PCI-001-product-craftsmanship-initiative.md](product/PCI-001-product-craftsmanship-initiative.md) |
+| PCI-CR-001 | Baseline Craftsmanship Review | [product/PCI-CR-001-baseline-craftsmanship-review.md](product/PCI-CR-001-baseline-craftsmanship-review.md) |
+| RES-016 | PCI-001 Accepted; Craftsmanship Review mandatory | [resolutions/RES-016-pci-001-acceptance.md](resolutions/RES-016-pci-001-acceptance.md) |
 | RES-015 | BR-001 Accepted; external invite blocked | [resolutions/RES-015-br-001-acceptance.md](resolutions/RES-015-br-001-acceptance.md) |
 | PCM-001 | Personal Communication Model (Product Canonical) | [product/PCM-001-personal-communication-model.md](product/PCM-001-personal-communication-model.md) |
 | EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |
