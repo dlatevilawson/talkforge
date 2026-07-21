@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | BR-001 |
-| **Version** | 1.0.0 |
-| **Status** | Authoritative (Founder Directive assessment) |
-| **Authority** | Founder Directive — Beta Readiness Assessment |
+| **Version** | 1.0.1 |
+| **Status** | **Accepted** (Authoritative) |
+| **Authority** | Founder Accepted — RES-015 |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
-| **Dependencies** | MR-001 / RES-014, DIR-CE-001 / RES-013, CE-001, DEC-CE-M2-UX, FLA-001 |
-| **Related Documents** | ATLAS-HANDOFF-REGISTER, PPS-001 (still Gated) |
-| **Approval History** | 2026-07-21 — Assessment issued under Founder Directive |
-| **Change Log** | 2026-07-21 — v1.0.0 Founder Journey + audit + recommendation |
+| **Dependencies** | MR-001 / RES-014, DIR-CE-001 / RES-013, CE-001, DEC-CE-M2-UX, FLA-001, RES-015 |
+| **Related Documents** | ATLAS-HANDOFF-REGISTER, PPS-001 (still Gated), RES-015 |
+| **Approval History** | 2026-07-21 — Assessment issued; **2026-07-21 — Founder Accept (RES-015)** |
+| **Change Log** | 2026-07-21 — v1.0.0 assessment; v1.0.1 Accepted — NOT READY binding until Criticals clear |
 
 > **Objective:** Prepare TalkForge so a small group of real users can use the application on their phones for one week.  
 > **Not the objective:** Build more features for their own sake.  
@@ -195,6 +195,14 @@ CE remains the substrate. BR-001 work that unblocks phone beta (deploy, session 
 | **PPS-001** | Still **Gated** — unchanged |
 | **MR-001** | Still the governance checkpoint for significant new ideas |
 
+### Founder Acceptance (RES-015)
+
+**Status: ✅ Accepted**
+
+- Recommendation **NOT READY** is binding until Critical blockers clear and Founder reassesses.  
+- Do not invite external users via text link until then.  
+- No doctrine changes. No new frameworks. PPS-001 remains gated.
+
 | Field | Value |
 |---|---|
-| **Status Upon Signature** | Authoritative assessment — awaiting Founder acknowledgment of recommendation |
+| **Status Upon Signature** | **Accepted** — NOT READY binding (RES-015) |

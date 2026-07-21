@@ -12,7 +12,7 @@
 | **Dependencies** | ATLAS-SUCCESSION, ATLAS-P4, ATLAS-P5, CHARTER-ATLAS |
 | **Related Documents** | ATLAS-GATE-FV, ATLAS-D-FLAGS, REG-EXEC |
 | **Approval History** | 2026-07-19 — Initial register for succession continuity |
-| **Change Log** | 2026-07-21 — BR-001 Beta Readiness: NOT READY; RES-014 MR-001 Accepted; CE Critical / PPS gated |
+| **Change Log** | 2026-07-21 — RES-015: BR-001 Accepted (NOT READY binding); MR-001 Accepted; CE Critical / PPS gated |
 
 ---
 
@@ -24,7 +24,7 @@
 | **Updated by** | Atlas |
 | **Standing priority** | **CE-001 Communication Engine** (DIR-CE-001 / RES-013) — Critical; pre-beta UX presence/trust (DEC-CE-M2-UX); PPS-001 gated |
 | **Mission review** | [MR-001](../../product/MR-001-mission-review-strategic-reinforcement.md) — **Accepted (RES-014)**; governance checkpoint for significant new ideas; doctrine unchanged |
-| **Beta readiness** | [BR-001](../../product/BR-001-beta-readiness-assessment.md) — **NOT READY** (no public deploy of this app; incomplete voice completion loop) |
+| **Beta readiness** | [BR-001](../../product/BR-001-beta-readiness-assessment.md) — **Accepted (RES-015)**; **NOT READY** binding until Criticals clear |
 | **Staleness rule** | If older than 7 days or last Weekly Review, successor must refresh before counsel |
 
 **Company posture (RES-013 / RES-014):** Immediate engineering priority is **CE-001** (Approved for Execution). **PPS-001 may not begin** until CE-001 MVP readiness. FLA-001 + PCM-001 Product Canonical. Atlas org frozen. North Star remains transfer (for PPS after gate). **MR-001 Accepted** — governance checkpoint; no doctrine changes; no new frameworks.
@@ -52,6 +52,7 @@ This file is **operational**, not Canonical law. It must stay accurate so succes
 | Communication Engine | CE-001 | Approved for Execution (CE-M1→) |
 | Product Proof | PPS-001 / RES-013 | **Gated** on CE-001 MVP |
 | Mission Review checkpoint | MR-001 / RES-014 | **Accepted** — governance checkpoint (not new doctrine) |
+| Beta readiness | BR-001 / RES-015 | **Accepted** — **NOT READY**; no external invite until Criticals clear |
 
 ---
 
@@ -150,6 +151,7 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 | **Pre-beta presence/trust UX** (do not restore diagnostic chrome) | DEC-CE-M2-UX | Yes |
 | **PPS-001 gated** until CE-001 MVP readiness | RES-013 | Yes |
 | **MR-001 Accepted** — governance checkpoint for significant new ideas; no new frameworks / no doctrine change | RES-014 / MR-001 | Yes |
+| **BR-001 Accepted** — NOT READY; no external invite until Criticals clear | RES-015 / BR-001 | Yes |
 | PCM-001 = canonical user growth model | RES-013 | Yes |
 | North Star = transfer (for PPS after gate) | RES-012 / FLA-001 | Yes |
 | FLA-001 governs coaching & learning | RES-012 | Yes |
