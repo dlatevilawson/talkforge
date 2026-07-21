@@ -131,6 +131,7 @@ See [`references/README.md`](references/README.md).
 | DEC-CE-M2-UX | CE-M2 Accepted (Eng) + pre-beta UX priorities | [product/DEC-CE-M2-UX-PRIORITIES.md](product/DEC-CE-M2-UX-PRIORITIES.md) |
 | MR-001 | Mission Review & Strategic Reinforcement (**Accepted** — governance checkpoint) | [product/MR-001-mission-review-strategic-reinforcement.md](product/MR-001-mission-review-strategic-reinforcement.md) |
 | RES-014 | MR-001 Accepted; doctrine unchanged; CE priority holds | [resolutions/RES-014-mr-001-acceptance.md](resolutions/RES-014-mr-001-acceptance.md) |
+| BR-001 | Beta Readiness Assessment (**NOT READY**) | [product/BR-001-beta-readiness-assessment.md](product/BR-001-beta-readiness-assessment.md) |
 | PCM-001 | Personal Communication Model (Product Canonical) | [product/PCM-001-personal-communication-model.md](product/PCM-001-personal-communication-model.md) |
 | EXEC-ORG-COMM | Org Communication | [executives/atlas-program/ORG-COMMUNICATION.md](executives/atlas-program/ORG-COMMUNICATION.md) |
 | EXEC-ORG-DECISIONS | Org Decision Governance | [executives/atlas-program/ORG-DECISION-GOVERNANCE.md](executives/atlas-program/ORG-DECISION-GOVERNANCE.md) |

@@ -12,7 +12,7 @@
 | **Dependencies** | ATLAS-SUCCESSION, ATLAS-P4, ATLAS-P5, CHARTER-ATLAS |
 | **Related Documents** | ATLAS-GATE-FV, ATLAS-D-FLAGS, REG-EXEC |
 | **Approval History** | 2026-07-19 — Initial register for succession continuity |
-| **Change Log** | 2026-07-21 — RES-014: MR-001 Accepted (governance checkpoint); CE Critical / PPS gated |
+| **Change Log** | 2026-07-21 — BR-001 Beta Readiness: NOT READY; RES-014 MR-001 Accepted; CE Critical / PPS gated |
 
 ---
 
@@ -24,6 +24,7 @@
 | **Updated by** | Atlas |
 | **Standing priority** | **CE-001 Communication Engine** (DIR-CE-001 / RES-013) — Critical; pre-beta UX presence/trust (DEC-CE-M2-UX); PPS-001 gated |
 | **Mission review** | [MR-001](../../product/MR-001-mission-review-strategic-reinforcement.md) — **Accepted (RES-014)**; governance checkpoint for significant new ideas; doctrine unchanged |
+| **Beta readiness** | [BR-001](../../product/BR-001-beta-readiness-assessment.md) — **NOT READY** (no public deploy of this app; incomplete voice completion loop) |
 | **Staleness rule** | If older than 7 days or last Weekly Review, successor must refresh before counsel |
 
 **Company posture (RES-013 / RES-014):** Immediate engineering priority is **CE-001** (Approved for Execution). **PPS-001 may not begin** until CE-001 MVP readiness. FLA-001 + PCM-001 Product Canonical. Atlas org frozen. North Star remains transfer (for PPS after gate). **MR-001 Accepted** — governance checkpoint; no doctrine changes; no new frameworks.
@@ -170,7 +171,7 @@ Do **not** invent new binding priorities here. Propose via Decision Pack.
 
 | Cadence | Next Atlas action |
 |---|---|
-| Product | Execute CE-001 (CE-M3→MVP) + DEC-CE-M2-UX presence/trust; refuse PPS start and feature expansion until CE MVP gate; follow MR-001 reinforce-not-redesign |
+| Product | Execute CE-001 (CE-M3→MVP) + DEC-CE-M2-UX presence/trust; BR-001 Criticals before external invite (deploy this app, phone smoke, session complete); refuse PPS start until CE MVP gate; MR-001 checkpoint |
 | Daily | Counsel → Guard → Core brief draft when Founder surface active |
 | Weekly | Broker intake + weekly pack when exec review runs |
 | Observation | Keep `atlas:runtime:observe` green; do not enable FOUNDER_VISIBLE unilaterally |

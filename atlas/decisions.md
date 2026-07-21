@@ -243,6 +243,20 @@ Approved (RES-014)
 
 ---
 
+# Decision 017
+
+Title:
+BR-001 Beta Readiness Assessment — NOT READY for external invite.
+
+Reason:
+
+Founder Directive BR-001. This TalkForge app has no correct public deploy (talkforge.vercel.app is a different product; CE routes 404). Voice completion loop incomplete for return visits. Phone mic unproven on the correct HTTPS host. Fix Criticals before texting a beta link. PPS-001 remains gated.
+
+Status:
+Recorded (assessment)
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

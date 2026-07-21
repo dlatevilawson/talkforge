@@ -24,6 +24,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [CE-M2 evidence](evidence/CE-M2-STABLE-TRANSCRIPTS.md) | Stable Transcripts | **Accepted (Engineering)** |
 | — | [MR-001](MR-001-mission-review-strategic-reinforcement.md) | Mission Review & Strategic Reinforcement | **Accepted** (RES-014) — governance checkpoint |
 | — | [RES-014](../resolutions/RES-014-mr-001-acceptance.md) | MR-001 Accepted; doctrine unchanged; CE priority holds | Authoritative |
+| — | [BR-001](BR-001-beta-readiness-assessment.md) | Beta Readiness Assessment | **NOT READY** — Founder Directive assessment |
 | — | [FLA-001](FLA-001-forge-learning-architecture.md) | Canonical product learning specification | Authoritative |
 | — | [PCM-001](PCM-001-personal-communication-model.md) | Canonical representation of user growth | Product Canonical |
 | **Gated** | [PPS-001](PPS-001-product-proof-sprint.md) | Product Proof Sprint 001 | **May not begin until CE-001 MVP** |
