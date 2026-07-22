@@ -29,6 +29,7 @@
 | **Beta readiness** | [BR-001](../../product/BR-001-beta-readiness-assessment.md) — **Accepted (RES-015)**; **NOT READY**; deploy mitigated |
 | **Production URL** | **https://talkforge-virid.vercel.app** ([DEPLOY-001](../../product/DEPLOY-001-founder-vercel.md)) |
 | **Beta UX** | [BETA-REC-002](../../product/BETA-REC-002-welcoming-first-experience.md) — Accepted; deepened by PCI-001 |
+| **Landing** | [LP-001](../../product/LP-001-production-landing.md) — Production landing built; **awaiting Founder deploy approval** for talkforge.io |
 
 **Company posture (RES-013…016):** Stage = **build a product people immediately love using** (PCI-001). Engineering + craftsmanship equal discipline. CE-001 remains substrate. **PPS-001 gated.** Atlas org **frozen**. Mission unchanged (MR-001). **Craftsmanship Review mandatory** on every product review. External beta still **NOT READY** until BR-001 phone smoke + share-test trajectory.
 

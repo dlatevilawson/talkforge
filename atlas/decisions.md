@@ -299,6 +299,20 @@ Approved (RES-016)
 
 ---
 
+# Decision 021
+
+Title:
+LP-001 Production Landing Page v1.0 — built; deploy only on Founder approval.
+
+Reason:
+
+Official public face for talkforge.io. Homepage = marketing landing; product welcome at /welcome. Real waitlist via Supabase. Do not auto-deploy. Founder must approve deploy + domain attach + waitlist SQL.
+
+Status:
+Built (awaiting deploy approval)
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

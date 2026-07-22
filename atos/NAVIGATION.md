@@ -136,6 +136,7 @@ See [`references/README.md`](references/README.md).
 | BETA-REC-002 | Beta Recommendations v2.0 — welcoming first experience | [product/BETA-REC-002-welcoming-first-experience.md](product/BETA-REC-002-welcoming-first-experience.md) |
 | PCI-001 | Product Craftsmanship Initiative (**Accepted**) | [product/PCI-001-product-craftsmanship-initiative.md](product/PCI-001-product-craftsmanship-initiative.md) |
 | PCI-CR-001 | Baseline Craftsmanship Review | [product/PCI-CR-001-baseline-craftsmanship-review.md](product/PCI-CR-001-baseline-craftsmanship-review.md) |
+| LP-001 | Production Landing Page v1.0 (awaiting deploy approval) | [product/LP-001-production-landing.md](product/LP-001-production-landing.md) |
 | RES-016 | PCI-001 Accepted; Craftsmanship Review mandatory | [resolutions/RES-016-pci-001-acceptance.md](resolutions/RES-016-pci-001-acceptance.md) |
 | RES-015 | BR-001 Accepted; external invite blocked | [resolutions/RES-015-br-001-acceptance.md](resolutions/RES-015-br-001-acceptance.md) |
 | PCM-001 | Personal Communication Model (Product Canonical) | [product/PCM-001-personal-communication-model.md](product/PCM-001-personal-communication-model.md) |
