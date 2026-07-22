@@ -120,14 +120,22 @@ export default function WelcomeExperience() {
           <p className="text-sm font-medium tracking-wide text-white/70">
             TalkForge
           </p>
-          {returning && (
+          <div className="flex items-center gap-4">
             <Link
-              href="/dashboard"
+              href="/"
               className="text-sm text-white/40 transition hover:text-white/70"
             >
-              Continue
+              Home
             </Link>
-          )}
+            {returning && (
+              <Link
+                href="/dashboard"
+                className="text-sm text-white/40 transition hover:text-white/70"
+              >
+                Continue
+              </Link>
+            )}
+          </div>
         </header>
 
         <section className="flex flex-1 flex-col justify-center py-10">

@@ -13,9 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TalkForge | AI Communication Gym",
+  metadataBase: new URL("https://talkforge.io"),
+  title: {
+    default: "TalkForge — Master the Art of Communication",
+    template: "%s · TalkForge",
+  },
   description:
-    "Practice real conversations with Forge, an AI coach that helps you become a more confident communicator.",
+    "TalkForge is an AI Communication Gym. Practice the conversations that matter with Forge — and never feel voiceless again.",
 };
 
 export default function RootLayout({
