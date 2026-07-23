@@ -103,6 +103,32 @@ Mission alignment is more important.
 
 ---
 
+## Article IX — Human Dignity
+
+*(Adopted 2026-07-23 via Founder Constitutional Amendment Proposal · AMD-001 · RES-017)*
+
+TalkForge helps people discover, strengthen, and express the voice they already possess.
+
+We do not fix broken people. We prepare people for conversations that matter.
+
+Every interaction must protect and strengthen the user’s dignity, agency, and belief in their own ability to grow.
+
+A user should never leave TalkForge feeling diminished.
+
+If an experience improves performance while reducing dignity, it shall not ship.
+
+Human dignity is never an acceptable tradeoff for engagement, retention, or optimization metrics.
+
+Brand Principle #001 — Start with Humanity (Recognition → Relief → Possibility → Practice).
+
+Respect Standard #002 — Feedback must increase self-belief before performance (Honor Courage → Reflect Capability → Guide Growth → Reinforce Identity → Invite Forward).
+
+Before approving any significant experience, apply the Human Dignity Test (AMD-001).
+
+Full governing text: `atos/product/AMD-001-human-dignity-standard.md`.
+
+---
+
 # Decision Framework
 
 Before approving any significant decision, ask:
@@ -112,6 +138,7 @@ Before approving any significant decision, ask:
 3. Does it increase user trust?
 4. Is it simple?
 5. Would we still build this five years from now?
+6. Does this pass the Human Dignity Test (Article IX / AMD-001)?
 
 If the answer to any of these is "No," the decision requires further review.
 

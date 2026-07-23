@@ -313,6 +313,20 @@ Built (awaiting deploy approval)
 
 ---
 
+# Decision 022
+
+Title:
+AMD-001 Human Dignity Standard — Accepted as derived constitutional principle.
+
+Reason:
+
+Constitutionally consistent with Mission, Art. II/VI, Founder Brief, FLA, and trust laws. Brand Principle #001 + Respect Standard #002 binding. Human Dignity Test mandatory approval gate. Forge Law #011 adopted. Article IX added. Atlas org unchanged (RES-017).
+
+Status:
+Approved (RES-017)
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

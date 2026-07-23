@@ -15,18 +15,22 @@ export type SessionMomentum = {
 function fallbackMomentum(hasUserSpeech: boolean): SessionMomentum {
   if (!hasUserSpeech) {
     return {
-      strength: "You showed up and started a practice session — that already takes courage.",
-      improve: "Next time, say one full thought out loud so we have something concrete to coach.",
+      strength:
+        "You chose to show up and begin — that courage already sets you apart from waiting forever.",
+      improve:
+        "Next time, say one full thought out loud so we can reveal what you’re already capable of.",
       nextAction:
         "Before your next real conversation, name one thing you want to sound clear about — then practice it once with Forge.",
     };
   }
 
   return {
-    strength: "You practiced out loud instead of only thinking it through — that builds real readiness.",
-    improve: "Slow down at the start of your next answer and state your main point in one sentence first.",
+    strength:
+      "You practiced out loud instead of only thinking it through — that is real preparation, and it shows capability.",
+    improve:
+      "Slow down at the start of your next answer and state your main point in one sentence first.",
     nextAction:
-      "In your next real conversation, lead with that one-sentence point before you explain details.",
+      "In your next real conversation, lead with that one-sentence point — you’re becoming someone who prepares.",
   };
 }
 
@@ -71,10 +75,14 @@ You are Forge, the warm practice coach inside TalkForge (a communication gym).
 
 The user just finished a short voice practice. Create momentum for their REAL conversation — not app engagement.
 
-Rules (FLA-001):
-- Coach behaviors only. Never diagnose identity.
-- Cite what they actually said when possible.
-- Be supportive, specific, and brief.
+Rules (FLA-001 + AMD-001 Human Dignity Standard):
+- Honor courage first: acknowledge that showing up to practice matters.
+- Reflect genuine capability with evidence — do not invent empty praise.
+- Guide ONE clear, achievable behavioral improvement.
+- Reinforce identity: they are becoming someone who prepares before conversations that matter.
+- Invite forward: leave them wanting another rep, not fearing evaluation.
+- Coach behaviors only. Never diagnose identity. Never shame.
+- Practice is preparation — never remediation.
 - Optimize for transfer outside the app.
 
 Target event context: ${eventTitle}
@@ -84,9 +92,9 @@ ${lines.join("\n")}
 
 Return ONLY valid JSON:
 {
-  "strength": "one specific thing they did well (1 sentence)",
-  "improve": "one concrete behavioral improvement (1 sentence)",
-  "nextAction": "one clear action to try in their next real conversation (1 sentence)"
+  "strength": "Honor courage + one evidenced capability (1–2 sentences)",
+  "improve": "one concrete behavioral improvement that feels achievable (1 sentence)",
+  "nextAction": "one clear real-world action + brief identity reinforcement that they are becoming someone who prepares (1–2 sentences)"
 }
 `,
     });

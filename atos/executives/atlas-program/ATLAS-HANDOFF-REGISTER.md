@@ -12,7 +12,7 @@
 | **Dependencies** | ATLAS-SUCCESSION, ATLAS-P4, ATLAS-P5, CHARTER-ATLAS |
 | **Related Documents** | ATLAS-GATE-FV, ATLAS-D-FLAGS, REG-EXEC |
 | **Approval History** | 2026-07-19 — Initial register for succession continuity |
-| **Change Log** | 2026-07-21 — RES-016 / PCI-001 craftsmanship stage; BETA-REC-002; DEPLOY-001; BR-001 NOT READY |
+| **Change Log** | 2026-07-23 — RES-017 / AMD-001 Human Dignity Standard; Art. IX; Forge Law #011; Dignity Test mandatory |
 
 ---
 
@@ -30,8 +30,9 @@
 | **Production URL** | **https://talkforge-virid.vercel.app** ([DEPLOY-001](../../product/DEPLOY-001-founder-vercel.md)) |
 | **Beta UX** | [BETA-REC-002](../../product/BETA-REC-002-welcoming-first-experience.md) — Accepted; deepened by PCI-001 |
 | **Landing** | [LP-001](../../product/LP-001-production-landing.md) — Production landing built; **awaiting Founder deploy approval** for talkforge.io |
+| **Human Dignity** | [AMD-001](../../product/AMD-001-human-dignity-standard.md) — **Accepted (RES-017)**; Dignity Test mandatory; Forge Law #011 |
 
-**Company posture (RES-013…016):** Stage = **build a product people immediately love using** (PCI-001). Engineering + craftsmanship equal discipline. CE-001 remains substrate. **PPS-001 gated.** Atlas org **frozen**. Mission unchanged (MR-001). **Craftsmanship Review mandatory** on every product review. External beta still **NOT READY** until BR-001 phone smoke + share-test trajectory.
+**Company posture (RES-013…017):** Stage = love-of-use (PCI-001) + **Human Dignity Standard (AMD-001)**. Engineering + craftsmanship + dignity equal discipline. CE-001 substrate. **PPS-001 gated.** Atlas org **frozen**. Mission unchanged (MR-001). **Craftsmanship Review + Human Dignity Test mandatory** on every product review. External beta still **NOT READY** until BR-001 phone smoke + share-test trajectory.
 
 **Program Desk:** [`ATLAS-AIF-PROGRAM`](ATLAS-PROGRAM-DESK.md) — AIF-PROGRAM inside AIO-CORE owns register currency (not a sixth AIO).
 
@@ -58,6 +59,7 @@ This file is **operational**, not Canonical law. It must stay accurate so succes
 | Mission Review checkpoint | MR-001 / RES-014 | **Accepted** — governance checkpoint (not new doctrine) |
 | Beta readiness | BR-001 / RES-015 | **Accepted** — **NOT READY**; no external invite until Criticals clear |
 | Product craftsmanship | PCI-001 / RES-016 | **Accepted** — Craftsmanship Review mandatory; Atlas org unchanged |
+| Human Dignity Standard | AMD-001 / RES-017 | **Accepted** — Art. IX; Dignity Test mandatory; Forge Law #011 |
 
 ---
 
@@ -158,6 +160,7 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 | **MR-001 Accepted** — governance checkpoint for significant new ideas; no new frameworks / no doctrine change | RES-014 / MR-001 | Yes |
 | **BR-001 Accepted** — NOT READY; no external invite until Criticals clear | RES-015 / BR-001 | Yes |
 | **PCI-001 Accepted** — love-of-use; Craftsmanship Review on every product review; Atlas org unchanged | RES-016 / PCI-001 | Yes |
+| **AMD-001 Accepted** — Human Dignity Test on every approval; dignity before product objectives | RES-017 / AMD-001 | Yes |
 | PCM-001 = canonical user growth model | RES-013 | Yes |
 | North Star = transfer (for PPS after gate) | RES-012 / FLA-001 | Yes |
 | FLA-001 governs coaching & learning | RES-012 | Yes |
@@ -179,7 +182,7 @@ Do **not** invent new binding priorities here. Propose via Decision Pack.
 
 | Cadence | Next Atlas action |
 |---|---|
-| Product | PCI-001 craftsmanship + CE substrate; BETA-REC-002 welcome/momentum; BR-001 phone smoke before unsupervised invite; Craftsmanship Review on every product counsel; MR-001 checkpoint; refuse PPS until CE MVP |
+| Product | PCI-001 + AMD-001 (Dignity Test) on every counsel; CE substrate; BETA-REC-002; execute HDS-AUDIT P0s; BR-001 phone smoke before unsupervised invite; MR-001 checkpoint; refuse PPS until CE MVP |
 | Daily | Counsel → Guard → Core brief draft when Founder surface active |
 | Weekly | Broker intake + weekly pack when exec review runs |
 | Observation | Keep `atlas:runtime:observe` green; do not enable FOUNDER_VISIBLE unilaterally |

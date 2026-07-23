@@ -30,6 +30,9 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [PCI-001](PCI-001-product-craftsmanship-initiative.md) | Product Craftsmanship Initiative | **Accepted (RES-016)** |
 | — | [PCI-CR-001](PCI-CR-001-baseline-craftsmanship-review.md) | Baseline Craftsmanship Review (current prod) | Working counsel |
 | — | [LP-001](LP-001-production-landing.md) | Production Landing Page v1.0 | **Built — awaiting Founder deploy approval** |
+| — | [AMD-001](AMD-001-human-dignity-standard.md) | Human Dignity Standard (Constitutional) | **Accepted (RES-017)** |
+| — | [HDS-AUDIT-001](HDS-AUDIT-001-dignity-touchpoint-audit.md) | Dignity touchpoint audit | Working |
+| — | [RES-017](../resolutions/RES-017-amd-001-human-dignity.md) | AMD-001 Accepted; Dignity Test mandatory | Authoritative |
 | — | [RES-016](../resolutions/RES-016-pci-001-acceptance.md) | PCI-001 Accepted; Craftsmanship Review mandatory | Authoritative |
 | — | [RES-015](../resolutions/RES-015-br-001-acceptance.md) | BR-001 Accepted; external invite blocked | Authoritative |
 | — | [FLA-001](FLA-001-forge-learning-architecture.md) | Canonical product learning specification | Authoritative |

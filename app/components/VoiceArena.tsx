@@ -510,7 +510,9 @@ export default function VoiceArena({
 
               {micMode === "silent_fallback" && (
                 <p className="mt-6 max-w-md text-sm text-amber-200/80">
-                  No microphone detected. You can listen; speaking needs a mic.
+                  We couldn’t reach a microphone on this device yet — that isn’t
+                  a reflection on you. You can still listen; when a mic is
+                  available, hold to speak and we’ll practice together.
                 </p>
               )}
 
