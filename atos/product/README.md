@@ -32,6 +32,9 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [LP-001](LP-001-production-landing.md) | Production Landing Page v1.0 | **Built — awaiting Founder deploy approval** |
 | — | [AMD-001](AMD-001-human-dignity-standard.md) | Human Dignity Standard (Constitutional) | **Accepted (RES-017)** |
 | — | [HDS-AUDIT-001](HDS-AUDIT-001-dignity-touchpoint-audit.md) | Dignity touchpoint audit | Working |
+| — | [ELM-001](ELM-001-experience-layer-model.md) | Experience Layer Model (departmental foundation) | **Accepted (RES-018)** |
+| — | [ELM-MAP-001](ELM-MAP-001-layer-coverage.md) | Layer coverage map vs current product | Working |
+| — | [RES-018](../resolutions/RES-018-elm-001-acceptance.md) | ELM-001 Accepted | Authoritative |
 | — | [RES-017](../resolutions/RES-017-amd-001-human-dignity.md) | AMD-001 Accepted; Dignity Test mandatory | Authoritative |
 | — | [RES-016](../resolutions/RES-016-pci-001-acceptance.md) | PCI-001 Accepted; Craftsmanship Review mandatory | Authoritative |
 | — | [RES-015](../resolutions/RES-015-br-001-acceptance.md) | BR-001 Accepted; external invite blocked | Authoritative |
