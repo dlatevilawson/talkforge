@@ -12,7 +12,7 @@
 | **Dependencies** | ATLAS-SUCCESSION, ATLAS-P4, ATLAS-P5, CHARTER-ATLAS |
 | **Related Documents** | ATLAS-GATE-FV, ATLAS-D-FLAGS, REG-EXEC |
 | **Approval History** | 2026-07-19 — Initial register for succession continuity |
-| **Change Log** | 2026-07-23 — RES-017 / AMD-001 Human Dignity Standard; Art. IX; Forge Law #011; Dignity Test mandatory |
+| **Change Log** | 2026-07-23 — RES-018 / ELM-001 Experience Layers; RES-017 / AMD-001 Dignity; Art. IX |
 
 ---
 
@@ -31,8 +31,9 @@
 | **Beta UX** | [BETA-REC-002](../../product/BETA-REC-002-welcoming-first-experience.md) — Accepted; deepened by PCI-001 |
 | **Landing** | [LP-001](../../product/LP-001-production-landing.md) — Production landing built; **awaiting Founder deploy approval** for talkforge.io |
 | **Human Dignity** | [AMD-001](../../product/AMD-001-human-dignity-standard.md) — **Accepted (RES-017)**; Dignity Test mandatory; Forge Law #011 |
+| **Experience Layers** | [ELM-001](../../product/ELM-001-experience-layer-model.md) — **Accepted (RES-018)**; Human·Moment·Emotion·Decision·Transformation foundation for every department |
 
-**Company posture (RES-013…017):** Stage = love-of-use (PCI-001) + **Human Dignity Standard (AMD-001)**. Engineering + craftsmanship + dignity equal discipline. CE-001 substrate. **PPS-001 gated.** Atlas org **frozen**. Mission unchanged (MR-001). **Craftsmanship Review + Human Dignity Test mandatory** on every product review. External beta still **NOT READY** until BR-001 phone smoke + share-test trajectory.
+**Company posture (RES-013…018):** Stage = love-of-use (PCI-001) + dignity (AMD-001) + **Experience Layers (ELM-001)** as departmental foundation. CE-001 substrate. **PPS-001 gated.** Atlas org **frozen**. Mission unchanged. Reviews require **ELM-001 + Dignity Test + Craftsmanship Review**. External beta still **NOT READY** until BR-001 phone smoke + share-test trajectory.
 
 **Program Desk:** [`ATLAS-AIF-PROGRAM`](ATLAS-PROGRAM-DESK.md) — AIF-PROGRAM inside AIO-CORE owns register currency (not a sixth AIO).
 
@@ -60,6 +61,7 @@ This file is **operational**, not Canonical law. It must stay accurate so succes
 | Beta readiness | BR-001 / RES-015 | **Accepted** — **NOT READY**; no external invite until Criticals clear |
 | Product craftsmanship | PCI-001 / RES-016 | **Accepted** — Craftsmanship Review mandatory; Atlas org unchanged |
 | Human Dignity Standard | AMD-001 / RES-017 | **Accepted** — Art. IX; Dignity Test mandatory; Forge Law #011 |
+| Experience Layer Model | ELM-001 / RES-018 | **Accepted** — five-layer foundation for every department |
 
 ---
 
@@ -161,6 +163,7 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 | **BR-001 Accepted** — NOT READY; no external invite until Criticals clear | RES-015 / BR-001 | Yes |
 | **PCI-001 Accepted** — love-of-use; Craftsmanship Review on every product review; Atlas org unchanged | RES-016 / PCI-001 | Yes |
 | **AMD-001 Accepted** — Human Dignity Test on every approval; dignity before product objectives | RES-017 / AMD-001 | Yes |
+| **ELM-001 Accepted** — Human·Moment·Emotion·Decision·Transformation on every significant brief | RES-018 / ELM-001 | Yes |
 | PCM-001 = canonical user growth model | RES-013 | Yes |
 | North Star = transfer (for PPS after gate) | RES-012 / FLA-001 | Yes |
 | FLA-001 governs coaching & learning | RES-012 | Yes |
@@ -182,7 +185,7 @@ Do **not** invent new binding priorities here. Propose via Decision Pack.
 
 | Cadence | Next Atlas action |
 |---|---|
-| Product | PCI-001 + AMD-001 (Dignity Test) on every counsel; CE substrate; BETA-REC-002; execute HDS-AUDIT P0s; BR-001 phone smoke before unsupervised invite; MR-001 checkpoint; refuse PPS until CE MVP |
+| Product | ELM-001 layers + AMD-001 Dignity Test + PCI-001 craft on every counsel; CE substrate; HDS/ELM gaps; BR-001 phone smoke before unsupervised invite; MR-001 checkpoint; refuse PPS until CE MVP |
 | Daily | Counsel → Guard → Core brief draft when Founder surface active |
 | Weekly | Broker intake + weekly pack when exec review runs |
 | Observation | Keep `atlas:runtime:observe` green; do not enable FOUNDER_VISIBLE unilaterally |

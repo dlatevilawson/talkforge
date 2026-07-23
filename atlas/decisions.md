@@ -327,6 +327,20 @@ Approved (RES-017)
 
 ---
 
+# Decision 023
+
+Title:
+ELM-001 Experience Layer Model — departmental foundation.
+
+Reason:
+
+Human · Moment · Emotion · Decision · Transformation becomes shared language for every department. Operationalizes FLA events + AMD dignity + PCI craft. Does not replace Identity or FLA. Review gate requires all five layers (RES-018).
+
+Status:
+Approved (RES-018)
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

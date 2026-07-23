@@ -139,6 +139,9 @@ See [`references/README.md`](references/README.md).
 | LP-001 | Production Landing Page v1.0 (awaiting deploy approval) | [product/LP-001-production-landing.md](product/LP-001-production-landing.md) |
 | AMD-001 | Human Dignity Standard (**Accepted**) | [product/AMD-001-human-dignity-standard.md](product/AMD-001-human-dignity-standard.md) |
 | HDS-AUDIT-001 | Dignity touchpoint audit | [product/HDS-AUDIT-001-dignity-touchpoint-audit.md](product/HDS-AUDIT-001-dignity-touchpoint-audit.md) |
+| ELM-001 | Experience Layer Model (**Accepted** — departmental foundation) | [product/ELM-001-experience-layer-model.md](product/ELM-001-experience-layer-model.md) |
+| ELM-MAP-001 | Layer coverage map | [product/ELM-MAP-001-layer-coverage.md](product/ELM-MAP-001-layer-coverage.md) |
+| RES-018 | ELM-001 Accepted | [resolutions/RES-018-elm-001-acceptance.md](resolutions/RES-018-elm-001-acceptance.md) |
 | RES-017 | AMD-001 Accepted; Dignity Test mandatory | [resolutions/RES-017-amd-001-human-dignity.md](resolutions/RES-017-amd-001-human-dignity.md) |
 | RES-016 | PCI-001 Accepted; Craftsmanship Review mandatory | [resolutions/RES-016-pci-001-acceptance.md](resolutions/RES-016-pci-001-acceptance.md) |
 | RES-015 | BR-001 Accepted; external invite blocked | [resolutions/RES-015-br-001-acceptance.md](resolutions/RES-015-br-001-acceptance.md) |
