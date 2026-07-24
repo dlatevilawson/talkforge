@@ -9,35 +9,59 @@ type Scenario = {
   missionPrompt?: string;
 };
 
+type EventContext = {
+  title?: string;
+  whenLabel?: string;
+  audience?: string;
+  successCriteria?: string;
+  track?: string;
+};
+
 export function buildMockCoachResponse(
   message: string,
   history: HistoryItem[],
-  scenario?: Scenario
+  scenario?: Scenario,
+  event?: EventContext
 ) {
   const turn = history.filter((item) => item.role === "user").length + 1;
   const scenarioHint =
     scenario?.mission?.trim() ||
     scenario?.missionPrompt?.trim() ||
     "this practice scenario";
+  const eventHint = event?.title
+    ? `your upcoming ${event.title}`
+    : "your target interview";
+
+  const userTurns = history.filter((item) => item.role === "user").length;
+  const evidence =
+    userTurns === 0
+      ? `In this opening turn you said: "${message.slice(0, 120)}${
+          message.length > 120 ? "…" : ""
+        }"`
+      : `Across ${userTurns + 1} of your turns, including: "${message.slice(0, 100)}${
+          message.length > 100 ? "…" : ""
+        }"`;
 
   return {
     npc:
       turn === 1
-        ? `That caught my attention. In ${scenarioHint.toLowerCase()}, I appreciate you starting the conversation. What made you say that just now?`
-        : "Interesting — tell me a bit more about that. I'm curious how that usually goes for you.",
+        ? `Interesting start. For ${scenarioHint.toLowerCase()}, I want a bit more structure before we go deeper. What constraints are you assuming?`
+        : "Okay — push one level deeper on the tradeoff. What breaks if that assumption is wrong?",
     forge: {
       score: Math.min(92, 62 + Math.min(message.length, 40)),
       clarity: 70,
       confidence: 68,
-      warmth: 74,
-      curiosity: 78,
+      warmth: 60,
+      curiosity: 72,
       doneWell:
-        "You stayed in the conversation and offered a clear next step instead of shutting it down.",
+        "You stayed in the exchange and offered a concrete next step instead of freezing.",
       improve:
-        "Add one short personal detail so the exchange feels mutual, then ask one open question.",
+        "Name one constraint or tradeoff explicitly before expanding the solution.",
+      whyItMatters: `In ${eventHint}, interviewers reward structured thinking under probe — clarity here transfers to the real room.`,
+      evidence,
       rewrite: message
-        ? `${message.trim().replace(/\?*$/, "")} — I've been thinking about that a lot lately. How about you?`
-        : "I've been thinking about that a lot lately. How about you?",
+        ? `${message.trim().replace(/\?*$/, "")} — Before I go further: I'm assuming X and optimizing for Y. Does that match what you care about?`
+        : "Before I go further: I'm assuming X and optimizing for Y. Does that match what you care about?",
     },
   };
 }

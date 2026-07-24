@@ -1,0 +1,27 @@
+# ATOS Core Registry Schema Bundle (M2)
+# Document ID: SCH-REG-002
+# Version: 1.0.0-m2
+# Status: Draft
+# Owner: Founder
+# AI Steward: Sentinel
+# Human Approver: Founder
+# Review Cycle: Each milestone
+# Approval History: 2026-07-18 — M3 header completion
+# Change Log: 2026-07-18 — Metadata headers completed in M3
+
+description: >
+  Structural expectations for the four M2 core registries.
+  Enforced in practice by scripts/atos-check-m2.mjs.
+
+registries:
+  REG-ATOS:
+    required_keys: [version, updated_at, layers, systems, milestones, registries]
+  REG-DOC:
+    required_keys: [version, updated_at, documents]
+    document_required_fields: [id, title, path, state, layer]
+  REG-EXEC:
+    required_keys: [version, updated_at, executives]
+    executive_required_fields: [id, title, status, authority]
+  REG-PROJ:
+    required_keys: [version, updated_at, projects, source_of_truth]
+    project_required_fields: [id, title, status, owner]

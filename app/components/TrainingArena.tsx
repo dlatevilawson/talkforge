@@ -8,7 +8,13 @@ import {
   createPracticeSession,
   persistActiveSession,
 } from "@/lib/session";
-import type { ConversationTurn, ForgeCoaching, PracticeSession } from "@/lib/types";
+import { getEvent, linkSessionToEvent } from "@/lib/transfer";
+import type {
+  ConversationTurn,
+  ForgeCoaching,
+  ForgeEvent,
+  PracticeSession,
+} from "@/lib/types";
 
 type TrainingArenaProps = {
   scenarioId: string;
@@ -26,6 +32,8 @@ type TrainingArenaProps = {
   placeholder: string;
   /** When true (e.g. ?mission=1), render the active mission view from the server. */
   missionStarted?: boolean;
+  /** PPS-001 / FLA-001: link practice to a named real-world event. */
+  eventId?: string;
 };
 
 type CoachResponse = {
@@ -66,6 +74,8 @@ function normalizeForge(forge: CoachResponse["forge"]): ForgeCoaching {
     improve:
       forge.improve?.trim() ||
       "Aim for one clearer point and one warmer personal detail next turn.",
+    whyItMatters: forge.whyItMatters?.trim() || undefined,
+    evidence: forge.evidence?.trim() || undefined,
     rewrite: forge.rewrite?.trim() || "",
   };
 }
@@ -138,6 +148,28 @@ function ForgeCoachCard({ coaching }: { coaching: ForgeCoaching }) {
           </p>
         </div>
 
+        {coaching.whyItMatters && (
+          <div>
+            <p className="text-sm uppercase tracking-[0.2em] text-violet-300/90">
+              Why it matters
+            </p>
+            <p className="mt-2 text-base leading-7 text-gray-100 sm:text-lg sm:leading-8">
+              {coaching.whyItMatters}
+            </p>
+          </div>
+        )}
+
+        {coaching.evidence && (
+          <div>
+            <p className="text-sm uppercase tracking-[0.2em] text-sky-300/90">
+              Evidence from your turns
+            </p>
+            <p className="mt-2 text-base leading-7 text-gray-100 sm:text-lg sm:leading-8">
+              {coaching.evidence}
+            </p>
+          </div>
+        )}
+
         {coaching.rewrite && (
           <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
             <p className="text-sm uppercase tracking-[0.2em] text-blue-200/80">
@@ -168,6 +200,7 @@ export default function TrainingArena({
   missionPrompt,
   placeholder,
   missionStarted = false,
+  eventId,
 }: TrainingArenaProps) {
   const router = useRouter();
   // Uncontrolled textarea: text typed before hydration stays in the DOM and is
@@ -180,6 +213,8 @@ export default function TrainingArena({
   const [ending, setEnding] = useState(false);
   const [error, setError] = useState("");
   const [sessionReady, setSessionReady] = useState(false);
+  // Client-only event lookup (localStorage); re-read when eventId changes via render.
+  const forgeEvent: ForgeEvent | null = eventId ? getEvent(eventId) : null;
 
   // Keep the latest session in a ref so Continue can await startup without races.
   const sessionRef = useRef<PracticeSession | null>(null);
@@ -211,6 +246,13 @@ export default function TrainingArena({
       try {
         const next = await startingSessionRef.current;
         if (cancelled) return;
+        if (eventId) {
+          linkSessionToEvent({
+            sessionId: next.id,
+            eventId,
+            userId: next.userId,
+          });
+        }
         sessionRef.current = next;
         setSession(next);
         setSessionReady(true);
@@ -232,7 +274,7 @@ export default function TrainingArena({
     return () => {
       cancelled = true;
     };
-  }, [missionStarted, scenarioId, title, missionPrompt]);
+  }, [missionStarted, scenarioId, title, missionPrompt, eventId]);
 
   useEffect(() => {
     if (conversation.length === 0) return;
@@ -254,6 +296,13 @@ export default function TrainingArena({
     }
 
     const next = await startingSessionRef.current;
+    if (eventId) {
+      linkSessionToEvent({
+        sessionId: next.id,
+        eventId,
+        userId: next.userId,
+      });
+    }
     sessionRef.current = next;
     setSession(next);
     setSessionReady(true);
@@ -365,6 +414,16 @@ export default function TrainingArena({
             mission,
             missionPrompt,
           },
+          event: forgeEvent
+            ? {
+                title: forgeEvent.title,
+                whenLabel: forgeEvent.whenLabel,
+                audience: forgeEvent.audience,
+                successCriteria: forgeEvent.successCriteria,
+                track: forgeEvent.track,
+                companyContext: forgeEvent.companyContext,
+              }
+            : undefined,
         }),
       });
 
@@ -456,10 +515,10 @@ export default function TrainingArena({
         <div className="mx-auto flex min-h-[100dvh] max-w-3xl flex-col py-6 sm:py-10">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Link
-              href="/training"
+              href={eventId ? "/prepare" : "/training"}
               className="inline-flex items-center text-gray-400 transition hover:text-white"
             >
-              ← Back to Practice
+              ← {eventId ? "Back to Event" : "Back to Practice"}
             </Link>
             <button
               type="button"
@@ -472,12 +531,19 @@ export default function TrainingArena({
           </div>
 
           <p className="mt-8 text-center text-sm uppercase tracking-[0.3em] text-gray-400">
-            Forge
+            Forge · Performance Lab
           </p>
 
           <h1 className="mt-4 text-center text-3xl font-bold sm:text-5xl">
-            Welcome to your mission.
+            {forgeEvent ? forgeEvent.title : "Welcome to your mission."}
           </h1>
+
+          {forgeEvent && (
+            <p className="mt-3 text-center text-sm text-blue-200/80">
+              {forgeEvent.whenLabel}
+              {forgeEvent.audience ? ` · ${forgeEvent.audience}` : ""}
+            </p>
+          )}
 
           <p className="mt-4 text-center text-base leading-7 text-gray-400 sm:text-lg sm:leading-8">
             {missionPrompt}

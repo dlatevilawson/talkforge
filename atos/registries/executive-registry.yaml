@@ -1,0 +1,244 @@
+# Executive Registry
+# Document ID: REG-EXEC
+# Version: 1.1.0-p4
+# Status: Draft
+# Owner: Founder
+# AI Steward: Atlas
+# Human Approver: Founder
+# Review Cycle: Each milestone / Phase 4 ratification
+# Approval History: 2026-07-18 — M6 executive charters
+# Change Log: 2026-07-19 — ATLAS-P4 ratified (RES-007)
+
+version: 1.2.0
+updated_at: "2026-07-19"
+milestone: M6
+governing_spec: SPEC-006
+governing_resolution: RES-001
+phase4_design: ATLAS-P4
+phase4_path: atos/executives/atlas-program/PHASE-4-EXECUTIVE-ORGANIZATION.md
+operations: atos/governance/registry-operations.md
+collaboration: atos/executives/collaboration.md
+org_communication: atos/executives/atlas-program/ORG-COMMUNICATION.md
+org_decisions: atos/executives/atlas-program/ORG-DECISION-GOVERNANCE.md
+org_cadence: atos/executives/atlas-program/ORG-CADENCE.md
+
+hierarchy:
+  - EXEC-FOUNDER
+  - EXEC-ATLAS
+  - EXEC-SENTINEL
+  - EXEC-PRODUCT
+  - EXEC-ENGINEERING
+  - EXEC-GROWTH
+  - EXEC-KNOWLEDGE
+  - EXEC-CUSTOMER
+  - EXEC-FINANCE
+  - EXEC-OPERATIONS
+
+# Transitional (not permanent Phase 4 office): EXEC-CIO
+
+executives:
+  - id: EXEC-FOUNDER
+    title: Founder
+    status: active
+    authority: constitutional
+    reports_to: null
+    manual: MAN-001
+    manual_path: atos/manuals/MAN-001-founder-operating-manual.md
+    charter: CHARTER-FOUNDER
+    charter_path: atos/executives/charters/CHARTER-FOUNDER.md
+    charter_state: authoritative
+    domain: constitutional_authority
+    interfaces:
+      - Identity
+      - Knowledge Governance
+      - Operations
+      - Executive Systems
+    responsibilities:
+      - Constitutional approval
+      - Specification and Standard ratification
+      - Executive appointment
+      - Version release authority
+      - Canonical institutional approval
+    may_not:
+      - Delegated away (exclusive Founder authorities per RES-001)
+
+  - id: EXEC-ATLAS
+    title: Atlas — Chief of Staff
+    status: active
+    authority: delegated
+    reports_to: EXEC-FOUNDER
+    manual: MAN-002
+    manual_path: atos/manuals/MAN-002-atlas-operating-manual.md
+    charter: CHARTER-ATLAS
+    charter_path: atos/executives/charters/CHARTER-ATLAS.md
+    charter_state: authoritative
+    domain: executive_coordination
+    design_contract: ATLAS-P0
+    architecture_contract: ATLAS-P1
+    infrastructure_contract: ATLAS-P2
+    runtime_architecture_contract: ATLAS-P3
+    organization_contract: ATLAS-P4
+    organization_contract_path: atos/executives/atlas-program/PHASE-4-EXECUTIVE-ORGANIZATION.md
+    organization_contract_resolution: RES-007
+    internal_organization_contract: ATLAS-P5
+    internal_organization_contract_path: atos/executives/atlas-program/PHASE-5-ATLAS-INTERNAL-ORGANIZATION.md
+    internal_organization_contract_resolution: RES-008
+    ai_conduct: MAN-016
+    interfaces:
+      - Founder briefings
+      - Project coordination
+      - Executive reporting
+      - Ask Atlas / Founder OS (legacy + target observation)
+    may:
+      - coordinate_executives
+      - recommend_priorities
+      - organize_work
+      - monitor_progress
+      - produce_reports
+    may_not:
+      - alter_constitutional_governance
+      - create_institutional_knowledge_without_governance
+      - absorb_domain_ownership
+      - decide_for_founder
+      - override_sentinel
+
+  - id: EXEC-SENTINEL
+    title: Sentinel — Chief Engineering Officer
+    status: active
+    authority: delegated
+    reports_to: EXEC-FOUNDER
+    manual: MAN-003
+    manual_path: atos/manuals/MAN-003-sentinel-operating-manual.md
+    charter: CHARTER-SENTINEL
+    charter_path: atos/executives/charters/CHARTER-SENTINEL.md
+    charter_state: authoritative
+    domain: engineering_integrity
+    ai_conduct: MAN-016
+    interfaces:
+      - Architecture reviews (STD-001)
+      - Incident investigation (STD-005 / TEP)
+      - Risk Notices to Atlas/Founder
+    may:
+      - review_engineering
+      - protect_architecture
+      - validate_implementations
+      - investigate_technical_issues
+      - issue_integrity_risk_notices
+    may_not:
+      - alter_constitutional_governance
+      - own_engineering_delivery
+      - own_product_roadmap
+
+  - id: EXEC-PRODUCT
+    title: Product Executive
+    status: planned
+    authority: delegated
+    reports_to: EXEC-FOUNDER
+    manual: MAN-004
+    charter: CHARTER-PRODUCT
+    charter_path: atos/executives/charters/CHARTER-PRODUCT.md
+    charter_state: authoritative
+    domain: product_value_roadmap
+    notes: Phase 4 designed; activation by Founder appointment
+
+  - id: EXEC-ENGINEERING
+    title: Engineering Executive
+    status: planned
+    authority: delegated
+    reports_to: EXEC-FOUNDER
+    charter: CHARTER-ENGINEERING
+    charter_path: atos/executives/charters/CHARTER-ENGINEERING.md
+    charter_state: authoritative
+    domain: engineering_delivery
+    notes: Delivery owner; Sentinel owns integrity — Phase 4 designed
+
+  - id: EXEC-GROWTH
+    title: Growth Executive
+    status: planned
+    authority: delegated
+    reports_to: EXEC-FOUNDER
+    charter: CHARTER-GROWTH
+    charter_path: atos/executives/charters/CHARTER-GROWTH.md
+    charter_state: authoritative
+    domain: growth_systems
+    notes: Includes demand/brand GTM until separate Marketing office appointed
+
+  - id: EXEC-KNOWLEDGE
+    title: Knowledge Executive
+    status: planned
+    authority: delegated
+    reports_to: EXEC-FOUNDER
+    charter: CHARTER-KNOWLEDGE
+    charter_path: atos/executives/charters/CHARTER-KNOWLEDGE.md
+    charter_state: authoritative
+    domain: knowledge_lifecycle
+    notes: Process owner for STD-002; Founder approves Canonical
+
+  - id: EXEC-CUSTOMER
+    title: Customer Executive
+    status: planned
+    authority: delegated
+    reports_to: EXEC-FOUNDER
+    charter: CHARTER-CUSTOMER
+    charter_path: atos/executives/charters/CHARTER-CUSTOMER.md
+    charter_state: authoritative
+    domain: customer_outcomes
+
+  - id: EXEC-FINANCE
+    title: Finance Executive
+    status: planned
+    authority: delegated
+    reports_to: EXEC-FOUNDER
+    charter: CHARTER-FINANCE
+    charter_path: atos/executives/charters/CHARTER-FINANCE.md
+    charter_state: authoritative
+    domain: economic_truth
+
+  - id: EXEC-OPERATIONS
+    title: Operations Executive
+    status: planned
+    authority: delegated
+    reports_to: EXEC-FOUNDER
+    charter: CHARTER-OPERATIONS
+    charter_path: atos/executives/charters/CHARTER-OPERATIONS.md
+    charter_state: authoritative
+    domain: operating_cadence_execution
+
+  - id: EXEC-MARKETING
+    title: Marketing Executive
+    status: deferred
+    authority: delegated
+    reports_to: EXEC-FOUNDER
+    notes: Deferred — demand/brand under EXEC-GROWTH until Founder appoints separate office
+
+  - id: EXEC-CIO
+    title: Chief Implementation Officer (implementation agent)
+    status: transitional
+    authority: delegated-implementation
+    reports_to: EXEC-FOUNDER
+    manual: null
+    charter_state: governed_by_RES-001
+    may:
+      - execute_approved_milestones
+      - create_draft_and_scaffold_artifacts
+      - maintain_registries
+      - validate_repository_integrity
+    may_not:
+      - approve_specifications_or_standards
+      - alter_identity
+      - bypass_milestone_gates
+    notes: NOT a permanent Phase 4 office — transitional ATOS v1 / Maintenance Mode agent
+
+counts:
+  permanent_offices: 10
+  active: 3
+  planned_chartered: 7
+  deferred: 1
+  transitional: 1
+
+mvi:
+  atlas_charter: present
+  sentinel_charter: present
+  phase4_org_design: present
+  responsibilities_documented: true
+  collaboration_documented: true

@@ -1,0 +1,226 @@
+# Knowledge Registry
+# Document ID: REG-KNOW
+# Version: 1.1.0
+# Status: Authoritative
+# Owner: Founder
+# AI Steward: Atlas
+# Human Approver: Founder
+# Review Cycle: Each milestone
+# Approval History: 2026-07-18 — M4; 2026-07-19 — Authority notes synchronized (MS-SYNC); 2026-07-24 — KA-001 / RES-020 / KA-REORG-001
+# Change Log: 2026-07-24 — Domain homes; Product Canonical labeling; LOAD-MANIFEST; question ledger
+
+version: 1.1.0
+updated_at: "2026-07-24"
+milestone: M9
+governing_spec: SPEC-003
+governing_standard: STD-002
+governing_architecture: KA-001
+operations: atos/governance/knowledge-governance-operations.md
+reorganization: atos/product/KA-REORG-001-knowledge-reorganization.md
+load_manifest: atos/knowledge/LOAD-MANIFEST.md
+
+canonical_authority:
+  rule: one_canonical_source_per_domain
+  stewardship: temporary_stewards_of_best_evidence_aligned_understanding
+  atos_canonical_requires:
+    - completed_promotion_pipeline
+    - or_authoritative_constitutional_document
+    - founder_institutional_approval_for_promotions
+  draft_and_scaffold_are_not_canonical: true
+  legacy_atlas_is_not_auto_canonical: true
+  labeling:
+    identity_interim: live under atlas/ until Founder cutover
+    product_canonical: FLA-001 PCM-001 under atos/product/ with indexes here
+    atos_canonical_library: promoted publications under atos/knowledge/canonical/
+    operational: handoff decisions metrics — not Canonical law
+
+planes:
+  - id: PLANE-ATOS
+    name: ATOS Governance Plane
+    root: atos/
+    authority: target
+    state: authoritative
+    loadable_as_canonical: false
+    notes: Specs/Standards Authoritative (RES-002); knowledge stores under atos/knowledge/; KA-001 Accepted (RES-020)
+
+  - id: PLANE-ATOS-CANONICAL
+    name: ATOS Canonical Library
+    root: atos/knowledge/canonical/
+    authority: canonical
+    state: domain-indexed
+    loadable_as_canonical: true
+    publications_count: 0
+    domain_indexes: true
+    product_canonical_indexed: true
+    notes: >
+      ATOS Canonical Library promoted-publication count may be 0 while Product Canonical
+      (FLA/PCM) and Identity interim sources are indexed via certified pointers (KA-REORG-001).
+      This is labeling clarity — not emptiness of all institutional knowledge.
+
+  - id: PLANE-LEGACY-ATLAS
+    name: Pre-ATOS Atlas Corpus
+    root: atlas/
+    authority: legacy-live
+    state: authoritative-legacy
+    loadable_as_canonical: true
+    notes: Live Ask Atlas corpus per GOV-COMPAT; loader freeze unchanged; not auto-promoted
+
+stores:
+  working:
+    ref: KNOW-WORKING
+    path: atos/knowledge/working/
+    state: active
+    question_ledger: atos/knowledge/working/questions.md
+  evidence:
+    ref: KNOW-EVIDENCE
+    path: atos/knowledge/evidence/
+    state: active
+    index: atos/knowledge/evidence/index/README.md
+  promotion_queue:
+    ref: REG-PROMO-Q
+    path: atos/knowledge/promotion/queue.yaml
+    state: draft
+  canonical:
+    ref: KNOW-CANONICAL
+    path: atos/knowledge/canonical/
+    state: domain-indexed
+  archive:
+    ref: KNOW-ARCHIVE
+    path: atos/knowledge/archive/
+    state: scaffold
+  classifications:
+    path: atos/knowledge/classifications/
+    state: draft
+
+promotion_pipeline:
+  state: active
+  standard: STD-002
+  template: REF-R1110
+  stages:
+    - Observation
+    - Investigation
+    - Evidence Collection
+    - Evidence Review
+    - Recommendation
+    - Executive Review
+    - Institutional Approval
+    - Canonical Publication
+    - Historical Preservation
+  queue:
+    path: atos/knowledge/promotion/queue.yaml
+    open_items: 0
+
+confidence_levels:
+  - Observation
+  - Hypothesis
+  - Investigated
+  - Verified
+  - Canonical
+  - Superseded
+  - Archived
+
+legacy_classification:
+  document: KNOW-CLASS-LEGACY
+  path: atos/knowledge/classifications/legacy-atlas-corpus.md
+  state: draft
+
+domains:
+  - id: D-ID
+    name: Identity
+    canonical_source: null
+    domain_index: atos/knowledge/canonical/identity/
+    interim_legacy:
+      - atlas/constitution.md
+      - atlas/founder-brief.md
+      - atlas/forge-laws.md
+      - atlas/philosophy.md
+      - atos/product/AMD-001-human-dignity-standard.md
+    note: Dual plane until Founder cutover; certified pointers only (KA-REORG-001)
+
+  - id: D-KG
+    name: Knowledge Law
+    canonical_source:
+      - atos/specifications/SPEC-003-knowledge-governance.md
+      - atos/standards/STD-002-knowledge-promotion-standard.md
+      - atos/registries/knowledge-registry.yaml
+      - atos/product/KA-001-unified-knowledge-architecture.md
+
+  - id: D-LEARN
+    name: Learning Architecture
+    canonical_source: atos/product/FLA-001-forge-learning-architecture.md
+    domain_index: atos/knowledge/canonical/product/
+    label: Product Canonical
+
+  - id: D-GROWTH
+    name: User Growth Model
+    canonical_source: atos/product/PCM-001-personal-communication-model.md
+    domain_index: atos/knowledge/canonical/product/
+    label: Product Canonical
+
+  - id: D-EXP
+    name: Experience Language
+    canonical_source: atos/product/ELM-001-experience-layer-model.md
+    domain_index: atos/knowledge/canonical/experience/
+
+  - id: D-DIGNITY
+    name: Dignity Architecture
+    canonical_source: atos/product/AMD-001-human-dignity-standard.md
+    domain_index: atos/knowledge/canonical/dignity/
+
+  - id: D-CRAFT
+    name: Craftsmanship
+    canonical_source: atos/product/PCI-001-product-craftsmanship-initiative.md
+    domain_index: atos/knowledge/canonical/craft/
+
+  - id: D-ENGINE
+    name: Communication Engine
+    canonical_source:
+      - atos/product/CE-001-communication-engine.md
+      - atos/product/DIR-CE-001-founder-directive.md
+    domain_index: atos/knowledge/canonical/engine/
+
+  - id: D-PROOF
+    name: Product Proof
+    canonical_source: atos/product/PPS-001-product-proof-sprint.md
+    note: Gated until CE-001 MVP (RES-013)
+
+  - id: D-GATES
+    name: Execution Gates
+    canonical_source: null
+    domain_index: atos/knowledge/canonical/gates/
+    interim_operational:
+      - atos/product/MR-001-mission-review-strategic-reinforcement.md
+      - atos/product/BR-001-beta-readiness-assessment.md
+      - atos/resolutions/
+
+  - id: D-OPS
+    name: Operations
+    canonical_source: null
+    domain_index: atos/knowledge/canonical/ops/
+    interim_operational:
+      - atos/executives/atlas-program/ATLAS-HANDOFF-REGISTER.md
+      - atlas/decisions.md
+      - atlas/projects.md
+      - atlas/roadmap.md
+      - atlas/metrics.md
+
+  - id: D-EVID
+    name: Evidence and Learning Log
+    canonical_source: null
+    domain_index: atos/knowledge/evidence/index/README.md
+
+  - id: D-Q
+    name: Question Ledger
+    canonical_source: atos/knowledge/working/questions.md
+
+  - id: D-ATLAS
+    name: Atlas Government
+    canonical_source: null
+    note: Frozen; maintenance only
+
+  - id: D-PRODCODE
+    name: Product Application
+    canonical_source: null
+    interim_operational:
+      - app/
+      - lib/

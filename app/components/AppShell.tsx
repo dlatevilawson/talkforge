@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getUser } from "@/lib/storage";
 
+/** Beta: one clear path — Practice is the gym floor. */
 const links = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/training", label: "Practice" },
+  { href: "/voice", label: "Practice" },
+  { href: "/dashboard", label: "Home" },
   { href: "/progress", label: "Progress" },
-  { href: "/profile", label: "Profile" },
 ];
 
 const navLinks =
@@ -19,7 +19,7 @@ const navLinks =
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [name, setName] = useState("Guest");
+  const [name, setName] = useState("Friend");
 
   useEffect(() => {
     let cancelled = false;
@@ -28,11 +28,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       try {
         const user = await getUser();
         if (!cancelled) {
-          setName(user?.displayName ?? "Guest");
+          const display = user?.displayName?.trim();
+          setName(
+            display && display !== "Guest" ? display : "Friend"
+          );
         }
       } catch {
         if (!cancelled) {
-          setName("Guest");
+          setName("Friend");
         }
       }
     }
@@ -47,7 +50,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-[var(--tf-bg)] font-sans text-[var(--tf-fg)]">
       <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Link href="/dashboard" className="text-lg font-semibold tracking-wide">
+          <Link href="/" className="text-lg font-semibold tracking-wide">
             TalkForge
           </Link>
 

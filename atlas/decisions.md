@@ -103,6 +103,286 @@ Approved
 
 ---
 
+# Decision 007
+
+Title:
+V1 wedge — technical interview beachhead.
+
+Reason:
+
+High-agency technical professionals preparing for high-stakes technical interviews are the V1 entry point — measurable, high-frequency, high-consequence. Long-term mission remains mastering life’s most important conversations.
+
+Status:
+Approved (RES-012)
+
+---
+
+# Decision 008
+
+Title:
+North Star is transfer, not engagement.
+
+Reason:
+
+Success is improved real-world conversation performance, not time inside Forge.
+
+Status:
+Approved (RES-012)
+
+---
+
+# Decision 009
+
+Title:
+Gamification redesign under transfer test.
+
+Reason:
+
+Forge is not an engagement platform. Mechanics must improve real-world performance or they do not ship. Elimination rejected; redesign required.
+
+Status:
+Approved (RES-012)
+
+---
+
+# Decision 010
+
+Title:
+Net-new engineering capacity → TalkForge; Atlas org frozen.
+
+Reason:
+
+Atlas Organization v1.0 is infrastructure. Future Atlas work only when product execution reveals architectural need.
+
+Status:
+Approved (RES-012)
+
+---
+
+# Decision 011
+
+Title:
+Forge Learning Architecture v1.0 (FLA-001) is Product Canonical.
+
+Reason:
+
+Governs coaching, learning loop, reality capture, competencies, and product evaluation for all Forge agents and design.
+
+Status:
+Approved (RES-012)
+
+---
+
+# Decision 012
+
+Title:
+Product Proof Sprint 001 is the active company objective.
+
+Reason:
+
+Strategic planning complete. Demonstrate measurable prep improvement for a real high-stakes conversation; use reality to strengthen coaching.
+
+Status:
+Approved (RES-012)
+
+---
+
+# Decision 013
+
+Title:
+CE-001 Communication Engine — Critical, Approved for Execution.
+
+Reason:
+
+Voice is the foundational interaction layer. Product Proof cannot begin without it. DIR-CE-001 / RES-013 bind CE-M1→ as immediate engineering priority; PPS-001 gated on CE-001 MVP readiness.
+
+Status:
+Approved (RES-013)
+
+---
+
+# Decision 014
+
+Title:
+PCM-001 is the canonical representation of user growth.
+
+Reason:
+
+Founder Directive: Personal Communication Model is Product Canonical for observed behavioral growth feeding coaching and next-session personalization.
+
+Status:
+Approved (RES-013)
+
+---
+
+# Decision 015
+
+Title:
+CE-M2 Accepted (Engineering); pre-beta UX priorities binding.
+
+Reason:
+
+Transcript engineering accepted. UX Review 5/10. Before beta: hide diagnostics; presence over transcripts; coach-first Forge; seconds-to-session onboarding; conversation as visual center (DEC-CE-M2-UX).
+
+Status:
+Approved
+
+---
+
+# Decision 016
+
+Title:
+MR-001 Accepted — Mission Review as governance checkpoint.
+
+Reason:
+
+Preserves mission; strengthens execution discipline; protects against drift; adds no unnecessary complexity; reinforces philosophy rather than replacing it. No doctrine changes. No new frameworks. Continue CE-001; use MR-001 to stress-test significant new ideas (RES-014).
+
+Status:
+Approved (RES-014)
+
+---
+
+# Decision 017
+
+Title:
+BR-001 Accepted — NOT READY for external invite (binding).
+
+Reason:
+
+Founder accepted BR-001. External one-week phone beta blocked until Criticals clear: correct public deploy of this app, phone mic smoke, voice session completion loop, first-run trust/clarity. No doctrine changes. PPS-001 remains gated (RES-015).
+
+Status:
+Approved (RES-015)
+
+---
+
+# Decision 018
+
+Title:
+Abandon inaccessible talkforge.vercel.app; deploy this repo to Founder Vercel.
+
+Reason:
+
+talkforge.vercel.app is not owned by the accessible Founder Vercel account (dlatevilawson-7440). Do not chase. New project talkforge → production https://talkforge-virid.vercel.app (DEPLOY-001). BR-001 NOT READY remains until phone smoke + session complete + trust path.
+
+Status:
+Approved (executed)
+
+---
+
+# Decision 019
+
+Title:
+Beta Recommendations v2.0 — build welcoming first experience.
+
+Reason:
+
+First impression earns trust; last impression earns return. Welcome before work; one path; comfort before challenge; screens invite action; sessions end with momentum (BETA-REC-002). Implements BR-001 trust/completion gaps without new doctrine.
+
+Status:
+Approved (execute)
+
+---
+
+# Decision 020
+
+Title:
+PCI-001 Accepted — Product Craftsmanship Initiative.
+
+Reason:
+
+Stage shift: build a product people immediately love using. Care before capability. Four-dimension standard + mandatory Craftsmanship Review. Share test. Mission protected. Atlas org unchanged (RES-016). Design disciplines are a reasoning lens only.
+
+Status:
+Approved (RES-016)
+
+---
+
+# Decision 021
+
+Title:
+LP-001 Production Landing Page v1.0 — built; deploy only on Founder approval.
+
+Reason:
+
+Official public face for talkforge.io. Homepage = marketing landing; product welcome at /welcome. Real waitlist via Supabase. Do not auto-deploy. Founder must approve deploy + domain attach + waitlist SQL.
+
+Status:
+Built (awaiting deploy approval)
+
+---
+
+# Decision 022
+
+Title:
+AMD-001 Human Dignity Standard — Accepted as derived constitutional principle.
+
+Reason:
+
+Constitutionally consistent with Mission, Art. II/VI, Founder Brief, FLA, and trust laws. Brand Principle #001 + Respect Standard #002 binding. Human Dignity Test mandatory approval gate. Forge Law #011 adopted. Article IX added. Atlas org unchanged (RES-017).
+
+Status:
+Approved (RES-017)
+
+---
+
+# Decision 023
+
+Title:
+ELM-001 Experience Layer Model — departmental foundation.
+
+Reason:
+
+Human · Moment · Emotion · Decision · Transformation becomes shared language for every department. Operationalizes FLA events + AMD dignity + PCI craft. Does not replace Identity or FLA. Review gate requires all five layers (RES-018).
+
+Status:
+Approved (RES-018)
+
+---
+
+# Decision 024
+
+Title:
+Pause new frameworks; submit KA-001 Unified Knowledge Architecture for approval.
+
+Reason:
+
+Structure precedes scale. Review constitutional corpus; design one knowledge map (domains, authority, evidence, promotion, questions, AI inheritance). No Human Behavior Framework / no new foundations / no corpus reorg until Founder Approves KA-001 (RES-019).
+
+Status:
+Pause binding; KA-001 awaiting approval
+
+---
+
+# Decision 025
+
+Title:
+Approve KA-001 Unified Knowledge Architecture; stewardship of truth; authorize reorganization.
+
+Reason:
+
+No person, AI agent, or founder owns the truth — temporary stewards of humanity’s current best understanding. Canonical is preserved as the strongest evidence-supported, mission-aligned explanation — not because it is old. Better evidence is how the institution fulfills its purpose. KA-001 Accepted (RES-020). Reorg executed as KA-REORG-001 (certified pointers; Ask Atlas loader freeze unchanged). New frameworks only under KA domain-mapping rules (KA-PAUSE-001 v1.1).
+
+Status:
+Accepted — Authoritative
+
+---
+
+# Decision 026
+
+Title:
+Accept TEA-001 TalkForge Enterprise Architecture as institutional communication architecture.
+
+Reason:
+
+KA-001 established where knowledge belongs. TEA-001 establishes how every domain communicates as one living institution — not another framework. Six permanent enterprise domains (Identity, Governance, Knowledge, Operations, Product, Learning); continuous knowledge circulation; question lifecycle Open→Investigating→Answered→Reopened; AI protocol; future frameworks gated by TEA §10 + KA map. Coherence audit in TEA-MAP-001. RES-021.
+
+Status:
+Accepted — Authoritative
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

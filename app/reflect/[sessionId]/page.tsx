@@ -79,7 +79,8 @@ export default function ReflectPage() {
         coachSatisfaction: satisfaction,
         createdAt: new Date().toISOString(),
       });
-      router.push("/progress");
+      // FLA-001: reality completes the learning loop after in-Forge reflection.
+      router.push(`/reality/${session.id}`);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to save reflection."

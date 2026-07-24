@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import AppShell from "@/app/components/AppShell";
-import MissionPicker from "@/app/components/MissionPicker";
-import PersistenceStatus from "@/app/components/PersistenceStatus";
 import { getProgressSummary, getUser, listSessions } from "@/lib/storage";
-import type { PracticeSession, ProgressSummary, TalkForgeUser } from "@/lib/types";
+import type {
+  PracticeSession,
+  ProgressSummary,
+  TalkForgeUser,
+} from "@/lib/types";
 
 function formatDate(value: string | null): string {
   if (!value) return "No sessions yet";
@@ -50,7 +52,7 @@ export default function DashboardPage() {
       } catch (err) {
         if (!cancelled) {
           setError(
-            err instanceof Error ? err.message : "Failed to load dashboard."
+            err instanceof Error ? err.message : "Failed to load your home."
           );
         }
       } finally {
@@ -64,21 +66,25 @@ export default function DashboardPage() {
     };
   }, []);
 
+  const displayName =
+    user?.displayName && user.displayName !== "Guest"
+      ? user.displayName
+      : null;
+  const hasPractice = progress.sessionsCompleted > 0 || recent.length > 0;
+
   return (
     <AppShell>
-      <div className="mb-6">
-        <PersistenceStatus />
-      </div>
       <section className="rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-8">
         <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
-          Home Dashboard
+          TalkForge
         </p>
         <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">
-          Welcome back{user ? `, ${user.displayName}` : ""}
+          {displayName ? `Welcome back, ${displayName}` : "Welcome back"}
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">
-          Practice, get coaching, reflect, and track progress. Success is
-          measured by conversations outside the app.
+          {hasPractice
+            ? "Your next rep is waiting. Practice now — then take one clearer move into the real conversation."
+            : "You’re in the right place. Let’s get you onto the floor with Forge — no performance required."}
         </p>
 
         {error && (
@@ -87,10 +93,25 @@ export default function DashboardPage() {
           </p>
         )}
 
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Link
+            href="/voice"
+            className="rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:bg-zinc-200"
+          >
+            {hasPractice ? "Practice with Forge" : "Begin with Forge"}
+          </Link>
+          <Link
+            href="/prepare"
+            className="rounded-full border border-white/15 px-5 py-3.5 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
+          >
+            Name what you’re preparing for
+          </Link>
+        </div>
+
         {loading ? (
-          <p className="mt-8 text-sm text-zinc-500">Loading stats from Supabase…</p>
-        ) : (
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <p className="mt-10 text-sm text-zinc-500">Getting your space ready…</p>
+        ) : hasPractice ? (
+          <div className="mt-10 grid gap-4 sm:grid-cols-2">
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
               <p className="text-sm text-zinc-500">Sessions completed</p>
               <p className="mt-2 text-3xl font-semibold">
@@ -98,58 +119,31 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-              <p className="text-sm text-zinc-500">Average score</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {progress.averageScore}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-              <p className="text-sm text-zinc-500">Last session</p>
-              <p className="mt-2 text-lg font-medium">
-                {progress.lastScenarioTitle ?? "None yet"}
+              <p className="text-sm text-zinc-500">Last practice</p>
+              <p className="mt-2 text-lg font-medium leading-7">
+                {progress.lastScenarioTitle ?? "Recent session"}
               </p>
               <p className="mt-1 text-sm text-zinc-500">
                 {formatDate(progress.lastSessionAt)}
               </p>
             </div>
           </div>
+        ) : (
+          <div className="mt-10 rounded-2xl border border-dashed border-white/15 bg-black/20 px-5 py-6">
+            <p className="text-base font-medium text-white/90">
+              Your first session is waiting
+            </p>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">
+              Forge will greet you, learn what you’re here for, and practice with
+              you — gently at first.
+            </p>
+          </div>
         )}
-
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            href="/training"
-            className="rounded-full bg-blue-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-400"
-          >
-            Start practicing
-          </Link>
-          <Link
-            href="/progress"
-            className="rounded-full border border-white/15 px-5 py-3 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
-          >
-            View progress
-          </Link>
-          {!user && (
-            <Link
-              href="/auth"
-              className="rounded-full border border-white/15 px-5 py-3 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
-            >
-              Continue as Guest
-            </Link>
-          )}
-        </div>
       </section>
 
-      <div className="mt-10">
-        <MissionPicker title="Choose your next forge" />
-      </div>
-
-      <section className="mt-10">
-        <h2 className="text-xl font-semibold">Recent sessions</h2>
-        {recent.length === 0 ? (
-          <p className="mt-4 text-sm text-zinc-500">
-            Complete a mission and reflection to see your history here.
-          </p>
-        ) : (
+      {recent.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-xl font-semibold">Recent practice</h2>
           <ul className="mt-4 space-y-3">
             {recent.map((session) => (
               <li
@@ -163,15 +157,18 @@ export default function DashboardPage() {
                       {formatDate(session.completedAt ?? null)}
                     </p>
                   </div>
-                  <p className="text-sm text-zinc-300">
-                    Score {session.averageScore ?? "—"}
-                  </p>
+                  <Link
+                    href="/voice"
+                    className="text-sm text-zinc-300 underline-offset-4 hover:underline"
+                  >
+                    Practice again
+                  </Link>
                 </div>
               </li>
             ))}
           </ul>
-        )}
-      </section>
+        </section>
+      )}
     </AppShell>
   );
 }

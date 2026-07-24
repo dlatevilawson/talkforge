@@ -1,0 +1,88 @@
+# Runtime Registry
+# Document ID: REG-RUNTIME
+# Version: 1.0.0-m5
+# Status: Draft
+# Owner: Founder
+# AI Steward: Sentinel
+# Human Approver: Founder
+# Review Cycle: Each milestone
+# Approval History: 2026-07-18 — M5 created
+# Change Log: 2026-07-18 — Runtime interfaces and record types indexed
+
+version: 1.0.0-m5
+updated_at: "2026-07-18"
+milestone: M5
+governing_spec: SPEC-005
+governing_standard: STD-006
+operations: atos/governance/runtime-governance.md
+manual: MAN-013
+
+components:
+  - id: RT-HUB
+    name: Hub
+    interface: atos/runtime/interfaces.md#1-hub
+    implementation_state: specified
+    precursor: app/api/atlas/route.ts
+  - id: RT-CONTEXT
+    name: Context Injector
+    interface: atos/runtime/interfaces.md#2-context-injector
+    implementation_state: specified
+    precursor: atlas/engine/loader.ts
+  - id: RT-MEMORY
+    name: Memory Keeper
+    interface: atos/runtime/interfaces.md#3-memory-keeper
+    implementation_state: specified
+    precursor: partial (notes/briefs)
+  - id: RT-SANDBOX
+    name: Sandbox
+    interface: atos/runtime/interfaces.md#4-sandbox
+    implementation_state: specified
+    precursor: none
+  - id: RT-ROUTING
+    name: Executive Routing
+    implementation_state: specified
+  - id: RT-WORKFLOW
+    name: Workflow Engine
+    implementation_state: specified
+  - id: RT-STATE
+    name: Runtime State Manager
+    implementation_state: specified
+  - id: RT-LOGGER
+    name: Execution Logger
+    implementation_state: specified
+
+documents:
+  - RUNTIME-ROOT
+  - RUNTIME-IFACE
+  - RUNTIME-CTX
+  - RUNTIME-MEM
+  - RUNTIME-WF
+  - RUNTIME-LEGACY
+  - RUNTIME-RECORDS
+  - GOV-RUNTIME
+  - MAN-013
+
+record_types:
+  - id: R1001
+    name: Workflow Logs
+    storage: non_git_planned
+  - id: R1002
+    name: Context Logs
+    storage: non_git_planned
+  - id: R1003
+    name: Execution History
+    storage: non_git_planned
+  - id: R1004
+    name: Sandbox Sessions
+    storage: non_git_planned
+  - id: R1005
+    name: Memory Classification Logs
+    storage: non_git_planned
+  - id: R1006
+    name: Runtime Metrics
+    storage: non_git_planned
+
+rules:
+  documentation_before_automation: true
+  loader_freeze_until_founder_cutover: true
+  git_not_for_high_volume_runtime_logs: true

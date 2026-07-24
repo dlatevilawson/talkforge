@@ -1,0 +1,157 @@
+# ATOS Registry — master index
+# Document ID: REG-ATOS
+# Version: 1.0.0
+# Status: Authoritative
+# Owner: Founder
+# AI Steward: Atlas
+# Human Approver: Founder
+# Review Cycle: Each milestone
+# Approval History: 2026-07-19 — ATOS Version 1.0 ratified; program CLOSED
+# Change Log: 2026-07-19 — Program CLOSED; Maintenance Mode (GOV-MAINT-1.0.0)
+
+version: 1.0.0
+updated_at: "2026-07-19"
+milestone: MAINTENANCE
+authorization: RES-001
+entrypoint: ATOS.md
+navigation: atos/NAVIGATION.md
+registry_operations: atos/governance/registry-operations.md
+maintenance_policy: atos/governance/GOV-MAINT-1.0.0.md
+program_status: CLOSED
+operating_mode: maintenance
+
+registries:
+  core:
+    - id: REG-ATOS
+      file: atos/registries/atos-registry.yaml
+      role: master_index
+      state: authoritative
+    - id: REG-DOC
+      file: atos/registries/document-registry.yaml
+      role: document_index
+      state: authoritative
+    - id: REG-EXEC
+      file: atos/registries/executive-registry.yaml
+      role: executive_index
+      state: draft
+    - id: REG-PROJ
+      file: atos/registries/project-registry.yaml
+      role: project_index
+      state: draft
+  supporting:
+    - id: REG-KNOW
+      file: atos/registries/knowledge-registry.yaml
+      state: authoritative
+    - id: REG-ARCH
+      file: atos/registries/architecture-registry.yaml
+      state: authoritative
+    - id: REG-REPO
+      file: atos/registries/repository-index.yaml
+      state: authoritative
+    - id: REG-INDEX
+      file: atos/registries/INDEX.md
+      state: draft
+    - id: REG-OWN
+      file: atos/registries/ownership-registry.yaml
+      state: draft
+    - id: REG-RUNTIME
+      file: atos/registries/runtime-registry.yaml
+      state: draft
+    - id: REG-FWS
+      file: atos/registries/founder-workspace-registry.yaml
+      state: draft
+
+layers:
+  - id: L1
+    name: Specifications
+    path: atos/specifications
+    state: authoritative
+    planned_count: 6
+    implemented_count: 6
+    authoritative_count: 6
+    note: Authoritative via RES-002 (ATOS v1.0.0)
+  - id: L2
+    name: Standards
+    path: atos/standards
+    state: authoritative
+    planned_count: 6
+    implemented_count: 6
+    authoritative_count: 6
+    note: Authoritative via RES-002 (ATOS v1.0.0)
+  - id: L3
+    name: Operating Manuals
+    path: atos/manuals
+    state: draft
+    planned_core:
+      - MAN-001
+      - MAN-002
+      - MAN-003
+      - MAN-004
+      - MAN-009
+      - MAN-012
+      - MAN-013
+    implemented_count: 6
+    note: MAN-001/002/003/013/016/017 Draft present (M7)
+  - id: L4
+    name: Reference Documents
+    path: atos/references
+    state: scaffold
+    note: Sparse — registry completeness does not require all REF files
+
+systems:
+  - id: SYS-GOV
+    name: Governance Frameworks
+    path: atos/governance
+    state: draft
+    note: ADR-0001 and GOV-AUTH Authoritative; other GOV-* docs may remain Draft
+  - id: SYS-REG
+    name: Registries
+    path: atos/registries
+    state: draft
+    note: M2 operationalized core registries
+  - id: SYS-KNOW
+    name: Knowledge Stores
+    path: atos/knowledge
+    state: draft
+    note: M4 promotion pipeline and canonical/archive stores
+  - id: SYS-RUNTIME
+    name: Runtime Infrastructure Docs
+    path: atos/runtime
+    state: draft
+    note: M5 interfaces defined; code cutover Founder-gated
+  - id: SYS-EXEC
+    name: Executive Systems
+    path: atos/executives
+    state: draft
+    note: M6 charters and collaboration
+  - id: SYS-FWS
+    name: Founder Workspace
+    path: atos/founder
+    state: draft
+    note: M7 dashboard contract and review workflows
+  - id: SYS-VAL
+    name: Operational Validation
+    path: atos/validation
+    state: draft
+    note: M8 MVI readiness and integrity suite
+  - id: SYS-SCH
+    name: Schemas
+    path: atos/schemas
+    state: draft
+  - id: SYS-HIST
+    name: Historical Archive
+    path: atos/history
+    state: scaffold
+  - id: SYS-RES
+    name: Resolutions
+    path: atos/resolutions
+    state: authoritative
+
+milestones:
+  current: MAINTENANCE
+  program_status: CLOSED
+  operating_mode: maintenance
+  sequence: [M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, MS-SYNC]
+  completed: [M0, M1, M2, M3, M4, M5, M6, M7, M8, M9, MS-SYNC]
+  in_progress: []
+  note: ATOS Program CLOSED — Maintenance Mode (GOV-MAINT-1.0.0); amendments only via governance process

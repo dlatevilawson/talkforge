@@ -1,0 +1,121 @@
+{
+  "work_package": "WP-S1",
+  "program": "ATLAS-P6-EXEC",
+  "title": "Office Capability Validation",
+  "result": "PASS",
+  "at": "2026-07-19T14:36:52.520Z",
+  "offices": [
+    {
+      "id": "AIO-CORE",
+      "ok": true,
+      "checks_passed": 16,
+      "checks_total": 16,
+      "failed": [],
+      "responsibilities": [
+        "atlas.authority_posture",
+        "atlas.founder_channel",
+        "atlas.task_assignment",
+        "atlas.emission_permit",
+        "atlas.program_desk"
+      ],
+      "escalation_rules": [
+        "Charter-boundary → halt + Founder path",
+        "Unresolved C3 after Broker → Founder Decision Request",
+        "C4 / Guard STOP → no emission"
+      ],
+      "failure_behaviors": [
+        "Refuse emission without Guard event",
+        "Charter halt on boundary breach",
+        "Do not bind Founder when uncertain"
+      ]
+    },
+    {
+      "id": "AIO-INTEL",
+      "ok": true,
+      "checks_passed": 14,
+      "checks_total": 14,
+      "failed": [],
+      "responsibilities": [
+        "atlas.labeled_context",
+        "atlas.health_sensing"
+      ],
+      "escalation_rules": [
+        "Unlabeled/scaffold-as-institutional → Guard/Core",
+        "Identity/Canonical ambiguity → escalate; never invent"
+      ],
+      "failure_behaviors": [
+        "Refuse lock when labels missing",
+        "Emit assumptions only as labeled assumptions",
+        "Stop rather than invent institutional facts"
+      ]
+    },
+    {
+      "id": "AIO-COUNSEL",
+      "ok": true,
+      "checks_passed": 13,
+      "checks_total": 13,
+      "failed": [],
+      "responsibilities": [
+        "atlas.std003_counsel",
+        "atlas.brief_drafts"
+      ],
+      "escalation_rules": [
+        "Would require inventing knowledge → insufficient_knowledge / escalate",
+        "Founder-exclusive powers implicated → Core escalate",
+        "Deadlock → must not tie-break (Guard+Core)"
+      ],
+      "failure_behaviors": [
+        "Refuse draft without context_locked",
+        "Never emit to Founder directly",
+        "Never silently drop Risk Notices from context"
+      ]
+    },
+    {
+      "id": "AIO-BROKER",
+      "ok": true,
+      "checks_passed": 14,
+      "checks_total": 14,
+      "failed": [],
+      "responsibilities": [
+        "atlas.exec_brokerage",
+        "atlas.risk_notice_transport"
+      ],
+      "escalation_rules": [
+        "Deadlock → Guard + Core (not Counsel)",
+        "C4 signals → Guard immediately",
+        "Cannot settle C0/C1"
+      ],
+      "failure_behaviors": [
+        "Reject Risk Notice mutation",
+        "Do not command EXEC-*",
+        "Do not erase Sentinel findings"
+      ]
+    },
+    {
+      "id": "AIO-GUARD",
+      "ok": true,
+      "checks_passed": 16,
+      "checks_total": 16,
+      "failed": [],
+      "responsibilities": [
+        "atlas.integrity_validation",
+        "atlas.escalation_packaging",
+        "atlas.audit_trace"
+      ],
+      "escalation_rules": [
+        "STOP / ESCALATE on V1–V8 failure",
+        "Preserve Sentinel notices; never override",
+        "C4 packaging to Core → Founder"
+      ],
+      "failure_behaviors": [
+        "Fail closed on integrity failure",
+        "Refuse to speak as Sentinel",
+        "Refuse to soften Risk Notices"
+      ]
+    }
+  ],
+  "dual_responsibility_owners": [],
+  "capabilities_defined": 5,
+  "next_work_package": "WP-S2 Cross-Office Coordination",
+  "advance": "BLOCKED — await Founder approval"
+}
