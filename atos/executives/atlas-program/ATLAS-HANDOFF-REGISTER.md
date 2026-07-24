@@ -12,7 +12,7 @@
 | **Dependencies** | ATLAS-SUCCESSION, ATLAS-P4, ATLAS-P5, CHARTER-ATLAS |
 | **Related Documents** | ATLAS-GATE-FV, ATLAS-D-FLAGS, REG-EXEC |
 | **Approval History** | 2026-07-19 — Initial register for succession continuity |
-| **Change Log** | 2026-07-23 — RES-018 / ELM-001 Experience Layers; RES-017 / AMD-001 Dignity; Art. IX |
+| **Change Log** | 2026-07-24 — RES-019 / KA-001 Knowledge Architecture proposed; framework pause binding; reorg deferred |
 
 ---
 
@@ -32,8 +32,9 @@
 | **Landing** | [LP-001](../../product/LP-001-production-landing.md) — Production landing built; **awaiting Founder deploy approval** for talkforge.io |
 | **Human Dignity** | [AMD-001](../../product/AMD-001-human-dignity-standard.md) — **Accepted (RES-017)**; Dignity Test mandatory; Forge Law #011 |
 | **Experience Layers** | [ELM-001](../../product/ELM-001-experience-layer-model.md) — **Accepted (RES-018)**; Human·Moment·Emotion·Decision·Transformation foundation for every department |
+| **Knowledge Architecture** | [KA-001](../../product/KA-001-unified-knowledge-architecture.md) — **Awaiting Founder Approval**; [KA-PAUSE-001](../../product/KA-PAUSE-001-framework-pause.md) **binding** — no new frameworks / no HBF until reorg |
 
-**Company posture (RES-013…018):** Stage = love-of-use (PCI-001) + dignity (AMD-001) + **Experience Layers (ELM-001)** as departmental foundation. CE-001 substrate. **PPS-001 gated.** Atlas org **frozen**. Mission unchanged. Reviews require **ELM-001 + Dignity Test + Craftsmanship Review**. External beta still **NOT READY** until BR-001 phone smoke + share-test trajectory.
+**Company posture (RES-013…019):** **Structure precedes scale.** KA-001 awaiting Founder Approval. **Framework pause binding** (no Human Behavior Framework / no new foundations until KA approved + reorg). Existing Accepted doctrine (FLA/PCM/AMD/ELM/PCI) remains. CE substrate. PPS gated. Atlas org frozen. Reviews: ELM + Dignity + Craft when shipping product counsel.
 
 **Program Desk:** [`ATLAS-AIF-PROGRAM`](ATLAS-PROGRAM-DESK.md) — AIF-PROGRAM inside AIO-CORE owns register currency (not a sixth AIO).
 
@@ -62,6 +63,8 @@ This file is **operational**, not Canonical law. It must stay accurate so succes
 | Product craftsmanship | PCI-001 / RES-016 | **Accepted** — Craftsmanship Review mandatory; Atlas org unchanged |
 | Human Dignity Standard | AMD-001 / RES-017 | **Accepted** — Art. IX; Dignity Test mandatory; Forge Law #011 |
 | Experience Layer Model | ELM-001 / RES-018 | **Accepted** — five-layer foundation for every department |
+| Knowledge Architecture | KA-001 / RES-019 | **Awaiting Founder Approval** — unified domains & authority |
+| Framework pause | KA-PAUSE-001 / RES-019 | **Binding** — no HBF / no new foundations until reorg |
 
 ---
 
@@ -164,6 +167,8 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 | **PCI-001 Accepted** — love-of-use; Craftsmanship Review on every product review; Atlas org unchanged | RES-016 / PCI-001 | Yes |
 | **AMD-001 Accepted** — Human Dignity Test on every approval; dignity before product objectives | RES-017 / AMD-001 | Yes |
 | **ELM-001 Accepted** — Human·Moment·Emotion·Decision·Transformation on every significant brief | RES-018 / ELM-001 | Yes |
+| **Framework pause** — no HBF / no new foundations until KA-001 approved + reorg | RES-019 / KA-PAUSE-001 | Yes |
+| KA-001 Unified Knowledge Architecture | RES-019 / KA-001 | Counsel until Founder Approves |
 | PCM-001 = canonical user growth model | RES-013 | Yes |
 | North Star = transfer (for PPS after gate) | RES-012 / FLA-001 | Yes |
 | FLA-001 governs coaching & learning | RES-012 | Yes |
@@ -185,7 +190,7 @@ Do **not** invent new binding priorities here. Propose via Decision Pack.
 
 | Cadence | Next Atlas action |
 |---|---|
-| Product | ELM-001 layers + AMD-001 Dignity Test + PCI-001 craft on every counsel; CE substrate; HDS/ELM gaps; BR-001 phone smoke before unsupervised invite; MR-001 checkpoint; refuse PPS until CE MVP |
+| Product | **Pause new frameworks**; await Founder Approval of KA-001 then reorg; maintain Accepted doctrine; CE/LP only under existing gates; no HBF implementation |
 | Daily | Counsel → Guard → Core brief draft when Founder surface active |
 | Weekly | Broker intake + weekly pack when exec review runs |
 | Observation | Keep `atlas:runtime:observe` green; do not enable FOUNDER_VISIBLE unilaterally |
