@@ -52,13 +52,14 @@ KA-001 is that map. Filing is incidental. Learning is the point.
 
 ## 2. Design principles (non-negotiable)
 
-1. **One canonical source per domain** (SPEC-003).  
-2. **Evidence precedes authority.**  
-3. **Identity outranks product outranks ops.**  
-4. **Frameworks reference; they do not rewrite.**  
-5. **Fewer documents, clearer homes** — no duplicate full-text of Identity.  
-6. **Lifelong learning** — questions and evidence have permanent homes.  
-7. **AI inheritance is explicit** — load sets follow authority, not folder convenience.
+1. **Wisdom over filing** — structure exists to compound learning in service of users.  
+2. **One canonical source per domain** (SPEC-003).  
+3. **Evidence precedes authority.**  
+4. **Identity outranks product outranks ops.**  
+5. **Frameworks reference; they do not rewrite.**  
+6. **Fewer documents, clearer homes** — no duplicate full-text of Identity.  
+7. **Lifelong learning** — questions and evidence have permanent homes.  
+8. **AI inheritance is explicit** — load sets follow authority, not folder convenience.
 
 ---
 
@@ -259,10 +260,11 @@ Do **not** move files until KA-001 is Approved.
 
 KA-001 succeeds when:
 
-1. Any teammate or agent can answer “Where does this truth live?” in one hop.  
-2. No two documents claim to be the foundation for the same domain.  
-3. New ideas enter as questions/hypotheses — not as parallel constitutions.  
-4. The organization can learn for a decade without drowning in frameworks.
+1. TalkForge becomes **measurably wiser** over time in how it serves real people — not merely better indexed.  
+2. Any teammate or agent can answer “Where does this truth live?” in one hop.  
+3. No two documents claim to be the foundation for the same domain.  
+4. New ideas enter as questions/hypotheses — not as parallel constitutions.  
+5. The organization can learn for a decade without drowning in frameworks.
 
 ---
 
