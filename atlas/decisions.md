@@ -341,6 +341,20 @@ Approved (RES-018)
 
 ---
 
+# Decision 024
+
+Title:
+Pause new frameworks; submit KA-001 Unified Knowledge Architecture for approval.
+
+Reason:
+
+Structure precedes scale. Review constitutional corpus; design one knowledge map (domains, authority, evidence, promotion, questions, AI inheritance). No Human Behavior Framework / no new foundations / no corpus reorg until Founder Approves KA-001 (RES-019).
+
+Status:
+Pause binding; KA-001 awaiting approval
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
