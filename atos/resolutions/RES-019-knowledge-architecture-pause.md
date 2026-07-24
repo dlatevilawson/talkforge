@@ -10,7 +10,7 @@
 | **Human Approver** | Founder |
 | **Dependencies** | KA-001, KA-PAUSE-001, SPEC-003, STD-002, MR-001 |
 | **Approval History** | 2026-07-24 — Founder ordered unified Knowledge Architecture before further frameworks |
-| **Change Log** | 2026-07-24 — Pause binding; KA-001 submitted for approval; reorg deferred |
+| **Change Log** | 2026-07-24 — Pause binding; KA-001 submitted; 2026-07-24 — Founder purpose: wisdom in service of people |
 
 ---
 
@@ -18,10 +18,11 @@
 
 1. **KA-PAUSE-001** is **binding**: no Human Behavior Framework implementation and no new foundational frameworks until Knowledge Architecture is approved and corpus reorganization completes.  
 2. **KA-001 — Unified Knowledge Architecture** is submitted as **Working — Awaiting Founder Approval**.  
-3. Atlas shall **not** reorganize documents until the Founder Approves KA-001 (or Approves with amendments).  
-4. KA-001 is built **on** ATOS (SPEC-003 / STD-002); it does not amend ATOS Specs.  
-5. Accepted doctrine (FLA, PCM, AMD, ELM, PCI, CE gates) remains in force; the pause prevents *additional* parallel foundations.  
-6. Upon Founder Approval of KA-001, Atlas shall execute reorganization Phases A–D in KA-001 §10, then may resume framework work under KA rules.
+3. **Founder purpose (binding on the proposal):** The Knowledge Architecture does not exist to organize information. It exists so TalkForge becomes **progressively wiser** in service of the people it exists to help. Structure is a means; wisdom-in-service is the end.  
+4. Atlas shall **not** reorganize documents until the Founder Approves KA-001 (or Approves with amendments).  
+5. KA-001 is built **on** ATOS (SPEC-003 / STD-002); it does not amend ATOS Specs.  
+6. Accepted doctrine (FLA, PCM, AMD, ELM, PCI, CE gates) remains in force; the pause prevents *additional* parallel foundations.  
+7. Upon Founder Approval of KA-001, Atlas shall execute reorganization Phases A–D in KA-001 §10, then may resume framework work under KA rules.
 
 | Field | Value |
 |---|---|

@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | KA-001 |
-| **Version** | 1.0.0 |
+| **Version** | 1.0.1 |
 | **Status** | **Working — Awaiting Founder Approval** |
 | **Authority** | Atlas proposes; Founder decides |
 | **Owner** | Founder |
@@ -12,23 +12,41 @@
 | **Dependencies** | SPEC-001, SPEC-002, SPEC-003, STD-002, REG-KNOW, GOV-COMPAT, AMD-001, ELM-001, FLA-001, PCM-001, MR-001, PCI-001 |
 | **Related Documents** | KA-PAUSE-001, ATLAS-HANDOFF-REGISTER |
 | **Approval History** | 2026-07-24 — Issued under Founder order: Structure precedes scale |
-| **Change Log** | 2026-07-24 — v1.0.0 unified architecture proposal; reorganization deferred until approval |
+| **Change Log** | 2026-07-24 — v1.0.0 proposal; v1.0.1 Founder purpose: wisdom in service of people, not information filing |
 
-> **Standing order for this workstream:** Structure precedes scale.  
+> **Purpose (Founder):** The Knowledge Architecture does **not** exist to organize information. It exists so TalkForge becomes **progressively wiser** in service of the people it exists to help.  
+> **Standing order:** Structure precedes scale.  
 > **Pause:** No new frameworks (including any Human Behavior Framework) until KA-001 is approved and existing documents are reorganized into it.  
 > **Relationship to ATOS:** Built **on** ATOS. Does **not** amend Specs. Implements SPEC-003 / STD-002 with domain clarity the corpus currently lacks.
 
 ---
 
-## 1. Why this exists
+## 0. Purpose — wisdom, not filing
+
+**Organize information** is a means.
+
+**Become progressively wiser** — in service of the humans TalkForge exists to help — is the end.
+
+Every domain, lifecycle stage, promotion rule, and agent load set is justified only if it increases the organization’s ability to:
+
+- understand the people we serve more truly  
+- protect their dignity more reliably  
+- prepare them for moments that matter more effectively  
+- learn from evidence without losing the mission  
+
+If a structure does not make TalkForge wiser for those people, it does not belong in the Knowledge Architecture.
+
+---
+
+## 1. Why this architecture is needed now
 
 TalkForge has accumulated true principles and useful product doctrine — and also **dual planes**, overlapping “foundations,” and two meanings of “Canonical.”
 
 The problem is not a shortage of ideas.
 
-The problem is **coherence**: where truth lives, who owns it, how it earns authority, and how every future agent inherits the same map.
+The problem is **coherence in service of learning**: where truth lives, who owns it, how it earns authority, and how every future agent inherits the same map — so the company compounds wisdom instead of documents.
 
-KA-001 is that map.
+KA-001 is that map. Filing is incidental. Learning is the point.
 
 ---
 
