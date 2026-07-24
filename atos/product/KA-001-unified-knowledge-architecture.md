@@ -10,14 +10,15 @@
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Dependencies** | SPEC-001, SPEC-002, SPEC-003, STD-002, REG-KNOW, GOV-COMPAT, AMD-001, ELM-001, FLA-001, PCM-001, MR-001, PCI-001 |
-| **Related Documents** | KA-PAUSE-001, KA-REORG-001, LOAD-MANIFEST, ATLAS-HANDOFF-REGISTER |
+| **Related Documents** | KA-PAUSE-001, KA-REORG-001, TEA-001, LOAD-MANIFEST, ATLAS-HANDOFF-REGISTER |
 | **Approval History** | 2026-07-24 — Issued; purpose clarified; **2026-07-24 — Founder Approve KA-001 (RES-020)** |
 | **Change Log** | 2026-07-24 — v1.0.x proposal; v1.1.0 Accepted; stewardship-of-truth principle; reorg authorized |
 
 > **Purpose (Founder):** The Knowledge Architecture does **not** exist to organize information. It exists so TalkForge becomes **progressively wiser** in service of the people it exists to help.  
 > **Stewardship (Founder):** No person, AI agent, or founder owns the truth. They are temporary stewards of humanity’s current best understanding. Canonical knowledge is preserved because it is the strongest evidence-aligned explanation — not because it is old. Better evidence is how the institution fulfills its purpose.  
 > **Standing order:** Structure precedes scale.  
-> **Relationship to ATOS:** Built **on** ATOS. Does **not** amend Specs. Implements SPEC-003 / STD-002 with domain clarity.
+> **Relationship to ATOS:** Built **on** ATOS. Does **not** amend Specs. Implements SPEC-003 / STD-002 with domain clarity.  
+> **Relationship to TEA-001:** KA = **where** knowledge belongs. TEA = **how** domains communicate as one institution.
 
 ---
 

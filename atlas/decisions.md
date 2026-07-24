@@ -369,6 +369,20 @@ Accepted — Authoritative
 
 ---
 
+# Decision 026
+
+Title:
+Accept TEA-001 TalkForge Enterprise Architecture as institutional communication architecture.
+
+Reason:
+
+KA-001 established where knowledge belongs. TEA-001 establishes how every domain communicates as one living institution — not another framework. Six permanent enterprise domains (Identity, Governance, Knowledge, Operations, Product, Learning); continuous knowledge circulation; question lifecycle Open→Investigating→Answered→Reopened; AI protocol; future frameworks gated by TEA §10 + KA map. Coherence audit in TEA-MAP-001. RES-021.
+
+Status:
+Accepted — Authoritative
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

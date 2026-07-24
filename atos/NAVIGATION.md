@@ -141,9 +141,12 @@ See [`references/README.md`](references/README.md).
 | HDS-AUDIT-001 | Dignity touchpoint audit | [product/HDS-AUDIT-001-dignity-touchpoint-audit.md](product/HDS-AUDIT-001-dignity-touchpoint-audit.md) |
 | ELM-001 | Experience Layer Model (**Accepted** — departmental foundation) | [product/ELM-001-experience-layer-model.md](product/ELM-001-experience-layer-model.md) |
 | KA-001 | Unified Knowledge Architecture (**Accepted** — RES-020) | [product/KA-001-unified-knowledge-architecture.md](product/KA-001-unified-knowledge-architecture.md) |
+| TEA-001 | TalkForge Enterprise Architecture (**Accepted** — RES-021) | [product/TEA-001-enterprise-architecture.md](product/TEA-001-enterprise-architecture.md) |
+| TEA-MAP-001 | Enterprise domain map & coherence audit | [product/TEA-MAP-001-enterprise-domain-map.md](product/TEA-MAP-001-enterprise-domain-map.md) |
 | KA-REORG-001 | Knowledge reorganization (**Complete**) | [product/KA-REORG-001-knowledge-reorganization.md](product/KA-REORG-001-knowledge-reorganization.md) |
-| KA-PAUSE-001 | Framework rules (**domain-mapping**) | [product/KA-PAUSE-001-framework-pause.md](product/KA-PAUSE-001-framework-pause.md) |
-| LOAD-MANIFEST | Agent knowledge inheritance | [knowledge/LOAD-MANIFEST.md](knowledge/LOAD-MANIFEST.md) |
+| KA-PAUSE-001 | Framework rules (**TEA + KA gates**) | [product/KA-PAUSE-001-framework-pause.md](product/KA-PAUSE-001-framework-pause.md) |
+| LOAD-MANIFEST | Agent knowledge inheritance + AI protocol | [knowledge/LOAD-MANIFEST.md](knowledge/LOAD-MANIFEST.md) |
+| RES-021 | TEA-001 Accepted | [resolutions/RES-021-tea-001-acceptance.md](resolutions/RES-021-tea-001-acceptance.md) |
 | RES-020 | KA-001 Approved; stewardship; reorg authorized | [resolutions/RES-020-ka-001-approval.md](resolutions/RES-020-ka-001-approval.md) |
 | RES-019 | KA proposal + framework pause (historical) | [resolutions/RES-019-knowledge-architecture-pause.md](resolutions/RES-019-knowledge-architecture-pause.md) |
 | RES-018 | ELM-001 Accepted | [resolutions/RES-018-elm-001-acceptance.md](resolutions/RES-018-elm-001-acceptance.md) |

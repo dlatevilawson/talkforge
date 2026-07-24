@@ -34,8 +34,11 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [HDS-AUDIT-001](HDS-AUDIT-001-dignity-touchpoint-audit.md) | Dignity touchpoint audit | Working |
 | — | [ELM-001](ELM-001-experience-layer-model.md) | Experience Layer Model (departmental foundation) | **Accepted (RES-018)** |
 | — | [KA-001](KA-001-unified-knowledge-architecture.md) | Unified Knowledge Architecture | **Accepted (RES-020)** |
+| — | [TEA-001](TEA-001-enterprise-architecture.md) | TalkForge Enterprise Architecture | **Accepted (RES-021)** |
+| — | [TEA-MAP-001](TEA-MAP-001-enterprise-domain-map.md) | Enterprise domain map & coherence audit | Authoritative |
 | — | [KA-REORG-001](KA-REORG-001-knowledge-reorganization.md) | Knowledge reorganization | **Complete** |
-| — | [KA-PAUSE-001](KA-PAUSE-001-framework-pause.md) | New frameworks under KA domain rules | **Authoritative (RES-020)** |
+| — | [KA-PAUSE-001](KA-PAUSE-001-framework-pause.md) | New frameworks under TEA + KA gates | **Authoritative** |
+| — | [RES-021](../resolutions/RES-021-tea-001-acceptance.md) | TEA-001 Accepted | Authoritative |
 | — | [RES-020](../resolutions/RES-020-ka-001-approval.md) | KA-001 Approved; stewardship of truth; reorg authorized | Authoritative |
 | — | [RES-019](../resolutions/RES-019-knowledge-architecture-pause.md) | KA proposal + framework pause (historical) | Authoritative (superseded on approval track) |
 | — | [RES-018](../resolutions/RES-018-elm-001-acceptance.md) | ELM-001 Accepted | Authoritative |

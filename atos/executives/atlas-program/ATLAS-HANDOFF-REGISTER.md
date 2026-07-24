@@ -12,7 +12,7 @@
 | **Dependencies** | ATLAS-SUCCESSION, ATLAS-P4, ATLAS-P5, CHARTER-ATLAS |
 | **Related Documents** | ATLAS-GATE-FV, ATLAS-D-FLAGS, REG-EXEC |
 | **Approval History** | 2026-07-19 — Initial register for succession continuity |
-| **Change Log** | 2026-07-24 — RES-020 KA-001 Approved; stewardship of truth; KA-REORG-001 complete; pause → domain-mapping rules |
+| **Change Log** | 2026-07-24 — RES-021 TEA-001 Accepted; institutional communication architecture; framework gate |
 
 ---
 
@@ -32,9 +32,10 @@
 | **Landing** | [LP-001](../../product/LP-001-production-landing.md) — Production landing built; **awaiting Founder deploy approval** for talkforge.io |
 | **Human Dignity** | [AMD-001](../../product/AMD-001-human-dignity-standard.md) — **Accepted (RES-017)**; Dignity Test mandatory; Forge Law #011 |
 | **Experience Layers** | [ELM-001](../../product/ELM-001-experience-layer-model.md) — **Accepted (RES-018)**; Human·Moment·Emotion·Decision·Transformation foundation for every department |
-| **Knowledge Architecture** | [KA-001](../../product/KA-001-unified-knowledge-architecture.md) — **Accepted (RES-020)**; [KA-REORG-001](../../product/KA-REORG-001-knowledge-reorganization.md) **Complete**; [KA-PAUSE-001](../../product/KA-PAUSE-001-framework-pause.md) — new frameworks only under KA domain rules |
+| **Knowledge Architecture** | [KA-001](../../product/KA-001-unified-knowledge-architecture.md) — **Accepted (RES-020)**; [KA-REORG-001](../../product/KA-REORG-001-knowledge-reorganization.md) **Complete** |
+| **Enterprise Architecture** | [TEA-001](../../product/TEA-001-enterprise-architecture.md) — **Accepted (RES-021)**; [TEA-MAP-001](../../product/TEA-MAP-001-enterprise-domain-map.md); [KA-PAUSE-001](../../product/KA-PAUSE-001-framework-pause.md) — frameworks only under TEA+KA gates |
 
-**Company posture (RES-013…020):** **Structure precedes scale.** KA-001 **Accepted**. Reorg **Complete** (certified pointers; Ask Atlas loader freeze unchanged). New frameworks only if mapped to a KA domain (or Founder approves a new domain). Stewardship of truth binding. Existing Accepted doctrine (FLA/PCM/AMD/ELM/PCI) remains. CE substrate. PPS gated. Atlas org frozen. Reviews: ELM + Dignity + Craft when shipping product counsel.
+**Company posture (RES-013…021):** **Structure precedes scale.** KA-001 **Accepted** (homes). TEA-001 **Accepted** (communication). Reorg **Complete**. New frameworks only with TEA §10 + KA domain map. Stewardship of truth binding. Existing Accepted doctrine remains. CE substrate. PPS gated. Atlas org frozen. Reviews: ELM + Dignity + Craft when shipping product counsel.
 
 **Program Desk:** [`ATLAS-AIF-PROGRAM`](ATLAS-PROGRAM-DESK.md) — AIF-PROGRAM inside AIO-CORE owns register currency (not a sixth AIO).
 
@@ -63,8 +64,9 @@ This file is **operational**, not Canonical law. It must stay accurate so succes
 | Product craftsmanship | PCI-001 / RES-016 | **Accepted** — Craftsmanship Review mandatory; Atlas org unchanged |
 | Human Dignity Standard | AMD-001 / RES-017 | **Accepted** — Art. IX; Dignity Test mandatory; Forge Law #011 |
 | Experience Layer Model | ELM-001 / RES-018 | **Accepted** — five-layer foundation for every department |
-| Knowledge Architecture | KA-001 / RES-020 | **Accepted** — stewardship of truth; domains & authority |
-| Framework pause | KA-PAUSE-001 / RES-020 | **Conditional** — new frameworks only under KA domain rules |
+| Knowledge Architecture | KA-001 / RES-020 | **Accepted** — stewardship of truth; domain homes |
+| Enterprise Architecture | TEA-001 / RES-021 | **Accepted** — institutional communication; six enterprise domains |
+| Framework gate | KA-PAUSE-001 / TEA §10 | **Conditional** — TEA declarations + KA domain map |
 | Knowledge reorg | KA-REORG-001 | **Complete** — certified pointers; loader freeze unchanged |
 
 ---
@@ -168,7 +170,8 @@ Observation window active: target runs internally; Legacy serves Founder-visible
 | **PCI-001 Accepted** — love-of-use; Craftsmanship Review on every product review; Atlas org unchanged | RES-016 / PCI-001 | Yes |
 | **AMD-001 Accepted** — Human Dignity Test on every approval; dignity before product objectives | RES-017 / AMD-001 | Yes |
 | **ELM-001 Accepted** — Human·Moment·Emotion·Decision·Transformation on every significant brief | RES-018 / ELM-001 | Yes |
-| **Framework domain rules** — HBF / new foundations only if mapped to KA domain (or Founder new domain) | RES-020 / KA-PAUSE-001 | Yes |
+| **TEA + KA framework gates** — no parallel OS; HBF only via E-KNOW map + TEA §10 | RES-021 / RES-020 / KA-PAUSE-001 | Yes |
+| TEA-001 Enterprise Architecture | RES-021 / TEA-001 | **Accepted — Authoritative** |
 | KA-001 Unified Knowledge Architecture | RES-020 / KA-001 | **Accepted — Authoritative** |
 | KA-REORG-001 | RES-020 | **Complete** |
 | PCM-001 = canonical user growth model | RES-013 | Yes |
@@ -192,7 +195,7 @@ Do **not** invent new binding priorities here. Propose via Decision Pack.
 
 | Cadence | Next Atlas action |
 |---|---|
-| Product | Maintain Accepted doctrine under KA domains; CE/LP under existing gates; new frameworks only with domain map; Ask Atlas freeze holds |
+| Product | Maintain doctrine under TEA domains + KA homes; CE/LP under gates; new frameworks only with TEA §10 + KA map; Ask Atlas freeze holds |
 | Daily | Counsel → Guard → Core brief draft when Founder surface active |
 | Weekly | Broker intake + weekly pack when exec review runs |
 | Observation | Keep `atlas:runtime:observe` green; do not enable FOUNDER_VISIBLE unilaterally |
