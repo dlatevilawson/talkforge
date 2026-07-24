@@ -15,3 +15,5 @@
 | **Change Log** | 2026-07-18 — Evidence store created |
 
 Supporting evidence for promotion requests. Required fields per STD-002: Source, Evidence, Confidence Level, Reviewer, Date, Version.
+
+**Index (D-EVID):** [index/README.md](index/README.md)

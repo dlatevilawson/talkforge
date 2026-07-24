@@ -140,9 +140,12 @@ See [`references/README.md`](references/README.md).
 | AMD-001 | Human Dignity Standard (**Accepted**) | [product/AMD-001-human-dignity-standard.md](product/AMD-001-human-dignity-standard.md) |
 | HDS-AUDIT-001 | Dignity touchpoint audit | [product/HDS-AUDIT-001-dignity-touchpoint-audit.md](product/HDS-AUDIT-001-dignity-touchpoint-audit.md) |
 | ELM-001 | Experience Layer Model (**Accepted** — departmental foundation) | [product/ELM-001-experience-layer-model.md](product/ELM-001-experience-layer-model.md) |
-| KA-001 | Unified Knowledge Architecture (**Awaiting Founder Approval**) | [product/KA-001-unified-knowledge-architecture.md](product/KA-001-unified-knowledge-architecture.md) |
-| KA-PAUSE-001 | Framework / HBF pause (**Binding**) | [product/KA-PAUSE-001-framework-pause.md](product/KA-PAUSE-001-framework-pause.md) |
-| RES-019 | KA proposal + framework pause | [resolutions/RES-019-knowledge-architecture-pause.md](resolutions/RES-019-knowledge-architecture-pause.md) |
+| KA-001 | Unified Knowledge Architecture (**Accepted** — RES-020) | [product/KA-001-unified-knowledge-architecture.md](product/KA-001-unified-knowledge-architecture.md) |
+| KA-REORG-001 | Knowledge reorganization (**Complete**) | [product/KA-REORG-001-knowledge-reorganization.md](product/KA-REORG-001-knowledge-reorganization.md) |
+| KA-PAUSE-001 | Framework rules (**domain-mapping**) | [product/KA-PAUSE-001-framework-pause.md](product/KA-PAUSE-001-framework-pause.md) |
+| LOAD-MANIFEST | Agent knowledge inheritance | [knowledge/LOAD-MANIFEST.md](knowledge/LOAD-MANIFEST.md) |
+| RES-020 | KA-001 Approved; stewardship; reorg authorized | [resolutions/RES-020-ka-001-approval.md](resolutions/RES-020-ka-001-approval.md) |
+| RES-019 | KA proposal + framework pause (historical) | [resolutions/RES-019-knowledge-architecture-pause.md](resolutions/RES-019-knowledge-architecture-pause.md) |
 | RES-018 | ELM-001 Accepted | [resolutions/RES-018-elm-001-acceptance.md](resolutions/RES-018-elm-001-acceptance.md) |
 | RES-017 | AMD-001 Accepted; Dignity Test mandatory | [resolutions/RES-017-amd-001-human-dignity.md](resolutions/RES-017-amd-001-human-dignity.md) |
 | RES-016 | PCI-001 Accepted; Craftsmanship Review mandatory | [resolutions/RES-016-pci-001-acceptance.md](resolutions/RES-016-pci-001-acceptance.md) |

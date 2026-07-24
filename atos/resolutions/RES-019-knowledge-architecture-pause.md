@@ -4,13 +4,13 @@
 |---|---|
 | **Document ID** | RES-019 |
 | **Version** | 1.0.0 |
-| **Status** | Authoritative (pause); KA-001 pending Founder Approval |
+| **Status** | Authoritative (historical pause); **superseded for approval track by RES-020** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Dependencies** | KA-001, KA-PAUSE-001, SPEC-003, STD-002, MR-001 |
 | **Approval History** | 2026-07-24 — Founder ordered unified Knowledge Architecture before further frameworks |
-| **Change Log** | 2026-07-24 — Pause binding; KA-001 submitted; 2026-07-24 — Founder purpose: wisdom in service of people |
+| **Change Log** | 2026-07-24 — Pause binding; KA-001 submitted; purpose clarified; **2026-07-24 — KA-001 Approved via RES-020; reorg complete KA-REORG-001** |
 
 ---
 
@@ -26,4 +26,4 @@
 
 | Field | Value |
 |---|---|
-| **Status Upon Signature** | Pause Authoritative; KA-001 awaiting Founder Approval |
+| **Status Upon Signature** | Pause was Authoritative; **KA-001 now Approved (RES-020)**; see KA-PAUSE-001 v1.1 for post-reorg rules |

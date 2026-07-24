@@ -3,21 +3,21 @@
 | Field | Value |
 |---|---|
 | **Document ID** | KA-001 |
-| **Version** | 1.0.1 |
-| **Status** | **Working — Awaiting Founder Approval** |
-| **Authority** | Atlas proposes; Founder decides |
+| **Version** | 1.1.0 |
+| **Status** | **Accepted** (Authoritative) |
+| **Authority** | Founder Approved — RES-020 |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Dependencies** | SPEC-001, SPEC-002, SPEC-003, STD-002, REG-KNOW, GOV-COMPAT, AMD-001, ELM-001, FLA-001, PCM-001, MR-001, PCI-001 |
-| **Related Documents** | KA-PAUSE-001, ATLAS-HANDOFF-REGISTER |
-| **Approval History** | 2026-07-24 — Issued under Founder order: Structure precedes scale |
-| **Change Log** | 2026-07-24 — v1.0.0 proposal; v1.0.1 Founder purpose: wisdom in service of people, not information filing |
+| **Related Documents** | KA-PAUSE-001, KA-REORG-001, LOAD-MANIFEST, ATLAS-HANDOFF-REGISTER |
+| **Approval History** | 2026-07-24 — Issued; purpose clarified; **2026-07-24 — Founder Approve KA-001 (RES-020)** |
+| **Change Log** | 2026-07-24 — v1.0.x proposal; v1.1.0 Accepted; stewardship-of-truth principle; reorg authorized |
 
 > **Purpose (Founder):** The Knowledge Architecture does **not** exist to organize information. It exists so TalkForge becomes **progressively wiser** in service of the people it exists to help.  
+> **Stewardship (Founder):** No person, AI agent, or founder owns the truth. They are temporary stewards of humanity’s current best understanding. Canonical knowledge is preserved because it is the strongest evidence-aligned explanation — not because it is old. Better evidence is how the institution fulfills its purpose.  
 > **Standing order:** Structure precedes scale.  
-> **Pause:** No new frameworks (including any Human Behavior Framework) until KA-001 is approved and existing documents are reorganized into it.  
-> **Relationship to ATOS:** Built **on** ATOS. Does **not** amend Specs. Implements SPEC-003 / STD-002 with domain clarity the corpus currently lacks.
+> **Relationship to ATOS:** Built **on** ATOS. Does **not** amend Specs. Implements SPEC-003 / STD-002 with domain clarity.
 
 ---
 
@@ -35,6 +35,24 @@ Every domain, lifecycle stage, promotion rule, and agent load set is justified o
 - learn from evidence without losing the mission  
 
 If a structure does not make TalkForge wiser for those people, it does not belong in the Knowledge Architecture.
+
+---
+
+## 0.1 Stewardship of truth (Founder — binding)
+
+No person, AI agent, or founder **owns** the truth.
+
+They are **temporary stewards** of humanity’s current best understanding.
+
+Canonical knowledge is never defended because it is old.
+
+It is preserved because it is currently the **strongest explanation supported by evidence and aligned with the mission**.
+
+Better evidence is not a threat to the institution.
+
+Better evidence is how the institution fulfills its purpose.
+
+Therefore: challenge Canonical with evidence; never protect Canonical from evidence.
 
 ---
 
@@ -114,7 +132,7 @@ Each domain has **exactly one canonical source** (or one designated interim sour
 | **D-GATES** | Execution Gates | What may run now | Founder | RES stack + BR-001 + MR-001 | Same |
 | **D-OPS** | Operations | Live priorities, decisions, cadence | Founder / Atlas | Handoff + decisions + projects/metrics | `ATLAS-HANDOFF-REGISTER`, `atlas/decisions.md`, etc. |
 | **D-EVID** | Evidence & Learning Log | Observations, experiments, audits | Atlas / Research | `atos/knowledge/evidence/` + promotion queue | Partial / scaffold |
-| **D-Q** | Question Ledger | Unanswered questions under investigation | Atlas | `atos/knowledge/working/questions.md` (to create on reorg) | Not yet unified |
+| **D-Q** | Question Ledger | Unanswered questions under investigation | Atlas | `atos/knowledge/working/questions.md` | Active (KA-REORG-001) |
 | **D-ATLAS** | Atlas Government | How Atlas is organized (frozen) | Founder | Atlas program Authoritative set | Frozen; maintenance only |
 | **D-PRODCODE** | Product Application | Running software | Engineering | Repo `app/` `lib/` | Same |
 
@@ -220,39 +238,41 @@ Questions are first-class knowledge assets. Unlogged questions do not drive road
 
 ---
 
-## 10. Proposed reorganization (execute only after Founder approval)
+## 10. Reorganization (Authorized — RES-020; Complete — KA-REORG-001)
 
-Do **not** move files until KA-001 is Approved.
+**Method:** Certified pointer indexes under `atos/knowledge/canonical/*`. Live Identity stays in `atlas/` until Founder cutover (GOV-COMPAT). Full Product Canonical text stays in `atos/product/`. Ask Atlas loader freeze unchanged.
 
-### Phase A — Freeze creation
-- No new frameworks.  
-- Pause Human Behavior Framework implementation.  
+### Phase A — Freeze creation — Complete
+- No new frameworks during reorg.  
+- Human Behavior Framework remained paused.  
 - Working counsel only inside existing domains.
 
-### Phase B — Domain homes (logical, then physical)
+### Phase B — Domain homes — Complete
 
 | Home | Contents |
 |---|---|
-| `atos/knowledge/canonical/identity/` | Promoted Constitution, Brief, Laws, Philosophy, AMD (or certified pointers) |
-| `atos/knowledge/canonical/product/` | FLA, PCM (+ certified pointers) |
-| `atos/knowledge/canonical/experience/` | ELM, PCI (or pointers) |
-| `atos/product/` | Execution docs: CE, DIR, evidence, LP, audits (Working→promote) |
-| `atos/knowledge/working/` | Hypotheses, question ledger, open investigations |
-| `atos/knowledge/evidence/` | Indexed evidence packs |
+| `atos/knowledge/canonical/identity/` | Certified pointers → Constitution, Brief, Laws, Philosophy, AMD |
+| `atos/knowledge/canonical/product/` | Certified pointers → FLA, PCM (**Product Canonical**) |
+| `atos/knowledge/canonical/experience/` | Certified pointer → ELM |
+| `atos/knowledge/canonical/dignity/` · `craft/` · `engine/` · `gates/` · `ops/` | Domain indexes |
+| `atos/product/` | Execution docs: CE, DIR, evidence, LP, audits |
+| `atos/knowledge/working/` | Hypotheses + [question ledger](../knowledge/working/questions.md) |
+| `atos/knowledge/evidence/` | [Indexed evidence packs](../knowledge/evidence/index/README.md) |
 | `atos/knowledge/archive/` | Superseded strategy & obsolete counsel |
-| `atlas/` | Until cutover: live Identity + Ops; then shrink to runtime/ops only |
+| `atlas/` | Until cutover: live Identity + Ops |
 
-### Phase C — Registry truth
-- Update REG-KNOW + document-registry to list every domain’s one source.  
-- Clear “Canonical library empty” vs Product Canonical contradiction by labeling.  
-- Empty promotion queue → seed Identity promotion packets.
+Evidence: [KA-REORG-001](KA-REORG-001-knowledge-reorganization.md).
 
-### Phase D — Agent load manifest
-- Publish `atos/knowledge/LOAD-MANIFEST.md` from domains.  
-- Founder Decision required before changing Ask Atlas freeze.
+### Phase C — Registry truth — Complete
+- REG-KNOW lists domain homes + labeling (Identity interim · Product Canonical · ATOS Canonical Library indexes).  
+- “Empty publications” ≠ “no Product Canonical” — labels distinguish planes.
 
-### Phase E — Resume framework work
-- Only then may a Human Behavior Framework (or similar) be proposed — as an extension of D-EXP/D-GROWTH/D-LEARN, or as a new domain with Founder approval.
+### Phase D — Agent load manifest — Complete
+- Published: [`atos/knowledge/LOAD-MANIFEST.md`](../knowledge/LOAD-MANIFEST.md).  
+- Founder Decision still required before changing Ask Atlas freeze.
+
+### Phase E — Resume framework work — Conditional
+- A Human Behavior Framework (or similar) may be proposed **only** as an extension of D-EXP/D-GROWTH/D-LEARN, or as a new domain with Founder approval — see KA-PAUSE-001 v1.1.
 
 ---
 
@@ -268,15 +288,14 @@ KA-001 succeeds when:
 
 ---
 
-## 12. Founder decision requested
-
-| Option | Meaning |
-|---|---|
-| **Approve KA-001** | Architecture becomes Authoritative; Atlas executes Phase A–D reorganization; then frameworks may resume under KA rules |
-| **Approve with amendments** | Founder edits domains/hierarchy; then reorg |
-| **Reject / revise** | Atlas revises KA-001; pause continues |
+## 12. Founder decision
 
 | Field | Value |
 |---|---|
-| **Status Upon Signature** | Working — awaiting Founder Approval before any reorganization |
-| **Recommend ≠ Decide** | Atlas does not reorganize or invent frameworks under this proposal until Founder acts |
+| **Decision** | **Approved** (2026-07-24) |
+| **Resolution** | RES-020 |
+| **Next** | Reorganization **Complete** (KA-REORG-001); frameworks may resume only under KA domain rules; Ask Atlas cutover still needs Founder Decision |
+
+| Field | Value |
+|---|---|
+| **Status Upon Signature** | **Accepted — Authoritative** |

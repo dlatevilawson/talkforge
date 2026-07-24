@@ -355,6 +355,20 @@ Pause binding; KA-001 awaiting approval
 
 ---
 
+# Decision 025
+
+Title:
+Approve KA-001 Unified Knowledge Architecture; stewardship of truth; authorize reorganization.
+
+Reason:
+
+No person, AI agent, or founder owns the truth — temporary stewards of humanity’s current best understanding. Canonical is preserved as the strongest evidence-supported, mission-aligned explanation — not because it is old. Better evidence is how the institution fulfills its purpose. KA-001 Accepted (RES-020). Reorg executed as KA-REORG-001 (certified pointers; Ask Atlas loader freeze unchanged). New frameworks only under KA domain-mapping rules (KA-PAUSE-001 v1.1).
+
+Status:
+Accepted — Authoritative
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
