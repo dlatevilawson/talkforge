@@ -41,6 +41,10 @@ Questions are institutional assets. Unlogged questions do not drive roadmaps.
 | Q-HBF-I01 | What valid, brief, non-invasive identity/belief markers can we use? | E-KNOW / E-LEARN | D-GROWTH | Atlas | Medium | Open | HBF-005 |
 | Q-HBF-O01 | How do we measure preparedness lightly in-session? | E-PROD / E-LEARN | D-LEARN | Atlas | High | Open | HBF-006 |
 | Q-HBF-O02 | What transfer proxy is ethical before PPS ungates? | E-PROOF / E-LEARN | D-PROOF | Atlas | High | Open | HBF-006 |
+| Q-RP-001 | Which LP theme (Belonging vs Courage vs Redemption) best converts founding members without dignity harm? | E-PROD / E-LEARN | D-EXP | Founder / Atlas | High | Open | RP-001 / LP-STORY-001 |
+| Q-RP-002 | Does a curiosity-gap line under the hero improve engagement without clickbait feel? | E-PROD | D-EXP | Atlas | Medium | Open | EXP-LP-01 |
+| Q-RP-003 | Which memorable TalkForge lines survive unaided recall after one visit? | E-LEARN | D-CRAFT | Atlas | Medium | Open | Peak-end / fluency |
+| Q-RP-004 | How do we show relationship stakes on the LP without melodrama or fear ads? | E-PROD | D-EXP / D-DIGNITY | Atlas | Medium | Open | AMD |
 
 ---
 
