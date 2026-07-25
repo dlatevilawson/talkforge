@@ -38,6 +38,8 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [TEA-MAP-001](TEA-MAP-001-enterprise-domain-map.md) | Enterprise domain map & coherence audit | Authoritative |
 | — | [HBF-000](HBF-000-human-behavior-framework.md) | Human Behavior Framework (Phase I) | **Working (RES-022)** — not Product Canonical |
 | — | [HBF models](hbf/) | HBF-001…006 Needs → Outcomes | Working |
+| — | [RP-001](research/RP-001-psychology-of-unforgettable-stories.md) | Psychology of unforgettable stories | Working research |
+| — | [LP-STORY-001](research/LP-STORY-001-landing-story-insights.md) | Landing story insights from RP-001 | Working counsel |
 | — | [RES-022](../resolutions/RES-022-hbf-phase-i.md) | HBF Phase I authorized | Authoritative |
 | — | [KA-REORG-001](KA-REORG-001-knowledge-reorganization.md) | Knowledge reorganization | **Complete** |
 | — | [KA-PAUSE-001](KA-PAUSE-001-framework-pause.md) | New frameworks under TEA + KA gates | **Authoritative** |

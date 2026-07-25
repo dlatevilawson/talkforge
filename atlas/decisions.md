@@ -397,6 +397,20 @@ Working Phase I authorized — Authoritative resolution
 
 ---
 
+# Decision 028
+
+Title:
+Commission RP-001 research — psychology of unforgettable stories — for ethical product storytelling.
+
+Reason:
+
+Study emotionally sticky films, speeches, books, and ads as human psychology (not reviews). Extract needs, questions, transformations, peaks, lines, techniques; group by Hope/Belonging/Courage/Love/Redemption/Identity/Fear/Growth/Purpose/Connection. Apply ethically to TalkForge LP via LP-STORY-001 without copying sources; Dignity Test binding. Working research under E-LEARN → E-KNOW.
+
+Status:
+Working research accepted for counsel
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
