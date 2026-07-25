@@ -12,9 +12,10 @@
 | **AI Steward** | Atlas |
 | **Dependencies** | HBF-000…006, AMD-001, ELM-001, PCI-001, LP-001, KA-001, TEA-001 |
 | **Consumers** | Landing storytelling · coaching narrative · brand · research agenda |
-| **Related** | [LP-STORY-001](LP-STORY-001-landing-story-insights.md) (actionable LP brief) |
+| **Related** | [RP-001-T](RP-001-T-research-template.md) (mandatory case template) · [cases/](cases/) · [LP-STORY-001](LP-STORY-001-landing-story-insights.md) |
 | **Approval** | Working counsel; Canonical only via promotion |
 | **Date** | 2026-07-25 |
+| **Change Log** | 2026-07-25 — v1.0 synthesis; **v1.1 RP-001-T mandated for new cases** |
 
 > **This is not a review catalog.** It is a study of human psychology: what creates deep emotional connection, sustained attention, and lasting memory — and what TalkForge may apply **ethically** without copying, without manipulation, and without violating AMD-001.
 
@@ -25,9 +26,12 @@
 ### Method
 
 1. Select culturally sticky works (film, speech, book, advertisement).  
-2. For each, answer the eight research questions (need, question, transformation, peak moments, lines, techniques, ethical product principles, TalkForge inspiration).  
-3. Synthesize into themes → reusable psychological principles.  
-4. Translate into **actionable** LP / product counsel (see LP-STORY-001).
+2. **For each work, complete [RP-001-T](RP-001-T-research-template.md)** — Basic Information + sections 1–11 (Human Need through Confidence) + Inquiry close. Store under [`cases/`](cases/).  
+3. Compact corpus notes in this file may summarize patterns; **new deep analyses must use the template**.  
+4. Synthesize recurring insights into themes → reusable psychological principles.  
+5. Translate into **actionable** LP / product counsel (see LP-STORY-001).
+
+**Template sections (mandatory):** Human Need · Emotional Journey · Curiosity Engine · Character Transformation · Memorable Moments · Memorable Lines · Storytelling Principles · Psychological Principles (people) · TalkForge Applications · Ethical Check · Confidence.
 
 ### Evidence labels used below
 

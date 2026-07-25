@@ -35,7 +35,7 @@
 | **Knowledge Architecture** | [KA-001](../../product/KA-001-unified-knowledge-architecture.md) — **Accepted (RES-020)**; [KA-REORG-001](../../product/KA-REORG-001-knowledge-reorganization.md) **Complete** |
 | **Enterprise Architecture** | [TEA-001](../../product/TEA-001-enterprise-architecture.md) — **Accepted (RES-021)**; [TEA-MAP-001](../../product/TEA-MAP-001-enterprise-domain-map.md) |
 | **Human Behavior** | [HBF-000](../../product/HBF-000-human-behavior-framework.md) — **Working Phase I (RES-022)**; models HBF-001…006; **not Product Canonical**; [KA-PAUSE-001](../../product/KA-PAUSE-001-framework-pause.md) |
-| **Story research** | [RP-001](../../product/research/RP-001-psychology-of-unforgettable-stories.md) — Working; [LP-STORY-001](../../product/research/LP-STORY-001-landing-story-insights.md) — LP counsel (no code until Founder selects) |
+| **Story research** | [RP-001](../../product/research/RP-001-psychology-of-unforgettable-stories.md) — Working; [RP-001-T](../../product/research/RP-001-T-research-template.md) template mandatory; [LP-STORY-001](../../product/research/LP-STORY-001-landing-story-insights.md) — LP counsel |
 
 **Company posture (RES-013…022):** **Structure precedes scale.** KA homes + TEA communication **Accepted**. HBF Phase I **Working** under E-KNOW (extends D-EXP/D-GROWTH/D-LEARN) — evidence-classified, dignity-bound, not Canonical. Stewardship of truth binding. CE substrate. PPS gated. Atlas org frozen. Reviews: ELM + Dignity + Craft when shipping product counsel.
 
