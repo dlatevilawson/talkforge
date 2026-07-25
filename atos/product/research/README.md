@@ -3,4 +3,6 @@
 | ID | Title | Status |
 |---|---|---|
 | [RP-001](RP-001-psychology-of-unforgettable-stories.md) | Psychology of Unforgettable Stories | Working |
+| [RP-001-T](RP-001-T-research-template.md) | Story Psychology Research Template | **Authoritative method** |
+| [cases/](cases/) | Filled case analyses (CASE-XXX) | Working |
 | [LP-STORY-001](LP-STORY-001-landing-story-insights.md) | Landing Story Insights | Working counsel |
