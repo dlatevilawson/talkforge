@@ -13,7 +13,7 @@
 | **Enterprise domain (TEA)** | **E-KNOW** (primary) · consumed by E-PROD · E-LEARN · constrained by E-ID |
 | **KA homes** | **D-EXP** · **D-GROWTH** · **D-LEARN** (extension — not a parallel OS) |
 | **Dependencies** | Constitution · Founder Brief · Forge Laws · AMD-001 · KA-001 · TEA-001 · FLA-001 · PCM-001 · ELM-001 |
-| **Related Documents** | HBF-001…HBF-006, TEA-MAP-001, KNOW-QUESTIONS, LOAD-MANIFEST |
+| **Related Documents** | HBF-001…HBF-006, RP-001, TEA-MAP-001, KNOW-QUESTIONS, LOAD-MANIFEST |
 | **Approval History** | 2026-07-25 — Prerequisites verified; Phase I authorized (RES-022) |
 | **Change Log** | 2026-07-25 — Charter + six Working models; evidence-classified; not Product Canonical |
 
