@@ -45,7 +45,27 @@ Questions are institutional assets. Unlogged questions do not drive roadmaps.
 | Q-RP-002 | Does a curiosity-gap line under the hero improve engagement without clickbait feel? | E-PROD | D-EXP | Atlas | Medium | Open | EXP-LP-01 |
 | Q-RP-003 | Which memorable TalkForge lines survive unaided recall after one visit? | E-LEARN | D-CRAFT | Atlas | Medium | Open | Peak-end / fluency |
 | Q-RP-004 | How do we show relationship stakes on the LP without melodrama or fear ads? | E-PROD | D-EXP / D-DIGNITY | Atlas | Medium | Open | AMD |
-| Q-RP-005 | Which non-story evidence stream (psychology / learning / communication / user IE) should we deepen next for connection science? | E-KNOW / E-LEARN | D-EXP / D-LEARN | Founder / Atlas | High | Open | RP-001 v2 streams B–E |
+| Q-RP-005 | Which non-story evidence stream should we deepen next for connection science? | E-KNOW / E-LEARN | D-EXP / D-LEARN | Founder / Atlas | High | Open | RP-001 v2 |
+| Q-P2-01 | Does TalkForge practice causally improve real-world conversations? | E-PROD / E-PROOF | D-PROOF | Founder | Critical | Open | RP-001-P2 OQ-01 |
+| Q-P2-02 | What transfer measures are valid, light, and dignity-safe? | E-LEARN | D-PROOF / D-LEARN | Atlas | Critical | Open | OQ-02 |
+| Q-P2-03 | Does context-matched practice beat generic drills? | E-PROD | D-LEARN | Atlas | High | Open | OQ-03 |
+| Q-P2-04 | Autonomy CTAs vs urgency — activation quality? | E-PROD | D-EXP | Atlas | High | Open | OQ-04 |
+| Q-P2-05 | Does “unpracticed ≠ unworthy” reduce shame and increase practice? | E-PROD / E-LEARN | D-DIGNITY | Atlas | High | Open | OQ-05 |
+| Q-P2-06 | Which error-feedback style maximizes re-engagement? | E-PROD | D-LEARN | Atlas | High | Open | OQ-06 |
+| Q-P2-07 | Can AI feedback approach human modeling/feedback benefits? | E-PROD | D-ENGINE | Eng / Atlas | High | Open | OQ-07 |
+| Q-P2-08 | Optimal session length vs overwhelm? | E-PROD | D-EXP | Atlas | Medium | Open | OQ-08 |
+| Q-P2-09 | Implementation-intention wrap → 7-day application? | E-PROD | D-LEARN | Atlas | High | Open | OQ-09 |
+| Q-P2-10 | Private-first positioning reduces completion? | E-PROD | D-EXP | Atlas | Medium | Open | OQ-10 |
+| Q-P2-11 | LP theme winner with dignity metrics? | E-PROD | D-EXP | Founder | High | Open | OQ-11 |
+| Q-P2-12 | Honest small-N social proof help or hollow? | E-PROD | D-CRAFT | Atlas | Low | Open | OQ-12 |
+| Q-P2-13 | How to show confidence vs competence without confusion? | E-KNOW | D-GROWTH | Atlas | Medium | Open | OQ-13 |
+| Q-P2-14 | Which HBF needs dominate real user intents (IE)? | E-LEARN | D-GROWTH | Atlas | High | Open | OQ-14 |
+| Q-P2-15 | Spacing cadence users accept without controlling streaks? | E-PROD | D-LEARN | Atlas | Medium | Open | OQ-15 |
+| Q-P2-16 | Listening/trust metrics ↔ user-valued outcomes? | E-LEARN | D-PROOF | Atlas | High | Open | OQ-16 |
+| Q-P2-17 | When does LP narrative vignette help vs manipulate? | E-PROD | D-DIGNITY | Atlas | Medium | Open | OQ-17 |
+| Q-P2-18 | Prevalence of hard-talk fear in our users (non-clinical)? | E-LEARN | D-EXP | Atlas | Medium | Open | OQ-18 |
+| Q-P2-19 | Intent capture help vs dropout friction? | E-PROD | D-EXP | Atlas | High | Open | OQ-19 |
+| Q-P2-20 | Cross-cultural validity of shame-safe coaching norms? | E-KNOW | D-DIGNITY | Atlas | Medium | Open | OQ-20 |
 
 ---
 

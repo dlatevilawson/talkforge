@@ -425,6 +425,20 @@ Accepted — Working research program scope
 
 ---
 
+# Decision 030
+
+Title:
+Authorize RP-001 Phase II — Evidence Validation & Pattern Extraction; require fact-check + Founder correction notices.
+
+Reason:
+
+Do not assume conclusions; separate evidence from opinion; prefer metas/reviews; record uncertainty; every recommendation carries confidence. Produce evidence ledger; top evidence-backed principles; open questions; experiments before institutional knowledge. Prior Stream A overclaims corrected in RP-001-P2 CORR-01…08.
+
+Status:
+Working Phase II authorized
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

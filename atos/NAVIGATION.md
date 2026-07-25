@@ -146,6 +146,7 @@ See [`references/README.md`](references/README.md).
 | HBF-000 | Human Behavior Framework Phase I (**Working** — RES-022) | [product/HBF-000-human-behavior-framework.md](product/HBF-000-human-behavior-framework.md) |
 | HBF-001…006 | Needs · Friction · Context · Decision · Identity · Outcomes | [product/hbf/](product/hbf/) |
 | RP-001 | Science of Human Connection (research program) | [product/research/RP-001-science-of-human-connection.md](product/research/RP-001-science-of-human-connection.md) |
+| RP-001-P2 | Phase II evidence ledger | [product/research/RP-001-P2-evidence-ledger.md](product/research/RP-001-P2-evidence-ledger.md) |
 | RP-001-T | Story stream case template (Stream A) | [product/research/RP-001-T-research-template.md](product/research/RP-001-T-research-template.md) |
 | LP-STORY-001 | Landing insights (story stream → LP) | [product/research/LP-STORY-001-landing-story-insights.md](product/research/LP-STORY-001-landing-story-insights.md) |
 | RES-022 | HBF Phase I Working authorized | [resolutions/RES-022-hbf-phase-i.md](resolutions/RES-022-hbf-phase-i.md) |

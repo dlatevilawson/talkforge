@@ -13,10 +13,10 @@
 | **AI Steward** | Atlas |
 | **Dependencies** | HBF-000…006, AMD-001, ELM-001, FLA-001, PCM-001, PCI-001, LP-001, KA-001, TEA-001 |
 | **Consumers** | Landing · coaching · brand · product UX · research agenda |
-| **Related** | [RP-001-T](RP-001-T-research-template.md) (Story stream case template) · [cases/](cases/) · [LP-STORY-001](LP-STORY-001-landing-story-insights.md) |
+| **Related** | [RP-001-P2](RP-001-P2-evidence-ledger.md) · [RP-001-T](RP-001-T-research-template.md) · [cases/](cases/) · [LP-STORY-001](LP-STORY-001-landing-story-insights.md) |
 | **Approval** | Working counsel; Canonical only via promotion |
 | **Date** | 2026-07-25 |
-| **Change Log** | 2026-07-25 — v1.0 story synthesis; v1.1 RP-001-T; **v2.0 retitled Science of Human Connection — multi-stream scope** |
+| **Change Log** | v1.0 story synthesis; v1.1 RP-001-T; v2.0 Science of Human Connection; **v2.1 Phase II evidence ledger (RP-001-P2)** |
 
 > **Mission alignment (Founder):** TalkForge’s mission is not to create unforgettable stories. It is to help people build **better relationships through better communication**.  
 > **RP-001** is the institutional research program for the **science of human connection**. Stories are one evidence source. Psychology, learning science, communication research, and real user experiences are equally important.  
@@ -400,10 +400,12 @@ TalkForge already owns strong LP lines — protect them when they serve connecti
 
 | Stream | Near-term work | Status |
 |---|---|---|
-| **B Psychology** | Keep HBF Phase I as primary home; RP-001 cites, does not duplicate | Active via HBF |
-| **C Learning science** | Briefs linking deliberate practice + transfer to CE scenarios | Open |
-| **D Communication research** | Briefs on listening, repair, clarity aligned to PCM | Open |
-| **E User evidence** | Waitlist reasons, session friction tags, interviews | Open / sparse |
+| **B Psychology** | Keep HBF Phase I as primary home; **validate via RP-001-P2** | Active — Phase II ledger |
+| **C Learning science** | Transfer, spacing, DP limits — see P-006/P-007/P-017 | Open / partially ledgered |
+| **D Communication research** | Listening/trust metrics — P-021/P-022 | Open |
+| **E User evidence** | Run WH experiments in RP-001-P2 §5 | Open / sparse |
+
+**Phase II deliverable:** [RP-001-P2 — Evidence Ledger](RP-001-P2-evidence-ledger.md) (top 20 principles, 20 open questions, experiments).
 
 ---
 

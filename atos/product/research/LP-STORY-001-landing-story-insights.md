@@ -10,6 +10,7 @@
 | **Consumers** | Landing copy/design · Founder deploy review · craft review |
 | **Date** | 2026-07-25 |
 | **Constraint** | Inspire — **do not copy** source works; Dignity Test on every change |
+| **Phase II note** | Stream A LP tactics are **Working Hypotheses** until IE (see [RP-001-P2](RP-001-P2-evidence-ledger.md) CORR-01…08). Prefer SDT/transfer-safe counsel over story aesthetics. |
 
 ---
 
