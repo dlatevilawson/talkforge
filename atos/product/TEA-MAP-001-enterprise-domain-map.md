@@ -60,7 +60,7 @@ Identify missing communication paths, duplicated responsibilities, and informati
 | Question ledger (D-Q) | Active | E-LEARN | E-KNOW | All domains | Questions / reopen | No |
 | Evidence index | Active | E-LEARN | E-KNOW | Product, audits | Packets for promotion | No |
 | Atlas org (P0–P6) | Frozen | E-GOV | E-OPS | RES-011 | Org infrastructure | Maintenance only — not dead |
-| Human Behavior Framework | **Not created** | E-KNOW *(target)* | E-LEARN · E-PROD | — | — | N/A — gated by KA-PAUSE + TEA §10 |
+| Human Behavior Framework | **Working — Phase I** | E-KNOW | E-LEARN · E-PROD | Identity, FLA/PCM/ELM, observations | Needs/friction/context/decision/identity/outcomes models + questions | No — living; RES-022 |
 
 ---
 

@@ -36,6 +36,9 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [KA-001](KA-001-unified-knowledge-architecture.md) | Unified Knowledge Architecture | **Accepted (RES-020)** |
 | — | [TEA-001](TEA-001-enterprise-architecture.md) | TalkForge Enterprise Architecture | **Accepted (RES-021)** |
 | — | [TEA-MAP-001](TEA-MAP-001-enterprise-domain-map.md) | Enterprise domain map & coherence audit | Authoritative |
+| — | [HBF-000](HBF-000-human-behavior-framework.md) | Human Behavior Framework (Phase I) | **Working (RES-022)** — not Product Canonical |
+| — | [HBF models](hbf/) | HBF-001…006 Needs → Outcomes | Working |
+| — | [RES-022](../resolutions/RES-022-hbf-phase-i.md) | HBF Phase I authorized | Authoritative |
 | — | [KA-REORG-001](KA-REORG-001-knowledge-reorganization.md) | Knowledge reorganization | **Complete** |
 | — | [KA-PAUSE-001](KA-PAUSE-001-framework-pause.md) | New frameworks under TEA + KA gates | **Authoritative** |
 | — | [RES-021](../resolutions/RES-021-tea-001-acceptance.md) | TEA-001 Accepted | Authoritative |

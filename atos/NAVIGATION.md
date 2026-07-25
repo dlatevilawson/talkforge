@@ -143,6 +143,9 @@ See [`references/README.md`](references/README.md).
 | KA-001 | Unified Knowledge Architecture (**Accepted** — RES-020) | [product/KA-001-unified-knowledge-architecture.md](product/KA-001-unified-knowledge-architecture.md) |
 | TEA-001 | TalkForge Enterprise Architecture (**Accepted** — RES-021) | [product/TEA-001-enterprise-architecture.md](product/TEA-001-enterprise-architecture.md) |
 | TEA-MAP-001 | Enterprise domain map & coherence audit | [product/TEA-MAP-001-enterprise-domain-map.md](product/TEA-MAP-001-enterprise-domain-map.md) |
+| HBF-000 | Human Behavior Framework Phase I (**Working** — RES-022) | [product/HBF-000-human-behavior-framework.md](product/HBF-000-human-behavior-framework.md) |
+| HBF-001…006 | Needs · Friction · Context · Decision · Identity · Outcomes | [product/hbf/](product/hbf/) |
+| RES-022 | HBF Phase I Working authorized | [resolutions/RES-022-hbf-phase-i.md](resolutions/RES-022-hbf-phase-i.md) |
 | KA-REORG-001 | Knowledge reorganization (**Complete**) | [product/KA-REORG-001-knowledge-reorganization.md](product/KA-REORG-001-knowledge-reorganization.md) |
 | KA-PAUSE-001 | Framework rules (**TEA + KA gates**) | [product/KA-PAUSE-001-framework-pause.md](product/KA-PAUSE-001-framework-pause.md) |
 | LOAD-MANIFEST | Agent knowledge inheritance + AI protocol | [knowledge/LOAD-MANIFEST.md](knowledge/LOAD-MANIFEST.md) |

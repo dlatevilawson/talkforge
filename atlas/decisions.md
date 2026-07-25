@@ -383,6 +383,20 @@ Accepted — Authoritative
 
 ---
 
+# Decision 027
+
+Title:
+Authorize HBF Phase I as Institutional Working Knowledge.
+
+Reason:
+
+Prerequisites verified (Constitution, Founder Brief, Forge Laws, AMD-001, KA-001, TEA-001). HBF improves understanding of the humans we serve — not a psychology encyclopedia. Subordinate to Identity→Governance→KA→TEA. Maps to E-KNOW extending D-EXP/D-GROWTH/D-LEARN. Evidence-classified models HBF-001…006. Not Product Canonical. Dignity-bound. RES-022.
+
+Status:
+Working Phase I authorized — Authoritative resolution
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

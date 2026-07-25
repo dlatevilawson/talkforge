@@ -38,8 +38,11 @@ Constitutional Specs/Standards remain in `atos/specifications/` and `atos/standa
 | D-ENGINE Communication Engine | [engine/](engine/) |
 | D-GATES Execution Gates | [gates/](gates/) |
 | D-OPS Operations | [ops/](ops/) |
+| HBF (Working · E-KNOW) | [behavior/](behavior/) |
 
-Architecture law: [KA-001](../../product/KA-001-unified-knowledge-architecture.md). Load sets: [LOAD-MANIFEST](../LOAD-MANIFEST.md).
+Architecture law: [KA-001](../../product/KA-001-unified-knowledge-architecture.md). Enterprise communication: [TEA-001](../../product/TEA-001-enterprise-architecture.md). Load sets: [LOAD-MANIFEST](../LOAD-MANIFEST.md).
+
+**Working (not Product Canonical):** [HBF-000](../../product/HBF-000-human-behavior-framework.md) Phase I — see [behavior/](behavior/).
 
 ---
 

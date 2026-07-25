@@ -47,6 +47,7 @@ Every AI agent shall declare:
 | 1 | E-ID | D-ID | `atos/knowledge/canonical/identity/` → live Identity sources |
 | 2 | E-GOV | D-KG / D-GATES | SPEC-003, STD-002, REG-KNOW, KA-001, TEA-001, active RES |
 | 3 | E-KNOW | D-LEARN / D-GROWTH | FLA-001, PCM-001 |
+| 3b | E-KNOW | D-EXP / D-GROWTH / D-LEARN | HBF-000…006 (**Working** — not Canonical; dignity-constrained) |
 | 4 | E-KNOW / E-PROD | D-DIGNITY / D-EXP / D-CRAFT | AMD-001, ELM-001, PCI-001 |
 | 5 | E-PROD / E-GOV | D-ENGINE / D-GATES | CE-001, DIR-CE-001, BR-001, MR-001 |
 | 6 | E-OPS | D-OPS | ATLAS-HANDOFF-REGISTER, `atlas/decisions.md` (recent) |

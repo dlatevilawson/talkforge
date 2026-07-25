@@ -145,22 +145,32 @@ domains:
       - atos/registries/knowledge-registry.yaml
       - atos/product/KA-001-unified-knowledge-architecture.md
 
-  - id: D-LEARN
-    name: Learning Architecture
-    canonical_source: atos/product/FLA-001-forge-learning-architecture.md
-    domain_index: atos/knowledge/canonical/product/
-    label: Product Canonical
+  - id: D-EXP
+    name: Experience Language
+    canonical_source: atos/product/ELM-001-experience-layer-model.md
+    domain_index: atos/knowledge/canonical/experience/
+    working_extensions:
+      - atos/product/HBF-000-human-behavior-framework.md
+      - atos/knowledge/canonical/behavior/
 
   - id: D-GROWTH
     name: User Growth Model
     canonical_source: atos/product/PCM-001-personal-communication-model.md
     domain_index: atos/knowledge/canonical/product/
     label: Product Canonical
+    working_extensions:
+      - atos/product/hbf/HBF-001-human-needs-model.md
+      - atos/product/hbf/HBF-004-human-decision-model.md
+      - atos/product/hbf/HBF-005-identity-development-model.md
 
-  - id: D-EXP
-    name: Experience Language
-    canonical_source: atos/product/ELM-001-experience-layer-model.md
-    domain_index: atos/knowledge/canonical/experience/
+  - id: D-LEARN
+    name: Learning Architecture
+    canonical_source: atos/product/FLA-001-forge-learning-architecture.md
+    domain_index: atos/knowledge/canonical/product/
+    label: Product Canonical
+    working_extensions:
+      - atos/product/hbf/HBF-006-communication-outcomes-framework.md
+      - atos/product/hbf/HBF-005-identity-development-model.md
 
   - id: D-DIGNITY
     name: Dignity Architecture
