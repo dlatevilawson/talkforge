@@ -1,0 +1,92 @@
+# Repository Index
+# Document ID: REG-REPO
+# Version: 1.0.0
+# Status: Authoritative
+# Owner: Founder
+# AI Steward: Atlas
+# Human Approver: Founder
+# Review Cycle: Each milestone
+# Approval History: 2026-07-18 — M3 headers; 2026-07-19 — Level states synchronized (MS-SYNC)
+# Change Log: 2026-07-19 — Governance state synchronization for ATOS v1.0.0 ratification readiness
+
+version: 1.0.0
+updated_at: "2026-07-19"
+
+entrypoint: ATOS.md
+
+atos_tree:
+  - path: ATOS.md
+    role: entrypoint
+  - path: atos/NAVIGATION.md
+    role: human_navigation
+  - path: atos/
+    role: package_root
+  - path: atos/governance/
+    role: governance_frameworks_and_adrs
+  - path: atos/governance/registry-operations.md
+    role: registry_operations
+  - path: atos/resolutions/
+    role: founder_resolutions
+  - path: atos/schemas/
+    role: machine_schemas
+  - path: atos/registries/
+    role: machine_registries
+  - path: atos/registries/INDEX.md
+    role: registry_human_index
+  - path: atos/specifications/
+    role: level_1
+    state: authoritative
+  - path: atos/standards/
+    role: level_2
+    state: authoritative
+  - path: atos/manuals/
+    role: level_3
+    state: draft
+  - path: atos/references/
+    role: level_4
+    state: scaffold
+  - path: atos/knowledge/
+    role: knowledge_governance_stores
+    state: draft
+  - path: atos/runtime/
+    role: runtime_infrastructure_docs
+    state: draft
+  - path: atos/manuals/MAN-013-runtime-operations.md
+    role: runtime_operations_manual
+    state: draft
+  - path: atos/knowledge/promotion/queue.yaml
+    role: promotion_queue
+    state: draft
+  - path: atos/references/templates/
+    role: templates
+    state: scaffold
+  - path: atos/references/historical/
+    role: historical_archive
+    state: scaffold
+  - path: atos/history/
+    role: governance_history
+    state: scaffold
+  - path: atos/milestones/
+    role: milestone_records
+    state: draft
+
+legacy_and_product:
+  - path: atlas/
+    role: pre_atos_corpus_and_engine
+    note: Frozen load set for Ask Atlas (GOV-COMPAT)
+  - path: app/
+    role: product_ui_and_api
+  - path: lib/
+    role: product_libraries
+  - path: supabase/
+    role: database_schema
+
+  - path: atos/executives/
+    role: executive_systems
+    state: draft
+  - path: atos/founder/
+    role: founder_workspace
+    state: draft
+  - path: atos/validation/
+    role: operational_validation
+    state: draft

@@ -1,124 +1,131 @@
 # TALKFORGE PROJECTS
-Version 1.1
+Version 1.3
 
 ---
 
 # Active Projects
 
 ## Project
-TalkForge MVP
+CE-001 Communication Engine v1.0
 
 Status:
-🟢 In Progress
+🟢 **Critical — Approved for Execution** (DIR-CE-001 / RES-013)
 
 Purpose:
-Build the world's best AI communication gym.
+Foundational voice interaction layer. Natural voice practice with finalized transcripts, FLA coaching evidence, and PCM updates.
 
 Priority:
-Critical
+**Critical — immediate engineering priority**
+
+Governing docs:
+- DIR-CE-001
+- RES-013
+- CE-001
+- FLA-001
+- PCM-001
+
+Milestones:
+CE-M1 **PASS** → CE-M2 **implemented / Founder validation pending** → CE-M3 blocked until M2 accepted
 
 ---
 
 ## Project
-Atlas Founder Operating System
+Product Proof Sprint 001 (PPS-001)
 
 Status:
-🟢 In Progress
+🟡 **Gated** — may not begin until CE-001 MVP readiness (RES-013)
 
 Purpose:
-Turn Atlas into the TalkForge Founder Operating System — mission control, company health, notes, and daily brief.
+Prove transfer on the technical-interview wedge using the voice communication engine.
 
 Priority:
-Critical
+Primary proof objective — **blocked on CE-001 MVP**
 
-Phase:
-3 — Executive Dashboard
+---
+
+## Project
+TalkForge MVP scaffolding (event / text / reality)
+
+Status:
+⚪ Infrastructure only (not PPS execution)
+
+Purpose:
+Prior event-first prepare, text coach, and reality capture remain available as scaffolding. Do not treat as Product Proof start.
+
+Priority:
+Support CE-001; no feature expansion ahead of CE
+
+---
+
+## Project
+Atlas Runtime Organization / Founder OS
+
+Status:
+⚪ Maintenance only (RES-011 / RES-012 / RES-013)
+
+Purpose:
+Certified frozen infrastructure. Not the primary project.
+
+Priority:
+Maintenance
 
 ---
 
 ## Current Objectives
 
-- Operate Atlas as the founder operating system
-- Keep the practice → coach → reflect loop reliable
-- Improve Forge Coach quality
-- Prepare real authentication after guest MVP
-- Launch MVP
+- Bind CE-001 as Critical (done — RES-013)
+- Execute CE-M1 Realtime session establishment
+- Complete CE-M1…CE-M5 for MVP readiness gate
+- Only then open PPS-001
 
 ---
 
 ## Current Sprint
 
-Sprint 001
+**CE-001 execution** (not PPS-001)
 
 Goal:
-Deliver a complete end-to-end communication coaching experience.
+User presses Start → Forge speaks → transcripts → FLA coaching → PCM updates → personalized next session.
 
 ---
 
 ## Current Priorities
 
 Priority 1
-Protect the communication loop.
+**CE-001** under DIR-CE-001 (CE-M1→ sequential).
 
 Priority 2
-Improve coaching quality.
+Declare CE-001 MVP readiness → ungate PPS-001.
 
 Priority 3
-Increase stability.
+PPS-001 voice product proof (after gate).
 
 Priority 4
-Improve user experience.
+Atlas maintenance only if product reveals need.
 
 ---
 
 ## Completed
 
-- Atlas Engine
-- Founder Dashboard (chat)
-- OpenAI Integration
-- Forge Coach v1
-- Mission Screen
-- Start Mission Flow
-- Supabase persistence for profiles, sessions, and reflections
-- Atlas Founder OS dashboard v1
-- Atlas Phase 3 executive dashboard (mission control, health, metrics, notes, daily brief)
+- Atlas Runtime Organization v1.0 certified (RES-010)
+- STRAT-001 Accepted with Amendments (RES-012)
+- FLA-001 Product Canonical
+- CE-001 design + DIR-CE-001 / RES-013 authorization
+- PCM-001 Product Canonical
+- Event/text/reality scaffolding (pre-voice)
 
 ---
 
 ## Known Issues
 
-- Supabase authentication not yet connected (guest session pointer still in use)
-- UI polish ongoing
-- GitHub activity depends on public API rate limits unless GITHUB_TOKEN is set
-
----
-
-## Long-Term Projects
-
-Atlas Operating System
-
-Community Platform
-
-Communication Certification
-
-Enterprise Platform
-
-Voice Conversations
-
-Real-time AI Coaching
+- Voice Communication Engine not yet implemented (authorized; engineering next)
+- PPS-001 gated
+- Supabase auth guest path still in use
 
 ---
 
 ## Success Metrics
 
-Users improve communication.
+CE-001 exit (DIR-CE-001): voice session → natural Forge response → transcripts → evidence coaching → PCM update → next session more personalized.
 
-Users return consistently.
-
-Users complete practice sessions.
-
-Users become more confident.
-
-Mission remains aligned.
-
-Founder always knows the next move.
+North Star (after PPS opens): transfer — better real-world conversation performance.

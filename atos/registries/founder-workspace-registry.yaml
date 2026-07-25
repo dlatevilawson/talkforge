@@ -1,0 +1,66 @@
+# Founder Workspace Registry
+# Document ID: REG-FWS
+# Version: 1.0.0-m7
+# Status: Draft
+# Owner: Founder
+# AI Steward: Atlas
+# Human Approver: Founder
+# Review Cycle: Each milestone
+# Approval History: 2026-07-18 — M7 created
+# Change Log: 2026-07-18 — Founder Workspace artifacts indexed
+
+version: 1.0.0-m7
+updated_at: "2026-07-18"
+milestone: M7
+manual: MAN-017
+operations_root: atos/founder/
+
+documents:
+  - FWS-ROOT
+  - FWS-DASH
+  - FWS-REPORTS
+  - FWS-PLAN
+  - FWS-REVIEWS
+  - FWS-SURFACE
+  - MAN-017
+  - REF-R1104
+  - REF-R1108
+  - REF-R1109
+
+reference_series:
+  - id: R901
+    title: Founder Journal
+    state: planned
+  - id: R902
+    title: Vision Notes
+    state: planned
+  - id: R903
+    title: Personal Strategic Planning
+    state: planned
+  - id: R904
+    title: Long-Term Ideas
+    state: planned
+  - id: R905
+    title: Opportunity Register
+    state: planned
+  - id: R906
+    title: Reflection Archive
+    state: planned
+  - id: R907
+    title: Founder Dashboard
+    state: specified
+    specification: FWS-DASH
+  - id: R908
+    title: Personal Decision Journal
+    state: planned
+
+product_surface:
+  path: app/atlas/
+  mapping: atos/founder/product-surface.md
+  redesign_required_in_m7: false
+
+workflows:
+  daily_review: atos/founder/reviews.md
+  weekly_review: atos/founder/reviews.md
+  quarterly_review: atos/founder/reviews.md
+  strategic_planning: atos/founder/planning.md

@@ -1,5 +1,7 @@
 # TALKFORGE ROADMAP
 
+Governing: RES-013 · DIR-CE-001 · FLA-001 · PCM-001 · PPS-001 (gated)
+
 ---
 
 # Phase I ✅
@@ -14,59 +16,73 @@ Atlas Engine
 
 Founder Dashboard
 
----
+ATOS v1.0 + Atlas Runtime Organization v1.0 (certified)
 
-# Phase II
+STRAT-001 Accepted with Amendments (RES-012)
 
-TalkForge MVP
+Forge Learning Architecture v1.0 (FLA-001)
 
-Conversation Engine
+CE-001 design + DIR-CE-001 / RES-013 authorization
 
-Forge Coach
-
-Progress Tracking
-
-User Dashboard
-
-Authentication
+PCM-001 Product Canonical
 
 ---
 
-# Phase III
+# Phase II — Communication Engine (ACTIVE — Critical)
 
-Voice Conversations
+**DIR-CE-001 / RES-013:** Immediate engineering priority
 
-Role Playing
+CE-M1 Realtime session establishment
 
-Memory
+CE-M2 Finalized transcripts
 
-Gamification
+CE-M3 FLA coaching (async)
 
-XP
+CE-M4 Event-first Voice Arena (`/prepare` → voice)
 
-Achievements
+CE-M5 PCM integration
 
----
+CE-M6 Persistence & reliability
 
-# Phase IV
+CE-M7 Voice learning-loop validation
 
-Atlas Operating System
+CE-M8 Production hardening
 
-Founder Operating System Dashboard ← Phase 3 executive dashboard
-
-Department Agents
-
-Executive Dashboard
-
-Automation
-
-Analytics
+**Gate:** PPS-001 may not begin until CE-001 MVP readiness (CE-M1…CE-M5)
 
 ---
 
-# Phase V
+# Phase III — Product Proof (GATED)
+
+**V1 wedge:** High-agency technical professionals × high-stakes technical interviews
+
+Product Proof Sprint 001 (PPS-001) — **after CE-001 MVP**
+
+Transfer instrumentation (North Star)
+
+Reality-informed coaching iteration
+
+Mastery mechanics **redesign** (transfer test — not dopamine XP)
+
+---
+
+# Phase IV — Deepen the gym (post-proof)
+
+Adaptive Conversation Practice
+
+Context-Aware Coaching / memory
+
+Long-Term Learning (skill trajectories)
+
+Broader event classes (negotiation, difficult conversations) on CE-001
+
+---
+
+# Phase V — Expand & scale (only after individual transformation proof)
 
 Enterprise
+
+Team Communication
 
 Community
 
@@ -75,3 +91,13 @@ Certification
 Marketplace
 
 API
+
+---
+
+# Explicitly not primary
+
+Atlas organizational expansion — frozen (RES-012 / RES-013)
+
+FOUNDER_VISIBLE / loader freeze — separate Founder gates
+
+Starting PPS-001 before CE-001 MVP — **prohibited** (RES-013)

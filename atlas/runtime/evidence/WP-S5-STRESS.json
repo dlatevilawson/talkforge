@@ -1,0 +1,96 @@
+{
+  "work_package": "WP-S5",
+  "program": "ATLAS-P6-EXEC",
+  "title": "Operational Stress Testing",
+  "result": "PASS",
+  "at": "2026-07-19T15:15:25.215Z",
+  "founder_wp_s4_approval": "2026-07-19",
+  "scenarios": [
+    {
+      "id": "CONCURRENT-WAVE",
+      "title": "Concurrent workload wave",
+      "ok": true,
+      "checks_passed": 10,
+      "checks_total": 10,
+      "failed": [],
+      "metrics": {
+        "concurrency": 12,
+        "ok_rate": 100,
+        "delegated_cleanly_pct": 100,
+        "p50_ms": 10,
+        "staff_hits": {
+          "AIO-CORE": 92,
+          "AIO-INTEL": 10,
+          "AIO-COUNSEL": 10,
+          "AIO-BROKER": 10,
+          "AIO-GUARD": 14
+        }
+      }
+    },
+    {
+      "id": "PROLONGED-CYCLES",
+      "title": "Prolonged repeated delegation cycles",
+      "ok": true,
+      "checks_passed": 6,
+      "checks_total": 6,
+      "failed": [],
+      "metrics": {
+        "cycles": 24,
+        "delegated_cleanly_pct": 100,
+        "first_window_clean_pct": 100,
+        "last_window_clean_pct": 100,
+        "mean_ms": 0.6
+      }
+    },
+    {
+      "id": "COMPETING-STORM",
+      "title": "Competing request storm",
+      "ok": true,
+      "checks_passed": 5,
+      "checks_total": 5,
+      "failed": [],
+      "metrics": {
+        "total": 20,
+        "unique_ids": 20,
+        "staff_hits": {
+          "AIO-CORE": 152,
+          "AIO-INTEL": 16,
+          "AIO-COUNSEL": 16,
+          "AIO-BROKER": 16,
+          "AIO-GUARD": 24
+        }
+      }
+    },
+    {
+      "id": "FAIL-CLOSED-UNDER-LOAD",
+      "title": "Fail-closed under concurrent load",
+      "ok": true,
+      "checks_passed": 6,
+      "checks_total": 6,
+      "failed": [],
+      "metrics": null
+    },
+    {
+      "id": "THREE-DAY-EQUIVALENT",
+      "title": "Three-day operational equivalent",
+      "ok": true,
+      "checks_passed": 6,
+      "checks_total": 6,
+      "failed": [],
+      "metrics": {
+        "runs": 13,
+        "delegated_cleanly_pct": 100,
+        "staff_hits": {
+          "AIO-CORE": 100,
+          "AIO-INTEL": 11,
+          "AIO-COUNSEL": 11,
+          "AIO-BROKER": 11,
+          "AIO-GUARD": 15
+        }
+      }
+    }
+  ],
+  "next": "Founder certification Decision (WP-S6 / ORR)",
+  "advance": "STOPPED — await Founder certification",
+  "self_certified": false
+}

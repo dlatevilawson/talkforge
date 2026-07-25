@@ -100,3 +100,13 @@ Build the company for the next ten years, not the next ten days.
 Communication changes lives.
 
 Every decision should help someone become a stronger communicator.
+
+---
+
+# Forge Law #011
+
+Protect the person’s dignity before pursuing the product’s objectives.
+
+Performance gains that diminish dignity are forbidden.
+
+(Adopted with AMD-001 / RES-017 — Human Dignity Standard.)

@@ -1,5 +1,29 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Atlas TalkForge Operating System (ATOS)
+
+**ATOS Version 1.0.0 is ratified** (RES-002). **Program status: CLOSED.** ATOS is in **Maintenance Mode**.
+
+| Role | Standing |
+|---|---|
+| **ATOS** | The constitution |
+| **Atlas** | Government under that constitution (certified Runtime Org v1.0 — RES-010) |
+| **Sentinel** | Protects implementation |
+| **TalkForge** | The product — **primary company objective** (RES-011 / RES-012) |
+
+**Immediate priority:** [CE-001 Communication Engine](atos/product/CE-001-communication-engine.md) — [Founder Directive DIR-CE-001](atos/product/DIR-CE-001-founder-directive.md) / [RES-013](atos/resolutions/RES-013-ce-001-approved-for-execution.md) (**Critical — Approved for Execution**).
+
+**Gated:** [PPS-001](atos/product/PPS-001-product-proof-sprint.md) may not begin until CE-001 MVP readiness. Doctrine: [FLA-001](atos/product/FLA-001-forge-learning-architecture.md) · [PCM-001](atos/product/PCM-001-personal-communication-model.md).
+
+Future ATOS changes require the governance amendment process. New work is built **on** ATOS, not **inside** ATOS, unless a formal amendment is approved. Atlas Organization v1.0 is frozen infrastructure; net-new engineering builds TalkForge (CE-001 first).
+
+- **Entrypoint:** [`ATOS.md`](./ATOS.md)
+- **Maintenance:** [`atos/governance/GOV-MAINT-1.0.0.md`](./atos/governance/GOV-MAINT-1.0.0.md)
+- **Ratification:** [`atos/resolutions/RES-002-atos-v1-ratification.md`](./atos/resolutions/RES-002-atos-v1-ratification.md)
+- **Release:** [`atos/RELEASE-1.0.0.md`](./atos/RELEASE-1.0.0.md)
+- **Tree:** [`atos/`](./atos/)
+- **Pre-ATOS Atlas corpus** (live Ask Atlas load set) remains in [`atlas/`](./atlas/) until an approved cutover.
+
 ## Getting Started
 
 First, run the development server:

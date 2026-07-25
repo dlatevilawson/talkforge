@@ -1,0 +1,107 @@
+{
+  "work_package": "WP-S0",
+  "sprint": "Sprint 1",
+  "result": "PASS",
+  "at": "2026-07-19T14:16:30.388Z",
+  "acceptance": {
+    "instantiate_every_office": true,
+    "delegation_end_to_end": true,
+    "no_orphaned_responsibilities": true,
+    "ownership_validation_passes": true
+  },
+  "offices": [
+    {
+      "id": "AIO-CORE",
+      "facade": "atlas/runtime/staff/core.ts",
+      "status": "operational",
+      "mission": "Hold Atlas’s charter center: authority posture, Founder channel, final synthesis accountability."
+    },
+    {
+      "id": "AIO-INTEL",
+      "facade": "atlas/runtime/staff/intel.ts",
+      "status": "operational",
+      "mission": "Assemble labeled situational truth for Atlas counsel — never invent institutional facts."
+    },
+    {
+      "id": "AIO-COUNSEL",
+      "facade": "atlas/runtime/staff/counsel.ts",
+      "status": "operational",
+      "mission": "Produce non-binding, evidence-based counsel and briefs (STD-003)."
+    },
+    {
+      "id": "AIO-BROKER",
+      "facade": "atlas/runtime/staff/broker.ts",
+      "status": "operational",
+      "mission": "Broker company executive interfaces without absorbing domains."
+    },
+    {
+      "id": "AIO-GUARD",
+      "facade": "atlas/runtime/staff/guard.ts",
+      "status": "operational",
+      "mission": "Validate Atlas outputs before Founder-facing emission; package escalations; emit non-Canonical audit."
+    }
+  ],
+  "ownership": {
+    "modules": {
+      "rt.ingress": "AIO-CORE",
+      "rt.authority": "AIO-CORE",
+      "rt.memory": "AIO-CORE",
+      "rt.hub": "AIO-CORE",
+      "aio.core.program": "AIO-CORE",
+      "rt.knowledge": "AIO-INTEL",
+      "rt.awareness": "AIO-INTEL",
+      "rt.context": "AIO-INTEL",
+      "rt.cognition": "AIO-COUNSEL",
+      "rt.composition": "AIO-COUNSEL",
+      "rt.exchange": "AIO-BROKER",
+      "rt.integrity": "AIO-GUARD",
+      "rt.escalation": "AIO-GUARD",
+      "rt.trace": "AIO-GUARD"
+    },
+    "responsibilities": {
+      "atlas.authority_posture": "AIO-CORE",
+      "atlas.founder_channel": "AIO-CORE",
+      "atlas.task_assignment": "AIO-CORE",
+      "atlas.emission_permit": "AIO-CORE",
+      "atlas.program_desk": "AIO-CORE",
+      "atlas.labeled_context": "AIO-INTEL",
+      "atlas.health_sensing": "AIO-INTEL",
+      "atlas.std003_counsel": "AIO-COUNSEL",
+      "atlas.brief_drafts": "AIO-COUNSEL",
+      "atlas.exec_brokerage": "AIO-BROKER",
+      "atlas.risk_notice_transport": "AIO-BROKER",
+      "atlas.integrity_validation": "AIO-GUARD",
+      "atlas.escalation_packaging": "AIO-GUARD",
+      "atlas.audit_trace": "AIO-GUARD"
+    },
+    "report": {
+      "ok": true,
+      "modules": 14,
+      "responsibilities": 14,
+      "offices_with_work": [
+        "AIO-CORE",
+        "AIO-INTEL",
+        "AIO-COUNSEL",
+        "AIO-BROKER",
+        "AIO-GUARD"
+      ],
+      "orphans": [],
+      "dual_owners": [],
+      "forbidden_claims": [],
+      "errors": []
+    }
+  },
+  "delegation": {
+    "tasks_assigned": 5,
+    "distinct_assignees": [
+      "AIO-CORE",
+      "AIO-BROKER",
+      "AIO-INTEL",
+      "AIO-COUNSEL",
+      "AIO-GUARD"
+    ],
+    "staff_offices_used": 4,
+    "delegated_cleanly": true,
+    "emission_permitted": true
+  }
+}

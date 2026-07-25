@@ -1,0 +1,30 @@
+# Atlas Internal Staff (living organization)
+
+**Contracts:** ATLAS-P5 · ATLAS-P6 · ATLAS-ENG-PROGRAM  
+**Plane:** Target runtime only · Loader frozen · FOUNDER_VISIBLE off by default
+
+This directory **is** the organization — executable AIO offices, not a document shelf.
+
+| Path | Role |
+|---|---|
+| `offices/packs.ts` | Operating charter + prompts + standards + metrics per AIO |
+| `coordinate.ts` | Coordination layer — Core delegates via `task_assigned` |
+| `intel.ts` … `guard.ts` | Office facades over `rt.*` |
+| `bus.ts` / `events.ts` | In-process event contracts |
+| `program.ts` | AIF-PROGRAM (Program Desk) under Core |
+| `metrics.ts` | Delegation effectiveness |
+| `check.ts` | `npm run atlas:staff:check` |
+
+```bash
+npm run atlas:staff:check:s0   # ENG WP-S0 Ownership Skeleton
+npm run atlas:staff:check:s1   # P6-EXEC WP-S1 Office Capability
+npm run atlas:staff:check:s2   # P6-EXEC WP-S2 Cross-Office Coordination
+npm run atlas:staff:check:s3   # P6-EXEC WP-S3 Authority & Conflict
+npm run atlas:staff:check:s4   # P6-EXEC WP-S4 Failure Injection
+npm run atlas:staff:check:s5   # P6-EXEC WP-S5 Operational Stress (+ ORR draft)
+npm run atlas:staff:check      # full staff suite
+```
+
+**Evidence:** `WP-S0` … `WP-S5-STRESS.md` · ORR: `atos/executives/atlas-program/ATLAS-ORR.md`  
+**Certification:** Atlas Runtime Organization **v1.0** (RES-010) — continued development within validated framework.  
+**Not authorized:** `FOUNDER_VISIBLE` on, loader freeze lift, or governance bypass without separate Founder Decision.

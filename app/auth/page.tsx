@@ -63,8 +63,8 @@ export default function AuthPage() {
         </p>
         <h1 className="mt-3 text-3xl font-semibold">Continue practicing</h1>
         <p className="mt-4 text-sm leading-6 text-zinc-400">
-          Guest mode creates your profile in Supabase so practice sessions and
-          reflections sync across this browser session.
+          Guest mode keeps your practice in sync on this device so you can return
+          tomorrow without starting from zero.
         </p>
 
         <form onSubmit={continueAsGuest} className="mt-8 space-y-5">

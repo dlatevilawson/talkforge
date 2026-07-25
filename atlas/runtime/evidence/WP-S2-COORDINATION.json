@@ -1,0 +1,84 @@
+{
+  "work_package": "WP-S2",
+  "program": "ATLAS-P6-EXEC",
+  "title": "Cross-Office Coordination",
+  "result": "PASS",
+  "at": "2026-07-19T15:07:42.447Z",
+  "founder_wp_s1_approval": "2026-07-19",
+  "scenarios": [
+    {
+      "id": "CORE-INTEL",
+      "title": "CORE ↔ INTEL",
+      "ok": true,
+      "checks_passed": 3,
+      "checks_total": 3,
+      "failed": []
+    },
+    {
+      "id": "CORE-COUNSEL",
+      "title": "CORE ↔ COUNSEL",
+      "ok": true,
+      "checks_passed": 3,
+      "checks_total": 3,
+      "failed": []
+    },
+    {
+      "id": "BROKER-GUARD",
+      "title": "BROKER ↔ GUARD",
+      "ok": true,
+      "checks_passed": 4,
+      "checks_total": 4,
+      "failed": []
+    },
+    {
+      "id": "INTEL-COUNSEL",
+      "title": "INTEL ↔ COUNSEL",
+      "ok": true,
+      "checks_passed": 2,
+      "checks_total": 2,
+      "failed": []
+    },
+    {
+      "id": "MULTI",
+      "title": "Multiple-office coordination",
+      "ok": true,
+      "checks_passed": 6,
+      "checks_total": 6,
+      "failed": []
+    },
+    {
+      "id": "FOUNDER-REQ",
+      "title": "Founder request",
+      "ok": true,
+      "checks_passed": 8,
+      "checks_total": 8,
+      "failed": []
+    },
+    {
+      "id": "ENG-REQ",
+      "title": "Engineering request",
+      "ok": true,
+      "checks_passed": 7,
+      "checks_total": 7,
+      "failed": []
+    },
+    {
+      "id": "KNOWLEDGE-REQ",
+      "title": "Knowledge request",
+      "ok": true,
+      "checks_passed": 8,
+      "checks_total": 8,
+      "failed": []
+    },
+    {
+      "id": "NO-BYPASS",
+      "title": "No bypass of Atlas coordination",
+      "ok": true,
+      "checks_passed": 3,
+      "checks_total": 3,
+      "failed": []
+    }
+  ],
+  "next_work_package": "WP-S3 Authority & Conflict Resolution",
+  "advance": "BLOCKED — await Founder approval"
+}

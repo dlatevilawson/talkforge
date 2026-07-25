@@ -1,0 +1,41 @@
+# ATOS Registry Entry Schema (M0)
+# Document ID: SCH-REG-001
+# Version: 1.0.0-m3
+# Status: Draft
+# Owner: Founder
+# AI Steward: Sentinel
+# Human Approver: Founder
+# Review Cycle: Each milestone
+# Approval History: 2026-07-18 — M3 header completion
+# Change Log: 2026-07-18 — Metadata headers completed in M3
+
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "atos/schemas/registry-entry.schema.yaml"
+title: ATOS Registry Entry
+type: object
+required:
+  - id
+  - title
+  - state
+properties:
+  id:
+    type: string
+  title:
+    type: string
+  state:
+    type: string
+    enum: [planned, scaffold, draft, review, authoritative, superseded, archived]
+  path:
+    type: [string, "null"]
+    description: Repository path if a file exists; null when planned-only
+  version:
+    type: [string, "null"]
+  owner:
+    type: [string, "null"]
+  ai_steward:
+    type: [string, "null"]
+  layer:
+    type: [string, "null"]
+    description: specifications | standards | manuals | references | governance | resolutions
+  notes:
+    type: [string, "null"]

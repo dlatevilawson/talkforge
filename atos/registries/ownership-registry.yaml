@@ -1,0 +1,53 @@
+# Ownership Registry
+# Document ID: REG-OWN
+# Version: 1.0.0-m3
+# Status: Draft
+# Owner: Founder
+# AI Steward: Atlas
+# Human Approver: Founder
+# Review Cycle: Each milestone
+# Approval History: 2026-07-18 — M3 created
+# Change Log: 2026-07-18 — Initial ownership matrix for governed classes
+
+version: 1.0.0-m3
+updated_at: "2026-07-18"
+milestone: M3
+governing_document: GOV-META-APP
+
+# Class-level defaults. Per-document owners live in REG-DOC.
+classes:
+  - class: resolutions
+    owner: Founder
+    ai_steward: Atlas
+    human_approver: Founder
+  - class: specifications
+    owner: Founder
+    ai_steward: Atlas
+    human_approver: Founder
+    exceptions:
+      - id: SPEC-005
+        ai_steward: Sentinel
+  - class: standards
+    owner: Founder
+    ai_steward: Atlas
+    human_approver: Founder
+    exceptions:
+      - id: STD-005
+        ai_steward: Sentinel
+  - class: governance
+    owner: Founder
+    ai_steward: Atlas
+    human_approver: Founder
+  - class: registries
+    owner: Founder
+    ai_steward: Atlas
+    human_approver: Founder
+  - class: schemas_and_scripts
+    owner: Founder
+    ai_steward: Sentinel
+    human_approver: Founder
+  - class: manuals_core
+    owner: Founder
+    ai_steward: domain_executive
+    human_approver: Founder
+    note: Domain stewards assigned when manuals are authored

@@ -1,0 +1,84 @@
+{
+  "work_package": "WP-S4",
+  "program": "ATLAS-P6-EXEC",
+  "title": "Failure Injection",
+  "result": "PASS",
+  "at": "2026-07-19T15:07:31.053Z",
+  "founder_wp_s3_approval": "2026-07-19",
+  "scenarios": [
+    {
+      "id": "DISABLE-GUARD",
+      "title": "Disable Guard office",
+      "ok": true,
+      "checks_passed": 4,
+      "checks_total": 4,
+      "failed": []
+    },
+    {
+      "id": "DISABLE-INTEL",
+      "title": "Disable Intel office",
+      "ok": true,
+      "checks_passed": 4,
+      "checks_total": 4,
+      "failed": []
+    },
+    {
+      "id": "CORRUPT-MESSAGES",
+      "title": "Corrupt communication path",
+      "ok": true,
+      "checks_passed": 3,
+      "checks_total": 3,
+      "failed": []
+    },
+    {
+      "id": "DROP-VALIDATION",
+      "title": "Drop validation gate events",
+      "ok": true,
+      "checks_passed": 3,
+      "checks_total": 3,
+      "failed": []
+    },
+    {
+      "id": "DELAY-RESPONSES",
+      "title": "Delay office responses",
+      "ok": true,
+      "checks_passed": 4,
+      "checks_total": 4,
+      "failed": []
+    },
+    {
+      "id": "RESTART-OFFICES",
+      "title": "Restart offices after disable",
+      "ok": true,
+      "checks_passed": 4,
+      "checks_total": 4,
+      "failed": []
+    },
+    {
+      "id": "MALFORMED-EVIDENCE",
+      "title": "Inject malformed evidence",
+      "ok": true,
+      "checks_passed": 3,
+      "checks_total": 3,
+      "failed": []
+    },
+    {
+      "id": "BROKEN-DEPENDENCY",
+      "title": "Broken dependency (Intel→Counsel)",
+      "ok": true,
+      "checks_passed": 4,
+      "checks_total": 4,
+      "failed": []
+    },
+    {
+      "id": "SINGLE-RESTART",
+      "title": "Restart Core after disable",
+      "ok": true,
+      "checks_passed": 3,
+      "checks_total": 3,
+      "failed": []
+    }
+  ],
+  "next_work_package": "WP-S5 Operational Stress Testing",
+  "advance": "BLOCKED — await Founder approval"
+}
