@@ -3,8 +3,8 @@
 | Field | Value |
 |---|---|
 | **Case ID** | CASE-001 |
-| **Parent research** | RP-001 |
-| **Template** | RP-001-T v1.0.0 |
+| **Parent research** | RP-001 — Science of Human Connection (Stream A) |
+| **Template** | RP-001-T v1.1.0 |
 | **Analyst** | Atlas |
 | **Date** | 2026-07-25 |
 | **Status** | Working |

@@ -411,6 +411,20 @@ Working research accepted for counsel
 
 ---
 
+# Decision 029
+
+Title:
+Retitle and broaden RP-001 to The Science of Human Connection.
+
+Reason:
+
+TalkForge’s mission is not to create unforgettable stories — it is to help people build better relationships through better communication. Stories remain one evidence stream; psychology, learning science, communication research, and real user experiences stand as equals. Former title retained historically as Stream A.
+
+Status:
+Accepted — Working research program scope
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

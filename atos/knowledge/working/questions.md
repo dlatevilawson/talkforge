@@ -45,6 +45,7 @@ Questions are institutional assets. Unlogged questions do not drive roadmaps.
 | Q-RP-002 | Does a curiosity-gap line under the hero improve engagement without clickbait feel? | E-PROD | D-EXP | Atlas | Medium | Open | EXP-LP-01 |
 | Q-RP-003 | Which memorable TalkForge lines survive unaided recall after one visit? | E-LEARN | D-CRAFT | Atlas | Medium | Open | Peak-end / fluency |
 | Q-RP-004 | How do we show relationship stakes on the LP without melodrama or fear ads? | E-PROD | D-EXP / D-DIGNITY | Atlas | Medium | Open | AMD |
+| Q-RP-005 | Which non-story evidence stream (psychology / learning / communication / user IE) should we deepen next for connection science? | E-KNOW / E-LEARN | D-EXP / D-LEARN | Founder / Atlas | High | Open | RP-001 v2 streams B–E |
 
 ---
 

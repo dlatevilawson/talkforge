@@ -5,7 +5,7 @@
 | **Document ID** | LP-STORY-001 |
 | **Version** | 1.0.0 |
 | **Status** | Working counsel |
-| **Authority** | Derived from [RP-001](RP-001-psychology-of-unforgettable-stories.md) |
+| **Authority** | Derived from [RP-001 — Science of Human Connection](RP-001-science-of-human-connection.md) (Stream A insights) |
 | **Dependencies** | RP-001, LP-001, AMD-001, PCI-001, HBF-001…006, BETA-REC-002 |
 | **Consumers** | Landing copy/design · Founder deploy review · craft review |
 | **Date** | 2026-07-25 |

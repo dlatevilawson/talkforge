@@ -145,9 +145,9 @@ See [`references/README.md`](references/README.md).
 | TEA-MAP-001 | Enterprise domain map & coherence audit | [product/TEA-MAP-001-enterprise-domain-map.md](product/TEA-MAP-001-enterprise-domain-map.md) |
 | HBF-000 | Human Behavior Framework Phase I (**Working** — RES-022) | [product/HBF-000-human-behavior-framework.md](product/HBF-000-human-behavior-framework.md) |
 | HBF-001…006 | Needs · Friction · Context · Decision · Identity · Outcomes | [product/hbf/](product/hbf/) |
-| RP-001 | Psychology of unforgettable stories (research) | [product/research/RP-001-psychology-of-unforgettable-stories.md](product/research/RP-001-psychology-of-unforgettable-stories.md) |
-| RP-001-T | Story psychology research template | [product/research/RP-001-T-research-template.md](product/research/RP-001-T-research-template.md) |
-| LP-STORY-001 | Landing story insights | [product/research/LP-STORY-001-landing-story-insights.md](product/research/LP-STORY-001-landing-story-insights.md) |
+| RP-001 | Science of Human Connection (research program) | [product/research/RP-001-science-of-human-connection.md](product/research/RP-001-science-of-human-connection.md) |
+| RP-001-T | Story stream case template (Stream A) | [product/research/RP-001-T-research-template.md](product/research/RP-001-T-research-template.md) |
+| LP-STORY-001 | Landing insights (story stream → LP) | [product/research/LP-STORY-001-landing-story-insights.md](product/research/LP-STORY-001-landing-story-insights.md) |
 | RES-022 | HBF Phase I Working authorized | [resolutions/RES-022-hbf-phase-i.md](resolutions/RES-022-hbf-phase-i.md) |
 | KA-REORG-001 | Knowledge reorganization (**Complete**) | [product/KA-REORG-001-knowledge-reorganization.md](product/KA-REORG-001-knowledge-reorganization.md) |
 | KA-PAUSE-001 | Framework rules (**TEA + KA gates**) | [product/KA-PAUSE-001-framework-pause.md](product/KA-PAUSE-001-framework-pause.md) |

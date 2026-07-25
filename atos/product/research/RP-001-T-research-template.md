@@ -1,20 +1,22 @@
-# RP-001-T — Story Psychology Research Template
+# RP-001-T — Story Stream Case Template (Science of Human Connection)
 
 | Field | Value |
 |---|---|
 | **Document ID** | RP-001-T |
-| **Version** | 1.0.0 |
-| **Status** | Authoritative (method template for RP-001) |
-| **Parent** | [RP-001](RP-001-psychology-of-unforgettable-stories.md) |
+| **Version** | 1.1.0 |
+| **Status** | Authoritative (method template for RP-001 **Stream A**) |
+| **Parent** | [RP-001 — The Science of Human Connection](RP-001-science-of-human-connection.md) |
+| **Stream** | A — Cultural stories |
 | **TEA / KA** | E-LEARN → E-KNOW · D-EXP |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Dependencies** | RP-001, HBF-000…006, AMD-001 |
 | **Consumers** | Research cases · LP counsel · coaching narrative |
 | **Approval History** | 2026-07-25 — Founder Canonical Prompt: Research Template |
-| **Change Log** | 2026-07-25 — v1.0.0 standardized 11-section case form |
+| **Change Log** | 2026-07-25 — v1.0.0 form; **v1.1 parent retitled; scoped as Stream A instrument** |
 
-> **Purpose:** One case = one culturally sticky work. Fill every section. This is a study of **human psychology**, not a review.  
+> **Parent program:** RP-001 studies the **science of human connection** — better relationships through better communication.  
+> **This template:** One instrument for **Stream A** (cultural stories). Stories are not the whole science.  
 > **Rule:** Insights must be actionable for TalkForge. Copying plots, slogans, or scenes is forbidden.  
 > **Dignity:** Section 10 is mandatory. Manipulation paths must be named and constrained (AMD-001).
 
@@ -25,8 +27,9 @@
 1. Copy this file to `atos/product/research/cases/CASE-XXX-<short-slug>.md` (or fill the blank form below in a new case file).  
 2. Complete **Basic Information** + sections **1–11**.  
 3. Link the case from [cases/README.md](cases/README.md).  
-4. Promote recurring insights into RP-001 theme synthesis / LP-STORY-001 only after pattern across cases.  
-5. Log uncertainties in the [Question Ledger](../../knowledge/working/questions.md).
+4. Promote recurring insights into RP-001 cross-stream synthesis / LP counsel only after pattern across cases **and** check against other streams when claims get strong.  
+5. Log uncertainties in the [Question Ledger](../../knowledge/working/questions.md).  
+6. Remember: TalkForge optimizes for **connection and relationships**, not unforgettable ads.
 
 **Confidence scale (section 11):**
 

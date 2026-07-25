@@ -1,55 +1,85 @@
-# RP-001 — The Psychology of Unforgettable Stories
+# RP-001 — The Science of Human Connection
 
 | Field | Value |
 |---|---|
 | **Document ID** | RP-001 |
-| **Version** | 1.0.0 |
-| **Status** | Working — Research |
-| **Evidence Classification** | Established Research (story/memory/emotion science) · Working Hypothesis (TalkForge application) · Internal Evidence (LP/product — pending validation) |
-| **Confidence Level** | Investigated (principles) · Hypothesis (product application) |
-| **TEA / KA** | E-LEARN → E-KNOW · D-EXP · D-GROWTH · feeds E-PROD (LP, coaching) |
+| **Version** | 2.0.0 |
+| **Status** | Working — Research Program |
+| **Former title** | The Psychology of Unforgettable Stories (v1 — retained as Stream A) |
+| **Evidence Classification** | Established Research · Working Hypothesis · Internal Evidence (by stream) |
+| **Confidence Level** | Investigated (cross-cutting principles) · Hypothesis (product application) |
+| **TEA / KA** | E-LEARN → E-KNOW · D-EXP · D-GROWTH · feeds E-PROD (LP, coaching, brand) |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
-| **Dependencies** | HBF-000…006, AMD-001, ELM-001, PCI-001, LP-001, KA-001, TEA-001 |
-| **Consumers** | Landing storytelling · coaching narrative · brand · research agenda |
-| **Related** | [RP-001-T](RP-001-T-research-template.md) (mandatory case template) · [cases/](cases/) · [LP-STORY-001](LP-STORY-001-landing-story-insights.md) |
+| **Dependencies** | HBF-000…006, AMD-001, ELM-001, FLA-001, PCM-001, PCI-001, LP-001, KA-001, TEA-001 |
+| **Consumers** | Landing · coaching · brand · product UX · research agenda |
+| **Related** | [RP-001-T](RP-001-T-research-template.md) (Story stream case template) · [cases/](cases/) · [LP-STORY-001](LP-STORY-001-landing-story-insights.md) |
 | **Approval** | Working counsel; Canonical only via promotion |
 | **Date** | 2026-07-25 |
-| **Change Log** | 2026-07-25 — v1.0 synthesis; **v1.1 RP-001-T mandated for new cases** |
+| **Change Log** | 2026-07-25 — v1.0 story synthesis; v1.1 RP-001-T; **v2.0 retitled Science of Human Connection — multi-stream scope** |
 
-> **This is not a review catalog.** It is a study of human psychology: what creates deep emotional connection, sustained attention, and lasting memory — and what TalkForge may apply **ethically** without copying, without manipulation, and without violating AMD-001.
+> **Mission alignment (Founder):** TalkForge’s mission is not to create unforgettable stories. It is to help people build **better relationships through better communication**.  
+> **RP-001** is the institutional research program for the **science of human connection**. Stories are one evidence source. Psychology, learning science, communication research, and real user experiences are equally important.  
+> **Dignity:** Understanding exists to improve learning, preparedness, agency, dignity, and human outcomes — never to manipulate (AMD-001 / HBF-000).
 
 ---
 
-## 0. Method & dignity constraints
+## 0. Purpose
+
+Build the strongest evidence-informed understanding of how humans connect — so TalkForge can ethically improve products, coaching, design, research, and decisions in service of better relationships.
+
+| This program is | This program is not |
+|---|---|
+| A multi-stream science of connection | A storytelling / entertainment lab |
+| Subordinate to Identity, KA, TEA, HBF | A parallel OS or brand gimmick |
+| Oriented to relationships via communication | Oriented to “going viral” |
+
+---
+
+## 0.1 Evidence streams (equal standing)
+
+| Stream | What it contributes | Instruments |
+|---|---|---|
+| **A — Cultural stories** | How connection, courage, belonging, and change are made *felt* and remembered in culture | [RP-001-T](RP-001-T-research-template.md) · [cases/](cases/) · compact corpus below |
+| **B — Psychology** | Needs, emotion, identity, motivation, attachment, self-efficacy | HBF-001…006 · established literature synthesis |
+| **C — Learning science** | Practice, transfer, retention, deliberate practice, feedback | FLA-001 · learning research briefs |
+| **D — Communication research** | Interpersonal process, listening, conflict, clarity, persuasion ethics | PCM-001 · communication science briefs |
+| **E — Lived user evidence** | Interviews, sessions, waitlist reasons, experiments, beta feedback | D-EVID · D-Q · Internal Evidence packs |
+
+No stream outranks the others by default. Conflicts resolve by evidence quality + mission alignment + Institutional Approval when Canonical claims are at stake.
+
+---
+
+## 0.2 Method & dignity constraints
 
 ### Method
 
-1. Select culturally sticky works (film, speech, book, advertisement).  
-2. **For each work, complete [RP-001-T](RP-001-T-research-template.md)** — Basic Information + sections 1–11 (Human Need through Confidence) + Inquiry close. Store under [`cases/`](cases/).  
-3. Compact corpus notes in this file may summarize patterns; **new deep analyses must use the template**.  
-4. Synthesize recurring insights into themes → reusable psychological principles.  
-5. Translate into **actionable** LP / product counsel (see LP-STORY-001).
+1. Frame questions in terms of **human connection and communication**, not entertainment metrics.  
+2. Pull evidence from **all streams** (A–E); do not let story aesthetics crowd out user evidence or learning science.  
+3. For Stream A deep cases: complete [RP-001-T](RP-001-T-research-template.md); store under [`cases/`](cases/).  
+4. Synthesize cross-stream patterns into principles → HBF / product counsel.  
+5. Translate into actionable LP / coaching / UX guidance (e.g. LP-STORY-001 for story-derived landing counsel).  
+6. Log uncertainties in the Question Ledger.
 
-**Template sections (mandatory):** Human Need · Emotional Journey · Curiosity Engine · Character Transformation · Memorable Moments · Memorable Lines · Storytelling Principles · Psychological Principles (people) · TalkForge Applications · Ethical Check · Confidence.
-
-### Evidence labels used below
+### Evidence labels
 
 | Tag | Meaning |
 |---|---|
-| **ER** | Established Research (memory, narrative transportation, SDT, self-efficacy, etc.) |
+| **ER** | Established Research |
 | **WH** | Working Hypothesis for TalkForge |
-| **IE** | Internal Evidence (to be gathered) |
+| **IE** | Internal Evidence (users, product, experiments) |
 
 ### Dignity (binding)
 
-Story techniques that manufacture fear, shame, false scarcity, or exploit vulnerability are **out of bounds**. Behavioral understanding exists only to improve learning, preparedness, agency, dignity, and human outcomes (HBF-000 / AMD-001).
+Techniques that manufacture fear, shame, false scarcity, or exploit vulnerability are **out of bounds**. Behavioral understanding exists only to improve learning, preparedness, agency, dignity, and human outcomes.
 
 ---
 
-## 1. Corpus analyses (compact)
+## 1. Stream A — Cultural stories (compact corpus)
 
-Each entry: eight answers. No plot summary for its own sake.
+*Historical note:* v1 of this document focused here under the title “Psychology of Unforgettable Stories.” That work remains valuable as **Stream A** — not the whole of RP-001.
+
+Each compact entry below used an earlier eight-question form. **New deep analyses must use RP-001-T** (eleven sections).
 
 ---
 
@@ -308,20 +338,24 @@ Each entry: eight answers. No plot summary for its own sake.
 
 ---
 
-## 2. Theme synthesis → actionable principles
+## 2. Cross-stream theme synthesis → connection principles
 
-| Theme | What sticky stories do | TalkForge principle (WH) | HBF need |
+Themes below began in Stream A and must be stress-tested against Streams B–E before Canonical claims.
+
+| Theme | What connection science suggests | TalkForge principle (WH) | HBF need |
 |---|---|---|---|
-| **Hope** | Make a difficult future feel reachable through agency | Promise capability through reps, not magic | Purpose · Competence |
-| **Belonging** | Offer a “people like us” without exclusionary cool | Founding Members = choosers of practice | Connection |
-| **Courage** | Normalize fear inside the act | Name nerves; practice is courage training | Autonomy · Respect |
-| **Love** | Center relationships as the stakes | Hard conversations = care made audible | Connection |
-| **Redemption** | Separate past silence from future voice | “Unpracticed ≠ unworthy” | Respect · Competence |
-| **Identity** | Invite who you’re becoming | “Someone who practices for moments that matter” | Purpose · Autonomy |
-| **Fear** | Use fear as honest friction, not scare tactic | Acknowledge avoidance; offer private reps | HBF-002 |
-| **Growth** | Show staged transformation | Journey beats > feature lists | Competence |
-| **Purpose** | Tie effort to meaning | Always tether to a real upcoming moment | Purpose |
-| **Connection** | Make the other person visible | Outcomes include trust & relationship quality (HBF-006) | Connection |
+| **Hope** | Difficult futures feel reachable through agency | Promise capability through reps, not magic | Purpose · Competence |
+| **Belonging** | “People like us” without exclusionary cool | Founding Members = choosers of practice | Connection |
+| **Courage** | Fear can coexist with action | Name nerves; practice is courage training | Autonomy · Respect |
+| **Love** | Relationships are the stakes of communication | Hard conversations = care made audible | Connection |
+| **Redemption** | Past silence ≠ future voice | “Unpracticed ≠ unworthy” | Respect · Competence |
+| **Identity** | People act as who they’re becoming | “Someone who practices for moments that matter” | Purpose · Autonomy |
+| **Fear** | Honest friction ≠ scare tactic | Acknowledge avoidance; offer private reps | HBF-002 |
+| **Growth** | Staged change beats feature lists | Journey beats > feature grids | Competence |
+| **Purpose** | Effort sticks when tethered to meaning | Always tether to a real upcoming moment | Purpose |
+| **Connection** | The other person must stay visible | Outcomes include trust & relationship quality (HBF-006) | Connection |
+
+**North-star reminder:** The outcome that matters is **better relationships through better communication** — not memorable marketing for its own sake.
 
 ---
 
@@ -339,52 +373,64 @@ Each entry: eight answers. No plot summary for its own sake.
 | **Self-efficacy** | Mastery experiences build confidence | Show practice→transfer path | Empty praise / fake wins |
 | **Emotional tagging** | Emotion strengthens memory | Dignity-safe emotion (hope, relief) | Shame, panic, humiliation |
 | **Concrete > abstract** | Specificity improves recall | Name moment types (career, love, leadership) | Vague “better communication” only |
+| **Transfer of learning** | Practice must resemble real use | Moment-tethered scenarios (FLA) | Abstract drills with no life context |
 
 ---
 
-## 4. Story engine for TalkForge (reusable)
+## 4. Connection practice engine (reusable)
 
 ```
 Human need (HBF-001)
-    → Life context / moment (HBF-003)
+    → Life context / relationship moment (HBF-003)
     → Friction emotion (HBF-002)
-    → Engaging question (curiosity gap)
-    → Practice as agency (HBF-004 Decision)
+    → Engaging question (curiosity / stakes)
+    → Practice as agency (HBF-004)
     → Transformation (preparedness / identity) (HBF-005/006)
-    → Memorable line (fluency + truth)
-    → Invitation (autonomy-preserving CTA)
+    → Real-world conversation
+    → Relationship quality / trust (HBF-006)
 ```
 
-**Memorable lines survive when they:** (1) reframe identity, (2) compress a moral insight, (3) are repeatable aloud, (4) feel true without evidence they flatter.
+Marketing lines are optional downstream. **Relationship outcomes are the point.**
 
-TalkForge already owns strong lines — protect and sequence them; don’t dilute with feature chatter in the hero.
+TalkForge already owns strong LP lines — protect them when they serve connection; never let slogan craft outrank transfer.
 
 ---
 
-## 5. Inquiry close
+## 5. Streams B–E — standing agenda
+
+| Stream | Near-term work | Status |
+|---|---|---|
+| **B Psychology** | Keep HBF Phase I as primary home; RP-001 cites, does not duplicate | Active via HBF |
+| **C Learning science** | Briefs linking deliberate practice + transfer to CE scenarios | Open |
+| **D Communication research** | Briefs on listening, repair, clarity aligned to PCM | Open |
+| **E User evidence** | Waitlist reasons, session friction tags, interviews | Open / sparse |
+
+---
+
+## 6. Inquiry close
 
 | Lens | Content |
 |---|---|
-| **Know** | Emotion + narrative structure + identity invitation drive memory (ER) |
-| **Believe** | TalkForge’s strongest LP story is *redemption of the unpracticed voice* + *gym of real moments* |
-| **Uncertain** | Which theme (Belonging vs Courage vs Redemption) converts founding members without harming dignity (IE needed) |
-| **Would change us** | Waitlist/interview evidence that a theme feels manipulative or hollow |
+| **Know** | Connection is multi-determined; stories alone are insufficient evidence |
+| **Believe** | Broadening RP-001 to Science of Human Connection matches TalkForge’s mission |
+| **Uncertain** | Which non-story streams will first yield Canonical-grade product rules (IE + ER needed) |
+| **Would change us** | User evidence that LP/coaching optimized for “sticky story” harms trust or transfer |
 
-**Open questions → Ledger:** Q-RP-001…004 (see questions.md).
+**Open questions → Ledger:** Q-RP-001…005.
 
 ---
 
-## 6. Knowledge flow
+## 7. Knowledge flow
 
 ```
-Cultural corpus (this research)
-    → Theme principles
-    → LP-STORY-001 (product application)
-    → LP / coaching experiments
+Streams A–E
+    → Cross-stream principles
+    → HBF / FLA / PCM refinement
+    → Product application (LP, coaching, UX)
     → Internal Evidence
-    → HBF revision
+    → Knowledge review → (possible) Canonical promotion
 ```
 
 | Field | Value |
 |---|---|
-| **Status Upon Signature** | Working Research — actionable; not Product Canonical |
+| **Status Upon Signature** | Working Research Program — Science of Human Connection; not Product Canonical |
