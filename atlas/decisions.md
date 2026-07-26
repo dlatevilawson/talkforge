@@ -481,6 +481,20 @@ Accepted — Authoritative
 
 ---
 
+# Decision 034
+
+Title:
+Open Benchmark the World program; accept BM-001 Communication Science as Working field map.
+
+Reason:
+
+TalkForge decisions will be guided by who has already mastered each domain — not by intuition about what to build. BM-000 opens the Benchmarks research volume. BM-001 delivers Communication Science: 20 researchers, 20 books, theories that hold vs revised, open questions, and evidence-backed practices with adopt/adapt/reject counsel. Uses BP-001 grades; cross-references Connection Science (no duplication). Next: BM-002 Learning Science.
+
+Status:
+Accepted — Working (not Product Canonical)
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

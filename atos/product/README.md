@@ -40,6 +40,8 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [HBF-000](HBF-000-human-behavior-framework.md) | Human Behavior Framework (Phase I) | **Working (RES-022)** — not Product Canonical |
 | — | [HBF models](hbf/) | HBF-001…006 Needs → Outcomes | Working |
 | — | [Connection Science](research/connection-science/) | Research volume (chapters 01–06 + cases) | Working |
+| — | [Benchmarks](research/benchmarks/) | Who has mastered each domain (BM-000+) | Working |
+| — | [BM-001](research/benchmarks/BM-001-communication-science.md) | Communication Science field benchmark | Working |
 | — | [DOC-OPT-001](DOC-OPT-001-documentation-optimization.md) | Documentation Optimization Initiative | **Accepted (RES-023)** |
 | — | [DOC-OPT-PASS-002](DOC-OPT-PASS-002-encyclopedia.md) | Encyclopedia reorganization pass | Complete |
 | — | [RES-022](../resolutions/RES-022-hbf-phase-i.md) | HBF Phase I authorized | Authoritative |

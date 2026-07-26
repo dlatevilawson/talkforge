@@ -1,6 +1,13 @@
 # Research index
 
-**Research plane home:** [Connection Science volume](connection-science/README.md)
+Research plane homes (KA-001 v2):
+
+| Volume | Job |
+|---|---|
+| [Connection Science](connection-science/README.md) | Evidence about human connection / communication / learning for TalkForge |
+| [Benchmarks](benchmarks/README.md) | Who has already mastered each domain — decision-guiding field maps |
+
+## Connection Science — chapter stubs
 
 Stubs at old filenames redirect to chapters (do not edit stubs).
 
@@ -12,6 +19,14 @@ Stubs at old filenames redirect to chapters (do not edit stubs).
 | RP-001-T | [ch.4 Story template](connection-science/04-story-case-template.md) |
 | LP-STORY-001 | [ch.5 Landing counsel](connection-science/05-landing-counsel.md) |
 | BP-001 | [ch.6 Best practices method](connection-science/06-best-practices-method.md) |
+
+## Benchmarks
+
+| ID | Report |
+|---|---|
+| BM-000 | [Program](benchmarks/00-program.md) |
+| BM-001 | [Communication Science](benchmarks/BM-001-communication-science.md) |
+| BM-002… | Learning Science → … (planned) |
 
 **Governance / encyclopedia:** [ENCYCLOPEDIA](../../knowledge/ENCYCLOPEDIA.md) · [KA-001](../KA-001-unified-knowledge-architecture.md) · [VOCAB-001](../../knowledge/VOCAB-001-canonical-vocabulary.md)
 

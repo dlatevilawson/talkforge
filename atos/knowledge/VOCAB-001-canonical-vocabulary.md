@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | VOCAB-001 |
-| **Version** | 1.0.0 |
+| **Version** | 1.2.0 |
 | **Status** | Active |
 | **Owner** | Founder |
 | **Steward** | Atlas (AIF-KNOW) |
@@ -41,6 +41,8 @@
 | **HBF** | Human Behavior Framework (product Working models) | Calling HBF “the evidence ledger” | HBF-000 |
 | **BP-001** | Best Practices method (**ch.6**) | Copying competitor features | ch.6 |
 | **ENCYCLOPEDIA** | Master navigation index | Ad-hoc doc lists without planes | ENCYCLOPEDIA.md |
+| **BM / Benchmarks** | “Who has already mastered this?” field maps | Inventing features from intuition | [benchmarks/](../product/research/benchmarks/) |
+| **BM-001** | Communication Science benchmark report | Tip lists marketed as science | BM-001 |
 | **Stream A** | Cultural stories stream under RP-001 | Treating stories as sole science | ch.1 |
 
 ## Evidence grades (use consistently)
@@ -78,3 +80,4 @@
 |---|---|
 | 2026-07-26 | v1.0.0 initial vocabulary |
 | 2026-07-26 | v1.1.0 Connection Science volume + ENCYCLOPEDIA terms (KA v2) |
+| 2026-07-26 | v1.2.0 Benchmarks volume + BM-001 terms |

@@ -147,6 +147,8 @@ See [`references/README.md`](references/README.md).
 | HBF-000 | Human Behavior Framework Phase I (**Working** — RES-022) | [product/HBF-000-human-behavior-framework.md](product/HBF-000-human-behavior-framework.md) |
 | HBF-001…006 | Needs · Friction · Context · Decision · Identity · Outcomes | [product/hbf/](product/hbf/) |
 | Connection Science | Research volume (chapters 01–06 + cases) | [product/research/connection-science/](product/research/connection-science/) |
+| Benchmarks | World benchmark database (BM-000+) | [product/research/benchmarks/](product/research/benchmarks/) |
+| BM-001 | Communication Science benchmark report | [product/research/benchmarks/BM-001-communication-science.md](product/research/benchmarks/BM-001-communication-science.md) |
 | DOC-OPT-001 | Documentation Optimization Initiative | [product/DOC-OPT-001-documentation-optimization.md](product/DOC-OPT-001-documentation-optimization.md) |
 | AIF-KNOW | Knowledge Stewardship (AIO-CORE function) | [executives/atlas-program/AIF-KNOW-STEWARDSHIP.md](executives/atlas-program/AIF-KNOW-STEWARDSHIP.md) |
 | VOCAB-001 | Canonical vocabulary | [knowledge/VOCAB-001-canonical-vocabulary.md](knowledge/VOCAB-001-canonical-vocabulary.md) |

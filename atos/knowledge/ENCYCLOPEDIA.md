@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ENCYCLOPEDIA |
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Status** | Authoritative navigation index |
 | **Authority** | KA-001 v2.0 / RES-024 |
 | **Steward** | AIF-KNOW |
@@ -53,6 +53,7 @@ Create a new top-level document **only if none of the above fit** (genuinely new
 | Volume / Home | Role |
 |---|---|
 | **[Connection Science volume](../product/research/connection-science/)** | RP-001 chapters: program · ledger · foundational Qs · templates · LP counsel · BP method |
+| **[Benchmarks volume](../product/research/benchmarks/)** | “Who has already mastered this?” — BM-000 program · BM-001+ domain reports |
 | Question Ledger | D-Q open questions | [questions.md](working/questions.md) |
 | Evidence index | Packet hop | [evidence/index](evidence/index/README.md) |
 
@@ -92,7 +93,7 @@ Identity (stable)
     ↓
 Governance (KA · TEA · Specs · RES · DOC-OPT)
     ↓
-Research (Connection Science volume · D-Q · D-EVID)  ← evidence in
+Research (Connection Science · Benchmarks · D-Q · D-EVID)  ← evidence in
     ↓
 Product doctrine (FLA · PCM · HBF · AMD · ELM · PCI · CE)
     ↓
@@ -113,6 +114,8 @@ Learning / evidence ────────────────────
 | Foundational science Qs | Connection Science ch.3 |
 | Behavior models (needs/friction/…) | HBF-000 |
 | Exemplar / best-practice method | Connection Science ch.6 (BP-001) |
+| World benchmarks (“who mastered this?”) | Benchmarks volume (BM-000+) |
+| Communication Science field map | BM-001 |
 | Doc quality / anti-sprawl | DOC-OPT-001 + AIF-KNOW |
 | Term definitions | VOCAB-001 |
 | Live priorities | ATLAS-HANDOFF-REGISTER |
@@ -124,3 +127,4 @@ Learning / evidence ────────────────────
 | Version | Date | Notes |
 |---|---|---|
 | 1.0.0 | 2026-07-26 | KA-001 v2.0 encyclopedia index (RES-024) |
+| 1.1.0 | 2026-07-26 | Benchmarks volume + BM-001 Communication Science |

@@ -20,7 +20,7 @@
 
 | Field | Value |
 |---|---|
-| **Last updated** | 2026-07-24 |
+| **Last updated** | 2026-07-26 |
 | **Updated by** | Atlas |
 | **Standing priority** | **Love-of-use craftsmanship (PCI-001)** + **CE-001** substrate; PPS-001 gated; BR-001 phone smoke still required before unsupervised invite |
 | **Mission review** | [MR-001](../../product/MR-001-mission-review-strategic-reinforcement.md) — **Accepted (RES-014)**; governance checkpoint; doctrine unchanged |
@@ -32,11 +32,11 @@
 | **Landing** | [LP-001](../../product/LP-001-production-landing.md) — Production landing built; **awaiting Founder deploy approval** for talkforge.io |
 | **Human Dignity** | [AMD-001](../../product/AMD-001-human-dignity-standard.md) — **Accepted (RES-017)**; Dignity Test mandatory; Forge Law #011 |
 | **Experience Layers** | [ELM-001](../../product/ELM-001-experience-layer-model.md) — **Accepted (RES-018)**; Human·Moment·Emotion·Decision·Transformation foundation for every department |
-| **Knowledge Architecture** | [KA-001](../../product/KA-001-unified-knowledge-architecture.md) — **Accepted (RES-020)**; [KA-REORG-001](../../product/KA-REORG-001-knowledge-reorganization.md) **Complete** |
 | **Enterprise Architecture** | [TEA-001](../../product/TEA-001-enterprise-architecture.md) — **Accepted (RES-021)**; [TEA-MAP-001](../../product/TEA-MAP-001-enterprise-domain-map.md) |
 | **Human Behavior** | [HBF-000](../../product/HBF-000-human-behavior-framework.md) — **Working Phase I (RES-022)**; models HBF-001…006; **not Product Canonical**; [KA-PAUSE-001](../../product/KA-PAUSE-001-framework-pause.md) |
-| **Knowledge Architecture** | [KA-001](../../product/KA-001-unified-knowledge-architecture.md) **v2.0** · [ENCYCLOPEDIA](../../knowledge/ENCYCLOPEDIA.md) |
+| **Knowledge Architecture** | [KA-001](../../product/KA-001-unified-knowledge-architecture.md) **v2.0** · [ENCYCLOPEDIA](../../knowledge/ENCYCLOPEDIA.md) · [KA-REORG-001](../../product/KA-REORG-001-knowledge-reorganization.md) **Complete** |
 | **Connection research** | [Connection Science volume](../../product/research/connection-science/) (ch.1–6) |
+| **Benchmarks** | [BM-000](../../product/research/benchmarks/00-program.md) · [BM-001 Communication Science](../../product/research/benchmarks/BM-001-communication-science.md) — next: Learning Science |
 | **Knowledge Stewardship** | [AIF-KNOW](AIF-KNOW-STEWARDSHIP.md) · [DOC-OPT-001](../../product/DOC-OPT-001-documentation-optimization.md) · [VOCAB-001](../../knowledge/VOCAB-001-canonical-vocabulary.md) · PASS-001/002 · RES-023/024 |
 
 **Company posture (RES-013…022):** **Structure precedes scale.** KA homes + TEA communication **Accepted**. HBF Phase I **Working** under E-KNOW (extends D-EXP/D-GROWTH/D-LEARN) — evidence-classified, dignity-bound, not Canonical. Stewardship of truth binding. CE substrate. PPS gated. Atlas org frozen. Reviews: ELM + Dignity + Craft when shipping product counsel.

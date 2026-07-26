@@ -39,7 +39,7 @@
 | Plane | Contains | Becomes law? |
 |---|---|---|
 | **A Governance** | Specs, RES, KA, TEA, DOC-OPT, Identity | When Authoritative / Accepted |
-| **B Research** | Connection Science volume, D-Q, D-EVID | Only after promotion |
+| **B Research** | Connection Science volume, Benchmarks volume (BM-*), D-Q, D-EVID | Only after promotion |
 | **C Product doctrine** | FLA, PCM, HBF, AMD, ELM, PCI, CE | Per document status |
 | **D Operations** | Handoff, decisions, metrics | Operational, not Canonical law |
 
