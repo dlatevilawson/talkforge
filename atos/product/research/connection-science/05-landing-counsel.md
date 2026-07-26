@@ -107,7 +107,7 @@ The page already carries a strong **redemption + practice** core:
 | EXP-LP-03 | Founding copy: “chose to practice” identity | Waitlist reason quality | No fake scarcity |
 | EXP-LP-04 | Experience: “Private practice. Real moments.” | Clarity on gym metaphor | No voyeurism |
 
-Do **not** ship LP code changes until Founder selects experiments — this doc is counsel.
+**Superseded for shipping:** Executive Directive — Atlas Assignment 001 authorized LP v2 clarity-first implementation (see [LP-001](../../LP-001-production-landing.md)). Remaining experiments still need IE after deploy.
 
 ---
 

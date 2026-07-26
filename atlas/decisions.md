@@ -495,6 +495,20 @@ Accepted — Working (not Product Canonical)
 
 ---
 
+# Decision 035
+
+Title:
+Ship LP-001 v2 clarity-first production landing (Atlas Assignment 001); hold deploy for Founder approval.
+
+Reason:
+
+v1 was premium but failed the five-second product test (“Master the Art…” without naming the gym). Atlas led understand → benchmark principles → strategy → build → self-review. Hero now: official logo + AI Communication Gym + practice the conversations that matter + Forge mechanism. Protect redemption/belief lines. No fake social proof. Prepared for talkforge.io — **do not deploy without Founder approval**.
+
+Status:
+Accepted — Built; deploy gated
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

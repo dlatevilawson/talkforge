@@ -29,7 +29,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [BETA-REC-002](BETA-REC-002-welcoming-first-experience.md) | Beta Recommendations v2.0 — welcoming first experience | **Accepted — execute** |
 | — | [PCI-001](PCI-001-product-craftsmanship-initiative.md) | Product Craftsmanship Initiative | **Accepted (RES-016)** |
 | — | [PCI-CR-001](PCI-CR-001-baseline-craftsmanship-review.md) | Baseline Craftsmanship Review (current prod) | Working counsel |
-| — | [LP-001](LP-001-production-landing.md) | Production Landing Page v1.0 | **Built — awaiting Founder deploy approval** |
+| — | [LP-001](LP-001-production-landing.md) | Production Landing Page **v2.0** (clarity-first) | **Built — awaiting Founder deploy approval** |
 | — | [AMD-001](AMD-001-human-dignity-standard.md) | Human Dignity Standard (Constitutional) | **Accepted (RES-017)** |
 | — | [HDS-AUDIT-001](HDS-AUDIT-001-dignity-touchpoint-audit.md) | Dignity touchpoint audit | Working |
 | — | [ELM-001](ELM-001-experience-layer-model.md) | Experience Layer Model (departmental foundation) | **Accepted (RES-018)** |

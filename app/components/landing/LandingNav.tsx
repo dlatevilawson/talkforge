@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import TalkForgeLogo from "@/app/components/landing/TalkForgeLogo";
 
 const links = [
-  { href: "#belief", label: "Our Belief" },
-  { href: "#experience", label: "Experience" },
-  { href: "#mission", label: "Mission" },
+  { href: "#how", label: "How it works" },
+  { href: "#belief", label: "Belief" },
+  { href: "#founding", label: "Founding" },
   { href: "#faq", label: "FAQ" },
 ] as const;
 
@@ -39,10 +39,7 @@ export default function LandingNav() {
           <TalkForgeLogo />
         </Link>
 
-        <nav
-          aria-label="Primary"
-          className="hidden items-center gap-8 md:flex"
-        >
+        <nav aria-label="Primary" className="hidden items-center gap-8 md:flex">
           {links.map((link) => (
             <a
               key={link.href}
@@ -62,7 +59,7 @@ export default function LandingNav() {
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--lp-line)] text-[var(--lp-ink)] md:hidden"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--lp-line)] text-[var(--lp-ink)] md:hidden"
           aria-expanded={open}
           aria-controls="mobile-nav"
           onClick={() => setOpen((v) => !v)}

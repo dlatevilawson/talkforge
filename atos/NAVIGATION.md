@@ -136,7 +136,7 @@ See [`references/README.md`](references/README.md).
 | BETA-REC-002 | Beta Recommendations v2.0 — welcoming first experience | [product/BETA-REC-002-welcoming-first-experience.md](product/BETA-REC-002-welcoming-first-experience.md) |
 | PCI-001 | Product Craftsmanship Initiative (**Accepted**) | [product/PCI-001-product-craftsmanship-initiative.md](product/PCI-001-product-craftsmanship-initiative.md) |
 | PCI-CR-001 | Baseline Craftsmanship Review | [product/PCI-CR-001-baseline-craftsmanship-review.md](product/PCI-CR-001-baseline-craftsmanship-review.md) |
-| LP-001 | Production Landing Page v1.0 (awaiting deploy approval) | [product/LP-001-production-landing.md](product/LP-001-production-landing.md) |
+| LP-001 | Production Landing Page **v2.0** clarity-first (deploy gated) | [product/LP-001-production-landing.md](product/LP-001-production-landing.md) |
 | AMD-001 | Human Dignity Standard (**Accepted**) | [product/AMD-001-human-dignity-standard.md](product/AMD-001-human-dignity-standard.md) |
 | HDS-AUDIT-001 | Dignity touchpoint audit | [product/HDS-AUDIT-001-dignity-touchpoint-audit.md](product/HDS-AUDIT-001-dignity-touchpoint-audit.md) |
 | ELM-001 | Experience Layer Model (**Accepted** — departmental foundation) | [product/ELM-001-experience-layer-model.md](product/ELM-001-experience-layer-model.md) |

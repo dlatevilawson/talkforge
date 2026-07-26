@@ -1,6 +1,8 @@
+import Image from "next/image";
+
 type TalkForgeLogoProps = {
   className?: string;
-  variant?: "full" | "mark";
+  variant?: "full" | "mark" | "hero";
 };
 
 function Mark({ className = "h-8 w-8" }: { className?: string }) {
@@ -35,11 +37,24 @@ function Mark({ className = "h-8 w-8" }: { className?: string }) {
   );
 }
 
-/** Official TalkForge logo mark + wordmark. */
+/** Official TalkForge logo — mark, wordmark, or hero-scale brand asset. */
 export default function TalkForgeLogo({
   className = "",
   variant = "full",
 }: TalkForgeLogoProps) {
+  if (variant === "hero") {
+    return (
+      <Image
+        src="/brand/talkforge-logo.svg"
+        alt="TalkForge"
+        width={280}
+        height={48}
+        priority
+        className={`h-12 w-auto sm:h-14 ${className}`}
+      />
+    );
+  }
+
   if (variant === "mark") {
     return (
       <span className={`inline-flex text-current ${className}`} aria-label="TalkForge">

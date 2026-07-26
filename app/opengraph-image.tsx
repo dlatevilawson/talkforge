@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "TalkForge — Master the Art of Communication";
+export const alt = "TalkForge — AI Communication Gym";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -16,7 +16,7 @@ export default async function OpenGraphImage() {
           flexDirection: "column",
           justifyContent: "center",
           padding: "72px",
-          background: "#F7F8FA",
+          background: "#F3F5F7",
           color: "#121417",
         }}
       >
@@ -25,7 +25,7 @@ export default async function OpenGraphImage() {
             display: "flex",
             alignItems: "center",
             gap: 18,
-            marginBottom: 48,
+            marginBottom: 40,
           }}
         >
           <div
@@ -49,25 +49,35 @@ export default async function OpenGraphImage() {
         </div>
         <div
           style={{
-            fontSize: 68,
+            fontSize: 28,
+            fontWeight: 500,
+            color: "#3D5A73",
+            marginBottom: 16,
+          }}
+        >
+          AI Communication Gym
+        </div>
+        <div
+          style={{
+            fontSize: 64,
             fontWeight: 600,
             letterSpacing: -2.5,
             lineHeight: 1.05,
-            maxWidth: 900,
+            maxWidth: 960,
           }}
         >
-          Master the Art of Communication.
+          Practice the conversations that matter.
         </div>
         <div
           style={{
             marginTop: 28,
-            fontSize: 28,
+            fontSize: 26,
             color: "#5A616C",
-            maxWidth: 720,
+            maxWidth: 760,
             lineHeight: 1.4,
           }}
         >
-          An AI Communication Gym for the conversations that matter.
+          Rehearse with Forge — then walk into the real moment ready.
         </div>
       </div>
     ),

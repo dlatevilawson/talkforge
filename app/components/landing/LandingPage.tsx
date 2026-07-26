@@ -5,33 +5,26 @@ import Reveal from "@/app/components/landing/Reveal";
 import TalkForgeLogo from "@/app/components/landing/TalkForgeLogo";
 import WaitlistForm from "@/app/components/landing/WaitlistForm";
 
-const journey = [
-  { title: "Practice", body: "Rehearse the conversations that matter with Forge." },
-  { title: "Confidence", body: "Capability grows through repetition — not pep talks." },
-  { title: "Real conversations", body: "Take what you practiced into the moments that count." },
+const steps = [
   {
-    title: "Better relationships",
-    body: "Clearer words. Stronger trust. More opportunities.",
+    title: "Practice",
+    body: "Rehearse the conversation that matters with Forge — privately, before the stakes are real.",
+  },
+  {
+    title: "Improve",
+    body: "Get coaching grounded in what you actually said — not generic tips.",
+  },
+  {
+    title: "Transfer",
+    body: "Walk into interviews, hard talks, and leadership moments more ready — and build better relationships over time.",
   },
 ] as const;
 
 const foundingBenefits = [
-  {
-    title: "Early access",
-    body: "Step onto the floor before the wider world arrives.",
-  },
-  {
-    title: "Help shape the product",
-    body: "Your practice and feedback guide what TalkForge becomes.",
-  },
-  {
-    title: "Exclusive updates",
-    body: "Founding notes on what we’re building — and why.",
-  },
-  {
-    title: "Permanent recognition",
-    body: "You’ll always be recognized as a Founding Member.",
-  },
+  "Early access when the floor opens",
+  "A real voice in shaping what TalkForge becomes",
+  "Founding updates — no spam, no fake scarcity",
+  "Permanent recognition as a Founding Member",
 ] as const;
 
 export default function LandingPage() {
@@ -40,50 +33,137 @@ export default function LandingPage() {
       <LandingNav />
 
       <main>
-        {/* Hero */}
-        <section className="relative overflow-hidden px-5 pb-24 pt-32 sm:px-8 sm:pb-32 sm:pt-40">
+        {/* Hero — one composition: brand, what it is, one CTA group, dominant visual */}
+        <section className="relative min-h-[100dvh] overflow-hidden">
+          <div className="lp-hero-atmosphere pointer-events-none absolute inset-0" aria-hidden />
           <div
-            className="pointer-events-none absolute inset-x-0 top-0 h-[70vh] bg-[radial-gradient(ellipse_at_50%_0%,rgba(26,58,92,0.06),transparent_60%)]"
+            className="lp-hero-mark pointer-events-none absolute -right-[20%] top-[10%] h-[70vh] w-[70vh] opacity-[0.04] sm:right-[-5%]"
             aria-hidden
           />
-          <div className="relative mx-auto max-w-4xl text-center">
-            <Reveal>
-              <div className="mx-auto mb-10 flex justify-center text-[var(--lp-ink)]">
-                <TalkForgeLogo className="scale-110" />
-              </div>
-            </Reveal>
-            <Reveal delayMs={80}>
-              <h1 className="font-[family-name:var(--font-lp-display)] text-[2.75rem] font-semibold leading-[1.05] tracking-[-0.04em] text-[var(--lp-ink)] sm:text-6xl md:text-7xl">
-                Master the Art of Communication.
-              </h1>
-            </Reveal>
-            <Reveal delayMs={160}>
-              <p className="mx-auto mt-8 max-w-xl text-lg leading-8 text-[var(--lp-muted)] sm:text-xl sm:leading-9">
-                You weren&apos;t born a poor communicator.
-                <br className="hidden sm:block" />
-                Nobody ever taught you how to practice.
-              </p>
-            </Reveal>
-            <Reveal delayMs={240}>
-              <div className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <a
-                  href="#waitlist"
-                  className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full bg-[var(--lp-ink)] px-8 text-sm font-semibold text-[var(--lp-bg)] transition hover:bg-[var(--lp-ink-soft)]"
-                >
-                  Join the Founding Members
-                </a>
-                <Link
-                  href="/welcome"
-                  className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full border border-[var(--lp-line)] bg-transparent px-8 text-sm font-semibold text-[var(--lp-ink)] transition hover:bg-white"
-                >
-                  See TalkForge in Action
-                </Link>
+
+          <div className="relative mx-auto flex min-h-[100dvh] max-w-5xl flex-col justify-center px-5 pb-16 pt-28 sm:px-8 sm:pb-24 sm:pt-32">
+            <div className="text-center">
+              <Reveal>
+                <div className="mx-auto mb-8 flex justify-center text-[var(--lp-ink)] sm:mb-10">
+                  <TalkForgeLogo variant="hero" />
+                </div>
+              </Reveal>
+
+              <Reveal delayMs={70}>
+                <p className="text-sm font-medium tracking-[0.04em] text-[var(--lp-steel)] sm:text-base">
+                  AI Communication Gym
+                </p>
+              </Reveal>
+
+              <Reveal delayMs={120}>
+                <h1 className="mx-auto mt-4 max-w-3xl font-[family-name:var(--font-lp-display)] text-[2.5rem] font-semibold leading-[1.08] tracking-[-0.04em] text-[var(--lp-ink)] sm:mt-5 sm:text-6xl md:text-[4.25rem]">
+                  Practice the conversations that matter.
+                </h1>
+              </Reveal>
+
+              <Reveal delayMs={180}>
+                <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-[var(--lp-muted)] sm:mt-8 sm:text-xl sm:leading-9">
+                  Rehearse with Forge — an AI coach — then walk into the real
+                  moment ready.
+                </p>
+              </Reveal>
+
+              <Reveal delayMs={240}>
+                <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:mt-12 sm:flex-row">
+                  <a
+                    href="#waitlist"
+                    className="inline-flex min-h-12 min-w-[15rem] items-center justify-center rounded-full bg-[var(--lp-ink)] px-8 text-sm font-semibold text-[var(--lp-bg)] transition hover:bg-[var(--lp-ink-soft)]"
+                  >
+                    Join the Founding Waitlist
+                  </a>
+                  <Link
+                    href="/welcome"
+                    className="inline-flex min-h-12 min-w-[15rem] items-center justify-center rounded-full border border-[var(--lp-line)] bg-[color-mix(in_oklab,white_55%,transparent)] px-8 text-sm font-semibold text-[var(--lp-ink)] backdrop-blur-sm transition hover:bg-white"
+                  >
+                    See TalkForge in Action
+                  </Link>
+                </div>
+              </Reveal>
+            </div>
+
+            {/* Dominant practice-floor visual plane — not a card collage */}
+            <Reveal delayMs={320}>
+              <div className="lp-practice-floor relative mx-auto mt-16 w-full max-w-4xl sm:mt-20">
+                <div className="lp-practice-floor-inner px-6 py-8 sm:px-10 sm:py-10">
+                  <p className="text-xs font-medium uppercase tracking-[0.22em] text-[var(--lp-steel)]">
+                    On the floor
+                  </p>
+                  <p className="mt-4 font-[family-name:var(--font-lp-display)] text-2xl font-medium tracking-[-0.03em] text-[var(--lp-ink)] sm:text-3xl">
+                    “I have a hard conversation tomorrow.”
+                  </p>
+                  <div className="mt-8 grid gap-6 sm:grid-cols-[1fr_auto_1fr] sm:items-end">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--lp-muted)]">
+                        You
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-[var(--lp-ink-soft)] sm:text-base">
+                        Speak the words you’d say in real life.
+                      </p>
+                    </div>
+                    <div
+                      className="hidden h-px w-16 bg-[var(--lp-line)] sm:block"
+                      aria-hidden
+                    />
+                    <div className="sm:text-right">
+                      <p className="text-xs uppercase tracking-[0.18em] text-[var(--lp-muted)]">
+                        Forge
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-[var(--lp-ink-soft)] sm:text-base">
+                        Listens, responds, and helps you improve.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </Reveal>
           </div>
         </section>
 
-        {/* Our Belief */}
+        {/* How it works */}
+        <section
+          id="how"
+          className="scroll-mt-24 border-t border-[var(--lp-line)] px-5 py-24 sm:px-8 sm:py-32"
+        >
+          <div className="mx-auto max-w-6xl">
+            <Reveal>
+              <p className="text-xs font-medium uppercase tracking-[0.28em] text-[var(--lp-muted)]">
+                How it works
+              </p>
+              <h2 className="mt-5 max-w-2xl font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
+                Advice is common. Practice is rare.
+              </h2>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--lp-muted)]">
+                TalkForge exists so you can get reps before the conversation that
+                counts — not another article to forget.
+              </p>
+            </Reveal>
+
+            <ol className="mt-16 grid gap-12 md:grid-cols-3 md:gap-10">
+              {steps.map((step, index) => (
+                <li key={step.title}>
+                  <Reveal delayMs={index * 80}>
+                    <p className="font-[family-name:var(--font-lp-display)] text-5xl font-medium tracking-[-0.04em] text-[var(--lp-steel)] opacity-40">
+                      {String(index + 1).padStart(2, "0")}
+                    </p>
+                    <h3 className="mt-4 font-[family-name:var(--font-lp-display)] text-2xl font-semibold tracking-[-0.02em]">
+                      {step.title}
+                    </h3>
+                    <p className="mt-3 text-base leading-7 text-[var(--lp-muted)]">
+                      {step.body}
+                    </p>
+                  </Reveal>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* Belief */}
         <section
           id="belief"
           className="scroll-mt-24 border-t border-[var(--lp-line)] px-5 py-24 sm:px-8 sm:py-32"
@@ -93,92 +173,16 @@ export default function LandingPage() {
               <p className="text-xs font-medium uppercase tracking-[0.28em] text-[var(--lp-muted)]">
                 Our Belief
               </p>
-              <blockquote className="mt-8 font-[family-name:var(--font-lp-display)] text-3xl font-medium leading-snug tracking-[-0.03em] text-[var(--lp-ink)] sm:text-4xl sm:leading-[1.25]">
+              <p className="mx-auto mt-8 max-w-xl text-lg leading-8 text-[var(--lp-muted)] sm:text-xl sm:leading-9">
+                You weren&apos;t born a poor communicator.
+                <br className="hidden sm:block" />
+                Nobody ever taught you how to practice.
+              </p>
+              <blockquote className="mt-10 font-[family-name:var(--font-lp-display)] text-3xl font-medium leading-snug tracking-[-0.03em] text-[var(--lp-ink)] sm:text-4xl sm:leading-[1.25]">
                 Nobody should ever feel voiceless because they don&apos;t know
                 how to express themselves.
               </blockquote>
             </Reveal>
-          </div>
-        </section>
-
-        {/* Experience */}
-        <section
-          id="experience"
-          className="scroll-mt-24 border-t border-[var(--lp-line)] px-5 py-24 sm:px-8 sm:py-32"
-        >
-          <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-20">
-            <Reveal>
-              <p className="text-xs font-medium uppercase tracking-[0.28em] text-[var(--lp-muted)]">
-                Experience
-              </p>
-              <h2 className="mt-5 font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
-                An AI Communication Gym.
-              </h2>
-            </Reveal>
-            <Reveal delayMs={100}>
-              <div className="space-y-6 text-lg leading-8 text-[var(--lp-muted)]">
-                <p>
-                  Most people consume advice about communication. Almost nobody
-                  practices it.
-                </p>
-                <p>
-                  TalkForge is where you rehearse high-stakes conversations with
-                  Forge — a coach who listens, responds, and helps you improve
-                  from what you actually said.
-                </p>
-                <p className="text-[var(--lp-ink)]">
-                  You leave more ready for the real conversation — not more
-                  entertained by another tip.
-                </p>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-
-        {/* Mission / Journey */}
-        <section
-          id="mission"
-          className="scroll-mt-24 border-t border-[var(--lp-line)] px-5 py-24 sm:px-8 sm:py-32"
-        >
-          <div className="mx-auto max-w-6xl">
-            <Reveal>
-              <p className="text-center text-xs font-medium uppercase tracking-[0.28em] text-[var(--lp-muted)]">
-                Mission
-              </p>
-              <h2 className="mx-auto mt-5 max-w-2xl text-center font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
-                The journey from practice to life.
-              </h2>
-            </Reveal>
-
-            <ol className="mx-auto mt-16 max-w-xl space-y-0">
-              {journey.map((step, index) => (
-                <li key={step.title}>
-                  <Reveal delayMs={index * 70}>
-                    <div className="flex gap-5">
-                      <div className="flex flex-col items-center">
-                        <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--lp-line)] bg-white text-sm font-medium text-[var(--lp-ink)]">
-                          {index + 1}
-                        </span>
-                        {index < journey.length - 1 && (
-                          <span
-                            className="my-2 w-px flex-1 bg-[var(--lp-line)]"
-                            aria-hidden
-                          />
-                        )}
-                      </div>
-                      <div className="pb-10">
-                        <h3 className="font-[family-name:var(--font-lp-display)] text-2xl font-semibold tracking-[-0.02em]">
-                          {step.title}
-                        </h3>
-                        <p className="mt-2 text-base leading-7 text-[var(--lp-muted)]">
-                          {step.body}
-                        </p>
-                      </div>
-                    </div>
-                  </Reveal>
-                </li>
-              ))}
-            </ol>
           </div>
         </section>
 
@@ -187,35 +191,37 @@ export default function LandingPage() {
           id="founding"
           className="scroll-mt-24 border-t border-[var(--lp-line)] px-5 py-24 sm:px-8 sm:py-32"
         >
-          <div className="mx-auto max-w-6xl">
+          <div className="mx-auto max-w-3xl">
             <Reveal>
               <p className="text-xs font-medium uppercase tracking-[0.28em] text-[var(--lp-muted)]">
                 Founding Members
               </p>
-              <h2 className="mt-5 max-w-2xl font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
+              <h2 className="mt-5 font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
                 Help build the world&apos;s communication gym.
               </h2>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--lp-muted)]">
-                Founding Members aren&apos;t just early users. You&apos;re the
-                first people we practice with — and the people who shape what
-                TalkForge becomes.
+              <p className="mt-6 text-lg leading-8 text-[var(--lp-muted)]">
+                Founding Members aren&apos;t spectators. You&apos;re the first
+                people we practice with — and the people who shape what TalkForge
+                becomes.
               </p>
             </Reveal>
 
-            <div className="mt-14 grid gap-6 sm:grid-cols-2">
-              {foundingBenefits.map((item, index) => (
-                <Reveal key={item.title} delayMs={index * 60}>
-                  <div className="h-full rounded-3xl border border-[var(--lp-line)] bg-white px-6 py-7">
-                    <h3 className="font-[family-name:var(--font-lp-display)] text-xl font-semibold tracking-[-0.02em]">
-                      {item.title}
-                    </h3>
-                    <p className="mt-3 text-base leading-7 text-[var(--lp-muted)]">
-                      {item.body}
-                    </p>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
+            <Reveal delayMs={80}>
+              <ul className="mt-12 space-y-4 border-t border-[var(--lp-line)] pt-10">
+                {foundingBenefits.map((item) => (
+                  <li
+                    key={item}
+                    className="flex gap-4 text-base leading-7 text-[var(--lp-ink-soft)]"
+                  >
+                    <span
+                      className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--lp-steel)]"
+                      aria-hidden
+                    />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
           </div>
         </section>
 
@@ -234,7 +240,7 @@ export default function LandingPage() {
               </h2>
               <p className="mx-auto mt-5 max-w-md text-center text-base leading-7 text-[var(--lp-muted)]">
                 Join the founding waitlist. When TalkForge opens, you&apos;ll be
-                first through the door.
+                among the first to practice.
               </p>
             </Reveal>
             <Reveal delayMs={100}>
@@ -256,7 +262,7 @@ export default function LandingPage() {
                 FAQ
               </p>
               <h2 className="mt-5 font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
-                Questions, answered calmly.
+                Straight answers.
               </h2>
             </Reveal>
             <Reveal delayMs={80}>
@@ -273,8 +279,8 @@ export default function LandingPage() {
           <div className="max-w-sm">
             <TalkForgeLogo />
             <p className="mt-5 text-sm leading-6 text-[var(--lp-muted)]">
-              Nobody should ever feel voiceless because they don&apos;t know how
-              to express themselves.
+              An AI Communication Gym — so nobody feels voiceless because they
+              never got to practice.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">
@@ -284,18 +290,13 @@ export default function LandingPage() {
               </p>
               <ul className="mt-4 space-y-2 text-sm text-[var(--lp-ink)]">
                 <li>
+                  <a href="#how" className="hover:opacity-70">
+                    How it works
+                  </a>
+                </li>
+                <li>
                   <a href="#belief" className="hover:opacity-70">
-                    Our Belief
-                  </a>
-                </li>
-                <li>
-                  <a href="#experience" className="hover:opacity-70">
-                    Experience
-                  </a>
-                </li>
-                <li>
-                  <a href="#mission" className="hover:opacity-70">
-                    Mission
+                    Belief
                   </a>
                 </li>
                 <li>
@@ -307,17 +308,13 @@ export default function LandingPage() {
             </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.2em] text-[var(--lp-muted)]">
-                Social
+                Product
               </p>
               <ul className="mt-4 space-y-2 text-sm text-[var(--lp-ink)]">
                 <li>
-                  <span className="text-[var(--lp-muted)]">X / Twitter — soon</span>
-                </li>
-                <li>
-                  <span className="text-[var(--lp-muted)]">LinkedIn — soon</span>
-                </li>
-                <li>
-                  <span className="text-[var(--lp-muted)]">Instagram — soon</span>
+                  <Link href="/welcome" className="hover:opacity-70">
+                    See it in action
+                  </Link>
                 </li>
               </ul>
             </div>

@@ -8,12 +8,13 @@
   --tf-accent: #3b82f6;
   --tf-muted: #a1a1aa;
 
-  /* Production landing (LP-001) */
-  --lp-bg: #f7f8fa;
+  /* Production landing (LP-001 v2) — cool mist + steel */
+  --lp-bg: #f3f5f7;
   --lp-ink: #121417;
   --lp-ink-soft: #2a3038;
   --lp-muted: #5a616c;
-  --lp-line: #e6e8ec;
+  --lp-line: #e2e6eb;
+  --lp-steel: #3d5a73;
 }
 
 @theme inline {
@@ -60,4 +61,46 @@ body {
     transform: none;
     transition: none;
   }
+
+  .lp-hero-atmosphere {
+    animation: none;
+  }
+}
+
+/* Full-bleed hero atmosphere — not a flat wash */
+.lp-hero-atmosphere {
+  background:
+    radial-gradient(ellipse 90% 70% at 50% -10%, rgba(61, 90, 115, 0.14), transparent 55%),
+    radial-gradient(ellipse 50% 40% at 85% 60%, rgba(18, 20, 23, 0.04), transparent 50%),
+    radial-gradient(ellipse 40% 35% at 10% 80%, rgba(61, 90, 115, 0.08), transparent 45%),
+    linear-gradient(180deg, #eef2f5 0%, var(--lp-bg) 55%, var(--lp-bg) 100%);
+  animation: lp-atmosphere-drift 18s ease-in-out infinite alternate;
+}
+
+@keyframes lp-atmosphere-drift {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.03) translate3d(0, -1.5%, 0);
+  }
+}
+
+.lp-hero-mark {
+  background: url("/brand/talkforge-mark.svg") center / contain no-repeat;
+}
+
+.lp-practice-floor {
+  border-top: 1px solid var(--lp-line);
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, white 70%, transparent) 0%,
+    color-mix(in oklab, white 35%, transparent) 100%
+  );
+}
+
+.lp-practice-floor-inner {
+  border-left: 1px solid color-mix(in oklab, var(--lp-line) 80%, transparent);
+  border-right: 1px solid color-mix(in oklab, var(--lp-line) 80%, transparent);
+  border-bottom: 1px solid var(--lp-line);
 }
