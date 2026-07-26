@@ -439,6 +439,20 @@ Working Phase II authorized
 
 ---
 
+# Decision 031
+
+Title:
+Authorize HEF-001 Phase III — Foundational Questions on learning, communication, confidence, and behavior change.
+
+Reason:
+
+Identify highest-confidence scientific understanding without confirming prior beliefs. Ten priority questions with evidence summaries, sources, conflicts, confidence, product/coaching/branding implications, open questions, and experiments. No hypothesis promoted to institutional knowledge without sufficient evidence.
+
+Status:
+Working Phase III authorized
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

@@ -66,6 +66,12 @@ Questions are institutional assets. Unlogged questions do not drive roadmaps.
 | Q-P2-18 | Prevalence of hard-talk fear in our users (non-clinical)? | E-LEARN | D-EXP | Atlas | Medium | Open | OQ-18 |
 | Q-P2-19 | Intent capture help vs dropout friction? | E-PROD | D-EXP | Atlas | High | Open | OQ-19 |
 | Q-P2-20 | Cross-cultural validity of shame-safe coaching norms? | E-KNOW | D-DIGNITY | Atlas | Medium | Open | OQ-20 |
+| Q-HEF-01 | Does consumer AI voice practice causally improve real relationship conversations? | E-PROOF | D-PROOF | Founder | Critical | Open | HEF PQ-1/PQ-3 |
+| Q-HEF-02 | How should TalkForge measure and display confidence vs competence without confusion? | E-PROD | D-GROWTH | Atlas | High | Open | HEF PQ-2 |
+| Q-HEF-03 | Can users experience psychological safety with an AI coach (valid measure)? | E-PROD / E-LEARN | D-EXP | Atlas | High | Open | HEF PQ-5 |
+| Q-HEF-04 | What builds user trust in Forge (ability/benevolence/integrity analogues)? | E-PROD | D-CRAFT | Atlas | High | Open | HEF PQ-6 |
+| Q-HEF-05 | Which communication micro-habits are trainable via context cues? | E-LEARN | D-LEARN | Atlas | Medium | Open | HEF PQ-8 |
+| Q-HEF-06 | What coaching prompt families best instantiate need-supportive feedback in AI? | E-PROD | D-ENGINE | Eng / Atlas | High | Open | HEF PQ-10 |
 
 ---
 

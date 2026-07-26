@@ -23,4 +23,5 @@ Indexed evidence packs. Full packets live in product evidence or this store; thi
 | PCI-CR-001 | [`../../../product/PCI-CR-001-baseline-craftsmanship-review.md`](../../../product/PCI-CR-001-baseline-craftsmanship-review.md) | D-CRAFT | Working |
 | RP-001 Science of Human Connection | [`../../../product/research/RP-001-science-of-human-connection.md`](../../../product/research/RP-001-science-of-human-connection.md) | E-LEARN / D-EXP | Working research |
 | RP-001-P2 Evidence ledger | [`../../../product/research/RP-001-P2-evidence-ledger.md`](../../../product/research/RP-001-P2-evidence-ledger.md) | E-LEARN / D-KNOW | Working — Phase II |
+| HEF-001 Foundational questions | [`../../../product/research/HEF-001-foundational-questions.md`](../../../product/research/HEF-001-foundational-questions.md) | E-LEARN / D-KNOW | Working — Phase III |
 | LP-STORY-001 | [`../../../product/research/LP-STORY-001-landing-story-insights.md`](../../../product/research/LP-STORY-001-landing-story-insights.md) | E-PROD | Working counsel |

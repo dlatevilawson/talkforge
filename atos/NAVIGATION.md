@@ -147,6 +147,7 @@ See [`references/README.md`](references/README.md).
 | HBF-001…006 | Needs · Friction · Context · Decision · Identity · Outcomes | [product/hbf/](product/hbf/) |
 | RP-001 | Science of Human Connection (research program) | [product/research/RP-001-science-of-human-connection.md](product/research/RP-001-science-of-human-connection.md) |
 | RP-001-P2 | Phase II evidence ledger | [product/research/RP-001-P2-evidence-ledger.md](product/research/RP-001-P2-evidence-ledger.md) |
+| HEF-001 | Phase III foundational questions | [product/research/HEF-001-foundational-questions.md](product/research/HEF-001-foundational-questions.md) |
 | RP-001-T | Story stream case template (Stream A) | [product/research/RP-001-T-research-template.md](product/research/RP-001-T-research-template.md) |
 | LP-STORY-001 | Landing insights (story stream → LP) | [product/research/LP-STORY-001-landing-story-insights.md](product/research/LP-STORY-001-landing-story-insights.md) |
 | RES-022 | HBF Phase I Working authorized | [resolutions/RES-022-hbf-phase-i.md](resolutions/RES-022-hbf-phase-i.md) |

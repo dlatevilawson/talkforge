@@ -40,6 +40,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [HBF models](hbf/) | HBF-001…006 Needs → Outcomes | Working |
 | — | [RP-001](research/RP-001-science-of-human-connection.md) | Science of Human Connection | Working research program |
 | — | [RP-001-P2](research/RP-001-P2-evidence-ledger.md) | Phase II evidence ledger | Working — fact-checked |
+| — | [HEF-001](research/HEF-001-foundational-questions.md) | Phase III foundational questions | Working brief |
 | — | [RP-001-T](research/RP-001-T-research-template.md) | Story stream case template (Stream A) | Authoritative method |
 | — | [RP cases](research/cases/) | CASE analyses (template-filled) | Working |
 | — | [LP-STORY-001](research/LP-STORY-001-landing-story-insights.md) | Landing insights from connection research (story stream) | Working counsel |
