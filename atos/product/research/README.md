@@ -1,17 +1,18 @@
-# Research index (role map)
+# Research index
 
-| ID | One job | Status |
-|---|---|---|
-| [RP-001](RP-001-science-of-human-connection.md) | Connection-science **program** (streams, method pointers) | Working |
-| [RP-001-P2](RP-001-P2-evidence-ledger.md) | **Evidence ledger** + corrections + experiments | Working |
-| [HEF-001](HEF-001-foundational-questions.md) | **Foundational questions** PQ-1…10 | Working |
-| [HBF-000](../HBF-000-human-behavior-framework.md) | **Behavior models** (needs, friction, context, …) | Working Phase I |
-| [BP-001](BP-001-best-practices-research.md) | **Exemplar study method** (adapt, don’t copy) | Accepted method |
-| [RP-001-T](RP-001-T-research-template.md) | Stream A case template | Authoritative |
-| [cases/](cases/) | Stream A filled cases | Working |
-| [bp/](bp/) | BP case studies | Scaffold |
-| [LP-STORY-001](LP-STORY-001-landing-story-insights.md) | LP counsel only | Working |
+**Research plane home:** [Connection Science volume](connection-science/README.md)
 
-**Stewardship:** [DOC-OPT-001](../DOC-OPT-001-documentation-optimization.md) · [AIF-KNOW](../../executives/atlas-program/AIF-KNOW-STEWARDSHIP.md) · [VOCAB-001](../../knowledge/VOCAB-001-canonical-vocabulary.md) · [PASS-001](../DOC-OPT-PASS-001-research-stack.md)
+Stubs at old filenames redirect to chapters (do not edit stubs).
 
-**Rules:** Fact-check · separate evidence grades · no hypothesis → Canonical without validation · one concept → one name.
+| Former ID | Chapter |
+|---|---|
+| RP-001 | [ch.1 Program](connection-science/01-program.md) |
+| RP-001-P2 | [ch.2 Evidence ledger](connection-science/02-evidence-ledger.md) |
+| HEF-001 | [ch.3 Foundational questions](connection-science/03-foundational-questions.md) |
+| RP-001-T | [ch.4 Story template](connection-science/04-story-case-template.md) |
+| LP-STORY-001 | [ch.5 Landing counsel](connection-science/05-landing-counsel.md) |
+| BP-001 | [ch.6 Best practices method](connection-science/06-best-practices-method.md) |
+
+**Governance / encyclopedia:** [ENCYCLOPEDIA](../../knowledge/ENCYCLOPEDIA.md) · [KA-001](../KA-001-unified-knowledge-architecture.md) · [VOCAB-001](../../knowledge/VOCAB-001-canonical-vocabulary.md)
+
+**Product models (not research volume):** [HBF-000](../HBF-000-human-behavior-framework.md)

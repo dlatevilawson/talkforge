@@ -33,20 +33,15 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [AMD-001](AMD-001-human-dignity-standard.md) | Human Dignity Standard (Constitutional) | **Accepted (RES-017)** |
 | — | [HDS-AUDIT-001](HDS-AUDIT-001-dignity-touchpoint-audit.md) | Dignity touchpoint audit | Working |
 | — | [ELM-001](ELM-001-experience-layer-model.md) | Experience Layer Model (departmental foundation) | **Accepted (RES-018)** |
-| — | [KA-001](KA-001-unified-knowledge-architecture.md) | Unified Knowledge Architecture | **Accepted (RES-020)** |
+| — | [KA-001](KA-001-unified-knowledge-architecture.md) | Knowledge Architecture **v2.0** (encyclopedia) | **Accepted (RES-020/024)** |
+| — | [ENCYCLOPEDIA](../knowledge/ENCYCLOPEDIA.md) | Master knowledge index (planes A–D) | Authoritative nav |
 | — | [TEA-001](TEA-001-enterprise-architecture.md) | TalkForge Enterprise Architecture | **Accepted (RES-021)** |
 | — | [TEA-MAP-001](TEA-MAP-001-enterprise-domain-map.md) | Enterprise domain map & coherence audit | Authoritative |
 | — | [HBF-000](HBF-000-human-behavior-framework.md) | Human Behavior Framework (Phase I) | **Working (RES-022)** — not Product Canonical |
 | — | [HBF models](hbf/) | HBF-001…006 Needs → Outcomes | Working |
-| — | [RP-001](research/RP-001-science-of-human-connection.md) | Science of Human Connection | Working research program |
+| — | [Connection Science](research/connection-science/) | Research volume (chapters 01–06 + cases) | Working |
 | — | [DOC-OPT-001](DOC-OPT-001-documentation-optimization.md) | Documentation Optimization Initiative | **Accepted (RES-023)** |
-| — | [DOC-OPT-PASS-001](DOC-OPT-PASS-001-research-stack.md) | Optimization pass — research stack | Complete |
-| — | [BP-001](research/BP-001-best-practices-research.md) | Best Practices Research Program | **Accepted method** |
-| — | [HEF-001](research/HEF-001-foundational-questions.md) | Phase III foundational questions | Working brief |
-| — | [RP-001-P2](research/RP-001-P2-evidence-ledger.md) | Phase II evidence ledger | Working — fact-checked |
-| — | [RP-001-T](research/RP-001-T-research-template.md) | Story stream case template (Stream A) | Authoritative method |
-| — | [RP cases](research/cases/) | CASE analyses (template-filled) | Working |
-| — | [LP-STORY-001](research/LP-STORY-001-landing-story-insights.md) | Landing insights from connection research (story stream) | Working counsel |
+| — | [DOC-OPT-PASS-002](DOC-OPT-PASS-002-encyclopedia.md) | Encyclopedia reorganization pass | Complete |
 | — | [RES-022](../resolutions/RES-022-hbf-phase-i.md) | HBF Phase I authorized | Authoritative |
 | — | [KA-REORG-001](KA-REORG-001-knowledge-reorganization.md) | Knowledge reorganization | **Complete** |
 | — | [KA-PAUSE-001](KA-PAUSE-001-framework-pause.md) | New frameworks under TEA + KA gates | **Authoritative** |

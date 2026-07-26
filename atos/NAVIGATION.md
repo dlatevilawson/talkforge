@@ -140,21 +140,18 @@ See [`references/README.md`](references/README.md).
 | AMD-001 | Human Dignity Standard (**Accepted**) | [product/AMD-001-human-dignity-standard.md](product/AMD-001-human-dignity-standard.md) |
 | HDS-AUDIT-001 | Dignity touchpoint audit | [product/HDS-AUDIT-001-dignity-touchpoint-audit.md](product/HDS-AUDIT-001-dignity-touchpoint-audit.md) |
 | ELM-001 | Experience Layer Model (**Accepted** — departmental foundation) | [product/ELM-001-experience-layer-model.md](product/ELM-001-experience-layer-model.md) |
-| KA-001 | Unified Knowledge Architecture (**Accepted** — RES-020) | [product/KA-001-unified-knowledge-architecture.md](product/KA-001-unified-knowledge-architecture.md) |
+| KA-001 | Unified Knowledge Architecture **v2.0** (encyclopedia) | [product/KA-001-unified-knowledge-architecture.md](product/KA-001-unified-knowledge-architecture.md) |
+| ENCYCLOPEDIA | Master knowledge index (planes A–D) | [knowledge/ENCYCLOPEDIA.md](knowledge/ENCYCLOPEDIA.md) |
 | TEA-001 | TalkForge Enterprise Architecture (**Accepted** — RES-021) | [product/TEA-001-enterprise-architecture.md](product/TEA-001-enterprise-architecture.md) |
 | TEA-MAP-001 | Enterprise domain map & coherence audit | [product/TEA-MAP-001-enterprise-domain-map.md](product/TEA-MAP-001-enterprise-domain-map.md) |
 | HBF-000 | Human Behavior Framework Phase I (**Working** — RES-022) | [product/HBF-000-human-behavior-framework.md](product/HBF-000-human-behavior-framework.md) |
 | HBF-001…006 | Needs · Friction · Context · Decision · Identity · Outcomes | [product/hbf/](product/hbf/) |
-| RP-001 | Science of Human Connection (research program) | [product/research/RP-001-science-of-human-connection.md](product/research/RP-001-science-of-human-connection.md) |
+| Connection Science | Research volume (chapters 01–06 + cases) | [product/research/connection-science/](product/research/connection-science/) |
 | DOC-OPT-001 | Documentation Optimization Initiative | [product/DOC-OPT-001-documentation-optimization.md](product/DOC-OPT-001-documentation-optimization.md) |
 | AIF-KNOW | Knowledge Stewardship (AIO-CORE function) | [executives/atlas-program/AIF-KNOW-STEWARDSHIP.md](executives/atlas-program/AIF-KNOW-STEWARDSHIP.md) |
 | VOCAB-001 | Canonical vocabulary | [knowledge/VOCAB-001-canonical-vocabulary.md](knowledge/VOCAB-001-canonical-vocabulary.md) |
-| BP-001 | Best Practices Research Program | [product/research/BP-001-best-practices-research.md](product/research/BP-001-best-practices-research.md) |
-| HEF-001 | Phase III foundational questions | [product/research/HEF-001-foundational-questions.md](product/research/HEF-001-foundational-questions.md) |
-| RES-023 | Doc optimization + stewardship + BP-001 | [resolutions/RES-023-documentation-stewardship.md](resolutions/RES-023-documentation-stewardship.md) |
-| RP-001-P2 | Phase II evidence ledger | [product/research/RP-001-P2-evidence-ledger.md](product/research/RP-001-P2-evidence-ledger.md) |
-| RP-001-T | Story stream case template (Stream A) | [product/research/RP-001-T-research-template.md](product/research/RP-001-T-research-template.md) |
-| LP-STORY-001 | Landing insights (story stream → LP) | [product/research/LP-STORY-001-landing-story-insights.md](product/research/LP-STORY-001-landing-story-insights.md) |
+| RES-024 | KA v2.0 encyclopedia | [resolutions/RES-024-ka-v2-encyclopedia.md](resolutions/RES-024-ka-v2-encyclopedia.md) |
+| RES-023 | Doc optimization + stewardship + BP-001 | [resolutions/RES-023-documentation-stewardship.md](resolutions/RES-023-documentation-stewardship.md)
 | RES-022 | HBF Phase I Working authorized | [resolutions/RES-022-hbf-phase-i.md](resolutions/RES-022-hbf-phase-i.md) |
 | KA-REORG-001 | Knowledge reorganization (**Complete**) | [product/KA-REORG-001-knowledge-reorganization.md](product/KA-REORG-001-knowledge-reorganization.md) |
 | KA-PAUSE-001 | Framework rules (**TEA + KA gates**) | [product/KA-PAUSE-001-framework-pause.md](product/KA-PAUSE-001-framework-pause.md) |

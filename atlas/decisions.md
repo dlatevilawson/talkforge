@@ -467,6 +467,20 @@ Accepted — Authoritative
 
 ---
 
+# Decision 033
+
+Title:
+Accept Knowledge Architecture v2.0 — institutional encyclopedia.
+
+Reason:
+
+Optimize the knowledge base as a unified encyclopedia: one canonical definition per concept; chapters over sprawl; separate governance from research; cross-references over duplication; New Document Decision Rule; ENCYCLOPEDIA master index; Connection Science research volume. RES-024. DOC-OPT-PASS-002.
+
+Status:
+Accepted — Authoritative
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

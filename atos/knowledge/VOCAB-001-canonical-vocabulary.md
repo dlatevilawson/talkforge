@@ -35,12 +35,13 @@
 
 | Canonical | Meaning | Avoid | Home |
 |---|---|---|---|
-| **RP-001** | Science of Human Connection (research program) | “Psychology of Unforgettable Stories” as program title | RP-001 |
-| **RP-001-P2** | Evidence ledger (Phase II) | Duplicating full ledger inside other briefs | RP-001-P2 |
-| **HEF-001** | Human Evidence Foundations (Phase III foundational Qs) | Using HEF as a behavior model set | HEF-001 |
-| **HBF** | Human Behavior Framework (Phase I models HBF-000…006) | Calling HBF “the evidence ledger” | HBF-000 |
-| **BP-001** | Best Practices Research Program (exemplar method) | Copying competitor features | BP-001 |
-| **Stream A** | Cultural stories evidence stream under RP-001 | Treating stories as sole science | RP-001 |
+| **RP-001** | Science of Human Connection **volume** | Separate top-level research docs for each phase | [connection-science/](../product/research/connection-science/) |
+| **RP-001-P2** | Evidence ledger (**ch.2**) | Duplicating ledger in other briefs | ch.2 |
+| **HEF-001** | Foundational questions (**ch.3**) | Using HEF as behavior models | ch.3 |
+| **HBF** | Human Behavior Framework (product Working models) | Calling HBF “the evidence ledger” | HBF-000 |
+| **BP-001** | Best Practices method (**ch.6**) | Copying competitor features | ch.6 |
+| **ENCYCLOPEDIA** | Master navigation index | Ad-hoc doc lists without planes | ENCYCLOPEDIA.md |
+| **Stream A** | Cultural stories stream under RP-001 | Treating stories as sole science | ch.1 |
 
 ## Evidence grades (use consistently)
 
@@ -75,4 +76,5 @@
 
 | Date | Change |
 |---|---|
-| 2026-07-26 | v1.0.0 initial vocabulary from DOC-OPT / research consolidation |
+| 2026-07-26 | v1.0.0 initial vocabulary |
+| 2026-07-26 | v1.1.0 Connection Science volume + ENCYCLOPEDIA terms (KA v2) |

@@ -3,26 +3,64 @@
 | Field | Value |
 |---|---|
 | **Document ID** | KA-001 |
-| **Version** | 1.1.0 |
+| **Version** | **2.0.0** |
 | **Status** | **Accepted** (Authoritative) |
-| **Authority** | Founder Approved — RES-020 |
+| **Authority** | Founder Approved — RES-020; **v2.0 encyclopedia — RES-024** |
 | **Owner** | Founder |
-| **AI Steward** | Atlas |
+| **AI Steward** | Atlas (AIF-KNOW) |
 | **Human Approver** | Founder |
-| **Dependencies** | SPEC-001, SPEC-002, SPEC-003, STD-002, REG-KNOW, GOV-COMPAT, AMD-001, ELM-001, FLA-001, PCM-001, MR-001, PCI-001 |
-| **Related Documents** | KA-PAUSE-001, KA-REORG-001, TEA-001, LOAD-MANIFEST, ATLAS-HANDOFF-REGISTER |
-| **Approval History** | 2026-07-24 — Issued; purpose clarified; **2026-07-24 — Founder Approve KA-001 (RES-020)** |
-| **Change Log** | 2026-07-24 — v1.0.x proposal; v1.1.0 Accepted; stewardship-of-truth principle; reorg authorized |
+| **Dependencies** | SPEC-001…003, STD-002, REG-KNOW, GOV-COMPAT, TEA-001, DOC-OPT-001, VOCAB-001 |
+| **Related Documents** | [ENCYCLOPEDIA](../knowledge/ENCYCLOPEDIA.md), KA-PAUSE-001, KA-REORG-001, TEA-001, LOAD-MANIFEST, AIF-KNOW |
+| **Approval History** | 2026-07-24 — Accepted (RES-020); **2026-07-26 — v2.0 Institutional Encyclopedia (RES-024)** |
+| **Change Log** | v1.1 Accepted + stewardship; **v2.0 encyclopedia model, planes, new-doc decision rule, research volumes** |
 
-> **Purpose (Founder):** The Knowledge Architecture does **not** exist to organize information. It exists so TalkForge becomes **progressively wiser** in service of the people it exists to help.  
-> **Stewardship (Founder):** No person, AI agent, or founder owns the truth. They are temporary stewards of humanity’s current best understanding. Canonical knowledge is preserved because it is the strongest evidence-aligned explanation — not because it is old. Better evidence is how the institution fulfills its purpose.  
-> **Standing order:** Structure precedes scale.  
-> **Relationship to ATOS:** Built **on** ATOS. Does **not** amend Specs. Implements SPEC-003 / STD-002 with domain clarity.  
-> **Relationship to TEA-001:** KA = **where** knowledge belongs. TEA = **how** domains communicate as one institution.
+> **Purpose:** Become progressively wiser in service of the people TalkForge exists to help.  
+> **v2.0 form:** The knowledge base is a **unified institutional encyclopedia** — not a growing pile of independent documents.  
+> **Stewardship of truth:** No one owns the truth; Canonical is the strongest evidence-aligned explanation.  
+> **KA vs TEA:** KA = where knowledge belongs (+ encyclopedia rules). TEA = how domains communicate.  
+> **Master index:** [ENCYCLOPEDIA](../knowledge/ENCYCLOPEDIA.md)
 
 ---
 
-## 0. Purpose — wisdom, not filing
+## 0. Encyclopedia model (v2.0)
+
+### Objectives
+
+1. One canonical definition per concept ([VOCAB-001](../knowledge/VOCAB-001-canonical-vocabulary.md)).  
+2. Merge related documents into **structured chapters** of volumes.  
+3. Separate **governance** from **research**.  
+4. Replace duplicated explanations with **cross-references**.  
+5. Reduce sprawl; preserve knowledge.  
+6. Prefer expanding existing documents over new top-level docs.  
+7. Maintain a clear navigation index ([ENCYCLOPEDIA](../knowledge/ENCYCLOPEDIA.md)).
+
+### Planes
+
+| Plane | Contains | Becomes law? |
+|---|---|---|
+| **A Governance** | Specs, RES, KA, TEA, DOC-OPT, Identity | When Authoritative / Accepted |
+| **B Research** | Connection Science volume, D-Q, D-EVID | Only after promotion |
+| **C Product doctrine** | FLA, PCM, HBF, AMD, ELM, PCI, CE | Per document status |
+| **D Operations** | Handoff, decisions, metrics | Operational, not Canonical law |
+
+### New Document Decision Rule (binding)
+
+Before creating any new top-level document:
+
+1. Does this concept already exist?  
+2. Should this be a **chapter**?  
+3. Should this be an **appendix**?  
+4. Should this simply be a **link**?
+
+→ New top-level document **only if none apply** (genuinely new domain).
+
+### Success metric
+
+The knowledge base becomes easier to navigate, maintain, and reason over (humans + AI) as it grows.
+
+---
+
+## 0.1 Purpose — wisdom, not filing
 
 **Organize information** is a means.
 
@@ -39,7 +77,7 @@ If a structure does not make TalkForge wiser for those people, it does not belon
 
 ---
 
-## 0.1 Stewardship of truth (Founder — binding)
+## 0.2 Stewardship of truth (Founder — binding)
 
 No person, AI agent, or founder **owns** the truth.
 
@@ -281,11 +319,12 @@ Evidence: [KA-REORG-001](KA-REORG-001-knowledge-reorganization.md).
 
 KA-001 succeeds when:
 
-1. TalkForge becomes **measurably wiser** over time in how it serves real people — not merely better indexed.  
-2. Any teammate or agent can answer “Where does this truth live?” in one hop.  
+1. TalkForge becomes **measurably wiser** over time — not merely better indexed.  
+2. Any teammate or agent can answer “Where does this truth live?” in **one hop** ([ENCYCLOPEDIA](../knowledge/ENCYCLOPEDIA.md)).  
 3. No two documents claim to be the foundation for the same domain.  
 4. New ideas enter as questions/hypotheses — not as parallel constitutions.  
-5. The organization can learn for a decade without drowning in frameworks.
+5. The knowledge base stays easier to navigate and maintain as it grows (encyclopedia, not sprawl).  
+6. New top-level docs appear only after the Decision Rule fails to place the content as chapter/appendix/link.
 
 ---
 
@@ -293,10 +332,10 @@ KA-001 succeeds when:
 
 | Field | Value |
 |---|---|
-| **Decision** | **Approved** (2026-07-24) |
-| **Resolution** | RES-020 |
-| **Next** | Reorganization **Complete** (KA-REORG-001); frameworks may resume only under KA domain rules; Ask Atlas cutover still needs Founder Decision |
+| **Decision** | **Approved** (2026-07-24); **v2.0 Encyclopedia Approved** (2026-07-26) |
+| **Resolution** | RES-020 · **RES-024** |
+| **Next** | Steward via AIF-KNOW; prefer chapters; Ask Atlas cutover still needs Founder Decision |
 
 | Field | Value |
 |---|---|
-| **Status Upon Signature** | **Accepted — Authoritative** |
+| **Status Upon Signature** | **Accepted — Authoritative (v2.0)** |

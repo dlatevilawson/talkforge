@@ -1,6 +1,6 @@
 # BP cases
 
-Best-practice exemplar studies using [BP-001](../BP-001-best-practices-research.md).
+Best-practice exemplar studies using [BP-001](../06-best-practices-method.md).
 
 | Case ID | Subject | Status |
 |---|---|---|

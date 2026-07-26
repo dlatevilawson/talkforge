@@ -3,15 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | DOC-OPT-001 |
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Status** | **Accepted** (Authoritative process) |
-| **Authority** | Founder Directive; RES-023 |
+| **Authority** | Founder Directive; RES-023; **KA-001 v2.0 / RES-024** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas (Knowledge Stewardship — AIF-KNOW) |
 | **Purpose** | Make existing knowledge clearer, more maintainable, and more executable — not invent new ideas |
-| **Dependencies** | KA-001, TEA-001, SPEC-003, STD-002, MAN-002, AIF-KNOW |
-| **Related** | BP-001, VOCAB-001, DOC-OPT-PASS-* |
+| **Dependencies** | KA-001, TEA-001, SPEC-003, STD-002, MAN-002, AIF-KNOW, ENCYCLOPEDIA |
+| **Related** | BP-001 (Connection Science ch.6), VOCAB-001, DOC-OPT-PASS-*, ENCYCLOPEDIA |
 | **Date** | 2026-07-26 |
+| **Change Log** | v1.0.0 initiative; **v1.1.0 New Document Decision Rule (encyclopedia)** |
 
 ---
 
@@ -68,6 +69,19 @@ Optimize the TalkForge knowledge base for clarity, precision, maintainability, a
 ---
 
 ## 5. Decision criteria
+
+### New Document Decision Rule (KA-001 v2 — binding)
+
+Before creating any new top-level document, ask:
+
+1. Does this concept already exist?  
+2. Should this be a **chapter**?  
+3. Should this be an **appendix**?  
+4. Should this simply be a **link**?
+
+Create a new top-level document **only if none apply**.
+
+### Editorial criteria
 
 | Question | If No |
 |---|---|

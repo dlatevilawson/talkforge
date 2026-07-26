@@ -21,7 +21,7 @@ Indexed evidence packs. Full packets live in product evidence or this store; thi
 | HDS-AUDIT-001 | [`../../../product/HDS-AUDIT-001-dignity-touchpoint-audit.md`](../../../product/HDS-AUDIT-001-dignity-touchpoint-audit.md) | D-DIGNITY | Working audit |
 | ELM-MAP-001 | [`../../../product/ELM-MAP-001-layer-coverage.md`](../../../product/ELM-MAP-001-layer-coverage.md) | D-EXP | Working map |
 | PCI-CR-001 | [`../../../product/PCI-CR-001-baseline-craftsmanship-review.md`](../../../product/PCI-CR-001-baseline-craftsmanship-review.md) | D-CRAFT | Working |
-| RP-001 Science of Human Connection | [`../../../product/research/RP-001-science-of-human-connection.md`](../../../product/research/RP-001-science-of-human-connection.md) | E-LEARN / D-EXP | Working research |
-| RP-001-P2 Evidence ledger | [`../../../product/research/RP-001-P2-evidence-ledger.md`](../../../product/research/RP-001-P2-evidence-ledger.md) | E-LEARN / D-KNOW | Working — Phase II |
-| HEF-001 Foundational questions | [`../../../product/research/HEF-001-foundational-questions.md`](../../../product/research/HEF-001-foundational-questions.md) | E-LEARN / D-KNOW | Working — Phase III |
-| LP-STORY-001 | [`../../../product/research/LP-STORY-001-landing-story-insights.md`](../../../product/research/LP-STORY-001-landing-story-insights.md) | E-PROD | Working counsel |
+| RP-001 Science of Human Connection | [`../../../product/research/connection-science/01-program.md`](../../../product/research/connection-science/01-program.md) | E-LEARN | Working — volume ch.1 |
+| RP-001-P2 Evidence ledger | [`../../../product/research/connection-science/02-evidence-ledger.md`](../../../product/research/connection-science/02-evidence-ledger.md) | E-LEARN | Working — volume ch.2 |
+| HEF-001 Foundational questions | [`../../../product/research/connection-science/03-foundational-questions.md`](../../../product/research/connection-science/03-foundational-questions.md) | E-LEARN | Working — volume ch.3 |
+| LP-STORY-001 | [`../../../product/research/connection-science/05-landing-counsel.md`](../../../product/research/connection-science/05-landing-counsel.md) | E-PROD | Working counsel |
