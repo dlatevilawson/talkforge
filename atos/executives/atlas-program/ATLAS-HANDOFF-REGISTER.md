@@ -35,7 +35,8 @@
 | **Knowledge Architecture** | [KA-001](../../product/KA-001-unified-knowledge-architecture.md) — **Accepted (RES-020)**; [KA-REORG-001](../../product/KA-REORG-001-knowledge-reorganization.md) **Complete** |
 | **Enterprise Architecture** | [TEA-001](../../product/TEA-001-enterprise-architecture.md) — **Accepted (RES-021)**; [TEA-MAP-001](../../product/TEA-MAP-001-enterprise-domain-map.md) |
 | **Human Behavior** | [HBF-000](../../product/HBF-000-human-behavior-framework.md) — **Working Phase I (RES-022)**; models HBF-001…006; **not Product Canonical**; [KA-PAUSE-001](../../product/KA-PAUSE-001-framework-pause.md) |
-| **Connection research** | [RP-001](../../product/research/RP-001-science-of-human-connection.md); [RP-001-P2](../../product/research/RP-001-P2-evidence-ledger.md); [HEF-001](../../product/research/HEF-001-foundational-questions.md) **Phase III**; [RP-001-T](../../product/research/RP-001-T-research-template.md); [LP-STORY-001](../../product/research/LP-STORY-001-landing-story-insights.md) |
+| **Connection research** | [RP-001](../../product/research/RP-001-science-of-human-connection.md); [RP-001-P2](../../product/research/RP-001-P2-evidence-ledger.md); [HEF-001](../../product/research/HEF-001-foundational-questions.md); [BP-001](../../product/research/BP-001-best-practices-research.md) |
+| **Knowledge Stewardship** | [AIF-KNOW](AIF-KNOW-STEWARDSHIP.md) · [DOC-OPT-001](../../product/DOC-OPT-001-documentation-optimization.md) · [VOCAB-001](../../knowledge/VOCAB-001-canonical-vocabulary.md) · [PASS-001](../../product/DOC-OPT-PASS-001-research-stack.md) · RES-023 |
 
 **Company posture (RES-013…022):** **Structure precedes scale.** KA homes + TEA communication **Accepted**. HBF Phase I **Working** under E-KNOW (extends D-EXP/D-GROWTH/D-LEARN) — evidence-classified, dignity-bound, not Canonical. Stewardship of truth binding. CE substrate. PPS gated. Atlas org frozen. Reviews: ELM + Dignity + Craft when shipping product counsel.
 

@@ -39,8 +39,11 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [HBF-000](HBF-000-human-behavior-framework.md) | Human Behavior Framework (Phase I) | **Working (RES-022)** — not Product Canonical |
 | — | [HBF models](hbf/) | HBF-001…006 Needs → Outcomes | Working |
 | — | [RP-001](research/RP-001-science-of-human-connection.md) | Science of Human Connection | Working research program |
-| — | [RP-001-P2](research/RP-001-P2-evidence-ledger.md) | Phase II evidence ledger | Working — fact-checked |
+| — | [DOC-OPT-001](DOC-OPT-001-documentation-optimization.md) | Documentation Optimization Initiative | **Accepted (RES-023)** |
+| — | [DOC-OPT-PASS-001](DOC-OPT-PASS-001-research-stack.md) | Optimization pass — research stack | Complete |
+| — | [BP-001](research/BP-001-best-practices-research.md) | Best Practices Research Program | **Accepted method** |
 | — | [HEF-001](research/HEF-001-foundational-questions.md) | Phase III foundational questions | Working brief |
+| — | [RP-001-P2](research/RP-001-P2-evidence-ledger.md) | Phase II evidence ledger | Working — fact-checked |
 | — | [RP-001-T](research/RP-001-T-research-template.md) | Story stream case template (Stream A) | Authoritative method |
 | — | [RP cases](research/cases/) | CASE analyses (template-filled) | Working |
 | — | [LP-STORY-001](research/LP-STORY-001-landing-story-insights.md) | Landing insights from connection research (story stream) | Working counsel |

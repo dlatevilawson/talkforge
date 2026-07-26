@@ -430,29 +430,23 @@ Need-supportive vs controlling prompts; specific vs generic feedback; model-then
 
 ---
 
-## Cross-cutting synthesis (what should influence TalkForge now)
+## Cross-cutting synthesis
 
-### High-confidence influences (safe to steer strategy)
+**Do not maintain a second ranked-principles list here.**  
+Authoritative ledger + top-20: [RP-001-P2](RP-001-P2-evidence-ledger.md).
 
-1. Practice + feedback > tips alone (training contexts).  
-2. Transfer is hard — measure it; similarity and plans help.  
-3. Autonomy / competence / relatedness support motivation quality.  
-4. Mastery builds durable self-efficacy; praise alone does not.  
-5. Shame and controlling pressure undermine learning/engagement.  
-6. Spacing and retrieval strengthen memory.  
-7. Habits need context-stable repetition; ignore “21 days.”  
-8. Trust requires perceived ability, benevolence, integrity.  
-9. Psychological safety enables learning risk-taking (teams; AI TBD).  
-10. Do not claim AI→relationship causation yet.
+### Safe to steer strategy now (summary pointer)
+
+Need-supportive practice + feedback · transfer is hard/measurable · mastery-based self-efficacy · shame/fear-appeal caution · spacing/retrieval · trustworthiness (ability/benevolence/integrity) · no AI→relationship causation claim yet.
 
 ### Explicit challenges to prior assumptions
 
-| Assumption | HEF-001 stance |
+| Assumption | Stance |
 |---|---|
 | Gym practice will transfer | Plausible; **unproven** for TalkForge |
-| Confidence is the product | **Self-efficacy via mastery** is the durable target; temporary confidence is not success |
-| More emotional storytelling = better learning | Memory ≠ skill; persuasion risks (Phase II) |
-| Streaks = habits | Streaks can be controlling; habits need cues + automaticity |
+| Confidence is the product | Target **self-efficacy via mastery** |
+| More emotional storytelling = better learning | Memory ≠ skill; see Phase II |
+| Streaks = habits | Habits need cues + automaticity; streaks can control |
 
 ---
 
@@ -460,10 +454,10 @@ Need-supportive vs controlling prompts; specific vs generic feedback; model-then
 
 | Lens | Content |
 |---|---|
-| **Know** | Learning science + SDT + transfer difficulty + trustworthiness dimensions are the strongest external anchors |
-| **Believe** | TalkForge’s dignity-preserving practice direction is ethically right |
-| **Uncertain** | Company-defining causal efficacy of AI communication practice |
-| **Would change us** | Credible evidence of non-transfer, shame induction, or trust erosion |
+| **Know** | Learning science + SDT + transfer difficulty + trustworthiness are strongest external anchors |
+| **Believe** | Dignity-preserving practice direction is ethically right |
+| **Uncertain** | Causal efficacy of AI communication practice |
+| **Would change us** | Credible non-transfer, shame induction, or trust erosion |
 
 | Field | Value |
 |---|---|

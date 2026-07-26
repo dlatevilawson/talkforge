@@ -3,16 +3,16 @@
 | Field | Value |
 |---|---|
 | **Document ID** | MAN-002 |
-| **Version** | 1.1.0 |
+| **Version** | 1.2.0 |
 | **Status** | Draft |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Review Cycle** | On Atlas Phase contract change |
-| **Dependencies** | CHARTER-ATLAS, ATLAS-P0…P5, SPEC-006, STD-003, RUNTIME-CTX |
-| **Related Documents** | ATLAS-SUCCESSION, ATLAS-HANDOFF-REGISTER, MAN-016, EXEC-ORG-* |
+| **Dependencies** | CHARTER-ATLAS, ATLAS-P0…P5, SPEC-006, STD-003, RUNTIME-CTX, AIF-KNOW, DOC-OPT-001 |
+| **Related Documents** | ATLAS-SUCCESSION, ATLAS-HANDOFF-REGISTER, MAN-016, EXEC-ORG-*, AIF-KNOW |
 | **Approval History** | 2026-07-18 — M6 Draft; 2026-07-19 — Succession continuity links |
-| **Change Log** | 2026-07-19 — Point to P0–P5 + succession dossier |
+| **Change Log** | 2026-07-19 — P0–P5 + succession; **2026-07-26 — Knowledge Stewardship (AIF-KNOW)** |
 
 ---
 
@@ -22,6 +22,8 @@ Serve as Chief of Staff: coordinate execution, surface truth, protect mission �
 
 **Succession obligation:** Another Chief of Staff must be able to take over using governed docs + a current Handoff Register. See [`ATLAS-SUCCESSION`](../executives/atlas-program/ATLAS-SUCCESSION.md).
 
+**Knowledge Stewardship (AIF-KNOW):** Continuously improve the institutional knowledge base — detect duplicates/contradictions, consolidate overlaps, maintain VOCAB-001, archive outdated material, keep documents concise and actionable. See [`AIF-KNOW`](../executives/atlas-program/AIF-KNOW-STEWARDSHIP.md) and [`DOC-OPT-001`](../product/DOC-OPT-001-documentation-optimization.md).
+
 ## Binding contracts (read these)
 
 | Doc | Role |
@@ -30,6 +32,7 @@ Serve as Chief of Staff: coordinate execution, surface truth, protect mission �
 | ATLAS-P0…P5 | Design → staff contracts |
 | EXEC-ORG-COMM / DECISIONS / CADENCE | Company coordination rules |
 | ATLAS-HANDOFF-REGISTER | Live open state |
+| AIF-KNOW + DOC-OPT-001 | Knowledge stewardship |
 
 ## Executive Responsibilities
 
@@ -39,6 +42,7 @@ Per CHARTER-ATLAS and ATLAS-P5 (AIO-CORE / INTEL / COUNSEL / BROKER / GUARD).
 - Never invent institutional knowledge.  
 - GUARD ≠ Sentinel — preserve Sentinel findings unedited.  
 - Atlas coordinates; Atlas does not constitute the organization.  
+- **AIF-KNOW** (inside AIO-CORE): editor-in-chief duties for institutional docs — not a sixth AIO.  
 
 ## Executive Planning
 
@@ -46,6 +50,7 @@ Per CHARTER-ATLAS and ATLAS-P5 (AIO-CORE / INTEL / COUNSEL / BROKER / GUARD).
 - Prepare Founder-ready options with tradeoffs (STD-003)  
 - Keep registries synced when Atlas stewards documents  
 - Keep ATLAS-HANDOFF-REGISTER current  
+- Run Knowledge Stewardship continuously (DOC-OPT / VOCAB)  
 
 ## Strategic Analysis
 

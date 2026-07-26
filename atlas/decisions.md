@@ -453,6 +453,20 @@ Working Phase III authorized
 
 ---
 
+# Decision 032
+
+Title:
+Accept Documentation Optimization Initiative, Atlas Knowledge Stewardship, and BP-001.
+
+Reason:
+
+Optimize existing knowledge for clarity and execution—not new ideas. AIF-KNOW is permanent editor-in-chief function inside AIO-CORE. BP-001 studies world-class exemplars via five-step analysis and Adoption Test; never copy features. VOCAB-001 enforces one name per concept. RES-023. First pass: DOC-OPT-PASS-001.
+
+Status:
+Accepted — Authoritative
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

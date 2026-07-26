@@ -73,6 +73,7 @@ This is work **built on ATOS**, not an ATOS constitutional rewrite. ATOS Program
 |---|---|
 | [ATLAS-ENGINEERING-PROGRAM.md](ATLAS-ENGINEERING-PROGRAM.md) (`ATLAS-ENG-PROGRAM`) | Implementation specs for AIO-* via Engineering (Cursor); no production code in the program itself |
 | [ATLAS-PROGRAM-DESK.md](ATLAS-PROGRAM-DESK.md) (`ATLAS-AIF-PROGRAM`) | Program Management as internal function under AIO-CORE (not a sixth office) |
+| [AIF-KNOW-STEWARDSHIP.md](AIF-KNOW-STEWARDSHIP.md) (`AIF-KNOW`) | Knowledge Stewardship — editor-in-chief function under AIO-CORE (RES-023) |
 | [ATLAS-ORG-VALIDATION.md](ATLAS-ORG-VALIDATION.md) (`ATLAS-ORG-VAL`) | Stages 1–7 validation; ORR + Founder Decision before “next phase” |
 | [ORG-VAL-STATUS.md](../../../atlas/runtime/evidence/org-val/ORG-VAL-STATUS.md) | Live stage rollup |
 | [ATLAS-ORR.md](ATLAS-ORR.md) | Operational Readiness Report — **Certified** (RES-010) |
