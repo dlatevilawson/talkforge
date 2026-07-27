@@ -29,7 +29,7 @@
 | **Beta readiness** | [BR-001](../../product/BR-001-beta-readiness-assessment.md) — **Accepted (RES-015)**; **NOT READY**; deploy mitigated |
 | **Production URL** | **https://talkforge-virid.vercel.app** ([DEPLOY-001](../../product/DEPLOY-001-founder-vercel.md)) |
 | **Beta UX** | [BETA-REC-002](../../product/BETA-REC-002-welcoming-first-experience.md) — Accepted; deepened by PCI-001 |
-| **Landing** | [LP-001 v3.1](../../product/LP-001-production-landing.md) · [BRAND-001 v2.1](../../product/BRAND-001-talkforge-brand-directive.md) — Design Review revisions (wonder/stories/monoliths); **deploy gated** |
+| **Landing** | [LP-001 v4](../../product/LP-001-production-landing.md) · [BRAND-001 v3](../../product/BRAND-001-talkforge-brand-directive.md) — Creative Direction V3 (moments + light motif); **deploy gated** |
 | **Human Dignity** | [AMD-001](../../product/AMD-001-human-dignity-standard.md) — **Accepted (RES-017)**; Dignity Test mandatory; Forge Law #011 |
 | **Experience Layers** | [ELM-001](../../product/ELM-001-experience-layer-model.md) — **Accepted (RES-018)**; Human·Moment·Emotion·Decision·Transformation foundation for every department |
 | **Enterprise Architecture** | [TEA-001](../../product/TEA-001-enterprise-architecture.md) — **Accepted (RES-021)**; [TEA-MAP-001](../../product/TEA-MAP-001-enterprise-domain-map.md) |

@@ -3,59 +3,44 @@
 | Field | Value |
 |---|---|
 | **Document ID** | LP-001 |
-| **Version** | **3.1.0** |
+| **Version** | **4.0.0** |
 | **Status** | Built — **awaiting Founder deploy approval** |
-| **Authority** | [BRAND-001 v2.1](BRAND-001-talkforge-brand-directive.md) — Design Review Approved with Revisions |
+| **Authority** | [BRAND-001 v3](BRAND-001-talkforge-brand-directive.md) — Creative Direction V3 |
 | **Domain** | https://talkforge.io (gated) |
 | **Date** | 2026-07-27 |
-| **Change Log** | v3 Forge chapters; **v3.1 wonder · sacred mark · stories · monoliths · constellation · product-after-story** |
+| **Change Log** | v3.1 Design Review; **v4.0 From Communication to Life — moments, light motif, memories** |
 
 ---
 
-## Executive Summary
+## Philosophical change
 
-**Founder Design Review:** Approved with revisions. Storytelling works; craft is strong; next iteration = emotion, memory, symbolism — a lifelong journey, not a beautiful website.
+Stop selling communication.  
+Start selling **the moments communication changes**.
 
-**v3.1 ships:**
-1. Cinematic hero (silence → mark from darkness → headline)  
-2. Sacred mark treatment + clearer silhouette  
-3. Transformation stories (not UI screens)  
-4. Lower density / more breath  
-5. Forge as illuminated monoliths  
-6. Constellation belonging (“You are not practicing alone”)  
-7. Product reveal sequence before device  
-8. Earn-the-scroll pacing  
-
-**Deploy:** Still Founder-gated. Do not deploy without approval.
+Every section answers: *What important moment is this preparing someone for?*
 
 ---
 
-## Emotional flow
+## Journey (memories)
 
-| Beat | Section |
+| Memory | Beat |
 |---|---|
-| Curiosity | Cinematic hero |
-| Recognition | Transformation stories |
-| Hope | Forge monoliths + “Advice is common…” |
-| Confidence | Product sequence → device |
-| Belonging | Constellation |
-| Commitment | Mission + quiet access |
-| Action | Black finale · Begin the Forge |
+| Dark spark + sacred mark | Curiosity |
+| Father / graduate / manager / teen | Recognition (never says “communication”) |
+| Carved monoliths | Hope / The Forge |
+| Conversation sequence → device | Confidence |
+| Living constellation | Belonging |
+| Mission monument | Reverence |
+| “Deserve more than hope” → Begin | Identity → Action |
 
----
+## Light motif
 
-## Creative test (Atlas self)
+Spark (hero ember) → Flame (forge / chapters) → Illumination (constellation + finale)
 
-| Question | Counsel |
-|---|---|
-| Apple stage? | Dark opening + sacred mark — closer |
-| Nike story? | Human stories + refrain |
-| Patagonia mission? | Mission peak preserved |
-| Ten years? | Subtracted chrome; abstract mark |
-| One memory? | Aimed at “become a better communicator” |
+## Deploy
 
----
+Still **Founder-gated**. Do not deploy without approval.
 
 | Field | Value |
 |---|---|
-| **Status Upon Signature** | v3.1 built — waiting Founder deploy approval |
+| **Status Upon Signature** | v4 built — waiting Founder deploy approval |

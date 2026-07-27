@@ -537,6 +537,20 @@ Accepted — Built; deploy gated
 
 ---
 
+# Decision 038
+
+Title:
+Ship LP-001 v4 / BRAND-001 v3 — From Communication to Life.
+
+Reason:
+
+Creative Direction V3: sell moments, not communication; cinematic recognition sequence; personality monoliths; conversation-first product reveal; living constellation; mission as monument; identity-first finale; light motif (spark→flame→illumination) as recurring brand thread. Design memories. Deploy still gated.
+
+Status:
+Accepted — Built; deploy gated
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

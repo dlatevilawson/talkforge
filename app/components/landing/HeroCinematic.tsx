@@ -41,6 +41,7 @@ export default function HeroCinematic() {
         aria-hidden
       />
       <div className="lp-hero-ambient pointer-events-none absolute inset-0" aria-hidden />
+      <div className="lp-ember pointer-events-none absolute bottom-[28%] left-1/2 h-32 w-32 -translate-x-1/2" aria-hidden />
 
       <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center">
         <div
