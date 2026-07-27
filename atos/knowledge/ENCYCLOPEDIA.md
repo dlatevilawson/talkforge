@@ -69,6 +69,7 @@ Research may **inform** Product Canonical; it does **not** become Canonical with
 | HBF-000…006 | Behavior models (Working) |
 | AMD-001 / ELM-001 / PCI-001 | Dignity · Experience language · Craft |
 | CE-001 / DIR-CE-001 | Communication Engine (execution) |
+| BRAND-001 / LP-001 | Brand experience + production homepage |
 | Gates (MR, BR, PPS, RES) | What may run now |
 
 Domain indexes: [canonical/](canonical/README.md)

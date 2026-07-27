@@ -3,244 +3,85 @@
 | Field | Value |
 |---|---|
 | **Document ID** | LP-001 |
-| **Version** | **2.0.0** |
-| **Status** | Built in code — **awaiting Founder deploy approval** (do not deploy) |
-| **Authority** | Executive Directive — Atlas Assignment 001 |
+| **Version** | **3.0.0** |
+| **Status** | Built — **awaiting Founder deploy approval** |
+| **Authority** | [BRAND-001 v2](BRAND-001-talkforge-brand-directive.md) · Atlas Assignment 001 |
 | **Domain (target)** | https://talkforge.io |
-| **Preview (current prod alias)** | https://talkforge-virid.vercel.app — do **not** auto-promote |
-| **Dependencies** | PCI-001, AMD-001, BETA-REC-002, LP-STORY-001, BP-001, KA-001 v2 |
-| **Date** | 2026-07-26 |
-| **Change Log** | v1.0 built; **v2.0 clarity-first leadership rewrite** (Assignment 001) |
-
-> **Leadership rule:** Reduce Founder decisions; raise quality of the ones that remain.  
-> **Deploy rule:** Prepare for talkforge.io — **never deploy without Founder approval.**
+| **Preview** | https://talkforge-virid.vercel.app — do **not** auto-promote |
+| **Date** | 2026-07-27 |
+| **Change Log** | v1 brochure; v2 clarity SaaS; **v3 Brand Directive — Forge experience redesign** |
 
 ---
 
 ## Executive Summary
 
-**Problem diagnosed:** v1 looked premium but led with aspiration (“Master the Art of Communication”). Visitors could not quickly explain *what TalkForge is*. The mechanism (“AI Communication Gym”) sat too far below the fold.
+**Founder feedback on v2:** Excellent craft (type, space, minimalism) — but it *explained* TalkForge instead of making people *feel* TalkForge. Beautiful brochure ≠ unforgettable identity experience.
 
-**Decision taken (Atlas):** Clarity before poetry in the first five seconds. Brand (official logo) remains the hero-level signal. The headline states the action; the supporting line names the product category. Redemption lines are protected — moved to Belief so they do not compete with product understanding.
+**v3 response:** Complete redesign per Brand Directive v2. Emotion → Belief → Identity → Product. The homepage is the front door of a premier communication company — chapters into The Forge — not a feature-first SaaS template.
 
-**What ships in v2:** Rewritten `/` landing — minimal, elegant, fast — with official logo as brand centerpiece, product-clear hero, practice-floor visual plane, simplified IA, waitlist intact, talkforge.io metadata ready.
+**Kept from v2:** Typography system (Fraunces/Manrope), aggressive whitespace, calm premium restraint, line *Advice is common. Practice is rare.* spirit (now embodied in Forge chapter), no visual clutter.
 
-**Founder decisions remaining (only these):**
-
-1. Approve copy tone (clarity-first hero) — or request one alternate headline.  
-2. Approve deploy to talkforge.io when ready (after waitlist SQL + smoke).  
-3. Optional later: share-test on a personal device before public push.
+**Deploy:** Prepared for talkforge.io — **never deploy without Founder approval.**
 
 ---
 
-## Phase 1 — Understand
+## Experience architecture (chapters)
 
-| Question | Answer (binding for v2) |
-|---|---|
-| **Who is the visitor?** | A capable adult with a conversation that matters coming up (interview, hard talk, leadership moment, negotiation) — or someone who has felt unprepared before. Not a “broken” person. |
-| **What problem brought them?** | Advice is everywhere; **practice** is rare. They fear underperforming when it counts. |
-| **Understand in five seconds?** | TalkForge is an **AI Communication Gym** — you **practice** real conversations with Forge before the moment arrives. |
-| **What action?** | Primary: join the **Founding Members waitlist**. Secondary: **See TalkForge in Action** (`/welcome`). |
-
-### Dignity constraints (AMD-001 / LP-STORY)
-
-- Recognition → Relief → Possibility → Practice  
-- No shame, diagnosis labels, fake scarcity, or savior product  
-- Protect: *You weren’t born a poor communicator…* · *Nobody should ever feel voiceless…* · *AI Communication Gym*
-
----
-
-## Phase 2 — Benchmark Report (principles only)
-
-Studied patterns from high-clarity SaaS / product landing practice (industry literature + field norms). **Do not copy layouts or wording.**
-
-| Principle | Evidence / rationale | TalkForge application |
+| Ch | Section | Job |
 |---|---|---|
-| **P1 — Answer “What is this?” in ≤5s** | Above-the-fold research consistently ranks clarity over cleverness | Hero names **AI Communication Gym** + practice action |
-| **P2 — Outcome headline, concrete subhead** | Outcome-led headlines outperform vague brand poetry | H1 = practice the conversations that matter; sub = product + Forge |
-| **P3 — One primary CTA** | Multiple equal CTAs dilute action | Primary waitlist; secondary demo is quieter |
-| **P4 — Show the product** | SaaS is invisible without a visual of use | Full-bleed practice-floor visual plane (not tip collage) |
-| **P5 — Trust without fiction** | Fake logos/testimonials destroy trust when early-stage | Honest founding cohort + belief; no invented social proof |
-| **P6 — One job per section** | Cognitive load kills retention | Belief / How / Founding / Waitlist / FAQ each single-purpose |
-| **P7 — Performance & a11y** | Slow/inaccessible pages fail before copy is read | System fonts via `next/font`, reduced-motion, focus states, semantic FAQ |
-| **P8 — Autonomy (SDT)** | Controlling CTAs harm motivation quality (Connection Science / SDT) | Dual path; no countdown scarcity |
-
-**Benchmarks studied as exemplars of principles (not to imitate):** clarity-first SaaS heroes that name category + outcome; calm editorial brands that lead with identity then mechanism; practice/education products that show the “floor,” not feature grids.
-
-**Adoption Test (BP-001):** Evidence of clarity principles = Industry Practice / Strong; mission align = Yes; measurable value (comprehension + waitlist) = Yes → **Adapt**.
+| 0 | Hero | Breathing mark · *Communication changes lives. Master yours.* · Forge Your Voice |
+| 1 | Problem | Full-bleed cinematic photo · silence of the untaught |
+| 2 | The Forge | Practice · Reflection · Growth · Confidence (motion, not cards) |
+| 3 | Transformation | Product reveals as proof · conversation → confidence → opportunity → life |
+| 4 | Community | Humanity photo + lights of practicers (no fake live counts) |
+| 5 | Mission | Peak — voiceless belief · silence · whitespace |
+| 6 | Access | Quiet founding invitation (pricing stays soft until identity lands) |
+| 7 | Begin | Black finale · conversations trilogy · Begin the Forge |
 
 ---
 
-## Phase 3 — Design Strategy
+## Key decisions (Atlas)
 
-### Messaging hierarchy
-
-1. **Brand** — TalkForge logo (official SVG)  
-2. **Category** — AI Communication Gym  
-3. **Action / outcome** — Practice the conversations that matter  
-4. **Mechanism** — Rehearse with Forge before the real moment  
-5. **Belief / redemption** — Protected lines (Belief section)  
-6. **Invitation** — Founding Members waitlist  
-
-### Visual hierarchy
-
-| Layer | Choice | Why |
-|---|---|---|
-| Atmosphere | Cool mist + steel ink (not purple, not cream/terracotta) | Calm competence; distinct from AI cliché |
-| Brand | Oversized official logo centerpiece in hero | Brand test: page still TalkForge without nav |
-| Type | Fraunces (display) + Manrope (UI) | Expressive, not default Inter/system |
-| Hero media | Full-bleed practice-floor plane | Real visual anchor = practice, not abstract cards |
-| Motion | Reveal + gentle atmosphere drift (2–3) | Presence, not noise; `prefers-reduced-motion` |
-
-### Information architecture
-
-```
-Nav
-Hero (what + CTA + visual)
-How it works (3 steps)
-Belief (redemption + mission line)
-Founding Members (why join now — honest)
-Waitlist (conversion)
-FAQ (objections)
-Footer
-```
-
-### CTA strategy
-
-| CTA | Role |
+| Decision | Why |
 |---|---|
-| Join the Founding Waitlist | Primary — email capture |
-| See TalkForge in Action | Secondary — comprehension via `/welcome` |
+| Emotion-first order | Founder directive; identity before features |
+| No fabricated “4,281 practicing” | Honesty / AMD — lights + belonging copy until Internal Evidence |
+| Quiet Access chapter, not hard prices | Users must want identity first; $ TBD by Founder |
+| New mark (upward cutout silhouette) | Logo directive — timeless, favicon-safe, no AI clichés |
+| Cinematic chapter photography | Storytelling; no smiling stock |
+| Secondary CTA → `/welcome` | “Watch Someone Transform” until film exists |
 
-### Trust & social proof
+---
 
-| Signal | v2 approach |
+## Design tests (self)
+
+| Test | Counsel |
 |---|---|
-| Early-stage honesty | “Founding Members help shape the floor” — no fake customer logos |
-| Mission trust | Belief quote |
-| Product trust | Clear mechanism + demo path |
-| v2+ | Real member quotes only when earned (Internal Evidence) |
-
-### Accessibility & performance
-
-- Semantic headings, FAQ buttons with `aria-expanded`  
-- 44px+ tap targets; visible focus  
-- `next/font` display=swap; no heavy hero video  
-- Respect `prefers-reduced-motion`  
+| Would Apple publish this? | Restraint + typography — directionally yes; refine forever |
+| Would Nike tell this story? | Identity arc present; transformation chapter carries emotion |
+| Would Patagonia believe this? | Mission peak protected |
+| Premium in ten years? | Avoided trendy AI chrome; abstract mark |
 
 ---
 
-## Phase 4 — Landing Page Architecture (implementation map)
+## Risks & v2 improvements
 
-| Route / file | Role |
+| Risk | Mitigation |
 |---|---|
-| `app/page.tsx` | Metadata + fonts + `<LandingPage />` |
-| `app/components/landing/LandingPage.tsx` | Page composition |
-| `LandingNav.tsx` | Fixed nav |
-| `TalkForgeLogo.tsx` | Official mark + wordmark |
-| `public/brand/talkforge-logo.svg` | Official full logo asset |
-| `public/brand/talkforge-mark.svg` | Mark asset |
-| `WaitlistForm.tsx` + `api/waitlist` | Conversion |
-| `FaqAccordion.tsx` | Objections |
-| `Reveal.tsx` | Motion |
-| `app/opengraph-image.tsx` | Share card (clarity-aligned) |
+| Long scroll | Chapters earn their length; Founder share-test |
+| Product late | Intentional — do not reverse hierarchy |
+| No real live stats yet | Belonging visual without lying |
+| Pricing undefined | Soft founding access until Founder sets numbers |
 
 ---
 
-## Content Draft (v2 — shipped)
+## Deploy (Founder only)
 
-### Hero
-- **Logo:** Official TalkForge logo  
-- **H1:** Practice the conversations that matter.  
-- **Sub:** TalkForge is an AI Communication Gym. Rehearse with Forge — then walk into the real moment ready.  
-- **Primary CTA:** Join the Founding Waitlist  
-- **Secondary CTA:** See TalkForge in Action  
-
-### How it works
-1. **Practice** — Rehearse the talk that matters with Forge.  
-2. **Improve** — Get coaching grounded in what you actually said.  
-3. **Transfer** — Take the reps into real conversations and relationships.  
-
-### Belief
-- Lead: *You weren’t born a poor communicator. Nobody ever taught you how to practice.*  
-- Peak: *Nobody should ever feel voiceless because they don’t know how to express themselves.*  
-
-### Founding / Waitlist
-- Help build the world’s communication gym.  
-- Reserve your place on the floor.  
-- Microcopy: No spam. No fake scarcity. Founding updates when the floor opens.
-
-### Metadata
-- Title: TalkForge — AI Communication Gym  
-- Description: names gym + practice + founding waitlist  
-
----
-
-## Implementation Plan
-
-| Step | Owner | Status |
-|---|---|---|
-| 1. Diagnose v1 clarity failure | Atlas | Done |
-| 2. Benchmark principles | Atlas | Done |
-| 3. Lock strategy (this doc) | Atlas | Done |
-| 4. Implement `/` v2 in code | Atlas | Done (this sprint) |
-| 5. Typecheck + production build | Atlas | Required before PR complete |
-| 6. Founder mobile share-test | Founder | Pending |
-| 7. Run `supabase/waitlist.sql` if not applied | Founder | Pre-deploy |
-| 8. Deploy + attach talkforge.io | Founder only | **Gated** |
-
-### Deployment instructions (Founder-approved only)
-
-Do **not** run until the Founder explicitly approves.
-
-1. Supabase → run `supabase/waitlist.sql`  
-2. `npx vercel deploy --prod --yes` (project `dlatevilawson-7440s-projects/talkforge`)  
-3. Attach `talkforge.io` + `www` in Vercel Domains; configure DNS; wait for SSL  
-4. Smoke: landing, `/welcome`, waitlist insert, Privacy/Terms, OG share  
-
----
-
-## Phase 5 — Self-Assessment
-
-| Lens | Assessment |
-|---|---|
-| **Strengths** | Product explainable in one breath; logo-led brand; dignity preserved; Founder decisions reduced to approve/deploy |
-| **Weaknesses** | No live user testimonials yet; practice-floor visual is designed atmosphere, not a production screenshot; IE on conversion unknown |
-| **Risks** | Clarity-first headline may feel less “premium poetic” to some; `/welcome` demo quality still bounds secondary CTA; waitlist inactive until SQL/deploy |
-| **Alternatives considered** | (A) Keep “Master the Art…” as H1 — **rejected** (failed 5s product test). (B) Feature grid hero — **rejected** (hero budget / clutter). (C) Fake logo bar — **rejected** (honesty). |
-| **v2 improvements** | Real session screenshot when CE UI is share-ready; 1–2 founding quotes; A/B hero sub length; optional curiosity-gap line (EXP-LP-01) after IE |
-
-### Founder yes/no checklist
-
-| Question | Atlas counsel |
-|---|---|
-| Understand what TalkForge is in 5 seconds? | **Designed so yes** — gym + practice named in hero |
-| Create trust? | Honest founding + belief; no fake proof |
-| Align with mission? | Yes — practice → readiness → voice |
-| Confidently share with someone you care about? | Share-test on Founder device recommended |
-| Clear reason to join? | Founding access + shape the product |
-
----
-
-## Assumptions & open questions
-
-| ID | Item | Type |
-|---|---|---|
-| A-01 | Visitors arrive cold (no brand memory) | Assumption |
-| A-02 | Waitlist is correct primary conversion pre-CE MVP | Assumption |
-| Q-01 | Does “Communication Gym” read clearly to non-athletes? | Open — watch qualitative share-test |
-| Q-02 | Primary CTA wording: “Founding Waitlist” vs “Join Waitlist” | Open — either acceptable; shipped Founding for belonging |
-| Q-03 | When to promote demo CTA above waitlist | Open — after `/welcome` craft passes share-test |
-
----
-
-## Local verification
-
-```bash
-npm run typecheck
-npm run build
-```
+1. `supabase/waitlist.sql` if needed  
+2. Explicit Founder approval  
+3. `npx vercel deploy --prod --yes`  
+4. Attach talkforge.io  
 
 | Field | Value |
 |---|---|
-| **Status Upon Signature** | v2 built — waiting Founder deploy approval |
+| **Status Upon Signature** | v3 built — waiting Founder deploy approval |

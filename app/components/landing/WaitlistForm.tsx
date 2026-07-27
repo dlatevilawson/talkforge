@@ -4,7 +4,15 @@ import { FormEvent, useState } from "react";
 
 type Status = "idle" | "loading" | "success" | "error";
 
-export default function WaitlistForm() {
+type WaitlistFormProps = {
+  ctaLabel?: string;
+  tone?: "light" | "dark";
+};
+
+export default function WaitlistForm({
+  ctaLabel = "Begin the Forge",
+  tone = "light",
+}: WaitlistFormProps) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
@@ -20,10 +28,10 @@ export default function WaitlistForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, source: "landing" }),
       });
-      const data = (await res.json()) as { error?: string; alreadyJoined?: boolean };
+      const data = (await res.json()) as { error?: string };
 
       if (!res.ok) {
-        throw new Error(data.error || "Could not join the waitlist.");
+        throw new Error(data.error || "Could not join.");
       }
 
       setStatus("success");
@@ -33,28 +41,31 @@ export default function WaitlistForm() {
     }
   }
 
+  const dark = tone === "dark";
+
   if (status === "success") {
     return (
       <div
-        className="rounded-3xl border border-[var(--lp-line)] bg-white px-6 py-10 text-center sm:px-10"
+        className={`px-2 py-8 text-center ${dark ? "text-white" : "text-[var(--lp-ink)]"}`}
         role="status"
         aria-live="polite"
       >
-        <p className="font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] text-[var(--lp-ink)] sm:text-4xl">
-          Welcome to TalkForge.
+        <p className="font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+          Welcome to the Forge.
         </p>
-        <p className="mx-auto mt-4 max-w-md text-base leading-7 text-[var(--lp-muted)]">
-          You’re officially one of our Founding Members.
+        <p
+          className={`mx-auto mt-4 max-w-md text-base leading-7 ${
+            dark ? "text-white/65" : "text-[var(--lp-muted)]"
+          }`}
+        >
+          You’re among the Founding Members. We’ll meet you when the floor opens.
         </p>
       </div>
     );
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="rounded-3xl border border-[var(--lp-line)] bg-white px-5 py-8 sm:px-8 sm:py-10"
-    >
+    <form onSubmit={onSubmit} className="w-full max-w-md">
       <label htmlFor="waitlist-email" className="sr-only">
         Email address
       </label>
@@ -69,23 +80,35 @@ export default function WaitlistForm() {
           onChange={(e) => setEmail(e.target.value)}
           disabled={status === "loading"}
           placeholder="you@email.com"
-          className="min-h-12 flex-1 rounded-full border border-[var(--lp-line)] bg-[var(--lp-bg)] px-5 text-base text-[var(--lp-ink)] outline-none placeholder:text-[var(--lp-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--lp-ink)] disabled:opacity-60"
+          className={`min-h-12 flex-1 rounded-full border px-5 text-base outline-none transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60 ${
+            dark
+              ? "border-white/20 bg-white/5 text-white placeholder:text-white/40 focus-visible:outline-white"
+              : "border-[var(--lp-line)] bg-white/70 text-[var(--lp-ink)] placeholder:text-[var(--lp-muted)] focus-visible:outline-[var(--lp-ink)]"
+          }`}
         />
         <button
           type="submit"
           disabled={status === "loading"}
-          className="min-h-12 rounded-full bg-[var(--lp-ink)] px-7 text-sm font-semibold text-[var(--lp-bg)] transition hover:bg-[var(--lp-ink-soft)] disabled:opacity-60"
+          className={`min-h-12 rounded-full px-7 text-sm font-semibold transition disabled:opacity-60 ${
+            dark
+              ? "bg-white text-[var(--lp-ink)] hover:bg-white/90"
+              : "bg-[var(--lp-ink)] text-[var(--lp-bg)] hover:bg-[var(--lp-ink-soft)]"
+          }`}
         >
-          {status === "loading" ? "Joining…" : "Join Waitlist"}
+          {status === "loading" ? "Entering…" : ctaLabel}
         </button>
       </div>
       {error && (
-        <p className="mt-4 text-sm text-red-700" role="alert">
+        <p className="mt-4 text-sm text-red-600" role="alert">
           {error}
         </p>
       )}
-      <p className="mt-4 text-center text-xs leading-5 text-[var(--lp-muted)] sm:text-left">
-        No spam. Just founding updates when the floor opens.
+      <p
+        className={`mt-4 text-center text-xs leading-5 sm:text-left ${
+          dark ? "text-white/45" : "text-[var(--lp-muted)]"
+        }`}
+      >
+        No spam. No pressure. Just an invitation when the Forge opens.
       </p>
     </form>
   );

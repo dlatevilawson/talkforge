@@ -505,6 +505,20 @@ Reason:
 v1 was premium but failed the five-second product test (“Master the Art…” without naming the gym). Atlas led understand → benchmark principles → strategy → build → self-review. Hero now: official logo + AI Communication Gym + practice the conversations that matter + Forge mechanism. Protect redemption/belief lines. No fake social proof. Prepared for talkforge.io — **do not deploy without Founder approval**.
 
 Status:
+Superseded by Decision 036 (craft kept; experience redesign)
+
+---
+
+# Decision 036
+
+Title:
+Ship LP-001 v3 / BRAND-001 — TalkForge homepage as Forge identity experience; hold deploy.
+
+Reason:
+
+Founder: v2 explained TalkForge but did not make people feel it — brochure, not identity. Brand Directive v2 binds Emotion→Belief→Identity→Product; chapter storytelling; cinematic photography; breathing mark; product as proof; quiet access; black finale. New timeless mark. No fabricated live user counts. Keep v2 craft (type, space, restraint). **Do not deploy without Founder approval.**
+
+Status:
 Accepted — Built; deploy gated
 
 ---
