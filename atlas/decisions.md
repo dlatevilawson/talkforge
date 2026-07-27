@@ -523,6 +523,20 @@ Accepted — Built; deploy gated
 
 ---
 
+# Decision 037
+
+Title:
+Ship LP-001 v3.1 Design Review revisions — wonder, sacred mark, stories, earn the scroll.
+
+Reason:
+
+Founder approved v2 homepage with revisions. Priorities: cinematic silence→mark→headline; sacred logo; stories over screens; density reduction; Forge monoliths; constellation belonging; product-after-story sequence; calm motion; clearer mark; every screen earns the scroll. Sound deferred. Deploy still gated.
+
+Status:
+Accepted — Built; deploy gated
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

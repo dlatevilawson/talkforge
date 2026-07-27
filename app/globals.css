@@ -8,7 +8,6 @@
   --tf-accent: #3b82f6;
   --tf-muted: #a1a1aa;
 
-  /* Brand Directive v2 — calm mist + steel; finale black */
   --lp-bg: #f4f5f7;
   --lp-ink: #121417;
   --lp-ink-soft: #2a3038;
@@ -43,13 +42,13 @@ body {
   color: var(--lp-ink);
 }
 
-/* Reveal */
+/* Reveal — slow, inevitable */
 .lp-reveal {
   opacity: 0;
-  transform: translateY(18px);
+  transform: translateY(20px);
   transition:
-    opacity 900ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 1100ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 1100ms cubic-bezier(0.22, 1, 0.36, 1);
   will-change: opacity, transform;
 }
 
@@ -58,31 +57,60 @@ body {
   transform: translateY(0);
 }
 
-/* Hero atmosphere */
-.lp-hero-atmosphere {
-  background:
-    radial-gradient(ellipse 70% 55% at 50% 35%, rgba(61, 90, 115, 0.1), transparent 60%),
-    radial-gradient(ellipse 100% 80% at 50% 100%, rgba(18, 20, 23, 0.04), transparent 50%),
-    linear-gradient(180deg, #eef1f4 0%, var(--lp-bg) 55%, var(--lp-bg) 100%);
+/* Hero cinematic — silence and darkness */
+.lp-hero-cinematic {
+  background: var(--lp-finale);
 }
 
-/* Mark — slow breathing + subtle glow */
+.lp-hero-void {
+  background: #000;
+}
+
+.lp-hero-ambient {
+  background:
+    radial-gradient(ellipse 55% 45% at 50% 42%, rgba(196, 163, 90, 0.12), transparent 70%),
+    radial-gradient(ellipse 80% 60% at 50% 50%, rgba(255, 255, 255, 0.04), transparent 65%);
+  animation: lp-ambient 12s ease-in-out infinite alternate;
+}
+
+@keyframes lp-ambient {
+  from {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+/* Sacred mark — breathing dignity */
 .lp-mark-breathe {
-  animation: lp-breathe 7s ease-in-out infinite;
+  animation: lp-breathe 8s ease-in-out infinite;
 }
 
 .lp-mark-glow {
   position: absolute;
-  inset: -35%;
+  inset: -45%;
   border-radius: 999px;
   background: radial-gradient(
     circle,
-    rgba(61, 90, 115, 0.22) 0%,
+    rgba(196, 163, 90, 0.28) 0%,
     transparent 68%
   );
-  animation: lp-glow 7s ease-in-out infinite;
+  animation: lp-glow 8s ease-in-out infinite;
   pointer-events: none;
   z-index: -1;
+}
+
+.lp-finale .lp-mark-glow,
+.lp-hero-cinematic .lp-mark-glow {
+  background: radial-gradient(
+    circle,
+    rgba(196, 163, 90, 0.22) 0%,
+    rgba(255, 255, 255, 0.08) 40%,
+    transparent 70%
+  );
 }
 
 @keyframes lp-breathe {
@@ -91,30 +119,93 @@ body {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.035);
+    transform: scale(1.03);
   }
 }
 
 @keyframes lp-glow {
   0%,
   100% {
-    opacity: 0.45;
-    transform: scale(0.96);
+    opacity: 0.4;
+    transform: scale(0.94);
   }
   50% {
-    opacity: 0.85;
-    transform: scale(1.05);
+    opacity: 0.9;
+    transform: scale(1.06);
   }
 }
 
-/* Philosophy items — inevitable fade-up when in view via Reveal parent */
-.lp-philosophy-item {
-  text-align: left;
+/* Museum monoliths */
+.lp-monolith-body {
+  background: linear-gradient(
+    180deg,
+    #2a2d33 0%,
+    #14161a 45%,
+    #0c0d10 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 30px 60px -40px rgba(0, 0, 0, 0.8);
 }
 
-/* Product phone float */
+.lp-monolith-light {
+  background: linear-gradient(
+    180deg,
+    rgba(196, 163, 90, 0.18) 0%,
+    transparent 55%
+  );
+  animation: lp-monolith-glow 9s ease-in-out infinite;
+}
+
+@keyframes lp-monolith-glow {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+/* Constellation */
+.lp-constellation {
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 50%,
+    rgba(196, 163, 90, 0.06),
+    transparent 70%
+  );
+}
+
+.lp-community-light {
+  opacity: 0.2;
+  animation: lp-light 5.5s ease-in-out infinite;
+  cursor: default;
+}
+
+.lp-community-light:hover,
+.lp-community-light:focus-visible {
+  opacity: 1;
+  transform: scale(1.8);
+  animation: none;
+  background: var(--lp-gold);
+}
+
+@keyframes lp-light {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.2);
+  }
+}
+
+/* Product sequence */
 .lp-phone {
-  animation: lp-float 8s ease-in-out infinite;
+  animation: lp-float 9s ease-in-out infinite;
 }
 
 @keyframes lp-float {
@@ -123,61 +214,35 @@ body {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-8px);
   }
 }
 
 .lp-waveform-bar {
-  height: 30%;
-  animation: lp-wave 1.4s ease-in-out infinite;
+  height: 35%;
+  animation: lp-wave 1.5s ease-in-out infinite;
 }
 
 .lp-waveform-bar:nth-child(3n) {
-  height: 70%;
+  height: 75%;
 }
 .lp-waveform-bar:nth-child(3n + 1) {
   height: 45%;
 }
 .lp-waveform-bar:nth-child(3n + 2) {
-  height: 90%;
+  height: 95%;
 }
 
 @keyframes lp-wave {
   0%,
   100% {
-    transform: scaleY(0.55);
-    opacity: 0.55;
+    transform: scaleY(0.5);
+    opacity: 0.45;
   }
   50% {
     transform: scaleY(1);
     opacity: 1;
   }
-}
-
-/* Community lights */
-.lp-community-light {
-  opacity: 0.15;
-  animation: lp-light 5s ease-in-out infinite;
-}
-
-@keyframes lp-light {
-  0%,
-  100% {
-    opacity: 0.12;
-    transform: scale(0.9);
-  }
-  50% {
-    opacity: 0.55;
-    transform: scale(1.15);
-  }
-}
-
-.lp-finale .lp-mark-glow {
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.18) 0%,
-    transparent 68%
-  );
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -191,15 +256,15 @@ body {
   .lp-mark-glow,
   .lp-phone,
   .lp-waveform-bar,
-  .lp-community-light {
+  .lp-community-light,
+  .lp-hero-ambient,
+  .lp-monolith-light {
     animation: none !important;
   }
 
-  .lp-mark-glow {
-    opacity: 0.5;
-  }
-
-  .lp-community-light {
-    opacity: 0.35;
+  .lp-mark-glow,
+  .lp-community-light,
+  .lp-monolith-light {
+    opacity: 0.55;
   }
 }

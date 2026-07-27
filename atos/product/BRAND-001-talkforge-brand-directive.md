@@ -3,25 +3,23 @@
 | Field | Value |
 |---|---|
 | **Document ID** | BRAND-001 |
-| **Version** | **2.0.0** |
-| **Status** | Authoritative for homepage experience (Founder Directive) |
+| **Version** | **2.1.0** |
+| **Status** | Authoritative — Design Review Approved with Revisions |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Consumers** | LP-001 · visual identity · motion · copy |
 | **Date** | 2026-07-27 |
-| **Change Log** | v2.0 — Complete homepage redesign directive; logo system; emotional hierarchy |
+| **Change Log** | v2.0 Forge experience; **v2.1 Design Review — wonder, sacred mark, stories, earn the scroll** |
 
 ---
 
 ## Purpose
 
-TalkForge is not selling software features.
+TalkForge sells **identity**: becoming someone who practices communication.
 
-TalkForge sells **identity**: becoming someone who practices communication — and therefore someone who can change their life through conversations.
+Homepage = digital front door of a premier communication company — the **beginning of a lifelong journey**, not a website brochure.
 
-Homepage rule: design the digital front door for the world’s premier communication company.
-
-Every design decision must answer:
+Every design decision:
 
 > Does this make someone want to become a better communicator?
 
@@ -29,67 +27,64 @@ If not — delete it.
 
 ---
 
-## Emotional hierarchy (binding)
+## Creative philosophy (binding)
 
+### Emotional hierarchy
 ```
 Emotion → Belief → Identity → Product
 ```
 
-Never reverse this order.
-
-## Experience arc (binding)
-
+### Experience arc
 ```
-Curiosity → Hope → Belonging → Motivation → Action
+Curiosity → Recognition → Hope → Confidence → Belonging → Commitment → Action
 ```
 
-The site must feel like **entering The Forge** — a place where transformation begins.
+### Earn the scroll
+Every screen must earn the next scroll. If the visitor is not emotionally compelled to continue, the section has failed. The homepage is the opening chapter of a story — not documentation.
 
-## Chapter map (homepage)
+### Luxury is subtraction
+Can one sentence, divider, visual, or button be removed? Prefer larger, quieter, fewer.
 
-| Ch | Name | Emotional job |
+---
+
+## Design Review priorities (v2.1)
+
+| # | Priority | Intent |
 |---|---|---|
-| 0 | Hero | Curiosity + identity invitation |
-| 1 | The Problem | Empathy / recognition |
-| 2 | The Forge | Belief + philosophy (practice → reflection → growth → confidence) |
-| 3 | Transformation | Product as proof |
-| 4 | Community | Belonging |
-| 5 | Mission | Peak emotion (silence + whitespace) |
-| 6 | Access | Quiet invitation (no pressure pricing) |
-| 7 | Begin | Identity seal → action |
+| 1 | Hero wonder | Silence → mark from darkness → headline; enter The Forge |
+| 2 | Sacred logo | Whitespace, dignity, no stretch/decoration; keynote gravity |
+| 3 | Stories not screens | Transformation moments; app invisible behind them |
+| 4 | Reduce density | Breathe |
+| 5 | Emotional momentum | Each chapter raises investment |
+| 6 | Forge as museum | Artifacts / monoliths — explore, don’t skim |
+| 7 | Belonging constellation | Living lights + human practice labels |
+| 8 | Product after story | Speak → waveform → listen → insight → confidence → then device |
+| 9 | Calm motion | Fade, soft scale, breath — never bounce/gimmick |
+| 10 | Sound (future) | Design assuming subtle human ambience later |
+| 11 | Logo clarity | One dominant silhouette; favicon → billboard |
 
-## Visual language
+---
 
-Calm · Confident · Timeless · Premium · Never trendy.
+## Final creative test
 
-Typography primary · Motion secondary · Color tertiary.
+1. Would Apple present this on stage?  
+2. Would Nike be proud of the storytelling?  
+3. Would Patagonia believe the mission?  
+4. Timeless in ten years?  
+5. If they remember one thing — is it *“I want to become a better communicator”*?
 
-## Motion
-
-Breathing · Growth · Calm · Confidence. Never bounce, flash, or gimmick.
-
-## Photography
-
-Cinematic storytelling. Real emotion. Golden hour / natural light. Never smiling stock.
+---
 
 ## Logo system
 
-**Canonical mark (brand sheet):** Tall peaked silhouette (growth / A) with stable anvil-like base (the Forge). Negative space forms **two human profiles facing each other** (conversation / connection). Solid, carved, favicon-safe.
+One dominant silhouette. Peak (growth) + stable base (forge) + aperture (connection / path). Hidden meaning over time. Works embossed, on stage, app, billboard, book, favicon.
 
-**Wordmark:** `TALKFORGE` — all caps geometric sans; custom **A** without crossbar (path upward); **G** with subtle bottom cut.
+Wordmark: `TALKFORGE` — custom A, notched G.  
+Tagline: Practice. Connect. Transform.  
+Palette: Black · White · Brass/Gold (`--lp-gold`).
 
-**Tagline:** Practice. Connect. Transform.
-
-**Palette:** Black · White · Brass/Gold (`--lp-gold`).
-
-**Avoid:** AI sparkles, chat bubbles, mics, waves, brains, circuit lines.
-
-## Honesty constraints (AMD + stewardship)
-
-- No fake scarcity.
-- No invented live user counts until Internal Evidence exists — belonging visuals may ship; fabricated “practicing right now” numbers may not.
-- Product appears only after emotion/belief/identity.
+---
 
 ## Implementation home
 
-[LP-001](LP-001-production-landing.md) — homepage execution of this directive.
+[LP-001](LP-001-production-landing.md)

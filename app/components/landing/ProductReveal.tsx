@@ -1,74 +1,140 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Reveal from "@/app/components/landing/Reveal";
 
-/** Product as proof of philosophy — appears only after emotion/belief/identity. */
+const STEPS = [
+  "You speak.",
+  "A waveform appears.",
+  "Forge listens.",
+  "Insight emerges.",
+  "Confidence grows.",
+] as const;
+
+/**
+ * Priority 8 — transformation first; device last.
+ * Story never exists to validate the product.
+ */
 export default function ProductReveal() {
+  const ref = useRef<HTMLElement>(null);
+  const [step, setStep] = useState(0);
+  const [showDevice, setShowDevice] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let timers: number[] = [];
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        observer.disconnect();
+        if (reduced) {
+          setStep(STEPS.length);
+          setShowDevice(true);
+          return;
+        }
+        STEPS.forEach((_, i) => {
+          timers.push(window.setTimeout(() => setStep(i + 1), 700 + i * 900));
+        });
+        timers.push(
+          window.setTimeout(() => setShowDevice(true), 700 + STEPS.length * 900 + 400)
+        );
+      },
+      { threshold: 0.35 }
+    );
+    observer.observe(node);
+    return () => {
+      observer.disconnect();
+      timers.forEach(clearTimeout);
+    };
+  }, []);
+
   return (
-    <div className="lp-product-reveal relative mx-auto mt-16 flex max-w-5xl flex-col items-center gap-12 lg:mt-20 lg:flex-row lg:items-center lg:justify-center lg:gap-20">
-      <div className="lp-phone relative w-[220px] shrink-0 sm:w-[260px]">
-        <div className="lp-phone-frame overflow-hidden rounded-[2rem] border border-[var(--lp-line)] bg-[var(--lp-ink)] shadow-[0_40px_80px_-40px_rgba(18,20,23,0.45)]">
-          <div className="relative aspect-[9/19] w-full">
-            <Image
-              src="/landing/chapter-product.jpg"
-              alt="Practicing a conversation on TalkForge"
-              fill
-              className="object-cover opacity-90"
-              sizes="260px"
-            />
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent px-5 pb-8 pt-20">
-              <p className="text-[10px] uppercase tracking-[0.22em] text-white/60">
-                Forge
-              </p>
-              <div className="lp-waveform mt-4 flex h-10 items-end gap-1" aria-hidden>
-                {Array.from({ length: 18 }).map((_, i) => (
-                  <span
-                    key={i}
-                    className="lp-waveform-bar w-1 rounded-full bg-white/80"
-                    style={{ animationDelay: `${i * 0.08}s` }}
-                  />
-                ))}
+    <section
+      ref={ref}
+      id="transformation"
+      className="scroll-mt-20 bg-[var(--lp-bg)] px-5 py-32 sm:px-8 sm:py-40"
+    >
+      <div className="mx-auto max-w-3xl text-center">
+        <Reveal>
+          <p className="text-xs font-medium uppercase tracking-[0.28em] text-[var(--lp-muted)]">
+            Confidence
+          </p>
+          <h2 className="mt-6 font-[family-name:var(--font-lp-display)] text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">
+            Practice becomes readiness.
+          </h2>
+        </Reveal>
+
+        <ol className="mx-auto mt-16 max-w-md space-y-5 text-left">
+          {STEPS.map((label, index) => {
+            const on = step > index;
+            return (
+              <li
+                key={label}
+                className={`flex items-center gap-4 transition-all duration-700 ${
+                  on ? "translate-x-0 opacity-100" : "translate-x-2 opacity-25"
+                }`}
+              >
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    on ? "bg-[var(--lp-ink)]" : "bg-[var(--lp-line)]"
+                  }`}
+                  aria-hidden
+                />
+                <span className="font-[family-name:var(--font-lp-display)] text-xl tracking-[-0.02em] text-[var(--lp-ink)] sm:text-2xl">
+                  {label}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+
+        {step >= 2 && (
+          <div
+            className="lp-waveform mx-auto mt-12 flex h-12 max-w-xs items-end justify-center gap-1"
+            aria-hidden
+          >
+            {Array.from({ length: 22 }).map((_, i) => (
+              <span
+                key={i}
+                className="lp-waveform-bar w-1 rounded-full bg-[var(--lp-ink)]"
+                style={{ animationDelay: `${i * 0.07}s` }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div
+        className={`mx-auto mt-20 flex justify-center transition-all duration-[1400ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          showDevice
+            ? "translate-y-0 opacity-100"
+            : "translate-y-8 opacity-0"
+        }`}
+      >
+        <div className="lp-phone relative w-[200px] sm:w-[230px]">
+          <div className="overflow-hidden rounded-[2rem] border border-[var(--lp-line)] bg-[var(--lp-ink)] shadow-[0_40px_80px_-48px_rgba(18,20,23,0.5)]">
+            <div className="relative aspect-[9/19] w-full">
+              <Image
+                src="/landing/chapter-product.jpg"
+                alt="TalkForge practice session"
+                fill
+                className="object-cover opacity-90"
+                sizes="230px"
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-5 pb-8 pt-16">
+                <p className="text-[10px] uppercase tracking-[0.22em] text-white/55">
+                  The tool behind the moment
+                </p>
               </div>
-              <p className="mt-4 text-sm leading-6 text-white/90">
-                Conversation becomes confidence.
-              </p>
             </div>
           </div>
         </div>
       </div>
-
-      <ol className="max-w-md space-y-8 text-left">
-        {[
-          {
-            title: "Conversation",
-            body: "Practice the words before the moment arrives.",
-          },
-          {
-            title: "Confidence",
-            body: "Capability grows through repetition — not pep talks.",
-          },
-          {
-            title: "Opportunity",
-            body: "Show up ready when the conversation counts.",
-          },
-          {
-            title: "A better life",
-            body: "Clearer words. Stronger trust. More open futures.",
-          },
-        ].map((item, index) => (
-          <li key={item.title} className="lp-transform-step">
-            <p className="text-xs font-medium uppercase tracking-[0.22em] text-[var(--lp-muted)]">
-              {String(index + 1).padStart(2, "0")}
-            </p>
-            <h3 className="mt-2 font-[family-name:var(--font-lp-display)] text-2xl font-semibold tracking-[-0.02em] text-[var(--lp-ink)]">
-              {item.title}
-            </h3>
-            <p className="mt-2 text-base leading-7 text-[var(--lp-muted)]">
-              {item.body}
-            </p>
-          </li>
-        ))}
-      </ol>
-    </div>
+    </section>
   );
 }

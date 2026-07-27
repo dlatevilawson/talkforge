@@ -1,15 +1,14 @@
 type TalkForgeLogoProps = {
   className?: string;
-  variant?: "full" | "mark" | "hero" | "finale" | "lockup";
-  showTagline?: boolean;
+  variant?: "full" | "mark" | "hero" | "finale" | "sacred";
 };
 
-/** Brand-sheet mark — peak / forge base / facing profiles in negative space. */
-function Mark({ className = "h-8 w-8" }: { className?: string }) {
+/** Sacred mark — peak, forge base, connection aperture. Never stretch. */
+function Mark({ className = "h-8 w-auto" }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 100 120"
+      viewBox="0 0 64 80"
       fill="none"
       className={className}
       aria-hidden
@@ -17,14 +16,13 @@ function Mark({ className = "h-8 w-8" }: { className?: string }) {
       <path
         fill="currentColor"
         fillRule="evenodd"
-        d="M50 0L90 92H76L70 118H30L24 92H10L50 0ZM50 26C44 30 41 35 40 42C39.2 46 37 48.5 37.5 52C38 55 40.5 55.5 41.2 58.5C41.8 61 40.5 63.5 42.5 66.5C44.5 69.5 47 70 50 74C53 70 55.5 69.5 57.5 66.5C59.5 63.5 58.2 61 58.8 58.5C59.5 55.5 62 55 62.5 52C63 48.5 60.8 46 60 42C59 35 56 30 50 26Z"
+        d="M32 2L58 58H48L44 74H20L16 58H6L32 2ZM32 22C27 26 25 31 25 37C25 40.5 23.5 43 25 46.5C26.2 49.2 28.8 49 30.2 51.5C31.2 53.2 30.5 55.5 32 58C33.5 55.5 32.8 53.2 33.8 51.5C35.2 49 37.8 49.2 39 46.5C40.5 43 39 40.5 39 37C39 31 37 26 32 22Z"
       />
     </svg>
   );
 }
 
-/** Wordmark TALKFORGE — custom A (no crossbar) + notched G */
-function Wordmark({ className = "h-4 w-auto" }: { className?: string }) {
+function Wordmark({ className = "h-3.5 w-auto" }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -51,23 +49,26 @@ function Wordmark({ className = "h-4 w-auto" }: { className?: string }) {
 export default function TalkForgeLogo({
   className = "",
   variant = "full",
-  showTagline = false,
 }: TalkForgeLogoProps) {
-  if (variant === "hero" || variant === "finale") {
+  if (variant === "hero" || variant === "sacred" || variant === "finale") {
+    const size =
+      variant === "finale"
+        ? "h-24 w-auto sm:h-28"
+        : variant === "sacred"
+          ? "h-28 w-auto sm:h-36"
+          : "h-20 w-auto sm:h-24";
     return (
       <span
-        className={`inline-flex flex-col items-center gap-5 text-current ${className}`}
+        className={`inline-flex flex-col items-center gap-6 text-current ${className}`}
         aria-label="TalkForge"
       >
         <span className="lp-mark-breathe relative inline-flex">
           <span className="lp-mark-glow" aria-hidden />
-          <Mark
-            className={
-              variant === "finale" ? "h-20 w-auto sm:h-24" : "h-16 w-auto sm:h-20"
-            }
-          />
+          <Mark className={size} />
         </span>
-        <Wordmark className="h-3.5 w-auto sm:h-4" />
+        {variant !== "sacred" && (
+          <Wordmark className="h-3 w-auto opacity-90 sm:h-3.5" />
+        )}
       </span>
     );
   }
@@ -75,24 +76,7 @@ export default function TalkForgeLogo({
   if (variant === "mark") {
     return (
       <span className={`inline-flex text-current ${className}`} aria-label="TalkForge">
-        <Mark className="h-9 w-auto" />
-      </span>
-    );
-  }
-
-  if (variant === "lockup") {
-    return (
-      <span
-        className={`inline-flex flex-col items-center gap-3 text-current ${className}`}
-        aria-label="TalkForge — Practice. Connect. Transform."
-      >
-        <Mark className="h-16 w-auto sm:h-20" />
-        <Wordmark className="h-3.5 w-auto sm:h-4" />
-        {showTagline && (
-          <span className="text-[0.65rem] font-medium uppercase tracking-[0.35em] text-current opacity-70">
-            Practice. Connect. Transform.
-          </span>
-        )}
+        <Mark className="h-8 w-auto" />
       </span>
     );
   }
@@ -102,8 +86,8 @@ export default function TalkForgeLogo({
       className={`inline-flex items-center gap-2.5 text-current ${className}`}
       aria-label="TalkForge"
     >
-      <Mark className="h-8 w-auto" />
-      <Wordmark className="h-3 w-auto translate-y-[1px]" />
+      <Mark className="h-7 w-auto" />
+      <Wordmark className="h-2.5 w-auto translate-y-px" />
     </span>
   );
 }
