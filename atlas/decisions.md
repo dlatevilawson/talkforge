@@ -411,6 +411,20 @@ Working research accepted for counsel
 
 ---
 
+# Decision 029
+
+Title:
+Brand Identity Project (BID) — Creative Director recommendation: Horizon / Orbit Spark / Weight Split; do not freeze production mark yet.
+
+Reason:
+
+Executive Brand Identity Project completed Phases 1–7: world-class benchmarks → TalkForge understanding → strategy → creative brief → 35 distinct concepts → critical review → top-three counsel. Logo is one deliverable; objective is recognizable, trusted, memorable identity aligned to “nobody voiceless…”. CD recommends Horizon (35) as lead mark direction, Orbit Spark (27) as minimal alternative, Weight Split (09) as required wordmark system. Exploration SVGs are directional, not finals. Do not replace production marks until craft refinement. No deploy without Founder approval. Volume: `atos/product/brand-identity/`.
+
+Status:
+Working counsel — awaiting Founder Decision on direction
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

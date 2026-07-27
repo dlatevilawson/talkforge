@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img">
+  <rect width="200" height="200" fill="#0a0a0a"/>
+
+  <g fill="#f5f0e8" font-family="Georgia, 'Times New Roman', serif" font-size="92" font-weight="700">
+    <text x="42" y="128">T</text>
+    <text x="95" y="128" opacity="0.92">F</text>
+  </g>
+
+</svg>
