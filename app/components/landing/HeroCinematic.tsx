@@ -31,11 +31,15 @@ export default function HeroCinematic() {
 
   return (
     <section
-      className="lp-hero-cinematic relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-5 pb-20 pt-24 sm:px-8"
+      className="lp-hero-cinematic relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-black px-5 pb-20 pt-24 sm:px-8"
       data-phase={phase}
       aria-label="Enter TalkForge"
+      style={{ backgroundColor: "#000000" }}
     >
-      <div className="lp-hero-void pointer-events-none absolute inset-0" aria-hidden />
+      <div
+        className="lp-hero-void pointer-events-none absolute inset-0 bg-black"
+        aria-hidden
+      />
       <div className="lp-hero-ambient pointer-events-none absolute inset-0" aria-hidden />
 
       <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center">

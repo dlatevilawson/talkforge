@@ -59,17 +59,18 @@ body {
 
 /* Hero cinematic — silence and darkness */
 .lp-hero-cinematic {
-  background: var(--lp-finale);
+  background-color: #000000 !important;
+  color: #ffffff;
 }
 
 .lp-hero-void {
-  background: #000;
+  background-color: #000000;
 }
 
 .lp-hero-ambient {
   background:
-    radial-gradient(ellipse 55% 45% at 50% 42%, rgba(196, 163, 90, 0.12), transparent 70%),
-    radial-gradient(ellipse 80% 60% at 50% 50%, rgba(255, 255, 255, 0.04), transparent 65%);
+    radial-gradient(ellipse 50% 40% at 50% 42%, rgba(196, 163, 90, 0.16), transparent 68%),
+    radial-gradient(ellipse 70% 50% at 50% 55%, rgba(255, 255, 255, 0.03), transparent 60%);
   animation: lp-ambient 12s ease-in-out infinite alternate;
 }
 
