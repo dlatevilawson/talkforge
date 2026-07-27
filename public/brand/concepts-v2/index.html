@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TalkForge — Concept Board V2</title>
+  <style>
+    :root { --bg:#0c0b0a; --fg:#f3eee4; --muted:#9a9080; --line:#2a2622; --accent:#a67c52; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Georgia, "Iowan Old Style", serif;
+      background: radial-gradient(ellipse at 20% 0%, #1a1612 0%, transparent 50%), var(--bg);
+      color: var(--fg);
+    }
+    header { padding: 3rem 1.5rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .brand { color: var(--accent); font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.75rem; font-family: system-ui, sans-serif; }
+    h1 { font-weight: 600; font-size: clamp(1.75rem, 4vw, 2.5rem); margin: 0 0 0.5rem; }
+    p { color: var(--muted); max-width: 42rem; line-height: 1.55; margin: 0; font-family: system-ui, sans-serif; font-size: 0.95rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; padding: 1.5rem; max-width: 1100px; margin: 0 auto 4rem; }
+    .card { margin: 0; border: 1px solid var(--line); background: #12100e; padding: 0.75rem; }
+    .card img { display: block; width: 100%; height: auto; background: #0a0a0a; }
+    figcaption { margin-top: 0.55rem; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 0.65rem; letter-spacing: 0.04em; color: var(--muted); word-break: break-all; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">TalkForge · BID-012 · V2</div>
+    <h1>Transformation territory</h1>
+    <p>Forge/flame/spark killed. 36 concepts: closed→open, connection, path, doorway, bridge, threshold, opening. Emotion: relief &amp; readiness. Top directions: Slit Threshold · Doorway/Ajar · Bridge/Span.</p>
+  </header>
+  <div class="grid" id="g"></div>
+  <script>
+    const files = [
+      "01-circle-opening","02-open-square","03-capsule-open","04-lens-relief","05-knot-release",
+      "06-arcs-meet","07-join-bars","08-vesica","09-becoming-line","10-facing-open",
+      "11-path-unfold","12-release-spiral","13-path-gate","14-soft-unfold","15-archway",
+      "16-door-ajar","17-portal","18-lintel-gate","19-arch-bridge","20-span",
+      "21-one-arc-bridge","22-threshold-gap","23-step-threshold","24-slit-threshold","25-dense-to-open",
+      "26-crescent-open","27-page-open","28-aperture-oval","29-keyhole","30-window-open",
+      "31-square-to-round","32-parens-close","33-seed-open","34-corner-open","35-open-bite","36-double-threshold"
+    ];
+    document.getElementById('g').innerHTML = files.map(f => `
+      <figure class="card">
+        <img src="${f}.svg" alt="${f}" width="200" height="200" />
+        <figcaption>${f}</figcaption>
+      </figure>`).join('');
+  </script>
+</body>
+</html>

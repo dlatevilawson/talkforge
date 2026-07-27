@@ -46,13 +46,12 @@ Identity destination: *I practice for the conversations that shape my life.*
 
 Within three seconds of seeing the brand, someone should feel:
 
-> **Seen. Capable. Invited.**  
-> Calm confidence — a serious, warm place for becoming ready for moments that matter.
+> **Relief. Quiet readiness.**  
+> “Okay… I think I can do this.”
 
-Not: “another AI startup.”  
-Not: “entertainment.”  
-Not: “therapy clinic.”  
-Not: “judged” or “sold.”
+Not: power · prestige · hustle · “another AI startup” · judgment · therapy clinic.
+
+*(Updated per Founder Pivot BID-008 / Decision 030.)*
 
 ---
 

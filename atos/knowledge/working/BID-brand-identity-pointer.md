@@ -7,4 +7,6 @@
 | **Home** | [`atos/product/brand-identity/`](../../product/brand-identity/README.md) |
 | **Decision log** | Decision 029 |
 
-Full identity process (Phases 1–7). Recommendation: Horizon / Orbit Spark / Weight Split — refine before production freeze.
+Full identity process. **V1 forge/flame direction killed (Decision 030).**  
+V2: transformation territory; emotion = relief/readiness. Gut check pending.  
+Home: [`atos/product/brand-identity/`](../../product/brand-identity/README.md)

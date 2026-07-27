@@ -1,48 +1,40 @@
-# BID — Founder Handoff
+# BID — Founder Handoff (V2)
 
-**From:** Atlas, Creative Director (Brand Identity Project)  
-**To:** Founder  
-**Decision needed:** Choose identity *direction* (or authorize further exploration)  
-**Not needed yet:** Lock final SVG / replace production mark / deploy
+**Status:** V1 directions killed. V2 transformation territory explored.  
+**Ask:** Gut check on new directions — not polish approval.
 
 ---
 
-## Where to read (in order)
+## What changed
 
-1. [00-program.md](00-program.md) — charter  
-2. [01-benchmark.md](01-benchmark.md) — principles from world-class systems  
-3. [02-understand.md](02-understand.md) — TalkForge emotional job  
-4. [03-strategy.md](03-strategy.md) — personality, voice, visual/color/type/symbol  
-5. [04-creative-brief.md](04-creative-brief.md) — designer brief  
-6. [05-concept-exploration.md](05-concept-exploration.md) — 35 concepts + rejection log  
-7. [06-critical-review.md](06-critical-review.md) — scored finalists  
-8. [07-recommendation.md](07-recommendation.md) — **top three + verdict**
+| Was wrong | Now |
+|-----------|-----|
+| Designed around *Forge* / flame / spark | Mission + transformation |
+| Emotion skewed to power/courage aesthetics | **Relief · readiness · “Okay… I think I can do this.”** |
+| Symbolizing communication | Symbolizing **state change** |
 
-**Visual board:** [`/public/brand/concepts/index.html`](../../../public/brand/concepts/index.html)
+Read first: [08-founder-pivot-v2.md](08-founder-pivot-v2.md) · [09-enduring-systems.md](09-enduring-systems.md)
 
 ---
 
-## Ask of the Founder
+## V2 top directions (sketches)
 
-Pick one:
+1. **Slit Threshold (24)** — a way through density  
+2. **Door Ajar (16)** / Archway family — permission to enter readiness  
+3. **Span / Bridge (20–21)** — the gap becomes crossable  
 
-| Option | Meaning |
-|--------|---------|
-| **A — Horizon** | Lead with transformation mark (dark → spark → light) |
-| **B — Orbit Spark** | Lead with sacred minimal spark |
-| **C — Continue exploration** | None yet meet your bar; CD will reopen the field |
-| **A or B + wordmark** | Always pair with Weight Split typographic system |
-
----
-
-## Standing constraints honored
-
-- Did not copy Apple / Nike / Airbnb / Stripe / Notion / Linear / OpenAI / Patagonia  
-- Did not optimize aesthetics over meaning  
-- Explored ≥30 distinct concepts before converging  
-- Willing to reject own work; recommending craft continuation before freeze  
-- No talkforge.io deploy from this workstream  
+Board: [`/public/brand/concepts-v2/index.html`](../../../public/brand/concepts-v2/index.html)  
+Recommended view: [`recommended.html`](../../../public/brand/concepts-v2/recommended.html)  
+Counsel: [14-recommendation-v2.md](14-recommendation-v2.md)
 
 ---
 
-*Decision 029 logged in `atlas/decisions.md`.*
+## Founder gut check
+
+- Closer than V1?  
+- Which family feels like TalkForge — slit, doorway, bridge, or **none**?  
+- If none: stay in transformation territory; do not return to fire.
+
+---
+
+*Decision 030 logged.*

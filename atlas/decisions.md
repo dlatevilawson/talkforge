@@ -425,6 +425,20 @@ Working counsel — awaiting Founder Decision on direction
 
 ---
 
+# Decision 030
+
+Title:
+Brand Identity V2 pivot — kill forge/flame/spark; symbolize mission transformation; emotional target = relief/readiness.
+
+Reason:
+
+Founder rejected V1 finalists (Horizon / Orbit Spark / Weight Split) as design exercises, not TalkForge. Root cause: designing around the company name and implementation metaphor (forge/fire/spark) instead of the mission. Communication is invisible; symbolize transformation (closed→open, connection, path, doorway, bridge, threshold, opening). Feel: quiet luxury, cinematic, human, warm, timeless (Leica/Hermès/Aesop register) — not tech, futuristic, or playful. Emotion: relief, quiet confidence, readiness, hope grounded in preparation (“Okay… I think I can do this.”) — not power/prestige. Require symbol recognizable without wordmark. Before new concepts: study why enduring systems last (BID-009). V2 exploration in `atos/product/brand-identity/` Ch 8–14 and `public/brand/concepts-v2/`.
+
+Status:
+Authoritative pivot — V2 directions awaiting Founder gut check
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
