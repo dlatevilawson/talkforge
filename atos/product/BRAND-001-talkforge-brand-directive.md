@@ -74,7 +74,15 @@ Cinematic storytelling. Real emotion. Golden hour / natural light. Never smiling
 
 ## Logo system
 
-Timeless abstract upward silhouette. Hidden meanings in negative space (doorway / facing people / forge). No AI sparkles, chat bubbles, mics, waves, brains.
+**Canonical mark (brand sheet):** Tall peaked silhouette (growth / A) with stable anvil-like base (the Forge). Negative space forms **two human profiles facing each other** (conversation / connection). Solid, carved, favicon-safe.
+
+**Wordmark:** `TALKFORGE` — all caps geometric sans; custom **A** without crossbar (path upward); **G** with subtle bottom cut.
+
+**Tagline:** Practice. Connect. Transform.
+
+**Palette:** Black · White · Brass/Gold (`--lp-gold`).
+
+**Avoid:** AI sparkles, chat bubbles, mics, waves, brains, circuit lines.
 
 ## Honesty constraints (AMD + stewardship)
 

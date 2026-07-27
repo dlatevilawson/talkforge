@@ -1,9 +1,34 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-labelledby="tfMarkTitle">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" fill="none" role="img" aria-labelledby="tfMarkTitle">
   <title id="tfMarkTitle">TalkForge</title>
-  <!-- Single upward silhouette; evenodd aperture = doorway / facing profiles / forge -->
+  <!--
+    Brand sheet: peak + anvil base.
+    Cutout edges = two profiles facing each other.
+  -->
   <path
     fill="currentColor"
     fill-rule="evenodd"
-    d="M32 4c10.5 8.2 17 17.6 17 29.2 0 13.4-7.2 23.6-17 30.8C22.2 56.8 15 46.6 15 33.2 15 21.6 21.5 12.2 32 4zm0 14c-4.8 3.6-7.4 7.8-7.4 13.2 0 5.8 3.1 10.6 7.4 14.2 4.3-3.6 7.4-8.4 7.4-14.2 0-5.4-2.6-9.6-7.4-13.2z"
+    d="
+      M50 0
+      L90 92
+      L76 92
+      L70 118
+      L30 118
+      L24 92
+      L10 92
+      Z
+
+      M50 26
+      C44 30 41 35 40 42
+      C39.2 46 37 48.5 37.5 52
+      C38 55 40.5 55.5 41.2 58.5
+      C41.8 61 40.5 63.5 42.5 66.5
+      C44.5 69.5 47 70 50 74
+      C53 70 55.5 69.5 57.5 66.5
+      C59.5 63.5 58.2 61 58.8 58.5
+      C59.5 55.5 62 55 62.5 52
+      C63 48.5 60.8 46 60 42
+      C59 35 56 30 50 26
+      Z
+    "
   />
 </svg>
