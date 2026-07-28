@@ -481,6 +481,20 @@ Accepted for landing integration — Founder may request Veo/Runway re-render la
 
 ---
 
+# Decision 034
+
+Title:
+Formalize TalkForge AI video Creative Production System (Brief → Story Bible → Shot List → Prompt Bible → Edit Plan).
+
+Reason:
+
+Hero Film V1 jumped toward prompts/generation without a production hierarchy. Correct process requires five separate documents: (1) Creative Brief — what we are making; (2) Story Bible — who and what emotions; (3) Shot List — every scene broken down; (4) Prompt Bible — one prompt per shot; (5) Edit Plan — assembly. Volume: `atos/product/hero-film/`. V1 film remains a draft cut until regenerated through this system.
+
+Status:
+Authoritative process — Accepted
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
