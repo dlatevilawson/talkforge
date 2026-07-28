@@ -1,5 +1,6 @@
 import Link from "next/link";
 import FaqAccordion from "@/app/components/landing/FaqAccordion";
+import HeroVideo from "@/app/components/landing/HeroVideo";
 import LandingNav from "@/app/components/landing/LandingNav";
 import Reveal from "@/app/components/landing/Reveal";
 import TalkForgeLogo from "@/app/components/landing/TalkForgeLogo";
@@ -40,44 +41,41 @@ export default function LandingPage() {
       <LandingNav />
 
       <main>
-        {/* Hero */}
-        <section className="relative overflow-hidden px-5 pb-24 pt-32 sm:px-8 sm:pb-32 sm:pt-40">
-          <div
-            className="pointer-events-none absolute inset-x-0 top-0 h-[70vh] bg-[radial-gradient(ellipse_at_50%_0%,rgba(26,58,92,0.06),transparent_60%)]"
-            aria-hidden
-          />
-          <div className="relative mx-auto max-w-4xl text-center">
+        {/* Hero — official brand film (FILM-001) */}
+        <section className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pb-24 pt-28 sm:px-8 sm:pb-32 sm:pt-32">
+          <HeroVideo />
+          <div className="relative z-10 mx-auto w-full max-w-4xl text-center">
             <Reveal>
-              <div className="mx-auto mb-10 flex justify-center text-[var(--lp-ink)]">
-                <TalkForgeLogo className="scale-110" />
+              <div className="mx-auto mb-10 flex justify-center">
+                <TalkForgeLogo className="scale-110 [&_span]:text-[#f7f3ea]" />
               </div>
             </Reveal>
             <Reveal delayMs={80}>
-              <h1 className="font-[family-name:var(--font-lp-display)] text-[2.75rem] font-semibold leading-[1.05] tracking-[-0.04em] text-[var(--lp-ink)] sm:text-6xl md:text-7xl">
-                Master the Art of Communication.
+              <h1 className="font-[family-name:var(--font-lp-display)] text-[2.75rem] font-semibold leading-[1.05] tracking-[-0.04em] text-[#f7f3ea] sm:text-6xl md:text-7xl">
+                Find Your Voice.
               </h1>
             </Reveal>
             <Reveal delayMs={160}>
-              <p className="mx-auto mt-8 max-w-xl text-lg leading-8 text-[var(--lp-muted)] sm:text-xl sm:leading-9">
-                You weren&apos;t born a poor communicator.
+              <p className="mx-auto mt-8 max-w-xl text-lg leading-8 text-[#d9d2c5]/90 sm:text-xl sm:leading-9">
+                Every life is shaped by conversations.
                 <br className="hidden sm:block" />
-                Nobody ever taught you how to practice.
+                Practice the ones that matter.
               </p>
             </Reveal>
             <Reveal delayMs={240}>
               <div className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <a
                   href="#waitlist"
-                  className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full bg-[var(--lp-ink)] px-8 text-sm font-semibold text-[var(--lp-bg)] transition hover:bg-[var(--lp-ink-soft)]"
+                  className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full bg-[var(--tf-gold)] px-8 text-sm font-semibold text-[#121417] transition hover:bg-[var(--tf-gold-light)]"
                 >
                   Join the Founding Members
                 </a>
-                <Link
-                  href="/welcome"
-                  className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full border border-[var(--lp-line)] bg-transparent px-8 text-sm font-semibold text-[var(--lp-ink)] transition hover:bg-white"
+                <a
+                  href="#belief"
+                  className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full border border-white/25 bg-white/5 px-8 text-sm font-semibold text-[#f7f3ea] backdrop-blur-sm transition hover:bg-white/10"
                 >
-                  See TalkForge in Action
-                </Link>
+                  Our Belief
+                </a>
               </div>
             </Reveal>
           </div>

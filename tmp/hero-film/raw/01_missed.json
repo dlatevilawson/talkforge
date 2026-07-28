@@ -1,0 +1,18 @@
+{
+  "id": "video_6a68f75e9724819389ddf82a068ff2fc085bbc1e220dd053",
+  "object": "video",
+  "created_at": 1785263966,
+  "status": "completed",
+  "completed_at": 1785264069,
+  "edited_from_video_id": null,
+  "error": null,
+  "expires_at": 1785436869,
+  "extended_from_video_id": null,
+  "model": "sora-2",
+  "progress": 100,
+  "prompt": "Cinematic realism, premium brand film, natural window light, warm blacks, soft golden highlights, shallow depth of field, slow deliberate camera movement, intimate close-ups on faces and hands, photorealistic environments, understated performance no exaggerated acting, no dialogue, no on-screen text, no logos, no holograms, no futuristic UI glow, no sci-fi effects, 16:9. Young professional East Asian woman in her late twenties in a bright modern conference room. Medium close-up: she inhales, starts to raise her hand to speak, then hesitates, eyes lowering. Across the table a confident colleague speaks instead; others nod. Cut feeling: quiet disappointment. Slow push-in on her face.",
+  "remixed_from_video_id": null,
+  "seconds": "8",
+  "size": "1280x720",
+  "scene": "01_missed"
+}

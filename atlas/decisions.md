@@ -467,6 +467,20 @@ Accepted — Authoritative
 
 ---
 
+# Decision 033
+
+Title:
+Ship TalkForge Official Hero Film V1 on the landing page.
+
+Reason:
+
+Founder assigned cinematic hero film (human transformation, not product demo). Generated seven story beats with Sora 2 (Veo/Runway unavailable in environment), assembled ~40s 16:9 H.264 web master at `/public/video/hero.mp4`, wired muted autoplay loop behind hero (`HeroVideo`), closing title “Find Your Voice. / TalkForge”. FILM-001.
+
+Status:
+Accepted for landing integration — Founder may request Veo/Runway re-render later
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

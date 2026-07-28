@@ -1,0 +1,40 @@
+create 01_missed...
+  -> video_6a68f75e9724819389ddf82a068ff2fc085bbc1e220dd053 status=queued
+create 02_love...
+  -> video_6a68f76190cc81918fcf09814d0218b1024684ccf1d707af status=queued
+create 03_belonging...
+  -> video_6a68f763fcc8819180a83c7c6581bc7e0c7903f9a4021d5a status=queued
+create 04_night...
+  -> video_6a68f767bff48193989e9a326b7b2b520b4d3b438fd420dd status=queued
+create 05_practice...
+  -> video_6a68f76a38388191aec00077f515e38c0efdd81d47846d20 status=queued
+create 06_resolution...
+  -> video_6a68f76cce54819189dc2130c377e16504c6029c14071408 status=queued
+create 07_hope...
+  -> video_6a68f76f02208191b5275648454b5a890c283b15d87692f7 status=queued
+  poll 01_missed: in_progress 0%
+  poll 01_missed: in_progress 0%
+  poll 01_missed: in_progress 0%
+  poll 01_missed: in_progress 0%
+  poll 01_missed: in_progress 0%
+  poll 01_missed: in_progress 99%
+  poll 01_missed: in_progress 99%
+  poll 01_missed: completed 100%
+download 01_missed...
+  wrote /workspace/tmp/hero-film/clips/01_missed.mp4 (2657295 bytes)
+  poll 02_love: completed 100%
+download 02_love...
+  wrote /workspace/tmp/hero-film/clips/02_love.mp4 (3636723 bytes)
+  poll 03_belonging: completed 100%
+download 03_belonging...
+  wrote /workspace/tmp/hero-film/clips/03_belonging.mp4 (4825556 bytes)
+  poll 04_night: in_progress 99%
+  poll 04_night: failed 99%
+Traceback (most recent call last):
+  File "/workspace/scripts/generate_hero_film.py", line 284, in <module>
+    main()
+  File "/workspace/scripts/generate_hero_film.py", line 277, in main
+    poll(vid, scene["id"])
+  File "/workspace/scripts/generate_hero_film.py", line 154, in poll
+    raise RuntimeError(f"{scene_id} failed: {res}")
+RuntimeError: 04_night failed: {'id': 'video_6a68f767bff48193989e9a326b7b2b520b4d3b438fd420dd', 'object': 'video', 'created_at': 1785263975, 'status': 'failed', 'completed_at': None, 'edited_from_video_id': None, 'error': {'code': 'moderation_blocked', 'message': 'Your request was blocked by our moderation system.'}, 'expires_at': None, 'extended_from_video_id': None, 'model': 'sora-2', 'progress': 99, 'prompt': 'Cinematic realism, premium brand film, natural window light, warm blacks, soft golden highlights, shallow depth of field, slow deliberate camera movement, intimate close-ups on faces and hands, photorealistic environments, understated performance no exaggerated acting, no dialogue, no on-screen text, no logos, no holograms, no futuristic UI glow, no sci-fi effects, 16:9. Late night montage energy in one continuous feel: three quiet homes, warm practical lamps, people searching on a phone or laptop for help with confidence and hard conversations. Calm trustworthy product presence on screen as a simple clean practice app interface, minimal UI, human-first, no magic effects. Slow dissolves between rooms.', 'remixed_from_video_id': None, 'seconds': '8', 'size': '1280x720'}

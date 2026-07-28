@@ -1,0 +1,18 @@
+{
+  "id": "video_6a68f7ecb4f8819197e9ea28b2550e1f01f49ebdaff51eb1",
+  "object": "video",
+  "created_at": 1785264108,
+  "status": "completed",
+  "completed_at": 1785264241,
+  "edited_from_video_id": null,
+  "error": null,
+  "expires_at": 1785437041,
+  "extended_from_video_id": null,
+  "model": "sora-2",
+  "progress": 100,
+  "prompt": "Cinematic realism, premium brand film, natural window light, warm blacks, soft golden highlights, shallow depth of field, slow deliberate camera movement, intimate close-ups on faces, photorealistic, understated acting, no dialogue, no on-screen text, no logos, no holograms, no futuristic effects, 16:9. Late evening. A quiet bedroom lit by a warm lamp. A young professional woman sits on the edge of her bed, looking thoughtfully at her phone. Soft hope in her expression as she finds a calm practice app. Cut to a young man at a kitchen table with a laptop open to a simple clean interface. Cut to a young woman on a couch with headphones, practicing speaking softly to herself. Peaceful, trustworthy, human. Minimal plain UI only.",
+  "remixed_from_video_id": null,
+  "seconds": "8",
+  "size": "1280x720",
+  "scene": "04_night"
+}
