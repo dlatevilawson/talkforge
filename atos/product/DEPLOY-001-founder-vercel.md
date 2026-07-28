@@ -23,9 +23,10 @@
 | Item | Value |
 |---|---|
 | **Stable production URL** | **https://talkforge-virid.vercel.app** |
-| Deployment URL (this ship) | https://talkforge-87pjtnydz-dlatevilawson-7440s-projects.vercel.app |
+| Deployment URL (Promo V1 / LP ship) | https://talkforge-k8bx7dano-dlatevilawson-7440s-projects.vercel.app |
 | Vercel project | `dlatevilawson-7440s-projects/talkforge` |
-| Inspector | https://vercel.com/dlatevilawson-7440s-projects/talkforge/GWZYkaUs25X49S5GYLWjpW7Vt2mn |
+| Inspector | https://vercel.com/dlatevilawson-7440s-projects/talkforge/GKrw7spvzzVsF22Kk5hziJ5rdSdy |
+| Domains (added) | `talkforge.io`, `www.talkforge.io` — **DNS not yet pointed** (still Wix NS) |
 | Env set | `OPENAI_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (production / preview / development) |
 
 ### Smoke (server)

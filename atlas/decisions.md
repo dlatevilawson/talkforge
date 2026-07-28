@@ -309,7 +309,7 @@ Reason:
 Official public face for talkforge.io. Homepage = marketing landing; product welcome at /welcome. Real waitlist via Supabase. Do not auto-deploy. Founder must approve deploy + domain attach + waitlist SQL.
 
 Status:
-Built (awaiting deploy approval)
+Built — **deploy approved & executed** (Decision 037)
 
 ---
 
@@ -520,6 +520,20 @@ Founder chat lock review: 00–03 locked for the first promo video. Official app
 
 Status:
 Authoritative — Promo V1 greenlit
+
+---
+
+# Decision 037
+
+Title:
+Founder approved production deploy of LP-001 + Promo V1 to Founder Vercel.
+
+Reason:
+
+Founder chat: “Approved!” after Promo V1 lock/ship. Atlas authorized to run production deploy per LP-001 / DEPLOY-001. Production alias: https://talkforge-virid.vercel.app. Domains talkforge.io and www.talkforge.io added to Vercel project; DNS still on Wix nameservers — Founder must point DNS (A 76.76.21.21 or Vercel NS) before talkforge.io resolves. Waitlist table `waitlist_members` not yet in Supabase — Founder must run `supabase/waitlist.sql` before waitlist joins succeed.
+
+Status:
+Authoritative — Production deployed (virid); domain + waitlist SQL pending Founder DNS/SQL
 
 ---
 
