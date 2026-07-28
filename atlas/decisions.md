@@ -495,6 +495,20 @@ Authoritative process — Accepted
 
 ---
 
+# Decision 035
+
+Title:
+Add standing Creative Philosophy (FILM-PHIL-001) above the hero-film production hierarchy.
+
+Reason:
+
+Production docs (Brief → Edit Plan) serve one film. A short standing Philosophy captures durable beliefs for all TalkForge moving-image work—emotion before product, practice over advice, dignity, sacred freeze, relief not swagger, silence as material, hope without sentimentality, technology never owns the frame. Sits above the five production docs; Founder-amendable only. `atos/product/hero-film/00-philosophy.md`.
+
+Status:
+Authoritative — Accepted
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

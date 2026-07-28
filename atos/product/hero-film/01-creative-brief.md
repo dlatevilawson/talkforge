@@ -146,10 +146,11 @@ The film succeeds if:
 
 ---
 
-## Process rule (binding)
+**Process rule (binding)**
 
 Do not generate video until:
 
+0. [Creative Philosophy](00-philosophy.md) is honored (standing — not rewritten per film)  
 1. This Creative Brief is accepted  
 2. [Story Bible](02-story-bible.md) is locked  
 3. [Shot List](03-shot-list.md) is complete  
@@ -160,4 +161,4 @@ Do not generate video until:
 
 ---
 
-*Next → [02-story-bible.md](02-story-bible.md)*
+*Philosophy (standing) → this Brief → [02-story-bible.md](02-story-bible.md)*

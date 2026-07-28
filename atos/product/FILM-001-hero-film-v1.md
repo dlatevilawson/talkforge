@@ -17,6 +17,7 @@ V1 was produced by jumping toward generation/prompts before a formal production 
 
 Going forward, AI video follows:
 
+0. [Creative Philosophy](hero-film/00-philosophy.md) (standing)  
 1. [Creative Brief](hero-film/01-creative-brief.md)  
 2. [Story Bible](hero-film/02-story-bible.md)  
 3. [Shot List](hero-film/03-shot-list.md)  
