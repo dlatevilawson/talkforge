@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import TalkForgeLogo from "@/app/components/landing/TalkForgeLogo";
 
 const links = [
-  { href: "#belief", label: "Our Belief" },
+  { href: "#belief", label: "What We Believe" },
   { href: "#experience", label: "Experience" },
   { href: "#mission", label: "Mission" },
   { href: "#faq", label: "FAQ" },

@@ -537,6 +537,20 @@ Authoritative — Production deployed (virid); domain + waitlist SQL pending Fou
 
 ---
 
+# Decision 038
+
+Title:
+Lock “Find Your Voice.” as emotional center; protect wisdom line; prefer What We Believe; leave mystery.
+
+Reason:
+
+Founder homepage counsel: Find Your Voice. invites (heart); Master the Art of Communication explains (mind) — retire from public face. Favorite sentence protected: “Every life is shaped by conversations. Practice the ones that matter.” Institutional line: “A company, not a product.” Section label: What We Believe (not generic “What We Stand For”). Doctrine: homepage makes people curious — resist text-heavy explanation. Applied in LP + metadata/OG (LP-002).
+
+Status:
+Authoritative — Accepted
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

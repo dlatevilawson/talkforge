@@ -30,6 +30,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [PCI-001](PCI-001-product-craftsmanship-initiative.md) | Product Craftsmanship Initiative | **Accepted (RES-016)** |
 | — | [PCI-CR-001](PCI-CR-001-baseline-craftsmanship-review.md) | Baseline Craftsmanship Review (current prod) | Working counsel |
 | — | [LP-001](LP-001-production-landing.md) | Production Landing Page v1.0 | **Deployed** (Decision 037) — virid live; DNS + waitlist SQL pending |
+| — | [LP-002](LP-002-founder-emotional-center.md) | Founder counsel — emotional center | **Authoritative** (Decision 038) |
 | — | [Brand Identity Project](brand-identity/README.md) | Full identity process (BID Phases 1–7) | **Working — CD recommendation ready** |
 | — | [FILM-001](FILM-001-hero-film-v1.md) | Hero film V1 production log (draft cut) | Draft on site |
 | — | [Hero Film System](hero-film/README.md) | Philosophy → Brief → Story Bible → Shot List → Prompt Bible → Edit Plan | **Authoritative process** |
