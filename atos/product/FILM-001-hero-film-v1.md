@@ -4,7 +4,7 @@
 |---|---|
 | **Document ID** | FILM-001 |
 | **Version** | 1.1.0 |
-| **Status** | Draft cut shipped — **superseded as process by Creative Production System** |
+| **Status** | Draft cut — **replaced on LP by Promo V1 (FILM-002)**; process superseded by Creative Production System |
 | **Date** | 2026-07-28 |
 
 ---

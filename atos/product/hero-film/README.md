@@ -5,7 +5,7 @@
 | **Volume ID** | FILM |
 | **Kind** | Creative production (AI video) |
 | **Authority** | Founder creative assignment |
-| **Status** | System established — **00–03 LOCKED for Promo V1**; regenerate through 04→05; recreate before app launch |
+| **Status** | **Promo V1 shipped (FILM-002)** — 00–03 LOCKED; generated via 04→05; recreate before app launch |
 | **Date** | 2026-07-28 |
 
 ## The rule

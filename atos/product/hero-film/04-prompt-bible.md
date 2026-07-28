@@ -2,7 +2,7 @@
 
 **Document ID:** FILM-PB-001  
 **Depends on:** [01](01-creative-brief.md) · [02](02-story-bible.md) · [03](03-shot-list.md)  
-**Status:** Generation source of truth — one prompt per shot (or locked pair)  
+**Status:** Used for Promo V1 generation (FILM-002) — recreate prompts with app-launch film  
 **Version:** 1.0.0  
 **Rule:** Do not invent shots here. Only express the Shot List.
 

@@ -2,7 +2,7 @@
 
 **Document ID:** FILM-EP-001  
 **Depends on:** [01](01-creative-brief.md) · [02](02-story-bible.md) · [03](03-shot-list.md) · [04](04-prompt-bible.md)  
-**Status:** Binding assembly guide  
+**Status:** Used for Promo V1 assembly (FILM-002) — binding for this promo; revisit for app-launch  
 **Version:** 1.0.0  
 **Output:** `/public/video/hero.mp4` (+ master archive)
 
