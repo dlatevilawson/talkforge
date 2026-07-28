@@ -1,2 +1,0 @@
-file '/workspace/tmp/hero-film/rough.mp4'
-file '/workspace/tmp/hero-film/title.mp4'

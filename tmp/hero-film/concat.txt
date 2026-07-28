@@ -1,7 +1,0 @@
-file '/workspace/tmp/hero-film/norm/00.mp4'
-file '/workspace/tmp/hero-film/norm/01.mp4'
-file '/workspace/tmp/hero-film/norm/02.mp4'
-file '/workspace/tmp/hero-film/norm/03.mp4'
-file '/workspace/tmp/hero-film/norm/04.mp4'
-file '/workspace/tmp/hero-film/norm/05.mp4'
-file '/workspace/tmp/hero-film/norm/06.mp4'

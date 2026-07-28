@@ -1,8 +1,0 @@
-file '/workspace/tmp/hero-film/trim/01_missed.mp4'
-file '/workspace/tmp/hero-film/trim/02_love.mp4'
-file '/workspace/tmp/hero-film/trim/03_belonging.mp4'
-file '/workspace/tmp/hero-film/trim/04_night.mp4'
-file '/workspace/tmp/hero-film/trim/05_practice.mp4'
-file '/workspace/tmp/hero-film/trim/06_resolution.mp4'
-file '/workspace/tmp/hero-film/trim/07_hope.mp4'
-file '/workspace/tmp/hero-film/trim/title.mp4'
