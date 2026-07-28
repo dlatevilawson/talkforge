@@ -439,6 +439,34 @@ Authoritative pivot — V2 directions awaiting Founder gut check
 
 ---
 
+# Decision 031
+
+Title:
+Brand Identity V3 — Symbol of Becoming; 110 directions; no final lock; four craft families.
+
+Reason:
+
+Founder raised the bar from logo design to permanent symbol discovery. Subject is the emotional moment “I don’t think I can” → “I think I can.” V1 name metaphors and V2 object metaphors (door/bridge/slit) closed for finalization. Generated 110 distinct abstract directions; clustered into families; discarded objects, SaaS camouflage, and explanation-dependent ideas. Four families remain for deep craft: α Paradox of Becoming, β Gesture of Relief, γ Decisive Cut, δ Meeting. Creative Director refuses to declare inevitability prematurely. Volume Ch 15–17; artifacts in `public/brand/concepts-v3/`.
+
+Status:
+Working — awaiting Founder family selection for deep craft
+
+---
+
+# Decision 032
+
+Title:
+Accept Founder-authored TalkForge symbol as official company mark; close V3 family exploration.
+
+Reason:
+
+Founder declined V3 craft families (none). After independent research, Founder delivered the permanent mark: twin forms meeting through a center opening, gold gradient, wordmark, tagline “Practice. Connect. Transform.” Atlas installs assets, aligns wordmark ink to landing page, retains Founder gold, wires LP component, and protects the mark. Exploration V1–V3 archived. BID-018.
+
+Status:
+Accepted — Authoritative
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

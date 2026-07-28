@@ -7,6 +7,6 @@
 | **Home** | [`atos/product/brand-identity/`](../../product/brand-identity/README.md) |
 | **Decision log** | Decision 029 |
 
-Full identity process. **V1 forge/flame direction killed (Decision 030).**  
-V2: transformation territory; emotion = relief/readiness. Gut check pending.  
+**Official symbol accepted (Decision 032)** — Founder-authored mark.  
+Assets: `public/brand/talkforge-logo-full.svg` · Record: BID-018.  
 Home: [`atos/product/brand-identity/`](../../product/brand-identity/README.md)

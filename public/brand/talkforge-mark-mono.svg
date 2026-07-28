@@ -1,19 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="200 40 400 580" width="400" height="580" role="img" aria-label="TalkForge">
-  <title>TalkForge mark</title>
+  <title>TalkForge mark (monochrome)</title>
   <defs>
-    <linearGradient id="tfGold" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#F7E3B0"/>
-      <stop offset="30%" stop-color="#E8C173"/>
-      <stop offset="55%" stop-color="#C99B4A"/>
-      <stop offset="78%" stop-color="#EBC77E"/>
-      <stop offset="100%" stop-color="#B98634"/>
-    </linearGradient>
-    <mask id="tfHole">
+    <mask id="tfHoleMono">
       <rect x="200" y="40" width="400" height="580" fill="#fff"/>
       <circle cx="400" cy="330" r="38" fill="#000"/>
     </mask>
   </defs>
-  <g mask="url(#tfHole)" fill="url(#tfGold)">
+  <g mask="url(#tfHoleMono)" fill="currentColor">
     <path d="M394 56
              C 386 180 328 276 240 328
              C 328 382 386 478 394 604
