@@ -551,6 +551,20 @@ Authoritative — Accepted
 
 ---
 
+# Decision 039
+
+Title:
+Launch surface: GitHub↔Vercel auto-deploy path, GA wiring, brand favicon, search title/description.
+
+Reason:
+
+Founder checklist: (1) GitHub→Vercel auto-deploy requires Founder Login Connection — documented in DEPLOY-001; (2) Google Analytics wired via `NEXT_PUBLIC_GA_MEASUREMENT_ID` + `@next/third-parties`; (3) custom favicon from official gold mark; (4) search title/description locked to Find Your Voice. + wisdom line, plus robots/sitemap. OPS-001.
+
+Status:
+Authoritative — Code complete; GitHub Login Connection + GA Measurement ID are Founder env/account steps
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

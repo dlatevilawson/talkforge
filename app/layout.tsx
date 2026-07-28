@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import GoogleAnalytics from "@/app/components/GoogleAnalytics";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -20,6 +21,34 @@ export const metadata: Metadata = {
   },
   description:
     "Every life is shaped by conversations. Practice the ones that matter.",
+  applicationName: "TalkForge",
+  keywords: [
+    "TalkForge",
+    "communication practice",
+    "AI communication gym",
+    "find your voice",
+    "conversation coaching",
+  ],
+  authors: [{ name: "TalkForge" }],
+  openGraph: {
+    title: "TalkForge — Find Your Voice.",
+    description:
+      "Every life is shaped by conversations. Practice the ones that matter.",
+    url: "https://talkforge.io",
+    siteName: "TalkForge",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TalkForge — Find Your Voice.",
+    description:
+      "Every life is shaped by conversations. Practice the ones that matter.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
@@ -32,7 +61,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        {children}
+        <GoogleAnalytics />
+      </body>
     </html>
   );
 }
