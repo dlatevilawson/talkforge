@@ -47,7 +47,7 @@ export default function LandingPage() {
           <div className="relative z-10 mx-auto w-full max-w-4xl text-center">
             <Reveal>
               <div className="mx-auto mb-10 flex justify-center">
-                <TalkForgeLogo className="scale-110 [&_span]:text-[#f7f3ea]" />
+                <TalkForgeLogo tone="light" className="scale-110" />
               </div>
             </Reveal>
             <Reveal delayMs={80}>

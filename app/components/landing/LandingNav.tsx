@@ -35,12 +35,10 @@ export default function LandingNav() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
         <Link
           href="/"
-          className={`transition-opacity hover:opacity-80 ${
-            onFilm ? "[&_span]:text-[#f7f3ea]" : "text-[var(--lp-ink)]"
-          }`}
+          className="transition-opacity hover:opacity-80"
           aria-label="TalkForge home"
         >
-          <TalkForgeLogo />
+          <TalkForgeLogo tone={onFilm ? "light" : "default"} />
         </Link>
 
         <nav

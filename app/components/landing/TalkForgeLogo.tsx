@@ -5,11 +5,13 @@ import { useId } from "react";
 /**
  * Official TalkForge logo — Founder-authored symbol (Decision 032).
  * Mark: twin forms meeting through a center opening.
- * Color: Founder gold gradient retained; wordmark uses LP ink.
+ * Color: Founder gold gradient retained; wordmark uses LP ink or light tone.
  */
 type TalkForgeLogoProps = {
   className?: string;
   variant?: "full" | "mark";
+  /** Wordmark color — `light` for dark/cinematic surfaces */
+  tone?: "default" | "light";
 };
 
 const GOLD_STOPS = [
@@ -59,10 +61,13 @@ function Mark({
 export default function TalkForgeLogo({
   className = "",
   variant = "full",
+  tone = "default",
 }: TalkForgeLogoProps) {
   const uid = useId().replace(/:/g, "");
   const gradId = `tfGold-${uid}`;
   const maskId = `tfHole-${uid}`;
+  const wordmarkColor =
+    tone === "light" ? "text-[#f7f3ea]" : "text-[var(--lp-ink)]";
 
   if (variant === "mark") {
     return (
@@ -78,7 +83,9 @@ export default function TalkForgeLogo({
       aria-label="TalkForge"
     >
       <Mark className="h-9 w-6" gradId={gradId} maskId={maskId} />
-      <span className="font-[family-name:var(--font-lp-sans),ui-sans-serif,system-ui,sans-serif] text-[1.05rem] font-medium uppercase tracking-[0.18em] text-[var(--lp-ink)]">
+      <span
+        className={`font-[family-name:var(--font-lp-sans),ui-sans-serif,system-ui,sans-serif] text-[1.05rem] font-medium uppercase tracking-[0.18em] ${wordmarkColor}`}
+      >
         TalkForge
       </span>
     </span>
