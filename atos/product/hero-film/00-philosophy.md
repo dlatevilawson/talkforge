@@ -2,7 +2,8 @@
 
 **Document ID:** FILM-PHIL-001  
 **Kind:** Standing doctrine for TalkForge moving-image work  
-**Status:** Authoritative  
+**Status:** **LOCKED for Promo V1** (Founder 2026-07-28) — recreate before app launch  
+
 **Scope:** All brand films, hero cuts, and cinematic content — not one campaign only  
 **Version:** 1.0.0
 

@@ -3,7 +3,8 @@
 **Document ID:** FILM-CB-001  
 **Film:** TalkForge Official Hero Film  
 **Version:** 2.0.0 (system formalization)  
-**Status:** Binding for all generation and edit  
+**Status:** **LOCKED for Promo V1** (Founder 2026-07-28) — recreate before app launch  
+
 **Depends on:** Founder assignment · Mission · BID-018 (official mark)
 
 ---

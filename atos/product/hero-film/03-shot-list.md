@@ -2,7 +2,8 @@
 
 **Document ID:** FILM-SL-001  
 **Depends on:** [01-creative-brief.md](01-creative-brief.md) · [02-story-bible.md](02-story-bible.md)  
-**Status:** Binding shot breakdown for Prompt Bible & Edit Plan  
+**Status:** **LOCKED for Promo V1** (Founder 2026-07-28) — recreate before app launch  
+
 **Target runtime:** 30–45 seconds  
 **Version:** 1.0.0
 

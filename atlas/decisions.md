@@ -509,6 +509,20 @@ Authoritative — Accepted
 
 ---
 
+# Decision 036
+
+Title:
+Lock Hero Film Philosophy → Brief → Story Bible → Shot List for Promo V1; proceed to generate; recreate before app launch.
+
+Reason:
+
+Founder chat lock review: 00–03 locked for the first promo video. Official app-launch film will be a later recreation. Atlas authorized to generate via Prompt Bible and assemble via Edit Plan, replacing the out-of-order draft cut.
+
+Status:
+Authoritative — Promo V1 greenlit
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

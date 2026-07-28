@@ -2,7 +2,8 @@
 
 **Document ID:** FILM-SB-001  
 **Depends on:** [01-creative-brief.md](01-creative-brief.md)  
-**Status:** Binding character & emotion source for all shots and prompts  
+**Status:** **LOCKED for Promo V1** (Founder 2026-07-28) — recreate before app launch  
+
 **Version:** 1.0.0
 
 ---
