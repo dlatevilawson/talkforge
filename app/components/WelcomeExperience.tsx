@@ -95,7 +95,7 @@ export default function WelcomeExperience() {
         title: choice.title,
         success: choice.success,
       });
-      router.push(`/voice?${params.toString()}`);
+      router.push(`/app/practice?${params.toString()}`);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Could not start. Please try again."
@@ -129,7 +129,7 @@ export default function WelcomeExperience() {
             </Link>
             {returning && (
               <Link
-                href="/dashboard"
+                href="/app/dashboard"
                 className="text-sm text-white/40 transition hover:text-white/70"
               >
                 Continue

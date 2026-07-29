@@ -565,6 +565,20 @@ Authoritative — Code complete; GitHub Login Connection + GA Measurement ID are
 
 ---
 
+# Decision 040
+
+Title:
+Unify TalkForge into one platform — `/app` gym + `/founder` portal + cookie-bridged guest auth.
+
+Reason:
+
+Founder Atlas Task UNI-001: single product experience from landing → training → auth → gym. Preserve LP/brand/GA. Extend existing guest identity with httpOnly cookie session + Next.js 16 `proxy.ts` protection — do not introduce a second auth provider. Founder Portal at `/founder` with FOUNDER_DEV_* env seed (not hardcoded). Volume: `atos/product/UNI-001-unified-platform.md`.
+
+Status:
+Authoritative — Implemented on branch; merge when validated
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

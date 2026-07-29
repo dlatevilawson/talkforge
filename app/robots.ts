@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/atlas", "/dashboard", "/prepare", "/voice", "/auth"],
+      disallow: ["/api/", "/app/", "/founder/", "/login", "/signup"],
     },
     sitemap: "https://talkforge.io/sitemap.xml",
   };

@@ -21,9 +21,11 @@ export default function Reveal({
     const reduced =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     if (reduced) {
-      setVisible(true);
-      return;
+      // Defer to avoid synchronous setState-in-effect lint (React Compiler).
+      const id = requestAnimationFrame(() => setVisible(true));
+      return () => cancelAnimationFrame(id);
     }
 
     const observer = new IntersectionObserver(

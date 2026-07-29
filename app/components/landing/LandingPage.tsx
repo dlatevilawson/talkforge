@@ -53,16 +53,16 @@ export default function LandingPage() {
             <Reveal delayMs={240}>
               <div className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <a
-                  href="#waitlist"
+                  href="/signup"
                   className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full bg-[var(--tf-gold)] px-8 text-sm font-semibold text-[#121417] transition hover:bg-[var(--tf-gold-light)]"
                 >
-                  Join the Founding Members
+                  Start Training
                 </a>
                 <a
-                  href="#belief"
+                  href="#waitlist"
                   className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full border border-white/25 bg-white/5 px-8 text-sm font-semibold text-[#f7f3ea] backdrop-blur-sm transition hover:bg-white/10"
                 >
-                  What We Believe
+                  Join the Founding Members
                 </a>
               </div>
             </Reveal>

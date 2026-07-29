@@ -1,56 +1,68 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getUser } from "@/lib/storage";
+import { destroySession } from "@/lib/auth/client";
 
-/** Beta: one clear path — Practice is the gym floor. */
 const links = [
-  { href: "/voice", label: "Practice" },
-  { href: "/dashboard", label: "Home" },
-  { href: "/progress", label: "Progress" },
-];
-
-const navLinks =
-  process.env.NODE_ENV === "development"
-    ? [...links, { href: "/atlas", label: "Atlas" }]
-    : links;
+  { href: "/app/dashboard", label: "Dashboard" },
+  { href: "/app/practice", label: "Practice" },
+  { href: "/app/progress", label: "Progress" },
+  { href: "/app/profile", label: "Profile" },
+  { href: "/app/settings", label: "Settings" },
+] as const;
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [name, setName] = useState("Friend");
+  const [isFounder, setIsFounder] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-
-    async function loadName() {
+    async function load() {
       try {
-        const user = await getUser();
-        if (!cancelled) {
-          const display = user?.displayName?.trim();
-          setName(
-            display && display !== "Guest" ? display : "Friend"
-          );
+        const res = await fetch("/api/auth/session");
+        const data = (await res.json()) as {
+          authenticated?: boolean;
+          displayName?: string | null;
+          role?: string | null;
+          userId?: string | null;
+        };
+        if (cancelled) return;
+        if (data.userId) {
+          const { setCurrentUserId } = await import("@/lib/identity");
+          setCurrentUserId(data.userId);
         }
+        const display = data.displayName?.trim();
+        setName(display && display !== "Guest" ? display : "Friend");
+        setIsFounder(data.role === "founder");
       } catch {
-        if (!cancelled) {
-          setName("Friend");
-        }
+        if (!cancelled) setName("Friend");
       }
     }
-
-    void loadName();
+    void load();
     return () => {
       cancelled = true;
     };
   }, [pathname]);
 
+  async function logout() {
+    await destroySession();
+    router.push("/");
+    router.refresh();
+  }
+
+  const nav = isFounder
+    ? [...links, { href: "/founder", label: "Founder Portal" }]
+    : links;
+
   return (
     <div className="min-h-screen bg-[var(--tf-bg)] font-sans text-[var(--tf-fg)]">
       <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Link href="/" className="text-lg font-semibold tracking-wide">
+          <Link href="/app/dashboard" className="text-lg font-semibold tracking-wide">
             TalkForge
           </Link>
 
@@ -58,7 +70,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             aria-label="Primary"
             className="flex flex-wrap items-center gap-1 sm:gap-2"
           >
-            {navLinks.map((link) => {
+            {nav.map((link) => {
               const active =
                 pathname === link.href || pathname.startsWith(`${link.href}/`);
               return (
@@ -77,7 +89,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          <p className="text-sm text-zinc-400">{name}</p>
+          <div className="flex items-center gap-3">
+            <p className="text-sm text-zinc-400">{name}</p>
+            <button
+              type="button"
+              onClick={() => void logout()}
+              className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/10"
+            >
+              Sign out
+            </button>
+          </div>
         </div>
       </header>
 

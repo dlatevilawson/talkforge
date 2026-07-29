@@ -448,7 +448,7 @@ export default function VoiceArena({
                   Practice again
                 </button>
                 <Link
-                  href="/dashboard"
+                  href="/app/dashboard"
                   className="rounded-full border border-white/20 px-6 py-3.5 text-sm text-white/80 transition hover:bg-white/10"
                 >
                   Done for now

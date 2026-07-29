@@ -96,19 +96,19 @@ export default function FounderOS({ snapshot }: FounderOSProps) {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 text-sm">
         <div className="flex flex-wrap items-center gap-4">
           <Link
-            href="/dashboard"
+            href="/app/dashboard"
             className="text-zinc-500 underline-offset-4 hover:text-zinc-200 hover:underline"
           >
             Product
           </Link>
           <Link
-            href="/training"
+            href="/app/training"
             className="text-zinc-500 underline-offset-4 hover:text-zinc-200 hover:underline"
           >
             Practice
           </Link>
           <Link
-            href="/progress"
+            href="/app/progress"
             className="text-zinc-500 underline-offset-4 hover:text-zinc-200 hover:underline"
           >
             Progress
