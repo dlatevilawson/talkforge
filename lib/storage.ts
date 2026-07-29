@@ -92,11 +92,11 @@ export async function getUser(): Promise<TalkForgeUser | null> {
 
 export async function saveUser(user: TalkForgeUser): Promise<void> {
   const supabase = requireSupabase();
-  const { error } = await supabase.from("profiles").upsert({
-    id: user.id,
-    display_name: user.displayName,
-    created_at: user.createdAt,
-  });
+  // Profiles are created by auth triggers — clients may only update safe fields.
+  const { error } = await supabase
+    .from("profiles")
+    .update({ display_name: user.displayName })
+    .eq("id", user.id);
 
   if (error) {
     throw new Error(`Failed to save profile: ${error.message}`);

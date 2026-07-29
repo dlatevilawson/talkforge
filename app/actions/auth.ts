@@ -1,0 +1,448 @@
+"use server";
+
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { getSiteUrl } from "@/lib/auth/constants";
+import {
+  founderDevConfigured,
+  founderDevEmail,
+  founderDevPassword,
+} from "@/lib/auth/founder-dev";
+import { AUTH_COPY, mapAuthError } from "@/lib/auth/messages";
+import { assertPasswordPolicy } from "@/lib/auth/password";
+import { recordLogin } from "@/lib/auth/session";
+import {
+  checkRateLimit,
+  clientKeyFromHeaders,
+} from "@/lib/auth/rate-limit";
+import { validateEmail, validateSignup } from "@/lib/auth/validate";
+import {
+  adminConfigured,
+  createAdminSupabaseClient,
+} from "@/lib/supabase/admin";
+import { getSupabaseConfigStatus } from "@/lib/supabase/config";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+
+export type AuthActionState = {
+  ok?: boolean;
+  message?: string;
+  errors?: Record<string, string>;
+};
+
+function authUnavailable(): AuthActionState {
+  return {
+    ok: false,
+    message: "Authentication is temporarily unavailable.",
+  };
+}
+
+async function rateLimitOrError(
+  action: string
+): Promise<AuthActionState | null> {
+  const h = await headers();
+  const key = `${action}:${clientKeyFromHeaders(h)}`;
+  const result = checkRateLimit(key, 8, 60_000);
+  if (!result.ok) {
+    return {
+      ok: false,
+      message: "Too many attempts. Please wait a moment and try again.",
+    };
+  }
+  return null;
+}
+
+/** Ensure development Founder account exists (env-gated, never in production). */
+async function ensureFounderDevAccount(): Promise<void> {
+  if (!founderDevConfigured() || !adminConfigured()) return;
+
+  const email = founderDevEmail();
+  const password = founderDevPassword();
+  const admin = createAdminSupabaseClient();
+
+  const { data: listed } = await admin.auth.admin.listUsers({ perPage: 200 });
+  const existing = listed?.users?.find(
+    (u) => u.email?.toLowerCase() === email
+  );
+
+  if (existing) {
+    await admin.from("profiles").upsert({
+      id: existing.id,
+      email,
+      first_name: "Founder",
+      last_name: "TalkForge",
+      display_name: "Founder",
+      email_verified: true,
+      account_status: "active",
+      role: "founder",
+      must_change_password: true,
+      onboarding_complete: true,
+    });
+    return;
+  }
+
+  const { data, error } = await admin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: {
+      first_name: "Founder",
+      last_name: "TalkForge",
+      display_name: "Founder",
+      role: "founder",
+      must_change_password: true,
+    },
+  });
+
+  if (error) {
+    console.error("founder-dev seed", error.message);
+    return;
+  }
+
+  if (data.user) {
+    await admin.from("profiles").upsert({
+      id: data.user.id,
+      email,
+      first_name: "Founder",
+      last_name: "TalkForge",
+      display_name: "Founder",
+      email_verified: true,
+      account_status: "active",
+      role: "founder",
+      must_change_password: true,
+      onboarding_complete: true,
+    });
+  }
+}
+
+export async function signupAction(
+  _prev: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  if (!getSupabaseConfigStatus().configured) return authUnavailable();
+  const limited = await rateLimitOrError("signup");
+  if (limited) return limited;
+
+  const parsed = validateSignup({
+    firstName: String(formData.get("firstName") ?? ""),
+    lastName: String(formData.get("lastName") ?? ""),
+    email: String(formData.get("email") ?? ""),
+    password: String(formData.get("password") ?? ""),
+  });
+
+  if (!parsed.ok || !parsed.data) {
+    return { ok: false, errors: parsed.errors, message: "Please fix the highlighted fields." };
+  }
+
+  const { firstName, lastName, email, password } = parsed.data;
+  const supabase = await createServerSupabaseClient();
+  const site = getSiteUrl();
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      emailRedirectTo: `${site}/auth/callback?next=/onboarding`,
+      data: {
+        first_name: firstName,
+        last_name: lastName,
+        display_name: `${firstName} ${lastName}`.trim(),
+      },
+    },
+  });
+
+  if (error) {
+    return {
+      ok: false,
+      message: mapAuthError(error, "Could not create your account. Please try again."),
+    };
+  }
+
+  return {
+    ok: true,
+    message: AUTH_COPY.signupSuccess,
+  };
+}
+
+export async function loginAction(
+  _prev: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  if (!getSupabaseConfigStatus().configured) return authUnavailable();
+  const limited = await rateLimitOrError("login");
+  if (limited) return limited;
+
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
+  const password = String(formData.get("password") ?? "");
+  const nextRaw = String(formData.get("next") ?? "/app/dashboard");
+  const next = nextRaw.startsWith("/") ? nextRaw : "/app/dashboard";
+
+  const emailErr = validateEmail(email);
+  if (emailErr || !password) {
+    return {
+      ok: false,
+      message: "Incorrect email or password.",
+    };
+  }
+
+  // Seed Founder before login attempt when local bootstrap is enabled.
+  if (
+    founderDevConfigured() &&
+    email === founderDevEmail()
+  ) {
+    await ensureFounderDevAccount();
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error || !data.user) {
+    return {
+      ok: false,
+      message: mapAuthError(error, "Incorrect email or password."),
+    };
+  }
+
+  await recordLogin(data.user.id);
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("must_change_password, onboarding_complete, role, email_verified")
+    .eq("id", data.user.id)
+    .maybeSingle();
+
+  if (profile?.must_change_password) {
+    redirect(`/change-password?next=${encodeURIComponent(next)}`);
+  }
+
+  if (profile && !profile.email_verified) {
+    redirect("/verify-email");
+  }
+
+  if (profile && !profile.onboarding_complete) {
+    redirect("/onboarding");
+  }
+
+  if (next.startsWith("/founder")) {
+    const role = (profile?.role as string) || "user";
+    if (role !== "founder" && role !== "admin" && role !== "system") {
+      // Allowlist elevation is applied on subsequent readSession/proxy.
+      const allow = (process.env.FOUNDER_USER_IDS ?? "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (!allow.includes(data.user.id)) {
+        redirect("/app/dashboard");
+      }
+    }
+  }
+
+  redirect(next);
+}
+
+export async function logoutAction(): Promise<void> {
+  if (getSupabaseConfigStatus().configured) {
+    try {
+      const supabase = await createServerSupabaseClient();
+      await supabase.auth.signOut();
+    } catch {
+      // still redirect home
+    }
+  }
+  redirect("/");
+}
+
+export async function forgotPasswordAction(
+  _prev: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  if (!getSupabaseConfigStatus().configured) return authUnavailable();
+  const limited = await rateLimitOrError("forgot");
+  if (limited) return limited;
+
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
+  const emailErr = validateEmail(email);
+  if (emailErr) {
+    return { ok: false, errors: { email: emailErr } };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const site = getSiteUrl();
+
+  // Always return the same message to avoid account enumeration.
+  await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${site}/auth/callback?next=/reset-password`,
+  });
+
+  return { ok: true, message: AUTH_COPY.resetSent };
+}
+
+export async function resetPasswordAction(
+  _prev: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  if (!getSupabaseConfigStatus().configured) return authUnavailable();
+  const limited = await rateLimitOrError("reset");
+  if (limited) return limited;
+
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirmPassword") ?? "");
+  const policyErr = assertPasswordPolicy(password);
+  if (policyErr) {
+    return { ok: false, errors: { password: policyErr } };
+  }
+  if (password !== confirm) {
+    return {
+      ok: false,
+      errors: { confirmPassword: "Passwords do not match." },
+    };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    return {
+      ok: false,
+      message: mapAuthError(error, "Could not update your password. Try the reset link again."),
+    };
+  }
+
+  await supabase
+    .from("profiles")
+    .update({ must_change_password: false })
+    .eq("id", (await supabase.auth.getUser()).data.user?.id ?? "");
+
+  return { ok: true, message: AUTH_COPY.resetSuccess };
+}
+
+export async function changePasswordAction(
+  _prev: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  if (!getSupabaseConfigStatus().configured) return authUnavailable();
+  const limited = await rateLimitOrError("change-password");
+  if (limited) return limited;
+
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirmPassword") ?? "");
+  const nextRaw = String(formData.get("next") ?? "/app/dashboard");
+  const next = nextRaw.startsWith("/") ? nextRaw : "/app/dashboard";
+
+  const policyErr = assertPasswordPolicy(password);
+  if (policyErr) {
+    return { ok: false, errors: { password: policyErr } };
+  }
+  if (password !== confirm) {
+    return {
+      ok: false,
+      errors: { confirmPassword: "Passwords do not match." },
+    };
+  }
+
+  // Reject the known temporary founder password as the new password.
+  if (password === founderDevPassword() && founderDevPassword()) {
+    return {
+      ok: false,
+      errors: { password: "Choose a new password that is not the temporary one." },
+    };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) {
+    return { ok: false, message: "Please sign in again." };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    return {
+      ok: false,
+      message: mapAuthError(error, "Could not update your password."),
+    };
+  }
+
+  await supabase
+    .from("profiles")
+    .update({ must_change_password: false })
+    .eq("id", userData.user.id);
+
+  redirect(next);
+}
+
+export async function completeOnboardingAction(
+  _prev: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  if (!getSupabaseConfigStatus().configured) return authUnavailable();
+
+  const timeZone = String(formData.get("timeZone") ?? "UTC").slice(0, 64);
+  const preferredLanguage = String(
+    formData.get("preferredLanguage") ?? "en"
+  ).slice(0, 16);
+
+  const supabase = await createServerSupabaseClient();
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) {
+    return { ok: false, message: "Please sign in again." };
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      time_zone: timeZone || "UTC",
+      preferred_language: preferredLanguage || "en",
+      onboarding_complete: true,
+      account_status: "active",
+    })
+    .eq("id", userData.user.id);
+
+  if (error) {
+    return {
+      ok: false,
+      message: "Could not save your preferences. Please try again.",
+    };
+  }
+
+  redirect("/app/dashboard");
+}
+
+export async function resendVerificationAction(): Promise<AuthActionState> {
+  if (!getSupabaseConfigStatus().configured) return authUnavailable();
+  const limited = await rateLimitOrError("resend");
+  if (limited) return limited;
+
+  const supabase = await createServerSupabaseClient();
+  const { data } = await supabase.auth.getUser();
+  const email = data.user?.email;
+  if (!email) {
+    return {
+      ok: false,
+      message: "Sign in with your email to resend verification.",
+    };
+  }
+
+  const site = getSiteUrl();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: `${site}/auth/callback?next=/onboarding` },
+  });
+
+  if (error) {
+    return {
+      ok: false,
+      message: mapAuthError(error, "Could not resend the email. Please try again later."),
+    };
+  }
+
+  return {
+    ok: true,
+    message: "Verification email sent. Check your inbox.",
+  };
+}

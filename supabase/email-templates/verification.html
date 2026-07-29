@@ -1,0 +1,38 @@
+Subject: Welcome to TalkForge — Verify Your Email
+
+Purpose: Verify ownership of the email address before granting platform access.
+
+---
+
+HTML (paste into Supabase Auth → Email Templates → Confirm signup):
+
+<!DOCTYPE html>
+<html>
+  <body style="margin:0;padding:0;background:#050505;font-family:Georgia,'Times New Roman',serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#050505;padding:40px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" style="max-width:520px;background:#0b0c0f;border:1px solid #2a2a2e;border-radius:16px;padding:36px 32px;">
+            <tr>
+              <td>
+                <p style="margin:0;color:#c99b4a;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;font-family:system-ui,sans-serif;">TalkForge</p>
+                <h1 style="margin:16px 0 0;color:#f4f4f5;font-size:28px;font-weight:600;line-height:1.25;">Verify your email</h1>
+                <p style="margin:16px 0 0;color:#a1a1aa;font-size:15px;line-height:1.6;font-family:system-ui,sans-serif;">
+                  Welcome. Confirm this address to activate your account and begin training for the conversations that matter.
+                </p>
+                <p style="margin:28px 0 0;">
+                  <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#ffffff;color:#050505;text-decoration:none;font-family:system-ui,sans-serif;font-size:14px;font-weight:600;padding:14px 28px;border-radius:999px;">
+                    Verify email
+                  </a>
+                </p>
+                <p style="margin:28px 0 0;color:#71717a;font-size:12px;line-height:1.5;font-family:system-ui,sans-serif;">
+                  If you did not create a TalkForge account, you can ignore this message.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

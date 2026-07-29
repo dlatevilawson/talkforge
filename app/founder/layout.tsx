@@ -1,14 +1,15 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { readSession } from "@/lib/auth/session";
+import { requireFounderPortal } from "@/lib/auth/session";
 
 const nav = [
   { href: "/founder", label: "Dashboard" },
   { href: "/founder/atlas", label: "Atlas" },
-  { href: "/founder/company", label: "Company OS" },
-  { href: "/founder/projects", label: "Projects" },
-  { href: "/founder/agents", label: "Agents" },
+  { href: "/founder/company", label: "Company" },
+  { href: "/founder/engineering", label: "Engineering" },
   { href: "/founder/analytics", label: "Analytics" },
+  { href: "/founder/operations", label: "Operations" },
+  { href: "/founder/docs", label: "Documentation" },
+  { href: "/founder/projects", label: "Projects" },
   { href: "/founder/notes", label: "Notes" },
 ] as const;
 
@@ -17,13 +18,7 @@ export default async function FounderLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await readSession();
-  if (!session.authenticated) {
-    redirect("/login?next=/founder");
-  }
-  if (session.role !== "founder") {
-    redirect("/app/dashboard");
-  }
+  await requireFounderPortal();
 
   return (
     <div className="min-h-[100dvh] bg-[#0b0c0f] text-zinc-100">
@@ -48,12 +43,20 @@ export default async function FounderLayout({
               </Link>
             ))}
           </nav>
-          <Link
-            href="/app/dashboard"
-            className="text-xs text-zinc-400 hover:text-white"
-          >
-            ← Gym
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/app/dashboard"
+              className="text-xs text-zinc-400 hover:text-white"
+            >
+              ← Gym
+            </Link>
+            <Link
+              href="/logout"
+              className="text-xs text-zinc-400 hover:text-white"
+            >
+              Sign out
+            </Link>
+          </div>
         </div>
       </header>
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">{children}</div>

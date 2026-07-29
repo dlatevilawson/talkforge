@@ -55,8 +55,8 @@ export type TalkForgeUser = {
   id: string;
   displayName: string;
   createdAt: string;
-  /** Optional role — founder gated via session cookie; not required for members. */
-  role?: "member" | "founder";
+  /** App role from profiles — authorization is server-enforced. */
+  role?: "guest" | "user" | "premium" | "founder" | "admin" | "system";
 };
 
 export type PracticeSession = {

@@ -579,6 +579,20 @@ Authoritative — Implemented on branch; merge when validated
 
 ---
 
+# Decision 041
+
+Title:
+Production authentication foundation — Supabase Auth + role-based authorization (AUTH-001).
+
+Reason:
+
+Founder Atlas Task: replace interim guest cookie identity with production Supabase Authentication. Auth owns identity, authentication, authorization, and session only. Email/password Phase 1; providers stubbed for additive growth. Shared login for all roles including Founder. Dev Founder bootstrap env-gated and production-locked. Volume: `atos/product/AUTH-001-authentication-foundation.md`.
+
+Status:
+Authoritative — Implemented on branch; apply SQL migration + Supabase email templates before production cutover
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

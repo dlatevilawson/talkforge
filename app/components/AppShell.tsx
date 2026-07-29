@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { destroySession } from "@/lib/auth/client";
+import { canAccessFounderPortal } from "@/lib/auth/roles";
+import type { UserRole } from "@/lib/auth/constants";
+import { clearCurrentUserId, setCurrentUserId } from "@/lib/identity";
 
 const links = [
   { href: "/app/dashboard", label: "Dashboard" },
@@ -17,7 +19,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [name, setName] = useState("Friend");
-  const [isFounder, setIsFounder] = useState(false);
+  const [showFounder, setShowFounder] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -32,12 +34,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         };
         if (cancelled) return;
         if (data.userId) {
-          const { setCurrentUserId } = await import("@/lib/identity");
           setCurrentUserId(data.userId);
         }
         const display = data.displayName?.trim();
         setName(display && display !== "Guest" ? display : "Friend");
-        setIsFounder(data.role === "founder");
+        setShowFounder(
+          canAccessFounderPortal(
+            (data.role as UserRole | null) ?? null
+          )
+        );
       } catch {
         if (!cancelled) setName("Friend");
       }
@@ -49,12 +54,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   async function logout() {
-    await destroySession();
+    await fetch("/api/auth/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "logout" }),
+    });
+    clearCurrentUserId();
     router.push("/");
     router.refresh();
   }
 
-  const nav = isFounder
+  const nav = showFounder
     ? [...links, { href: "/founder", label: "Founder Portal" }]
     : links;
 

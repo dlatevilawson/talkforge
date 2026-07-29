@@ -1,133 +1,144 @@
+import { redirect } from "next/navigation";
+import type { UserRole } from "@/lib/auth/constants";
 import {
-  AUTH_COOKIE_MAX_AGE,
-  TF_AUTH_COOKIE,
-  TF_NAME_COOKIE,
-  TF_ROLE_COOKIE,
-  TF_UID_COOKIE,
-  type UserRole,
-} from "@/lib/auth/constants";
+  canAccessApp,
+  canAccessFounderPortal,
+  hasPermission,
+  type Permission,
+} from "@/lib/auth/roles";
+import {
+  mapProfile,
+  PROFILE_SELECT,
+  type UserProfile,
+} from "@/lib/auth/profile";
+import { getSupabaseConfigStatus } from "@/lib/supabase/config";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { resolveEffectiveRole } from "@/lib/auth/allowlist";
 
-export type SessionPayload = {
+export type AuthSession = {
   authenticated: boolean;
   userId: string | null;
+  email: string | null;
   role: UserRole | null;
   displayName: string | null;
+  profile: UserProfile | null;
 };
 
-/** Parse FOUNDER_USER_IDS allowlist (comma-separated). Production Founder gate. */
-export function founderUserIdAllowlist(): Set<string> {
-  const raw = process.env.FOUNDER_USER_IDS?.trim() ?? "";
-  if (!raw) return new Set();
-  return new Set(
-    raw
-      .split(",")
-      .map((id) => id.trim())
-      .filter(Boolean)
-  );
-}
+export async function readSession(): Promise<AuthSession> {
+  const empty: AuthSession = {
+    authenticated: false,
+    userId: null,
+    email: null,
+    role: null,
+    displayName: null,
+    profile: null,
+  };
 
-/**
- * Temporary Founder elevation for local/dev only.
- * Impossible to enable on Vercel Production: requires NODE_ENV !== production
- * AND VERCEL_ENV !== production AND FOUNDER_DEV_ENABLED=true.
- */
-export function founderDevAllowed(): boolean {
-  if (process.env.NODE_ENV === "production") return false;
-  if (process.env.VERCEL_ENV === "production") return false;
-  return process.env.FOUNDER_DEV_ENABLED === "true";
-}
-
-export function founderDevUserId(): string {
-  return process.env.FOUNDER_DEV_USER_ID?.trim() || "founder-dev";
-}
-
-export function founderDevDisplayName(): string {
-  return process.env.FOUNDER_DEV_DISPLAY_NAME?.trim() || "Founder";
-}
-
-/**
- * Resolve role for a user in the shared auth system.
- * Same login for everyone — Founder is an allowlisted role, not a separate login.
- */
-export function resolveUserRole(input: {
-  userId: string;
-  displayName: string;
-}): UserRole {
-  const allow = founderUserIdAllowlist();
-  if (allow.has(input.userId)) return "founder";
-
-  if (founderDevAllowed()) {
-    const devId = founderDevUserId();
-    const devName = founderDevDisplayName();
-    if (
-      input.userId === devId ||
-      input.displayName.trim().toLowerCase() === devName.toLowerCase()
-    ) {
-      return "founder";
-    }
+  if (!getSupabaseConfigStatus().configured) {
+    return empty;
   }
 
-  return "member";
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data: claimsData, error } = await supabase.auth.getClaims();
+    if (error || !claimsData?.claims?.sub) {
+      return empty;
+    }
+
+    const userId = claimsData.claims.sub as string;
+    const email =
+      typeof claimsData.claims.email === "string"
+        ? claimsData.claims.email
+        : null;
+
+    const { data: row } = await supabase
+      .from("profiles")
+      .select(PROFILE_SELECT)
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (!row) {
+      return {
+        authenticated: true,
+        userId,
+        email,
+        role: "user",
+        displayName: email?.split("@")[0] ?? "Member",
+        profile: null,
+      };
+    }
+
+    const profile = mapProfile(row);
+    const role = resolveEffectiveRole(userId, profile.role);
+    return {
+      authenticated: true,
+      userId,
+      email: profile.email || email,
+      role,
+      displayName: profile.displayName,
+      profile: { ...profile, role },
+    };
+  } catch {
+    return empty;
+  }
 }
 
-export function isFounderUserId(userId: string | null | undefined): boolean {
-  if (!userId) return false;
-  if (founderUserIdAllowlist().has(userId)) return true;
-  if (founderDevAllowed() && userId === founderDevUserId()) return true;
-  return false;
+export async function requireAuth(nextPath = "/app/dashboard"): Promise<AuthSession> {
+  const session = await readSession();
+  if (!session.authenticated) {
+    redirect(`/login?next=${encodeURIComponent(nextPath)}`);
+  }
+  return session;
 }
 
-export async function readSession(): Promise<SessionPayload> {
-  const { cookies } = await import("next/headers");
-  const jar = await cookies();
-  const auth = jar.get(TF_AUTH_COOKIE)?.value;
-  const userId = jar.get(TF_UID_COOKIE)?.value ?? null;
-  const displayName = jar.get(TF_NAME_COOKIE)?.value ?? null;
-  // Re-resolve role from allowlist — do not trust cookie alone for authorization.
-  const role: UserRole | null =
-    auth === "1" && userId
-      ? resolveUserRole({
-          userId,
-          displayName: displayName || "Member",
-        })
-      : null;
-  return {
-    authenticated: auth === "1" && Boolean(userId),
-    userId,
-    role,
-    displayName,
-  };
+export async function requirePermission(
+  permission: Permission,
+  nextPath = "/app/dashboard"
+): Promise<AuthSession> {
+  const session = await requireAuth(nextPath);
+  if (!hasPermission(session.role, permission)) {
+    redirect("/app/dashboard");
+  }
+  return session;
 }
 
-export async function writeSession(input: {
-  userId: string;
-  role: UserRole;
-  displayName: string;
-}): Promise<void> {
-  const { cookies } = await import("next/headers");
-  const jar = await cookies();
-  const base = {
-    httpOnly: true,
-    sameSite: "lax" as const,
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: AUTH_COOKIE_MAX_AGE,
-  };
-  jar.set(TF_AUTH_COOKIE, "1", base);
-  jar.set(TF_UID_COOKIE, input.userId, base);
-  jar.set(TF_ROLE_COOKIE, input.role, base);
-  jar.set(TF_NAME_COOKIE, input.displayName.slice(0, 64), base);
+export async function requireAppAccess(): Promise<AuthSession> {
+  const session = await requireAuth("/app/dashboard");
+  if (!canAccessApp(session.role)) {
+    redirect("/login");
+  }
+  if (session.profile?.mustChangePassword) {
+    redirect("/change-password?next=/app/dashboard");
+  }
+  if (session.profile && !session.profile.emailVerified) {
+    redirect("/verify-email");
+  }
+  if (session.profile && !session.profile.onboardingComplete) {
+    redirect("/onboarding");
+  }
+  return session;
 }
 
-export async function clearSession(): Promise<void> {
-  const { cookies } = await import("next/headers");
-  const jar = await cookies();
-  for (const name of [
-    TF_AUTH_COOKIE,
-    TF_UID_COOKIE,
-    TF_ROLE_COOKIE,
-    TF_NAME_COOKIE,
-  ]) {
-    jar.set(name, "", { httpOnly: true, path: "/", maxAge: 0 });
+export async function requireFounderPortal(): Promise<AuthSession> {
+  const session = await requireAuth("/founder");
+  if (!canAccessFounderPortal(session.role)) {
+    redirect("/app/dashboard");
+  }
+  if (session.profile?.mustChangePassword) {
+    redirect("/change-password?next=/founder");
+  }
+  return session;
+}
+
+/** Touch last_login_at after successful sign-in. */
+export async function recordLogin(userId: string): Promise<void> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    await supabase
+      .from("profiles")
+      .update({ last_login_at: new Date().toISOString() })
+      .eq("id", userId);
+  } catch {
+    // Non-fatal
   }
 }

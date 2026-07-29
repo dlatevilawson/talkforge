@@ -1,9 +1,17 @@
+/** Client-safe auth exports. Server-only APIs: `@/lib/auth/session`, `@/lib/auth/roles`. */
 export { ensureGuestUser, updateDisplayName } from "./guest";
+export type { UserRole, AccountStatus } from "./constants";
 export {
-  AUTH_COOKIE_MAX_AGE,
-  TF_AUTH_COOKIE,
-  TF_NAME_COOKIE,
-  TF_ROLE_COOKIE,
-  TF_UID_COOKIE,
-  type UserRole,
+  APP_ROLES,
+  FOUNDER_PORTAL_ROLES,
+  APP_ACCESS_ROLES,
+  getSiteUrl,
 } from "./constants";
+export {
+  canAccessApp,
+  canAccessFounderPortal,
+  hasPermission,
+  permissionsForRole,
+} from "./roles";
+export { evaluatePassword, assertPasswordPolicy } from "./password";
+export { AUTH_PROVIDERS, enabledProviders } from "./providers";
