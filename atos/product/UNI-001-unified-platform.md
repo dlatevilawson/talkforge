@@ -17,19 +17,18 @@ One Next.js app, one repo, one Vercel project, one domain, one GA property.
 ```
 /                 Marketing landing (preserved)
 /about|/pricing|/blog|/contact|/privacy|/terms
-/login|/signup    Auth (guest identity + cookie session)
+/login|/signup    Auth (Supabase Auth — AUTH-001)
 /app/*            Communication Gym (protected)
-/founder/*        Founder Portal (founder role only)
+/founder/*        Founder Portal (founder/admin roles)
 ```
 
 Protection uses Next.js 16 **`proxy.ts`** (not deprecated `middleware`).
 
-### Auth decision (challenged assumption)
+### Auth decision (AUTH-001 / Decision 041)
 
-**Long-term excellence:** Supabase Auth + RLS.  
-**This ship:** Extend the *existing* guest identity (sessionStorage + profiles) with **httpOnly cookie bridge** so `/app` and `/founder` can be gated server-side — **without** introducing a second auth provider.
+Production identity uses **Supabase Auth** (email/password) with `@supabase/ssr` HTTP-only cookies, role-driven authorization on `profiles.role`, and `proxy.ts` session refresh. See `atos/product/AUTH-001-authentication-foundation.md`.
 
-**Founder access:** same `/login` / `/signup` as every member. Role is resolved from `FOUNDER_USER_IDS` (production allowlist). A temporary local Founder seed (`FOUNDER_DEV_*`) is **hard-locked out of production** (`NODE_ENV` / `VERCEL_ENV` must not be production). No separate Founder login UI or API action.
+**Founder access:** same `/login` / `/signup` as every member. Role from `profiles.role` / `FOUNDER_USER_IDS`. Dev Founder bootstrap (`FOUNDER_DEV_*`) is **hard-locked out of production**.
 
 ### Why not fork the landing page
 
