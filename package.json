@@ -32,6 +32,7 @@
     "atlas:staff:check:s5": "npx --yes tsx atlas/runtime/staff/check-s5.ts"
   },
   "dependencies": {
+    "@next/third-parties": "^16.2.12",
     "@supabase/supabase-js": "^2.110.6",
     "next": "16.2.10",
     "openai": "^6.46.0",
