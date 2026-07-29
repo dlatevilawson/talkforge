@@ -30,6 +30,7 @@ export type AuthActionState = {
   ok?: boolean;
   message?: string;
   email?: string;
+  redirectTo?: string;
   errors?: Record<string, string>;
 };
 
@@ -261,15 +262,21 @@ export async function loginAction(
   logAuthEvent("auth_login_success", { role: profile?.role ?? "user" });
 
   if (profile?.must_change_password) {
-    redirect(`/change-password?next=${encodeURIComponent(next)}`);
+    return {
+      ok: true,
+      redirectTo: `/change-password?next=${encodeURIComponent(next)}`,
+    };
   }
 
   if (profile && !profile.email_verified) {
-    redirect(`/verify-email?email=${encodeURIComponent(email)}`);
+    return {
+      ok: true,
+      redirectTo: `/verify-email?email=${encodeURIComponent(email)}`,
+    };
   }
 
   if (profile && !profile.onboarding_complete) {
-    redirect("/onboarding");
+    return { ok: true, redirectTo: "/onboarding" };
   }
 
   if (next.startsWith("/founder")) {
@@ -277,12 +284,12 @@ export async function loginAction(
     if (role !== "founder" && role !== "admin" && role !== "system") {
       const allow = founderUserIdAllowlist();
       if (!allow.has(data.user.id)) {
-        redirect("/app/dashboard");
+        return { ok: true, redirectTo: "/app/dashboard" };
       }
     }
   }
 
-  redirect(next);
+  return { ok: true, redirectTo: next };
 }
 
 export async function logoutAction(): Promise<void> {
@@ -535,7 +542,7 @@ export async function verifyEmailOtpAction(
   }
 
   logAuthEvent("auth_verification_success", { method: "otp" });
-  redirect("/onboarding");
+  return { ok: true, redirectTo: "/onboarding" };
 }
 
 /**
@@ -591,6 +598,7 @@ export async function verifyEmailLinkAction(
   });
 
   if (error) {
+    logAuthEvent("auth_verification_failure", { reason: error.message });
     return {
       ok: false,
       message: mapAuthError(
@@ -600,8 +608,9 @@ export async function verifyEmailLinkAction(
     };
   }
 
+  logAuthEvent("auth_verification_success", { method: "link_paste" });
   if (type === "recovery") {
-    redirect("/reset-password");
+    return { ok: true, redirectTo: "/reset-password" };
   }
-  redirect("/onboarding");
+  return { ok: true, redirectTo: "/onboarding" };
 }

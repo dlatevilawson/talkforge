@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { canAccessFounderPortal } from "@/lib/auth/roles";
 import type { UserRole } from "@/lib/auth/constants";
 import { clearCurrentUserId, setCurrentUserId } from "@/lib/identity";
+import { trackAuthEvent } from "@/lib/auth/analytics";
 
 const links = [
   { href: "/app/dashboard", label: "Dashboard" },
@@ -54,6 +55,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   async function logout() {
+    trackAuthEvent("auth_logout");
     await fetch("/api/auth/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

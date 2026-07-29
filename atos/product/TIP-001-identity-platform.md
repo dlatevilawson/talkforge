@@ -5,7 +5,7 @@
 |---|---|
 | **Document ID** | TIP-001 |
 | **Version** | 1.0.0 |
-| **Status** | In implementation |
+| **Status** | Production-ready with Founder ops remaining (see TIP-001-PRR) |
 | **Date** | 2026-07-29 |
 | **Branch** | `cursor/auth-production-98b4` |
 | **Supersedes** | AUTH-001 interim notes (retained as volume) |

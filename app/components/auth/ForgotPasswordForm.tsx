@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import {
   forgotPasswordAction,
@@ -13,6 +13,7 @@ import {
   AuthShell,
   AuthSubmit,
 } from "@/app/components/auth/AuthShell";
+import { trackAuthEvent } from "@/lib/auth/analytics";
 
 function Submit() {
   const { pending } = useFormStatus();
@@ -30,6 +31,10 @@ export default function ForgotPasswordForm() {
     forgotPasswordAction,
     {} as AuthActionState
   );
+
+  useEffect(() => {
+    if (state.ok) trackAuthEvent("auth_password_reset_request");
+  }, [state.ok]);
 
   return (
     <AuthShell

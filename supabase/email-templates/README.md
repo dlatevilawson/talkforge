@@ -1,6 +1,6 @@
 # Auth email templates (TalkForge)
 
-Paste into **Supabase Dashboard → Authentication → Email Templates**, or run:
+Apply via **Supabase Dashboard → Authentication → Email Templates**, or:
 
 ```bash
 SUPABASE_ACCESS_TOKEN=sbp_... npm run auth:configure
@@ -10,11 +10,12 @@ SUPABASE_ACCESS_TOKEN=sbp_... npm run auth:configure
 |----------|---------|------|
 | Confirm signup | Welcome to TalkForge — Verify Your Email | `verification.html` |
 | Reset password | Reset Your TalkForge Password | `password-reset.html` |
-| Invite / welcome | Welcome to TalkForge | `welcome.html` |
+| Invite | You’re invited to TalkForge | `invitation.html` |
+| Email change | Confirm your TalkForge email change | `email-change.html` |
+| Welcome (post-verify copy) | Welcome to TalkForge | `welcome.html` |
 
-Links in these templates point at **https://talkforge.io/auth/callback** with `token_hash` so confirmation works on phones (never localhost).
+Templates use `{{ .ConfirmationURL }}`, `{{ .SiteURL }}`, and `{{ .Token }}` (OTP).
 
-Also set **URL Configuration**:
+**Required with templates:** Auth URL Configuration Site URL = `https://talkforge.io` and redirect allowlist `https://talkforge.io/**`.
 
-- Site URL: `https://talkforge.io`
-- Redirect URLs: `https://talkforge.io/**`, `http://localhost:3000/**`
+Until Site URL is production, users can verify via OTP / paste-link on `/verify-email`.

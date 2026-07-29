@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { loginAction, type AuthActionState } from "@/app/actions/auth";
@@ -27,13 +28,20 @@ export default function LoginForm({
   next: string;
   notice?: string;
 }) {
+  const router = useRouter();
   const [state, action] = useActionState(loginAction, {} as AuthActionState);
 
   useEffect(() => {
+    if (state.ok && state.redirectTo) {
+      trackAuthEvent("auth_login_success");
+      router.push(state.redirectTo);
+      router.refresh();
+      return;
+    }
     if (state.message && !state.ok) {
       trackAuthEvent("auth_login_failure");
     }
-  }, [state.message, state.ok]);
+  }, [state.ok, state.redirectTo, state.message, router]);
 
   return (
     <AuthShell
