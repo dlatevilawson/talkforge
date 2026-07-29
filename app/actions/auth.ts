@@ -2,7 +2,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getSiteUrl } from "@/lib/auth/constants";
+import { authCallbackUrl } from "@/lib/auth/constants";
 import {
   founderDevConfigured,
   founderDevEmail,
@@ -26,6 +26,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 export type AuthActionState = {
   ok?: boolean;
   message?: string;
+  email?: string;
   errors?: Record<string, string>;
 };
 
@@ -135,13 +136,12 @@ export async function signupAction(
 
   const { firstName, lastName, email, password } = parsed.data;
   const supabase = await createServerSupabaseClient();
-  const site = getSiteUrl();
 
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${site}/auth/callback?next=/onboarding`,
+      emailRedirectTo: authCallbackUrl("/onboarding"),
       data: {
         first_name: firstName,
         last_name: lastName,
@@ -160,6 +160,7 @@ export async function signupAction(
   return {
     ok: true,
     message: AUTH_COPY.signupSuccess,
+    email,
   };
 }
 
@@ -273,11 +274,10 @@ export async function forgotPasswordAction(
   }
 
   const supabase = await createServerSupabaseClient();
-  const site = getSiteUrl();
 
   // Always return the same message to avoid account enumeration.
   await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${site}/auth/callback?next=/reset-password`,
+    redirectTo: authCallbackUrl("/reset-password"),
   });
 
   return { ok: true, message: AUTH_COPY.resetSent };
@@ -412,26 +412,27 @@ export async function completeOnboardingAction(
   redirect("/app/dashboard");
 }
 
-export async function resendVerificationAction(): Promise<AuthActionState> {
+export async function resendVerificationAction(
+  _prev: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
   if (!getSupabaseConfigStatus().configured) return authUnavailable();
   const limited = await rateLimitOrError("resend");
   if (limited) return limited;
 
-  const supabase = await createServerSupabaseClient();
-  const { data } = await supabase.auth.getUser();
-  const email = data.user?.email;
-  if (!email) {
-    return {
-      ok: false,
-      message: "Sign in with your email to resend verification.",
-    };
+  const emailFromForm = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
+  const emailErr = emailFromForm ? validateEmail(emailFromForm) : "Enter your email.";
+  if (emailErr) {
+    return { ok: false, errors: { email: emailErr } };
   }
 
-  const site = getSiteUrl();
+  const supabase = await createServerSupabaseClient();
   const { error } = await supabase.auth.resend({
     type: "signup",
-    email,
-    options: { emailRedirectTo: `${site}/auth/callback?next=/onboarding` },
+    email: emailFromForm,
+    options: { emailRedirectTo: authCallbackUrl("/onboarding") },
   });
 
   if (error) {
@@ -445,4 +446,117 @@ export async function resendVerificationAction(): Promise<AuthActionState> {
     ok: true,
     message: "Verification email sent. Check your inbox.",
   };
+}
+
+/** Confirm signup with the 6-digit code from the email. */
+export async function verifyEmailOtpAction(
+  _prev: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  if (!getSupabaseConfigStatus().configured) return authUnavailable();
+  const limited = await rateLimitOrError("verify-otp");
+  if (limited) return limited;
+
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
+  const token = String(formData.get("token") ?? "")
+    .trim()
+    .replace(/\s+/g, "");
+
+  const emailErr = validateEmail(email);
+  if (emailErr) return { ok: false, errors: { email: emailErr } };
+  if (!/^\d{6}$/.test(token)) {
+    return {
+      ok: false,
+      errors: { token: "Enter the 6-digit code from your email." },
+    };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const { error } = await supabase.auth.verifyOtp({
+    email,
+    token,
+    type: "email",
+  });
+
+  if (error) {
+    return {
+      ok: false,
+      message: mapAuthError(
+        error,
+        "That code didn’t work. Request a new email and try again."
+      ),
+    };
+  }
+
+  redirect("/onboarding");
+}
+
+/**
+ * Mobile recovery: user long-presses the Confirm link in email, copies it,
+ * and pastes here. We extract the token even if redirect_to was localhost.
+ */
+export async function verifyEmailLinkAction(
+  _prev: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  if (!getSupabaseConfigStatus().configured) return authUnavailable();
+  const limited = await rateLimitOrError("verify-link");
+  if (limited) return limited;
+
+  const raw = String(formData.get("confirmationLink") ?? "").trim();
+  if (!raw) {
+    return {
+      ok: false,
+      errors: { confirmationLink: "Paste the confirmation link from your email." },
+    };
+  }
+
+  let tokenHash = "";
+  let type = "email";
+  try {
+    const url = new URL(raw);
+    tokenHash =
+      url.searchParams.get("token_hash") ||
+      url.searchParams.get("token") ||
+      "";
+    type = url.searchParams.get("type") || "email";
+  } catch {
+    // Allow pasting query-only strings
+    const params = new URLSearchParams(
+      raw.includes("?") ? raw.slice(raw.indexOf("?") + 1) : raw
+    );
+    tokenHash = params.get("token_hash") || params.get("token") || "";
+    type = params.get("type") || "email";
+  }
+
+  if (!tokenHash) {
+    return {
+      ok: false,
+      message:
+        "We couldn’t find a token in that link. Copy the full Confirm URL from your email.",
+    };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const { error } = await supabase.auth.verifyOtp({
+    token_hash: tokenHash,
+    type: type as "email" | "signup" | "invite" | "magiclink" | "recovery",
+  });
+
+  if (error) {
+    return {
+      ok: false,
+      message: mapAuthError(
+        error,
+        "That link is invalid or expired. Resend the email and try again."
+      ),
+    };
+  }
+
+  if (type === "recovery") {
+    redirect("/reset-password");
+  }
+  redirect("/onboarding");
 }

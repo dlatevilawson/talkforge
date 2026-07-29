@@ -27,6 +27,9 @@ export default function SignupForm({ next }: { next: string }) {
   const [state, action] = useActionState(signupAction, {} as AuthActionState);
 
   if (state.ok) {
+    const verifyHref = state.email
+      ? `/verify-email?email=${encodeURIComponent(state.email)}`
+      : "/verify-email";
     return (
       <AuthShell
         eyebrow="Check your inbox"
@@ -39,10 +42,10 @@ export default function SignupForm({ next }: { next: string }) {
         }
       >
         <Link
-          href="/verify-email"
+          href={verifyHref}
           className="inline-flex w-full items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-black"
         >
-          Continue
+          Enter verification code
         </Link>
       </AuthShell>
     );

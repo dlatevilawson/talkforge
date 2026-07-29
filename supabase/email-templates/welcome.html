@@ -1,16 +1,3 @@
-Subject: Welcome to TalkForge
-
-Purpose: Introduce the user to the platform after successful verification.
-
-Note: Supabase does not send a separate “welcome” template by default.
-Configure a Database Webhook / Edge Function on email confirmation, or send
-from your app after `/auth/callback` activates the profile. Body below is the
-canonical brand copy.
-
----
-
-HTML:
-
 <!DOCTYPE html>
 <html>
   <body style="margin:0;padding:0;background:#050505;font-family:Georgia,'Times New Roman',serif;">
@@ -26,7 +13,7 @@ HTML:
                   Your email is verified. Step into the Communication Gym and practice the conversations that shape your opportunities.
                 </p>
                 <p style="margin:28px 0 0;">
-                  <a href="{{ .SiteURL }}/onboarding" style="display:inline-block;background:#ffffff;color:#050505;text-decoration:none;font-family:system-ui,sans-serif;font-size:14px;font-weight:600;padding:14px 28px;border-radius:999px;">
+                  <a href="https://talkforge.io/onboarding" style="display:inline-block;background:#ffffff;color:#050505;text-decoration:none;font-family:system-ui,sans-serif;font-size:14px;font-weight:600;padding:14px 28px;border-radius:999px;">
                     Continue to onboarding
                   </a>
                 </p>

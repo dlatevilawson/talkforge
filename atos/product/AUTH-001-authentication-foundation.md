@@ -99,7 +99,11 @@ Default email: `founder@talkforge.io`. Seeded via service role on first login at
 
 1. Apply `supabase/migrations/20260729_auth_foundation.sql`
 2. Enable Email provider in Supabase Auth
-3. Set Site URL + redirect URLs (`/auth/callback`)
-4. Paste branded templates from `supabase/email-templates/`
-5. Set Vercel env: URL, anon key, service role (server), `NEXT_PUBLIC_SITE_URL`
+3. **URL Configuration (required for phone confirmation links):**
+   - Site URL: `https://talkforge.io`
+   - Redirect URLs: `https://talkforge.io/**`, `http://localhost:3000/**`
+4. Paste branded templates from `supabase/email-templates/` (or run `SUPABASE_ACCESS_TOKEN=… npm run auth:configure`)
+5. Set Vercel env: URL, anon key, `NEXT_PUBLIC_SITE_URL=https://talkforge.io`, service role (server)
 6. Assign Founder role to your user id
+
+Until Site URL is updated, users can still verify on phones via **6-digit code** or **paste confirmation link** at `/verify-email`.
