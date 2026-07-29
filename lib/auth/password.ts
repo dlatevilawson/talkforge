@@ -1,8 +1,10 @@
 /**
  * Password policy for TalkForge.
- * Minimum: 12 chars, uppercase, lowercase, number.
- * Recommended: special character.
+ * Enforced: minimum 8 characters.
+ * Recommended (shown, not required): uppercase, lowercase, number, special character.
  */
+
+export const PASSWORD_MIN_LENGTH = 8;
 
 export type PasswordCheck = {
   valid: boolean;
@@ -18,26 +20,27 @@ export type PasswordCheck = {
 const SPECIAL = /[^A-Za-z0-9]/;
 
 export function evaluatePassword(password: string): PasswordCheck {
-  const hasMinLength = password.length >= 12;
+  const hasMinLength = password.length >= PASSWORD_MIN_LENGTH;
   const hasUpper = /[A-Z]/.test(password);
   const hasLower = /[a-z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
   const hasSpecial = SPECIAL.test(password);
 
   const errors: string[] = [];
-  if (!hasMinLength) errors.push("Use at least 12 characters.");
-  if (!hasUpper) errors.push("Include an uppercase letter.");
-  if (!hasLower) errors.push("Include a lowercase letter.");
-  if (!hasNumber) errors.push("Include a number.");
+  if (!hasMinLength) {
+    errors.push(`Use at least ${PASSWORD_MIN_LENGTH} characters.`);
+  }
 
-  const requiredOk = hasMinLength && hasUpper && hasLower && hasNumber;
+  const tipsMet = [hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean)
+    .length;
   let score: PasswordCheck["score"] = 0;
   if (hasMinLength) score = 1;
-  if (requiredOk) score = hasSpecial ? 4 : 3;
-  else if ([hasUpper, hasLower, hasNumber].filter(Boolean).length >= 2) score = 2;
+  if (hasMinLength && tipsMet >= 1) score = 2;
+  if (hasMinLength && tipsMet >= 2) score = 3;
+  if (hasMinLength && tipsMet >= 3) score = 4;
 
   return {
-    valid: requiredOk,
+    valid: hasMinLength,
     errors,
     score,
     hasMinLength,
@@ -48,18 +51,20 @@ export function evaluatePassword(password: string): PasswordCheck {
   };
 }
 
+/** Enforced server-side: length only. Strength tips are optional. */
 export function assertPasswordPolicy(password: string): string | null {
-  const result = evaluatePassword(password);
-  if (result.valid) return null;
-  return result.errors[0] ?? "Password does not meet requirements.";
+  if (password.length < PASSWORD_MIN_LENGTH) {
+    return `Use at least ${PASSWORD_MIN_LENGTH} characters.`;
+  }
+  return null;
 }
 
 export function passwordStrengthLabel(score: PasswordCheck["score"]): string {
   switch (score) {
     case 0:
-      return "Too weak";
+      return "Too short";
     case 1:
-      return "Weak";
+      return "Okay";
     case 2:
       return "Fair";
     case 3:

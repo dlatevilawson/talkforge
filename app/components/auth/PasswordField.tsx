@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   evaluatePassword,
+  PASSWORD_MIN_LENGTH,
   passwordStrengthLabel,
 } from "@/lib/auth/password";
 
@@ -37,6 +38,7 @@ export function PasswordField({
           type={visible ? "text" : "password"}
           autoComplete={autoComplete}
           required
+          minLength={PASSWORD_MIN_LENGTH}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           className="w-full rounded-full border border-white/15 bg-white/5 px-5 py-3 pr-14 text-white outline-none focus:border-white/40"
@@ -70,22 +72,22 @@ export function PasswordField({
           </div>
           <p className="text-xs text-zinc-500">
             {passwordStrengthLabel(check.score)}
-            {!check.hasSpecial && check.valid
-              ? " — add a special character for extra strength"
-              : ""}
+            {check.valid
+              ? " — tips below are optional"
+              : ` — at least ${PASSWORD_MIN_LENGTH} characters required`}
           </p>
           <ul className="grid grid-cols-2 gap-1 text-[11px] text-zinc-500">
             <li className={check.hasMinLength ? "text-emerald-400/90" : ""}>
-              12+ characters
+              {PASSWORD_MIN_LENGTH}+ characters (required)
             </li>
             <li className={check.hasUpper ? "text-emerald-400/90" : ""}>
-              Uppercase
+              Uppercase (optional)
             </li>
             <li className={check.hasLower ? "text-emerald-400/90" : ""}>
-              Lowercase
+              Lowercase (optional)
             </li>
             <li className={check.hasNumber ? "text-emerald-400/90" : ""}>
-              Number
+              Number (optional)
             </li>
           </ul>
         </div>
