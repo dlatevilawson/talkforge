@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "TalkForge — Master the Art of Communication";
+export const alt = "TalkForge — Find Your Voice.";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -56,7 +56,7 @@ export default async function OpenGraphImage() {
             maxWidth: 900,
           }}
         >
-          Master the Art of Communication.
+          Find Your Voice.
         </div>
         <div
           style={{
@@ -67,7 +67,7 @@ export default async function OpenGraphImage() {
             lineHeight: 1.4,
           }}
         >
-          An AI Communication Gym for the conversations that matter.
+          Every life is shaped by conversations. Practice the ones that matter.
         </div>
       </div>
     ),

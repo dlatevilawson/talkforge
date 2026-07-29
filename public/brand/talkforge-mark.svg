@@ -1,14 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" role="img" aria-label="TalkForge">
-  <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="1.5" opacity="0.28"/>
-  <path
-    d="M24 10c5.6 4.2 8.6 9 8.6 14.8 0 6.1-3.6 11-8.6 14.4-5-3.4-8.6-8.3-8.6-14.4C15.4 19 18.4 14.2 24 10z"
-    fill="currentColor"
-  />
-  <path
-    d="M24 18.2c2.4 2 3.7 4.1 3.7 6.8 0 2.9-1.6 5.3-3.7 7-2.1-1.7-3.7-4.1-3.7-7 0-2.7 1.3-4.8 3.7-6.8z"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="1.4"
-    opacity="0.5"
-  />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="200 40 400 580" width="400" height="580" role="img" aria-label="TalkForge">
+  <title>TalkForge mark</title>
+  <defs>
+    <linearGradient id="tfGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F7E3B0"/>
+      <stop offset="30%" stop-color="#E8C173"/>
+      <stop offset="55%" stop-color="#C99B4A"/>
+      <stop offset="78%" stop-color="#EBC77E"/>
+      <stop offset="100%" stop-color="#B98634"/>
+    </linearGradient>
+    <mask id="tfHole">
+      <rect x="200" y="40" width="400" height="580" fill="#fff"/>
+      <circle cx="400" cy="330" r="38" fill="#000"/>
+    </mask>
+  </defs>
+  <g mask="url(#tfHole)" fill="url(#tfGold)">
+    <path d="M394 56
+             C 386 180 328 276 240 328
+             C 328 382 386 478 394 604
+             Z"/>
+    <path d="M406 56
+             C 414 180 472 276 560 328
+             C 472 382 414 478 406 604
+             Z"/>
+  </g>
 </svg>

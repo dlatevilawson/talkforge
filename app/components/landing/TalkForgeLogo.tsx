@@ -1,36 +1,58 @@
+"use client";
+
+import { useId } from "react";
+
+/**
+ * Official TalkForge logo — Founder-authored symbol (Decision 032).
+ * Mark: twin forms meeting through a center opening.
+ * Color: Founder gold gradient retained; wordmark uses LP ink or light tone.
+ */
 type TalkForgeLogoProps = {
   className?: string;
   variant?: "full" | "mark";
+  /** Wordmark color — `light` for dark/cinematic surfaces */
+  tone?: "default" | "light";
 };
 
-function Mark({ className = "h-8 w-8" }: { className?: string }) {
+const GOLD_STOPS = [
+  { offset: "0%", color: "#F7E3B0" },
+  { offset: "30%", color: "#E8C173" },
+  { offset: "55%", color: "#C99B4A" },
+  { offset: "78%", color: "#EBC77E" },
+  { offset: "100%", color: "#B98634" },
+] as const;
+
+function Mark({
+  className = "h-8 w-8",
+  gradId,
+  maskId,
+}: {
+  className?: string;
+  gradId: string;
+  maskId: string;
+}) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 48 48"
-      fill="none"
+      viewBox="200 40 400 580"
       className={className}
       aria-hidden
     >
-      <circle
-        cx="24"
-        cy="24"
-        r="22"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        opacity="0.28"
-      />
-      <path
-        d="M24 10c5.6 4.2 8.6 9 8.6 14.8 0 6.1-3.6 11-8.6 14.4-5-3.4-8.6-8.3-8.6-14.4C15.4 19 18.4 14.2 24 10z"
-        fill="currentColor"
-      />
-      <path
-        d="M24 18.2c2.4 2 3.7 4.1 3.7 6.8 0 2.9-1.6 5.3-3.7 7-2.1-1.7-3.7-4.1-3.7-7 0-2.7 1.3-4.8 3.7-6.8z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        opacity="0.5"
-      />
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="1">
+          {GOLD_STOPS.map((s) => (
+            <stop key={s.offset} offset={s.offset} stopColor={s.color} />
+          ))}
+        </linearGradient>
+        <mask id={maskId}>
+          <rect x="200" y="40" width="400" height="580" fill="#fff" />
+          <circle cx="400" cy="330" r="38" fill="#000" />
+        </mask>
+      </defs>
+      <g mask={`url(#${maskId})`} fill={`url(#${gradId})`}>
+        <path d="M394 56 C 386 180 328 276 240 328 C 328 382 386 478 394 604 Z" />
+        <path d="M406 56 C 414 180 472 276 560 328 C 472 382 414 478 406 604 Z" />
+      </g>
     </svg>
   );
 }
@@ -39,22 +61,31 @@ function Mark({ className = "h-8 w-8" }: { className?: string }) {
 export default function TalkForgeLogo({
   className = "",
   variant = "full",
+  tone = "default",
 }: TalkForgeLogoProps) {
+  const uid = useId().replace(/:/g, "");
+  const gradId = `tfGold-${uid}`;
+  const maskId = `tfHole-${uid}`;
+  const wordmarkColor =
+    tone === "light" ? "text-[#f7f3ea]" : "text-[var(--lp-ink)]";
+
   if (variant === "mark") {
     return (
-      <span className={`inline-flex text-current ${className}`} aria-label="TalkForge">
-        <Mark className="h-9 w-9" />
+      <span className={`inline-flex ${className}`} aria-label="TalkForge">
+        <Mark className="h-10 w-7" gradId={gradId} maskId={maskId} />
       </span>
     );
   }
 
   return (
     <span
-      className={`inline-flex items-center gap-2.5 text-current ${className}`}
+      className={`inline-flex items-center gap-2.5 ${className}`}
       aria-label="TalkForge"
     >
-      <Mark className="h-8 w-8" />
-      <span className="font-[family-name:var(--font-lp-display),ui-serif,Georgia,serif] text-[1.35rem] font-semibold tracking-[-0.03em]">
+      <Mark className="h-9 w-6" gradId={gradId} maskId={maskId} />
+      <span
+        className={`font-[family-name:var(--font-lp-sans),ui-sans-serif,system-ui,sans-serif] text-[1.05rem] font-medium uppercase tracking-[0.18em] ${wordmarkColor}`}
+      >
         TalkForge
       </span>
     </span>

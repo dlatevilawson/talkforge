@@ -15,17 +15,17 @@ const sans = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "TalkForge — Master the Art of Communication",
+  title: "TalkForge — Find Your Voice.",
   description:
-    "TalkForge is an AI Communication Gym. Practice the conversations that matter, build confidence, and never feel voiceless again. Join the Founding Members waitlist.",
+    "Every life is shaped by conversations. Practice the ones that matter. Join the Founding Members.",
   metadataBase: new URL("https://talkforge.io"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "TalkForge — Master the Art of Communication",
+    title: "TalkForge — Find Your Voice.",
     description:
-      "You weren't born a poor communicator. Nobody ever taught you how to practice. Join the Founding Members.",
+      "Every life is shaped by conversations. Practice the ones that matter.",
     url: "https://talkforge.io",
     siteName: "TalkForge",
     type: "website",
@@ -33,9 +33,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "TalkForge — Master the Art of Communication",
+    title: "TalkForge — Find Your Voice.",
     description:
-      "An AI Communication Gym for the conversations that matter. Join the Founding Members.",
+      "Every life is shaped by conversations. Practice the ones that matter.",
   },
   robots: {
     index: true,

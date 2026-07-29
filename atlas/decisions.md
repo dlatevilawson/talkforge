@@ -309,7 +309,7 @@ Reason:
 Official public face for talkforge.io. Homepage = marketing landing; product welcome at /welcome. Real waitlist via Supabase. Do not auto-deploy. Founder must approve deploy + domain attach + waitlist SQL.
 
 Status:
-Built (awaiting deploy approval)
+Built — **deploy approved & executed** (Decision 037)
 
 ---
 
@@ -408,6 +408,160 @@ Study emotionally sticky films, speeches, books, and ads as human psychology (no
 
 Status:
 Working research accepted for counsel
+
+---
+
+# Decision 029
+
+Title:
+Brand Identity Project (BID) — Creative Director recommendation: Horizon / Orbit Spark / Weight Split; do not freeze production mark yet.
+
+Reason:
+
+Executive Brand Identity Project completed Phases 1–7: world-class benchmarks → TalkForge understanding → strategy → creative brief → 35 distinct concepts → critical review → top-three counsel. Logo is one deliverable; objective is recognizable, trusted, memorable identity aligned to “nobody voiceless…”. CD recommends Horizon (35) as lead mark direction, Orbit Spark (27) as minimal alternative, Weight Split (09) as required wordmark system. Exploration SVGs are directional, not finals. Do not replace production marks until craft refinement. No deploy without Founder approval. Volume: `atos/product/brand-identity/`.
+
+Status:
+Working counsel — awaiting Founder Decision on direction
+
+---
+
+# Decision 030
+
+Title:
+Brand Identity V2 pivot — kill forge/flame/spark; symbolize mission transformation; emotional target = relief/readiness.
+
+Reason:
+
+Founder rejected V1 finalists (Horizon / Orbit Spark / Weight Split) as design exercises, not TalkForge. Root cause: designing around the company name and implementation metaphor (forge/fire/spark) instead of the mission. Communication is invisible; symbolize transformation (closed→open, connection, path, doorway, bridge, threshold, opening). Feel: quiet luxury, cinematic, human, warm, timeless (Leica/Hermès/Aesop register) — not tech, futuristic, or playful. Emotion: relief, quiet confidence, readiness, hope grounded in preparation (“Okay… I think I can do this.”) — not power/prestige. Require symbol recognizable without wordmark. Before new concepts: study why enduring systems last (BID-009). V2 exploration in `atos/product/brand-identity/` Ch 8–14 and `public/brand/concepts-v2/`.
+
+Status:
+Authoritative pivot — V2 directions awaiting Founder gut check
+
+---
+
+# Decision 031
+
+Title:
+Brand Identity V3 — Symbol of Becoming; 110 directions; no final lock; four craft families.
+
+Reason:
+
+Founder raised the bar from logo design to permanent symbol discovery. Subject is the emotional moment “I don’t think I can” → “I think I can.” V1 name metaphors and V2 object metaphors (door/bridge/slit) closed for finalization. Generated 110 distinct abstract directions; clustered into families; discarded objects, SaaS camouflage, and explanation-dependent ideas. Four families remain for deep craft: α Paradox of Becoming, β Gesture of Relief, γ Decisive Cut, δ Meeting. Creative Director refuses to declare inevitability prematurely. Volume Ch 15–17; artifacts in `public/brand/concepts-v3/`.
+
+Status:
+Working — awaiting Founder family selection for deep craft
+
+---
+
+# Decision 032
+
+Title:
+Accept Founder-authored TalkForge symbol as official company mark; close V3 family exploration.
+
+Reason:
+
+Founder declined V3 craft families (none). After independent research, Founder delivered the permanent mark: twin forms meeting through a center opening, gold gradient, wordmark, tagline “Practice. Connect. Transform.” Atlas installs assets, aligns wordmark ink to landing page, retains Founder gold, wires LP component, and protects the mark. Exploration V1–V3 archived. BID-018.
+
+Status:
+Accepted — Authoritative
+
+---
+
+# Decision 033
+
+Title:
+Ship TalkForge Official Hero Film V1 on the landing page.
+
+Reason:
+
+Founder assigned cinematic hero film (human transformation, not product demo). Generated seven story beats with Sora 2 (Veo/Runway unavailable in environment), assembled ~40s 16:9 H.264 web master at `/public/video/hero.mp4`, wired muted autoplay loop behind hero (`HeroVideo`), closing title “Find Your Voice. / TalkForge”. FILM-001.
+
+Status:
+Accepted for landing integration — Founder may request Veo/Runway re-render later
+
+---
+
+# Decision 034
+
+Title:
+Formalize TalkForge AI video Creative Production System (Brief → Story Bible → Shot List → Prompt Bible → Edit Plan).
+
+Reason:
+
+Hero Film V1 jumped toward prompts/generation without a production hierarchy. Correct process requires five separate documents: (1) Creative Brief — what we are making; (2) Story Bible — who and what emotions; (3) Shot List — every scene broken down; (4) Prompt Bible — one prompt per shot; (5) Edit Plan — assembly. Volume: `atos/product/hero-film/`. V1 film remains a draft cut until regenerated through this system.
+
+Status:
+Authoritative process — Accepted
+
+---
+
+# Decision 035
+
+Title:
+Add standing Creative Philosophy (FILM-PHIL-001) above the hero-film production hierarchy.
+
+Reason:
+
+Production docs (Brief → Edit Plan) serve one film. A short standing Philosophy captures durable beliefs for all TalkForge moving-image work—emotion before product, practice over advice, dignity, sacred freeze, relief not swagger, silence as material, hope without sentimentality, technology never owns the frame. Sits above the five production docs; Founder-amendable only. `atos/product/hero-film/00-philosophy.md`.
+
+Status:
+Authoritative — Accepted
+
+---
+
+# Decision 036
+
+Title:
+Lock Hero Film Philosophy → Brief → Story Bible → Shot List for Promo V1; proceed to generate; recreate before app launch.
+
+Reason:
+
+Founder chat lock review: 00–03 locked for the first promo video. Official app-launch film will be a later recreation. Atlas authorized to generate via Prompt Bible and assemble via Edit Plan, replacing the out-of-order draft cut.
+
+Status:
+Authoritative — Promo V1 greenlit
+
+---
+
+# Decision 037
+
+Title:
+Founder approved production deploy of LP-001 + Promo V1 to Founder Vercel.
+
+Reason:
+
+Founder chat: “Approved!” after Promo V1 lock/ship. Atlas authorized to run production deploy per LP-001 / DEPLOY-001. Production alias: https://talkforge-virid.vercel.app. Domains talkforge.io and www.talkforge.io added to Vercel project; DNS still on Wix nameservers — Founder must point DNS (A 76.76.21.21 or Vercel NS) before talkforge.io resolves. Waitlist table `waitlist_members` not yet in Supabase — Founder must run `supabase/waitlist.sql` before waitlist joins succeed.
+
+Status:
+Authoritative — Production deployed (virid); domain + waitlist SQL pending Founder DNS/SQL
+
+---
+
+# Decision 038
+
+Title:
+Lock “Find Your Voice.” as emotional center; protect wisdom line; prefer What We Believe; leave mystery.
+
+Reason:
+
+Founder homepage counsel: Find Your Voice. invites (heart); Master the Art of Communication explains (mind) — retire from public face. Favorite sentence protected: “Every life is shaped by conversations. Practice the ones that matter.” Institutional line: “A company, not a product.” Section label: What We Believe (not generic “What We Stand For”). Doctrine: homepage makes people curious — resist text-heavy explanation. Applied in LP + metadata/OG (LP-002).
+
+Status:
+Authoritative — Accepted
+
+---
+
+# Decision 039
+
+Title:
+Launch surface: GitHub↔Vercel auto-deploy path, GA wiring, brand favicon, search title/description.
+
+Reason:
+
+Founder checklist: (1) GitHub→Vercel auto-deploy requires Founder Login Connection — documented in DEPLOY-001; (2) Google Analytics wired via `NEXT_PUBLIC_GA_MEASUREMENT_ID` + `@next/third-parties`; (3) custom favicon from official gold mark; (4) search title/description locked to Find Your Voice. + wisdom line, plus robots/sitemap. OPS-001.
+
+Status:
+Authoritative — Code complete; GitHub Login Connection + GA Measurement ID are Founder env/account steps
 
 ---
 

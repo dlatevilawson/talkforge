@@ -11,32 +11,32 @@ const ITEMS: FaqItem[] = [
   {
     question: "What is TalkForge?",
     answer:
-      "TalkForge is an AI Communication Gym — a place to practice the conversations that matter with a supportive coach called Forge, so you perform better in real life.",
+      "An AI Communication Gym — practice the conversations that matter with Forge.",
   },
   {
-    question: "Who is TalkForge for?",
+    question: "Who is it for?",
     answer:
-      "Anyone who has an important conversation coming up — interviews, leadership moments, difficult talks, negotiations — and wants deliberate practice instead of more advice.",
+      "Anyone facing a conversation that counts — and wants practice, not more advice.",
   },
   {
     question: "What do Founding Members get?",
     answer:
-      "Early access when we open the floor, a direct voice in shaping the product, exclusive updates, and permanent Founding Member recognition.",
+      "Early access, a voice in what we build, founding notes, and permanent recognition.",
   },
   {
     question: "Is this another chatbot?",
     answer:
-      "No. Chatbots answer questions. TalkForge helps you practice speaking — with coaching grounded in what you actually said — so confidence comes from repetition.",
+      "No. Chatbots answer. TalkForge helps you practice speaking.",
   },
   {
-    question: "When will TalkForge launch?",
+    question: "When does it open?",
     answer:
-      "We’re preparing the first founding cohort carefully. Join the waitlist and you’ll be among the first to know — and among the first to practice.",
+      "We’re preparing the first founding cohort carefully. Join the waitlist.",
   },
 ];
 
 export default function FaqAccordion() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
     <div className="divide-y divide-[var(--lp-line)] border-y border-[var(--lp-line)]">

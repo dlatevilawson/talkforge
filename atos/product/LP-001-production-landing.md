@@ -4,7 +4,7 @@
 |---|---|
 | **Document ID** | LP-001 |
 | **Version** | 1.0.0 |
-| **Status** | Built — **awaiting Founder deploy approval** |
+| **Status** | **Deployed** (Decision 037) — https://talkforge-virid.vercel.app · talkforge.io DNS + waitlist SQL pending Founder |
 | **Authority** | Atlas Execution Order |
 | **Domain** | https://talkforge.io |
 | **Preview (current prod alias)** | https://talkforge-virid.vercel.app (do **not** auto-promote without Founder approval) |
@@ -82,6 +82,10 @@ Current alias: `talkforge-virid.vercel.app`
 
 ### D. Post-deploy checklist
 
+- [x] Production deploy to https://talkforge-virid.vercel.app (Decision 037)
+- [x] Domains `talkforge.io` + `www.talkforge.io` added in Vercel
+- [ ] **Founder:** Point DNS — A `talkforge.io` → `76.76.21.21` (or Vercel nameservers) — currently Wix NS
+- [ ] **Founder:** Run [`supabase/waitlist.sql`](../../supabase/waitlist.sql) in Supabase SQL editor
 - [ ] Hero logo + headline render on iPhone Safari  
 - [ ] Nav anchors scroll correctly  
 - [ ] Waitlist success state appears  
@@ -100,4 +104,4 @@ npm run build
 
 | Field | Value |
 |---|---|
-| **Status Upon Signature** | Built — waiting Founder deploy approval |
+| **Status Upon Signature** | Deployed to virid (037). Founder: run waitlist SQL + point talkforge.io DNS |

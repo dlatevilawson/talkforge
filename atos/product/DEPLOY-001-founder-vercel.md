@@ -23,9 +23,10 @@
 | Item | Value |
 |---|---|
 | **Stable production URL** | **https://talkforge-virid.vercel.app** |
-| Deployment URL (this ship) | https://talkforge-87pjtnydz-dlatevilawson-7440s-projects.vercel.app |
+| Deployment URL (Promo V1 / LP ship) | https://talkforge-k8bx7dano-dlatevilawson-7440s-projects.vercel.app |
 | Vercel project | `dlatevilawson-7440s-projects/talkforge` |
-| Inspector | https://vercel.com/dlatevilawson-7440s-projects/talkforge/GWZYkaUs25X49S5GYLWjpW7Vt2mn |
+| Inspector | https://vercel.com/dlatevilawson-7440s-projects/talkforge/GKrw7spvzzVsF22Kk5hziJ5rdSdy |
+| Domains (added) | `talkforge.io`, `www.talkforge.io` — **DNS not yet pointed** (still Wix NS) |
 | Env set | `OPENAI_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (production / preview / development) |
 
 ### Smoke (server)
@@ -47,6 +48,25 @@ Public deploy of **this** app is no longer the blocker. Still required before ex
 
 ## Ops notes
 
-- GitHub ↔ Vercel **Login Connection** not linked yet (CLI deploy used). Founder should connect GitHub in Vercel for auto-deploys from `main`.
 - `.vercel/` is gitignored — local link only.
 - Prefer **https://talkforge-virid.vercel.app** as the beta invite URL until a custom domain is attached.
+
+## GitHub → Vercel auto-deploy (Founder action — required once)
+
+CLI `vercel git connect` fails until a **Login Connection** exists between the Founder Vercel account and GitHub:
+
+1. Open [Vercel Account → Login Connections](https://vercel.com/account/login-connections) (signed in as `dlatevilawson-7440`).
+2. Connect **GitHub** and authorize the `dlatevilawson/talkforge` repository.
+3. Open [Project → Settings → Git](https://vercel.com/dlatevilawson-7440s-projects/talkforge/settings/git).
+4. Connect repository `dlatevilawson/talkforge`.
+5. Production Branch: **`main`** (Preview: other branches / PRs).
+6. Confirm a push to `main` creates a Production deployment automatically.
+
+Until this is done, Atlas continues CLI `npx vercel deploy --prod` for production ships.
+
+## Google Analytics (optional)
+
+1. Create a GA4 property for TalkForge → copy **Measurement ID** (`G-…`).
+2. Vercel → Project → Settings → Environment Variables → add  
+   `NEXT_PUBLIC_GA_MEASUREMENT_ID` = `G-…` (Production + Preview).
+3. Redeploy. The app loads GA only when this env var is set (`app/components/GoogleAnalytics.tsx`).

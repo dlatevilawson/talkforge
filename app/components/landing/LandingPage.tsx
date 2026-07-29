@@ -1,5 +1,6 @@
 import Link from "next/link";
 import FaqAccordion from "@/app/components/landing/FaqAccordion";
+import HeroVideo from "@/app/components/landing/HeroVideo";
 import LandingNav from "@/app/components/landing/LandingNav";
 import Reveal from "@/app/components/landing/Reveal";
 import TalkForgeLogo from "@/app/components/landing/TalkForgeLogo";
@@ -16,22 +17,10 @@ const journey = [
 ] as const;
 
 const foundingBenefits = [
-  {
-    title: "Early access",
-    body: "Step onto the floor before the wider world arrives.",
-  },
-  {
-    title: "Help shape the product",
-    body: "Your practice and feedback guide what TalkForge becomes.",
-  },
-  {
-    title: "Exclusive updates",
-    body: "Founding notes on what we’re building — and why.",
-  },
-  {
-    title: "Permanent recognition",
-    body: "You’ll always be recognized as a Founding Member.",
-  },
+  { title: "Early access", body: "Before the wider world arrives." },
+  { title: "Shape the product", body: "Your practice guides what we build." },
+  { title: "Founding notes", body: "What we’re building — and why." },
+  { title: "Permanent recognition", body: "Always a Founding Member." },
 ] as const;
 
 export default function LandingPage() {
@@ -40,50 +29,47 @@ export default function LandingPage() {
       <LandingNav />
 
       <main>
-        {/* Hero */}
-        <section className="relative overflow-hidden px-5 pb-24 pt-32 sm:px-8 sm:pb-32 sm:pt-40">
-          <div
-            className="pointer-events-none absolute inset-x-0 top-0 h-[70vh] bg-[radial-gradient(ellipse_at_50%_0%,rgba(26,58,92,0.06),transparent_60%)]"
-            aria-hidden
-          />
-          <div className="relative mx-auto max-w-4xl text-center">
+        {/* Hero — official brand film (FILM-001) */}
+        <section className="relative flex min-h-[100svh] items-center overflow-hidden px-5 pb-24 pt-28 sm:px-8 sm:pb-32 sm:pt-32">
+          <HeroVideo />
+          <div className="relative z-10 mx-auto w-full max-w-4xl text-center">
             <Reveal>
-              <div className="mx-auto mb-10 flex justify-center text-[var(--lp-ink)]">
-                <TalkForgeLogo className="scale-110" />
+              <div className="mx-auto mb-10 flex justify-center">
+                <TalkForgeLogo tone="light" className="scale-110" />
               </div>
             </Reveal>
             <Reveal delayMs={80}>
-              <h1 className="font-[family-name:var(--font-lp-display)] text-[2.75rem] font-semibold leading-[1.05] tracking-[-0.04em] text-[var(--lp-ink)] sm:text-6xl md:text-7xl">
-                Master the Art of Communication.
+              <h1 className="font-[family-name:var(--font-lp-display)] text-[2.75rem] font-semibold leading-[1.05] tracking-[-0.04em] text-[#f7f3ea] sm:text-6xl md:text-7xl">
+                Find Your Voice.
               </h1>
             </Reveal>
             <Reveal delayMs={160}>
-              <p className="mx-auto mt-8 max-w-xl text-lg leading-8 text-[var(--lp-muted)] sm:text-xl sm:leading-9">
-                You weren&apos;t born a poor communicator.
+              <p className="mx-auto mt-8 max-w-xl text-lg leading-8 text-[#d9d2c5]/90 sm:text-xl sm:leading-9">
+                Every life is shaped by conversations.
                 <br className="hidden sm:block" />
-                Nobody ever taught you how to practice.
+                Practice the ones that matter.
               </p>
             </Reveal>
             <Reveal delayMs={240}>
               <div className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <a
                   href="#waitlist"
-                  className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full bg-[var(--lp-ink)] px-8 text-sm font-semibold text-[var(--lp-bg)] transition hover:bg-[var(--lp-ink-soft)]"
+                  className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full bg-[var(--tf-gold)] px-8 text-sm font-semibold text-[#121417] transition hover:bg-[var(--tf-gold-light)]"
                 >
                   Join the Founding Members
                 </a>
-                <Link
-                  href="/welcome"
-                  className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full border border-[var(--lp-line)] bg-transparent px-8 text-sm font-semibold text-[var(--lp-ink)] transition hover:bg-white"
+                <a
+                  href="#belief"
+                  className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full border border-white/25 bg-white/5 px-8 text-sm font-semibold text-[#f7f3ea] backdrop-blur-sm transition hover:bg-white/10"
                 >
-                  See TalkForge in Action
-                </Link>
+                  What We Believe
+                </a>
               </div>
             </Reveal>
           </div>
         </section>
 
-        {/* Our Belief */}
+        {/* What We Believe */}
         <section
           id="belief"
           className="scroll-mt-24 border-t border-[var(--lp-line)] px-5 py-24 sm:px-8 sm:py-32"
@@ -91,12 +77,15 @@ export default function LandingPage() {
           <div className="mx-auto max-w-3xl text-center">
             <Reveal>
               <p className="text-xs font-medium uppercase tracking-[0.28em] text-[var(--lp-muted)]">
-                Our Belief
+                What We Believe
               </p>
               <blockquote className="mt-8 font-[family-name:var(--font-lp-display)] text-3xl font-medium leading-snug tracking-[-0.03em] text-[var(--lp-ink)] sm:text-4xl sm:leading-[1.25]">
                 Nobody should ever feel voiceless because they don&apos;t know
                 how to express themselves.
               </blockquote>
+              <p className="mt-12 font-[family-name:var(--font-lp-display)] text-xl font-medium tracking-[-0.02em] text-[var(--lp-ink)] sm:text-2xl">
+                A company, not a product.
+              </p>
             </Reveal>
           </div>
         </section>
@@ -121,14 +110,9 @@ export default function LandingPage() {
                   Most people consume advice about communication. Almost nobody
                   practices it.
                 </p>
-                <p>
-                  TalkForge is where you rehearse high-stakes conversations with
-                  Forge — a coach who listens, responds, and helps you improve
-                  from what you actually said.
-                </p>
                 <p className="text-[var(--lp-ink)]">
-                  You leave more ready for the real conversation — not more
-                  entertained by another tip.
+                  Here, you rehearse the conversations that matter — then walk
+                  into the real ones more ready.
                 </p>
               </div>
             </Reveal>
@@ -195,11 +179,6 @@ export default function LandingPage() {
               <h2 className="mt-5 max-w-2xl font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
                 Help build the world&apos;s communication gym.
               </h2>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--lp-muted)]">
-                Founding Members aren&apos;t just early users. You&apos;re the
-                first people we practice with — and the people who shape what
-                TalkForge becomes.
-              </p>
             </Reveal>
 
             <div className="mt-14 grid gap-6 sm:grid-cols-2">
@@ -256,7 +235,7 @@ export default function LandingPage() {
                 FAQ
               </p>
               <h2 className="mt-5 font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
-                Questions, answered calmly.
+                A few answers.
               </h2>
             </Reveal>
             <Reveal delayMs={80}>
@@ -285,7 +264,7 @@ export default function LandingPage() {
               <ul className="mt-4 space-y-2 text-sm text-[var(--lp-ink)]">
                 <li>
                   <a href="#belief" className="hover:opacity-70">
-                    Our Belief
+                    What We Believe
                   </a>
                 </li>
                 <li>

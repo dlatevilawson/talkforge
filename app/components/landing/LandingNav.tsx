@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import TalkForgeLogo from "@/app/components/landing/TalkForgeLogo";
 
 const links = [
-  { href: "#belief", label: "Our Belief" },
+  { href: "#belief", label: "What We Believe" },
   { href: "#experience", label: "Experience" },
   { href: "#mission", label: "Mission" },
   { href: "#faq", label: "FAQ" },
@@ -22,21 +22,23 @@ export default function LandingNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const onFilm = !scrolled;
+
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-[background,box-shadow,backdrop-filter] duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-[background,box-shadow,backdrop-filter,border-color] duration-300 ${
         scrolled
           ? "border-b border-[var(--lp-line)] bg-[color-mix(in_oklab,var(--lp-bg)_88%,transparent)] shadow-[0_1px_0_rgba(0,0,0,0.04)] backdrop-blur-xl"
-          : "bg-transparent"
+          : "border-b border-transparent bg-transparent"
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
         <Link
           href="/"
-          className="text-[var(--lp-ink)] transition-opacity hover:opacity-80"
+          className="transition-opacity hover:opacity-80"
           aria-label="TalkForge home"
         >
-          <TalkForgeLogo />
+          <TalkForgeLogo tone={onFilm ? "light" : "default"} />
         </Link>
 
         <nav
@@ -47,14 +49,22 @@ export default function LandingNav() {
             <a
               key={link.href}
               href={link.href}
-              className="text-sm text-[var(--lp-muted)] transition-colors hover:text-[var(--lp-ink)]"
+              className={`text-sm transition-colors ${
+                onFilm
+                  ? "text-[#d9d2c5]/90 hover:text-[#f7f3ea]"
+                  : "text-[var(--lp-muted)] hover:text-[var(--lp-ink)]"
+              }`}
             >
               {link.label}
             </a>
           ))}
           <a
             href="#waitlist"
-            className="rounded-full bg-[var(--lp-ink)] px-4 py-2 text-sm font-medium text-[var(--lp-bg)] transition hover:bg-[var(--lp-ink-soft)]"
+            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+              onFilm
+                ? "bg-[var(--tf-gold)] text-[#121417] hover:bg-[var(--tf-gold-light)]"
+                : "bg-[var(--lp-ink)] text-[var(--lp-bg)] hover:bg-[var(--lp-ink-soft)]"
+            }`}
           >
             Join Waitlist
           </a>
@@ -62,7 +72,11 @@ export default function LandingNav() {
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--lp-line)] text-[var(--lp-ink)] md:hidden"
+          className={`inline-flex h-10 w-10 items-center justify-center rounded-full md:hidden ${
+            onFilm
+              ? "border border-white/25 text-[#f7f3ea]"
+              : "border border-[var(--lp-line)] text-[var(--lp-ink)]"
+          }`}
           aria-expanded={open}
           aria-controls="mobile-nav"
           onClick={() => setOpen((v) => !v)}

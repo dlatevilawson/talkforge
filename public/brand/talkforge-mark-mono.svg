@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="200 40 400 580" width="400" height="580" role="img" aria-label="TalkForge">
+  <title>TalkForge mark (monochrome)</title>
+  <defs>
+    <mask id="tfHoleMono">
+      <rect x="200" y="40" width="400" height="580" fill="#fff"/>
+      <circle cx="400" cy="330" r="38" fill="#000"/>
+    </mask>
+  </defs>
+  <g mask="url(#tfHoleMono)" fill="currentColor">
+    <path d="M394 56
+             C 386 180 328 276 240 328
+             C 328 382 386 478 394 604
+             Z"/>
+    <path d="M406 56
+             C 414 180 472 276 560 328
+             C 472 382 414 478 406 604
+             Z"/>
+  </g>
+</svg>
