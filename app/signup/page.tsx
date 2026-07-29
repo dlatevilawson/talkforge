@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import SignupForm from "@/app/components/auth/SignupForm";
+import { safeNextPath } from "@/lib/auth/safe-next";
 
 export default async function SignupPage({
   searchParams,
@@ -7,10 +8,7 @@ export default async function SignupPage({
   searchParams: Promise<{ next?: string }>;
 }) {
   const params = await searchParams;
-  const next =
-    params.next && params.next.startsWith("/")
-      ? params.next
-      : "/app/dashboard";
+  const next = safeNextPath(params.next, "/app/dashboard");
 
   return (
     <Suspense>

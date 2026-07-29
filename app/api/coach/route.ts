@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
+import { requireApiUser } from "@/lib/auth/api-guard";
 import { buildMockCoachResponse } from "@/lib/coach/mock";
 
 function getClient() {
@@ -71,6 +72,11 @@ function formatHistory(history: HistoryItem[]): string {
 }
 
 export async function POST(req: Request) {
+  const gate = await requireApiUser();
+  if (!gate.ok) {
+    return NextResponse.json({ error: gate.error }, { status: gate.status });
+  }
+
   try {
     const body = await req.json();
     const message = typeof body.message === "string" ? body.message.trim() : "";

@@ -13,45 +13,32 @@ export function validateEmail(email: string): string | null {
   return null;
 }
 
-export function validateName(name: string, label: string): string | null {
-  const value = sanitizeText(name, 64);
-  if (!value) return `Enter your ${label}.`;
-  if (value.length < 1) return `${label} is required.`;
-  return null;
-}
-
 export type SignupInput = {
-  firstName: string;
-  lastName: string;
   email: string;
   password: string;
+  displayName: string;
 };
 
 export type SignupFieldErrors = {
-  firstName?: string;
-  lastName?: string;
   email?: string;
   password?: string;
+  displayName?: string;
 };
 
+/** TIP Phase 5 — account creation only. Profile polish happens in onboarding. */
 export function validateSignup(input: SignupInput): {
   ok: boolean;
   errors: SignupFieldErrors;
   data?: SignupInput;
 } {
-  const firstName = sanitizeText(input.firstName);
-  const lastName = sanitizeText(input.lastName);
   const email = sanitizeText(input.email, 254).toLowerCase();
   const password = input.password;
+  const displayName = sanitizeText(input.displayName, 64);
 
   const errors: SignupFieldErrors = {};
-  const firstErr = validateName(firstName, "first name");
-  const lastErr = validateName(lastName, "last name");
   const emailErr = validateEmail(email);
   const passwordErr = assertPasswordPolicy(password);
 
-  if (firstErr) errors.firstName = firstErr;
-  if (lastErr) errors.lastName = lastErr;
   if (emailErr) errors.email = emailErr;
   if (passwordErr) errors.password = passwordErr;
 
@@ -62,6 +49,6 @@ export function validateSignup(input: SignupInput): {
   return {
     ok: true,
     errors: {},
-    data: { firstName, lastName, email, password },
+    data: { email, password, displayName },
   };
 }

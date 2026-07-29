@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { authCallbackUrl } from "@/lib/auth/constants";
+import { logAuthEvent } from "@/lib/auth/analytics";
 import {
   founderDevConfigured,
   founderDevEmail,
@@ -10,7 +11,9 @@ import {
 } from "@/lib/auth/founder-dev";
 import { AUTH_COPY, mapAuthError } from "@/lib/auth/messages";
 import { assertPasswordPolicy } from "@/lib/auth/password";
+import { founderUserIdAllowlist } from "@/lib/auth/allowlist";
 import { recordLogin } from "@/lib/auth/session";
+import { safeNextPath } from "@/lib/auth/safe-next";
 import {
   checkRateLimit,
   clientKeyFromHeaders,
@@ -86,11 +89,12 @@ async function ensureFounderDevAccount(): Promise<void> {
     password,
     email_confirm: true,
     user_metadata: {
-      first_name: "Founder",
-      last_name: "TalkForge",
       display_name: "Founder",
-      role: "founder",
       must_change_password: true,
+    },
+    app_metadata: {
+      role: "founder",
+      provider: "email",
     },
   });
 
@@ -124,17 +128,21 @@ export async function signupAction(
   if (limited) return limited;
 
   const parsed = validateSignup({
-    firstName: String(formData.get("firstName") ?? ""),
-    lastName: String(formData.get("lastName") ?? ""),
     email: String(formData.get("email") ?? ""),
     password: String(formData.get("password") ?? ""),
+    displayName: String(formData.get("displayName") ?? ""),
   });
 
   if (!parsed.ok || !parsed.data) {
-    return { ok: false, errors: parsed.errors, message: "Please fix the highlighted fields." };
+    logAuthEvent("auth_signup_failure", { reason: "validation" });
+    return {
+      ok: false,
+      errors: parsed.errors,
+      message: "Please fix the highlighted fields.",
+    };
   }
 
-  const { firstName, lastName, email, password } = parsed.data;
+  const { email, password, displayName } = parsed.data;
   const supabase = await createServerSupabaseClient();
 
   const { error } = await supabase.auth.signUp({
@@ -143,20 +151,24 @@ export async function signupAction(
     options: {
       emailRedirectTo: authCallbackUrl("/onboarding"),
       data: {
-        first_name: firstName,
-        last_name: lastName,
-        display_name: `${firstName} ${lastName}`.trim(),
+        display_name: displayName || email.split("@")[0] || "Member",
+        auth_provider: "email",
       },
     },
   });
 
   if (error) {
+    logAuthEvent("auth_signup_failure", { reason: error.message });
     return {
       ok: false,
-      message: mapAuthError(error, "Could not create your account. Please try again."),
+      message: mapAuthError(
+        error,
+        "Could not create your account. Please try again."
+      ),
     };
   }
 
+  logAuthEvent("auth_signup_success");
   return {
     ok: true,
     message: AUTH_COPY.signupSuccess,
@@ -176,11 +188,12 @@ export async function loginAction(
     .trim()
     .toLowerCase();
   const password = String(formData.get("password") ?? "");
-  const nextRaw = String(formData.get("next") ?? "/app/dashboard");
-  const next = nextRaw.startsWith("/") ? nextRaw : "/app/dashboard";
+  const next = safeNextPath(String(formData.get("next") ?? ""), "/app/dashboard");
+  const remember = String(formData.get("remember") ?? "") === "on";
 
   const emailErr = validateEmail(email);
   if (emailErr || !password) {
+    logAuthEvent("auth_login_failure", { reason: "invalid_input" });
     return {
       ok: false,
       message: "Incorrect email or password.",
@@ -188,10 +201,7 @@ export async function loginAction(
   }
 
   // Seed Founder before login attempt when local bootstrap is enabled.
-  if (
-    founderDevConfigured() &&
-    email === founderDevEmail()
-  ) {
+  if (founderDevConfigured() && email === founderDevEmail()) {
     await ensureFounderDevAccount();
   }
 
@@ -202,6 +212,7 @@ export async function loginAction(
   });
 
   if (error || !data.user) {
+    logAuthEvent("auth_login_failure", { reason: error?.message ?? "unknown" });
     return {
       ok: false,
       message: mapAuthError(error, "Incorrect email or password."),
@@ -210,18 +221,51 @@ export async function loginAction(
 
   await recordLogin(data.user.id);
 
+  // Persist remember preference (session longevity is handled by Supabase refresh tokens;
+  // preference is stored for future policy / client UX).
+  if (remember) {
+    try {
+      const { cookies } = await import("next/headers");
+      const jar = await cookies();
+      jar.set("tf_remember", "1", {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 90,
+      });
+    } catch {
+      // non-fatal
+    }
+  }
+
+  // Sync FOUNDER_USER_IDS allowlist into DB role so RLS matches portal access.
+  if (founderUserIdAllowlist().has(data.user.id) && adminConfigured()) {
+    try {
+      const admin = createAdminSupabaseClient();
+      await admin
+        .from("profiles")
+        .update({ role: "founder", account_status: "active" })
+        .eq("id", data.user.id);
+    } catch (err) {
+      console.warn("founder allowlist sync", err);
+    }
+  }
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("must_change_password, onboarding_complete, role, email_verified")
     .eq("id", data.user.id)
     .maybeSingle();
 
+  logAuthEvent("auth_login_success", { role: profile?.role ?? "user" });
+
   if (profile?.must_change_password) {
     redirect(`/change-password?next=${encodeURIComponent(next)}`);
   }
 
   if (profile && !profile.email_verified) {
-    redirect("/verify-email");
+    redirect(`/verify-email?email=${encodeURIComponent(email)}`);
   }
 
   if (profile && !profile.onboarding_complete) {
@@ -231,12 +275,8 @@ export async function loginAction(
   if (next.startsWith("/founder")) {
     const role = (profile?.role as string) || "user";
     if (role !== "founder" && role !== "admin" && role !== "system") {
-      // Allowlist elevation is applied on subsequent readSession/proxy.
-      const allow = (process.env.FOUNDER_USER_IDS ?? "")
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      if (!allow.includes(data.user.id)) {
+      const allow = founderUserIdAllowlist();
+      if (!allow.has(data.user.id)) {
         redirect("/app/dashboard");
       }
     }
@@ -250,6 +290,7 @@ export async function logoutAction(): Promise<void> {
     try {
       const supabase = await createServerSupabaseClient();
       await supabase.auth.signOut();
+      logAuthEvent("auth_logout");
     } catch {
       // still redirect home
     }
@@ -280,6 +321,7 @@ export async function forgotPasswordAction(
     redirectTo: authCallbackUrl("/reset-password"),
   });
 
+  logAuthEvent("auth_password_reset_request");
   return { ok: true, message: AUTH_COPY.resetSent };
 }
 
@@ -318,6 +360,7 @@ export async function resetPasswordAction(
     .update({ must_change_password: false })
     .eq("id", (await supabase.auth.getUser()).data.user?.id ?? "");
 
+  logAuthEvent("auth_password_reset_complete");
   return { ok: true, message: AUTH_COPY.resetSuccess };
 }
 
@@ -481,6 +524,7 @@ export async function verifyEmailOtpAction(
   });
 
   if (error) {
+    logAuthEvent("auth_verification_failure", { reason: error.message });
     return {
       ok: false,
       message: mapAuthError(
@@ -490,6 +534,7 @@ export async function verifyEmailOtpAction(
     };
   }
 
+  logAuthEvent("auth_verification_success", { method: "otp" });
   redirect("/onboarding");
 }
 

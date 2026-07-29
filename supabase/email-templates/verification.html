@@ -1,5 +1,11 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Welcome to TalkForge — Verify Your Email</title>
+  </head>
   <body style="margin:0;padding:0;background:#050505;font-family:Georgia,'Times New Roman',serif;">
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#050505;padding:40px 16px;">
       <tr>
@@ -7,27 +13,27 @@
           <table role="presentation" width="100%" style="max-width:520px;background:#0b0c0f;border:1px solid #2a2a2e;border-radius:16px;padding:36px 32px;">
             <tr>
               <td>
-                <p style="margin:0;color:#c99b4a;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;font-family:system-ui,sans-serif;">TalkForge</p>
+                <p style="margin:0;color:#c99b4a;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;font-family:system-ui,-apple-system,sans-serif;">TalkForge</p>
                 <h1 style="margin:16px 0 0;color:#f4f4f5;font-size:28px;font-weight:600;line-height:1.25;">Verify your email</h1>
-                <p style="margin:16px 0 0;color:#a1a1aa;font-size:15px;line-height:1.6;font-family:system-ui,sans-serif;">
-                  Welcome to TalkForge. Enter this code on the verification page to activate your account:
+                <p style="margin:16px 0 0;color:#a1a1aa;font-size:15px;line-height:1.6;font-family:system-ui,-apple-system,sans-serif;">
+                  Welcome. Confirm this address to activate your account and begin training for the conversations that matter.
                 </p>
-                <p style="margin:24px 0 0;color:#f4f4f5;font-size:36px;font-weight:700;letter-spacing:0.28em;font-family:system-ui,sans-serif;text-align:center;">
-                  {{ .Token }}
-                </p>
-                <p style="margin:12px 0 0;color:#71717a;font-size:12px;line-height:1.5;font-family:system-ui,sans-serif;text-align:center;">
-                  Or open <a href="https://talkforge.io/verify-email" style="color:#c99b4a;text-decoration:underline;">talkforge.io/verify-email</a>
-                </p>
-                <p style="margin:28px 0 0;">
-                  <a href="https://talkforge.io/auth/callback?token_hash={{ .TokenHash }}&amp;type=email&amp;next=%2Fonboarding" style="display:inline-block;background:#ffffff;color:#050505;text-decoration:none;font-family:system-ui,sans-serif;font-size:14px;font-weight:600;padding:14px 28px;border-radius:999px;">
+                <p style="margin:28px 0 0;" role="presentation">
+                  <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#ffffff;color:#050505;text-decoration:none;font-family:system-ui,-apple-system,sans-serif;font-size:14px;font-weight:600;padding:14px 28px;border-radius:999px;">
                     Verify email
                   </a>
                 </p>
-                <p style="margin:28px 0 0;color:#71717a;font-size:12px;line-height:1.5;font-family:system-ui,sans-serif;">
+                <p style="margin:28px 0 0;color:#a1a1aa;font-size:13px;line-height:1.5;font-family:system-ui,-apple-system,sans-serif;text-align:center;">
+                  Or enter this code at {{ .SiteURL }}/verify-email
+                </p>
+                <p style="margin:12px 0 0;color:#f4f4f5;font-size:32px;font-weight:700;letter-spacing:0.28em;font-family:system-ui,-apple-system,sans-serif;text-align:center;" aria-label="Verification code">
+                  {{ .Token }}
+                </p>
+                <p style="margin:28px 0 0;color:#71717a;font-size:12px;line-height:1.5;font-family:system-ui,-apple-system,sans-serif;">
                   If you did not create a TalkForge account, you can ignore this message.
                 </p>
-                <p style="margin:16px 0 0;color:#52525b;font-size:11px;font-family:system-ui,sans-serif;">
-                  Find Your Voice.
+                <p style="margin:16px 0 0;color:#52525b;font-size:11px;font-family:system-ui,-apple-system,sans-serif;">
+                  Find Your Voice. · TalkForge
                 </p>
               </td>
             </tr>

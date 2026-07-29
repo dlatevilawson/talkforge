@@ -593,6 +593,20 @@ Authoritative — Implemented on branch; apply SQL migration + Supabase email te
 
 ---
 
+# Decision 042
+
+Title:
+TalkForge Identity Platform (TIP) Phase I — permanent authentication foundation.
+
+Reason:
+
+Founder Atlas Engineering Directive: build production identity infrastructure (not a login page fix). Supabase Auth + RBAC + SSR sessions + branded emails + security headers + observability. Supersedes interim guest cookies. Volume: `atos/product/TIP-001-identity-platform.md` + deliverables.
+
+Status:
+Authoritative — Implemented on branch; Supabase Site URL + template apply remains Founder ops step (`npm run auth:configure`)
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

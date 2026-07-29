@@ -71,7 +71,7 @@ export default function VerifyEmailPanel({
     <AuthShell
       eyebrow="Email verification"
       title="Verify your email"
-      description="Use the 6-digit code from your TalkForge email. If the email button opens localhost on your phone, paste the confirmation link below instead."
+      description="Open your TalkForge email and tap Verify, or enter the 6-digit code below. After verification you’ll continue to onboarding."
       footer={
         <Link href="/login" className="text-zinc-200 underline">
           Back to sign in
@@ -122,11 +122,11 @@ export default function VerifyEmailPanel({
 
         <div className="border-t border-white/10 pt-6">
           <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
-            Phone workaround
+            Backup
           </p>
           <p className="mt-2 text-sm text-zinc-400">
-            Long-press “Confirm email address” in Gmail → Copy → paste below.
-            Works even when the link points at localhost.
+            If a confirmation link misbehaves on mobile, long-press → Copy →
+            paste here.
           </p>
           <form action={linkAction} className="mt-4 space-y-4">
             <label

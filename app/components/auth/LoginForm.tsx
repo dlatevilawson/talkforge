@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { loginAction, type AuthActionState } from "@/app/actions/auth";
 import {
@@ -11,6 +11,7 @@ import {
   AuthSubmit,
 } from "@/app/components/auth/AuthShell";
 import { PasswordField } from "@/app/components/auth/PasswordField";
+import { trackAuthEvent } from "@/lib/auth/analytics";
 
 function Submit() {
   const { pending } = useFormStatus();
@@ -27,6 +28,12 @@ export default function LoginForm({
   notice?: string;
 }) {
   const [state, action] = useActionState(loginAction, {} as AuthActionState);
+
+  useEffect(() => {
+    if (state.message && !state.ok) {
+      trackAuthEvent("auth_login_failure");
+    }
+  }, [state.message, state.ok]);
 
   return (
     <AuthShell
@@ -56,11 +63,17 @@ export default function LoginForm({
           autoComplete="email"
           required
         />
-        <PasswordField
-          autoComplete="current-password"
-          showStrength={false}
-        />
-        <div className="flex justify-end">
+        <PasswordField autoComplete="current-password" showStrength={false} />
+        <div className="flex items-center justify-between gap-3">
+          <label className="flex items-center gap-2 text-xs text-zinc-400">
+            <input
+              type="checkbox"
+              name="remember"
+              className="rounded border-white/20 bg-white/5"
+              defaultChecked
+            />
+            Keep me signed in
+          </label>
           <Link
             href="/forgot-password"
             className="text-xs text-zinc-400 hover:text-zinc-200"

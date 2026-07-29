@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { signupAction, type AuthActionState } from "@/app/actions/auth";
 import {
@@ -11,6 +11,7 @@ import {
   AuthSubmit,
 } from "@/app/components/auth/AuthShell";
 import { PasswordField } from "@/app/components/auth/PasswordField";
+import { trackAuthEvent } from "@/lib/auth/analytics";
 
 function Submit() {
   const { pending } = useFormStatus();
@@ -25,6 +26,12 @@ function Submit() {
 
 export default function SignupForm({ next }: { next: string }) {
   const [state, action] = useActionState(signupAction, {} as AuthActionState);
+
+  useEffect(() => {
+    if (state.ok) trackAuthEvent("auth_signup_success");
+    else if (state.message && !state.ok)
+      trackAuthEvent("auth_signup_failure");
+  }, [state.ok, state.message]);
 
   if (state.ok) {
     const verifyHref = state.email
@@ -55,7 +62,7 @@ export default function SignupForm({ next }: { next: string }) {
     <AuthShell
       eyebrow="Get started"
       title="Create your account"
-      description="Train for the conversations that matter. We’ll verify your email before you enter the Gym."
+      description="Email and password are enough to begin. You can personalize your profile after verification."
       footer={
         <>
           Already training?{" "}
@@ -69,24 +76,6 @@ export default function SignupForm({ next }: { next: string }) {
       }
     >
       <form action={action} className="space-y-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <AuthInput
-            id="firstName"
-            name="firstName"
-            label="First name"
-            autoComplete="given-name"
-            required
-            error={state.errors?.firstName}
-          />
-          <AuthInput
-            id="lastName"
-            name="lastName"
-            label="Last name"
-            autoComplete="family-name"
-            required
-            error={state.errors?.lastName}
-          />
-        </div>
         <AuthInput
           id="email"
           name="email"
@@ -95,6 +84,13 @@ export default function SignupForm({ next }: { next: string }) {
           autoComplete="email"
           required
           error={state.errors?.email}
+        />
+        <AuthInput
+          id="displayName"
+          name="displayName"
+          label="Display name (optional)"
+          autoComplete="nickname"
+          error={state.errors?.displayName}
         />
         <PasswordField showStrength error={state.errors?.password} />
         <AuthAlert message={state.message} />
