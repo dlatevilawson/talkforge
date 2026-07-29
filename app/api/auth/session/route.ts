@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import {
   clearSession,
-  founderDevEnabled,
+  founderDevAllowed,
+  founderDevDisplayName,
+  founderDevUserId,
   readSession,
-  verifyFounderDevCredentials,
+  resolveUserRole,
   writeSession,
 } from "@/lib/auth/session";
 import { getSupabaseClient } from "@/lib/supabase/client";
@@ -21,10 +23,7 @@ async function upsertProfile(input: {
   createdAt: string;
 }) {
   const supabase = getSupabaseClient();
-  if (!supabase) {
-    // Cookie session still works without Supabase for route protection.
-    return;
-  }
+  if (!supabase) return;
   const { error } = await supabase.from("profiles").upsert({
     id: input.id,
     display_name: input.displayName,
@@ -40,13 +39,16 @@ export async function GET() {
   return NextResponse.json(session);
 }
 
+/**
+ * Shared auth for members and Founder.
+ * Role is resolved from FOUNDER_USER_IDS (or locked-down local Founder seed) —
+ * never a separate login action.
+ */
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as {
       action?: string;
       displayName?: string;
-      email?: string;
-      password?: string;
       userId?: string;
     };
 
@@ -60,74 +62,43 @@ export async function POST(req: Request) {
       body.action === "signup" ||
       body.action === "login"
     ) {
-      const name =
+      let name =
         typeof body.displayName === "string" && body.displayName.trim()
           ? body.displayName.trim()
           : "Member";
-      // Prefer continuing an existing browser pointer when client sends it.
-      const userId =
+
+      let userId =
         typeof body.userId === "string" && body.userId.trim()
           ? body.userId.trim()
           : createId();
+
+      // Local/dev only: signing in with the Founder display name uses the
+      // stable Founder seed id so FOUNDER_USER_IDS / portal checks stay consistent.
+      if (
+        founderDevAllowed() &&
+        name.toLowerCase() === founderDevDisplayName().toLowerCase()
+      ) {
+        userId = founderDevUserId();
+        name = founderDevDisplayName();
+      }
+
       const createdAt = new Date().toISOString();
       await upsertProfile({ id: userId, displayName: name, createdAt });
-      await writeSession({
-        userId,
-        role: "member",
-        displayName: name,
-      });
+
+      const role = resolveUserRole({ userId, displayName: name });
+      await writeSession({ userId, role, displayName: name });
+
       return NextResponse.json({
         ok: true,
         userId,
-        role: "member",
+        role,
         displayName: name,
-      });
-    }
-
-    if (body.action === "founder") {
-      if (!founderDevEnabled()) {
-        return NextResponse.json(
-          {
-            error:
-              "Founder development login is disabled. Set FOUNDER_DEV_ENABLED=true only in trusted environments.",
-          },
-          { status: 403 }
-        );
-      }
-      const email = typeof body.email === "string" ? body.email : "";
-      const password = typeof body.password === "string" ? body.password : "";
-      if (!verifyFounderDevCredentials(email, password)) {
-        return NextResponse.json(
-          { error: "Invalid Founder credentials." },
-          { status: 401 }
-        );
-      }
-
-      const founderId = process.env.FOUNDER_DEV_USER_ID?.trim() || "founder-dev";
-      const displayName =
-        process.env.FOUNDER_DEV_DISPLAY_NAME?.trim() || "Founder";
-      const createdAt = new Date().toISOString();
-      try {
-        await upsertProfile({
-          id: founderId,
-          displayName,
-          createdAt,
-        });
-      } catch (err) {
-        console.warn("founder profile upsert", err);
-      }
-      await writeSession({
-        userId: founderId,
-        role: "founder",
-        displayName,
-      });
-      return NextResponse.json({
-        ok: true,
-        userId: founderId,
-        role: "founder",
-        displayName,
-        warning:
-          "FOUNDER_DEV login — development-safe seed. Do not treat as production IAM.",
+        ...(role === "founder" && founderDevAllowed()
+          ? {
+              warning:
+                "Founder role via development seed. Production uses FOUNDER_USER_IDS only.",
+            }
+          : {}),
       });
     }
 

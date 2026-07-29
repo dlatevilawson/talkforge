@@ -18,8 +18,11 @@ export default async function FounderLayout({
   children: React.ReactNode;
 }) {
   const session = await readSession();
-  if (!session.authenticated || session.role !== "founder") {
-    redirect("/login?founder=1&next=/founder");
+  if (!session.authenticated) {
+    redirect("/login?next=/founder");
+  }
+  if (session.role !== "founder") {
+    redirect("/app/dashboard");
   }
 
   return (

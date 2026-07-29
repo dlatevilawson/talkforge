@@ -18,8 +18,16 @@ function SignupForm() {
     setSubmitting(true);
     setError("");
     try {
-      await establishMemberSession(nameRef.current?.value?.trim() || "Member");
-      router.push(next.startsWith("/") ? next : "/app/dashboard");
+      const session = await establishMemberSession(
+        nameRef.current?.value?.trim() || "Member"
+      );
+      const dest =
+        next.startsWith("/founder") && session.role !== "founder"
+          ? "/app/dashboard"
+          : next.startsWith("/")
+            ? next
+            : "/app/dashboard";
+      router.push(dest);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Signup failed");

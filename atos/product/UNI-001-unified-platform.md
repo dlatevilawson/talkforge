@@ -29,7 +29,7 @@ Protection uses Next.js 16 **`proxy.ts`** (not deprecated `middleware`).
 **Long-term excellence:** Supabase Auth + RLS.  
 **This ship:** Extend the *existing* guest identity (sessionStorage + profiles) with **httpOnly cookie bridge** so `/app` and `/founder` can be gated server-side — **without** introducing a second auth provider.
 
-Founder login is env-gated (`FOUNDER_DEV_*`) and must stay off in untrusted production until real IAM.
+**Founder access:** same `/login` / `/signup` as every member. Role is resolved from `FOUNDER_USER_IDS` (production allowlist). A temporary local Founder seed (`FOUNDER_DEV_*`) is **hard-locked out of production** (`NODE_ENV` / `VERCEL_ENV` must not be production). No separate Founder login UI or API action.
 
 ### Why not fork the landing page
 

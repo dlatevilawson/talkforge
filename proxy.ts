@@ -1,28 +1,26 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import {
-  TF_AUTH_COOKIE,
-  TF_ROLE_COOKIE,
-} from "@/lib/auth/constants";
+import { TF_AUTH_COOKIE, TF_UID_COOKIE } from "@/lib/auth/constants";
+import { isFounderUserId } from "@/lib/auth/session";
 
 /**
- * Next.js 16 Proxy (formerly middleware).
- * Protects /app/* (members) and /founder/* (founder role only).
+ * Next.js 16 Proxy.
+ * /app/* — any authenticated member
+ * /founder/* — authenticated + Founder role (allowlist), not a separate login
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const authed = request.cookies.get(TF_AUTH_COOKIE)?.value === "1";
-  const role = request.cookies.get(TF_ROLE_COOKIE)?.value;
+  const userId = request.cookies.get(TF_UID_COOKIE)?.value;
 
   if (pathname.startsWith("/founder")) {
     if (!authed) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.searchParams.set("next", pathname);
-      url.searchParams.set("founder", "1");
       return NextResponse.redirect(url);
     }
-    if (role !== "founder") {
+    if (!isFounderUserId(userId)) {
       const url = request.nextUrl.clone();
       url.pathname = "/app/dashboard";
       return NextResponse.redirect(url);
