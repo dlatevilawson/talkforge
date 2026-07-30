@@ -28,24 +28,37 @@ export type SessionReport = {
   completedAt?: string;
 };
 
+export type LearningStyle =
+  | ""
+  | "practice_first"
+  | "reflect_first"
+  | "example_first"
+  | "challenge_first";
+
 /** Selective relationship memory — only what improves the next conversation. */
 export type CoachMemory = {
   userId: string;
   displayName: string;
+  preferredNickname: string;
   occupation: string;
   communicationGoals: string[];
+  longTermChallenges: string[];
   biggestFears: string[];
   recentWins: string[];
   topicsWorkingOn: string[];
   preferredCoachingStyle: string;
+  learningStyle: LearningStyle;
   confidenceLevel: number | null;
+  biggestStrength: string;
   speakingHabits: string[];
+  emotionalTriggers: string[];
   favoriteScenarios: string[];
   pastExercises: string[];
   notes: Record<string, unknown>;
   lastSessionId: string | null;
   lastSessionSummary: string;
   lastScenarioTitle: string;
+  lastSessionAt: string | null;
   sessionsCompleted: number;
   updatedAt: string;
 };
@@ -82,16 +95,22 @@ export type GrowthSummary = {
 /** Compact context injected into Forge prompts. */
 export type CoachPromptContext = {
   firstName: string;
+  nickname: string;
   isReturning: boolean;
   sessionsCompleted: number;
   lastScenarioTitle: string;
   lastSessionSummary: string;
+  lastSessionAt: string | null;
   recentWins: string[];
   topicsWorkingOn: string[];
   communicationGoals: string[];
+  longTermChallenges: string[];
   biggestFears: string[];
+  emotionalTriggers: string[];
   preferredCoachingStyle: string;
+  learningStyle: LearningStyle;
   confidenceLevel: number | null;
+  biggestStrength: string;
   speakingHabits: string[];
   adaptiveInsight: string | null;
   welcomeHint: string;

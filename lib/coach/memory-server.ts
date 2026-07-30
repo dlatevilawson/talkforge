@@ -3,16 +3,33 @@ import { buildCoachPromptContext, emptyCoachMemory } from "@/lib/coach/memory";
 import type {
   CoachMemory,
   CoachPromptContext,
+  LearningStyle,
   SessionReport,
 } from "@/lib/coach/types";
+
+function asLearningStyle(value: unknown): LearningStyle {
+  if (
+    value === "practice_first" ||
+    value === "reflect_first" ||
+    value === "example_first" ||
+    value === "challenge_first"
+  ) {
+    return value;
+  }
+  return "";
+}
 
 function mapMemory(row: Record<string, unknown>): CoachMemory {
   return {
     userId: String(row.user_id),
     displayName: String(row.display_name ?? ""),
+    preferredNickname: String(row.preferred_nickname ?? ""),
     occupation: String(row.occupation ?? ""),
     communicationGoals: Array.isArray(row.communication_goals)
       ? (row.communication_goals as string[])
+      : [],
+    longTermChallenges: Array.isArray(row.long_term_challenges)
+      ? (row.long_term_challenges as string[])
       : [],
     biggestFears: Array.isArray(row.biggest_fears)
       ? (row.biggest_fears as string[])
@@ -24,10 +41,15 @@ function mapMemory(row: Record<string, unknown>): CoachMemory {
       ? (row.topics_working_on as string[])
       : [],
     preferredCoachingStyle: String(row.preferred_coaching_style ?? ""),
+    learningStyle: asLearningStyle(row.learning_style),
     confidenceLevel:
       typeof row.confidence_level === "number" ? row.confidence_level : null,
+    biggestStrength: String(row.biggest_strength ?? ""),
     speakingHabits: Array.isArray(row.speaking_habits)
       ? (row.speaking_habits as string[])
+      : [],
+    emotionalTriggers: Array.isArray(row.emotional_triggers)
+      ? (row.emotional_triggers as string[])
       : [],
     favoriteScenarios: Array.isArray(row.favorite_scenarios)
       ? (row.favorite_scenarios as string[])
@@ -43,6 +65,8 @@ function mapMemory(row: Record<string, unknown>): CoachMemory {
       typeof row.last_session_id === "string" ? row.last_session_id : null,
     lastSessionSummary: String(row.last_session_summary ?? ""),
     lastScenarioTitle: String(row.last_scenario_title ?? ""),
+    lastSessionAt:
+      typeof row.last_session_at === "string" ? row.last_session_at : null,
     sessionsCompleted:
       typeof row.sessions_completed === "number" ? row.sessions_completed : 0,
     updatedAt: String(row.updated_at ?? new Date().toISOString()),
@@ -141,6 +165,7 @@ export async function loadCoachPromptContextForUser(
           sessionsCompleted: sessions.length,
           lastSessionId: sessions[0].id,
           lastScenarioTitle: sessions[0].scenario_title ?? "",
+          lastSessionAt: sessions[0].completed_at ?? null,
           lastSessionSummary: sessions[0].average_score
             ? `Last session score ${sessions[0].average_score}.`
             : "You've practiced with Forge before.",

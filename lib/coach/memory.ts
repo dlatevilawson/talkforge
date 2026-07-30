@@ -2,6 +2,7 @@ import { buildAdaptiveInsight } from "@/lib/coach/growth";
 import type {
   CoachMemory,
   CoachPromptContext,
+  LearningStyle,
   SessionReport,
 } from "@/lib/coach/types";
 
@@ -9,20 +10,26 @@ export function emptyCoachMemory(userId: string, displayName = ""): CoachMemory 
   return {
     userId,
     displayName,
+    preferredNickname: "",
     occupation: "",
     communicationGoals: [],
+    longTermChallenges: [],
     biggestFears: [],
     recentWins: [],
     topicsWorkingOn: [],
     preferredCoachingStyle: "",
+    learningStyle: "",
     confidenceLevel: null,
+    biggestStrength: "",
     speakingHabits: [],
+    emotionalTriggers: [],
     favoriteScenarios: [],
     pastExercises: [],
     notes: {},
     lastSessionId: null,
     lastSessionSummary: "",
     lastScenarioTitle: "",
+    lastSessionAt: null,
     sessionsCompleted: 0,
     updatedAt: new Date().toISOString(),
   };
@@ -33,11 +40,30 @@ function firstName(displayName: string): string {
   return part || "there";
 }
 
+function preferredName(memory: CoachMemory): string {
+  const nick = memory.preferredNickname.trim();
+  if (nick) return nick;
+  return firstName(memory.displayName);
+}
+
 function uniqPush(list: string[], value: string, max = 8): string[] {
   const trimmed = value.trim();
   if (!trimmed) return list;
   const next = [trimmed, ...list.filter((item) => item !== trimmed)];
   return next.slice(0, max);
+}
+
+function relativeSessionPhrase(iso: string | null | undefined): string {
+  if (!iso) return "Last time";
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return "Last time";
+  const days = Math.floor((Date.now() - t) / (24 * 60 * 60 * 1000));
+  if (days <= 0) return "Earlier today";
+  if (days === 1) return "Yesterday";
+  if (days < 7) return "Earlier this week";
+  if (days < 14) return "Last week";
+  if (days < 45) return "Last month";
+  return "Last time we practiced";
 }
 
 /**
@@ -58,6 +84,8 @@ export function applyReportToMemory(
       memory.topicsWorkingOn,
       report.biggestWeakness
     ),
+    biggestStrength:
+      report.breakthrough.trim() || memory.biggestStrength,
     favoriteScenarios: uniqPush(memory.favoriteScenarios, scenario),
     pastExercises: uniqPush(memory.pastExercises, scenario, 12),
     confidenceLevel: report.confidence ?? memory.confidenceLevel,
@@ -69,6 +97,7 @@ export function applyReportToMemory(
     lastSessionId: report.sessionId,
     lastSessionSummary: report.coachSummary.slice(0, 400),
     lastScenarioTitle: scenario,
+    lastSessionAt: report.completedAt ?? report.createdAt,
     sessionsCompleted: Math.max(memory.sessionsCompleted + 1, report.sessionNumber),
     updatedAt: new Date().toISOString(),
   };
@@ -94,35 +123,47 @@ function inferHabitFromReport(report: SessionReport): string {
 }
 
 /**
- * Build a short, human welcome hint — curiosity first, never a topic menu.
+ * Build a short, human welcome hint — struggle/pattern first, never a topic menu.
+ * Target feel: "Last week you struggled slowing down during disagreements…"
  */
 export function buildWelcomeHint(input: {
-  firstName: string;
+  name: string;
   isReturning: boolean;
   lastScenarioTitle: string;
+  lastSessionAt?: string | null;
+  lastStruggle?: string;
   recentWin?: string;
   speakingHabit?: string;
   adaptiveInsight?: string | null;
+  longTermChallenge?: string;
 }): string {
-  const { firstName, isReturning } = input;
+  const { name, isReturning } = input;
 
   if (!isReturning) {
-    return `Say hello to ${firstName === "there" ? "them" : firstName} warmly. One short sentence that they're safe here — no performance. Ask one simple curious question about what brought them in. Then wait.`;
+    return `Say hello to ${name === "there" ? "them" : name} warmly. One short sentence that they're safe here — no performance. Ask one simple curious question about what brought them in. Then wait.`;
   }
 
-  const name = firstName === "there" ? "there" : firstName;
+  const when = relativeSessionPhrase(input.lastSessionAt);
+  const struggle =
+    input.lastStruggle?.trim() ||
+    input.longTermChallenge?.trim() ||
+    "";
   const pattern =
     input.adaptiveInsight?.trim() ||
     input.speakingHabit?.trim() ||
     "";
-  const last = input.lastScenarioTitle.trim();
 
-  if (pattern) {
-    return `Welcome back, ${name}. In 2–3 short sentences: notice one pattern (${pattern}). Do not lecture. Do not offer a menu of topics. End with one curious question about what they'd like to sit with today. Then wait.`;
+  if (struggle) {
+    return `Welcome back, ${name}. In 2 short sentences say something like: "${when} you were working on ${struggle}. Let's see how that feels today." Do not offer a menu of topics. One curious check-in question if needed. Then wait.`;
   }
 
+  if (pattern) {
+    return `Welcome back, ${name}. Gently notice one pattern (${pattern}). Invite them to build on it today — no lecture, no topic menu. 2–3 short sentences. Then wait.`;
+  }
+
+  const last = input.lastScenarioTitle.trim();
   if (last) {
-    return `Welcome back, ${name}. Briefly remember last time (${last}) in one calm sentence — no score recap, no topic menu. Ask one curious question about what's on their mind today. 2–3 short sentences max. Then wait.`;
+    return `Welcome back, ${name}. ${when} you practiced ${last}. One calm sentence of continuity, then one curious question about what's present today. No options list. Then wait.`;
   }
 
   return `Welcome back, ${name}. One warm sentence that you remember them. Ask one curious question about what's present today. No options list. Then wait.`;
@@ -133,62 +174,104 @@ export function buildCoachPromptContext(
   recentReports: SessionReport[] = []
 ): CoachPromptContext {
   const mem = memory ?? emptyCoachMemory("unknown");
-  const name = firstName(mem.displayName);
+  const name = preferredName(mem);
   const isReturning = mem.sessionsCompleted > 0 || recentReports.length > 0;
   const adaptiveInsight = buildAdaptiveInsight(recentReports);
+  const lastReport = recentReports[0];
+  const lastSessionAt =
+    mem.lastSessionAt ||
+    lastReport?.completedAt ||
+    lastReport?.createdAt ||
+    null;
 
   const welcomeHint = buildWelcomeHint({
-    firstName: name,
+    name,
     isReturning,
     lastScenarioTitle: mem.lastScenarioTitle,
-    recentWin: mem.recentWins[0],
+    lastSessionAt,
+    lastStruggle: mem.topicsWorkingOn[0] || lastReport?.biggestWeakness,
+    recentWin: mem.recentWins[0] || mem.biggestStrength,
     speakingHabit: mem.speakingHabits[0],
     adaptiveInsight,
+    longTermChallenge: mem.longTermChallenges[0],
   });
 
   return {
     firstName: name,
+    nickname: mem.preferredNickname.trim(),
     isReturning,
     sessionsCompleted: mem.sessionsCompleted || recentReports.length,
     lastScenarioTitle: mem.lastScenarioTitle,
     lastSessionSummary: mem.lastSessionSummary,
+    lastSessionAt,
     recentWins: mem.recentWins.slice(0, 3),
     topicsWorkingOn: mem.topicsWorkingOn.slice(0, 3),
     communicationGoals: mem.communicationGoals.slice(0, 3),
+    longTermChallenges: mem.longTermChallenges.slice(0, 3),
     biggestFears: mem.biggestFears.slice(0, 3),
+    emotionalTriggers: mem.emotionalTriggers.slice(0, 3),
     preferredCoachingStyle: mem.preferredCoachingStyle,
+    learningStyle: mem.learningStyle,
     confidenceLevel: mem.confidenceLevel,
+    biggestStrength: mem.biggestStrength,
     speakingHabits: mem.speakingHabits.slice(0, 3),
     adaptiveInsight,
     welcomeHint,
   };
 }
 
+const LEARNING_STYLE_LABELS: Record<Exclude<LearningStyle, "">, string> = {
+  practice_first: "learns by practicing first",
+  reflect_first: "prefers a moment to reflect before diving in",
+  example_first: "learns best from a short example",
+  challenge_first: "likes a gentle stretch sooner",
+};
+
 /** Compact block injected into system / coach prompts. */
 export function formatCoachMemoryBlock(ctx: CoachPromptContext): string {
+  const learning =
+    ctx.learningStyle && ctx.learningStyle in LEARNING_STYLE_LABELS
+      ? LEARNING_STYLE_LABELS[ctx.learningStyle as Exclude<LearningStyle, "">]
+      : "(not set)";
+
   if (!ctx.isReturning) {
     return `
 Member relationship memory:
 - First saved session for ${ctx.firstName}.
+- Nickname: ${ctx.nickname || "(none)"}
 - Opening style: ${ctx.welcomeHint}
+- Learning style: ${learning}
 - Remember: understand before coaching. No topic menus.
 `;
   }
 
   return `
 Member relationship memory (use this — do not pretend you just met them):
-- Name: ${ctx.firstName}
+- Call them: ${ctx.firstName}${ctx.nickname ? ` (nickname: ${ctx.nickname})` : ""}
 - Sessions completed: ${ctx.sessionsCompleted}
 - Last scenario: ${ctx.lastScenarioTitle || "(unknown)"}
+- Last practiced: ${ctx.lastSessionAt || "(unknown)"}
 - Last summary: ${ctx.lastSessionSummary || "(none)"}
-- Patterns / habits noticed: ${ctx.speakingHabits.join("; ") || "(none yet)"}
-- Recent wins (celebrate lightly, don't oversell): ${ctx.recentWins.join("; ") || "(none yet)"}
-- Soft focus areas (do NOT recite as a checklist): ${ctx.topicsWorkingOn.join("; ") || "(none yet)"}
-- Goals: ${ctx.communicationGoals.join("; ") || "(not set)"}
-- Fears to handle gently: ${ctx.biggestFears.join("; ") || "(not set)"}
+- Biggest strength: ${ctx.biggestStrength || "(none yet)"}
+- Patterns / habits: ${ctx.speakingHabits.join("; ") || "(none yet)"}
+- Recent wins: ${ctx.recentWins.join("; ") || "(none yet)"}
+- Soft focus / last struggle (do NOT recite as a checklist): ${ctx.topicsWorkingOn.join("; ") || "(none yet)"}
+- Long-term challenges: ${ctx.longTermChallenges.join("; ") || "(not set)"}
+- Communication goals: ${ctx.communicationGoals.join("; ") || "(not set)"}
+- Emotional triggers (handle gently): ${ctx.emotionalTriggers.join("; ") || ctx.biggestFears.join("; ") || "(not set)"}
 - Preferred coaching style: ${ctx.preferredCoachingStyle || "warm, curious, unhurried"}
+- Learning style: ${learning}
 - Confidence level (approx): ${ctx.confidenceLevel ?? "unknown"}
-- Pattern insight (use once, gently — never as a lecture): ${ctx.adaptiveInsight || "(none)"}
+- Pattern insight: ${ctx.adaptiveInsight || "(none)"}
 - Opening style: ${ctx.welcomeHint}
 `;
+}
+
+/** Parse comma/newline lists from Settings forms. */
+export function parseMemoryList(value: string, max = 8): string[] {
+  return value
+    .split(/[\n,]/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, max);
 }

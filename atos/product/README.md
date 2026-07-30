@@ -58,6 +58,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [RES-015](../resolutions/RES-015-br-001-acceptance.md) | BR-001 Accepted; external invite blocked | Authoritative |
 | — | [FLA-001](FLA-001-forge-learning-architecture.md) | Canonical product learning specification | Authoritative |
 | — | [PCM-001](PCM-001-personal-communication-model.md) | Canonical representation of user growth | Product Canonical |
+| — | [ROADMAP-001](ROADMAP-001-talkforge-north-star.md) | North star roadmap (Phases 1–7) + never-break principles | **Authoritative** |
 | **Gated** | [PPS-001](PPS-001-product-proof-sprint.md) | Product Proof Sprint 001 | **May not begin until CE-001 MVP** |
 | — | [RES-013](../resolutions/RES-013-ce-001-approved-for-execution.md) | Ratification of DIR-CE-001 | Authoritative |
 

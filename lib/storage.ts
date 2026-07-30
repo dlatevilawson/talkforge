@@ -136,40 +136,61 @@ function mapSessionReport(row: {
 function mapCoachMemory(row: {
   user_id: string;
   display_name: string;
+  preferred_nickname?: string | null;
   occupation: string;
   communication_goals: string[] | null;
+  long_term_challenges?: string[] | null;
   biggest_fears: string[] | null;
   recent_wins: string[] | null;
   topics_working_on: string[] | null;
   preferred_coaching_style: string;
+  learning_style?: string | null;
   confidence_level: number | null;
+  biggest_strength?: string | null;
   speaking_habits: string[] | null;
+  emotional_triggers?: string[] | null;
   favorite_scenarios: string[] | null;
   past_exercises: string[] | null;
   notes: Record<string, unknown> | null;
   last_session_id: string | null;
   last_session_summary: string;
   last_scenario_title: string;
+  last_session_at?: string | null;
   sessions_completed: number;
   updated_at: string;
 }): CoachMemory {
+  const learning = row.learning_style;
+  const learningStyle =
+    learning === "practice_first" ||
+    learning === "reflect_first" ||
+    learning === "example_first" ||
+    learning === "challenge_first"
+      ? learning
+      : ("" as const);
+
   return {
     userId: row.user_id,
     displayName: row.display_name ?? "",
+    preferredNickname: row.preferred_nickname ?? "",
     occupation: row.occupation ?? "",
     communicationGoals: row.communication_goals ?? [],
+    longTermChallenges: row.long_term_challenges ?? [],
     biggestFears: row.biggest_fears ?? [],
     recentWins: row.recent_wins ?? [],
     topicsWorkingOn: row.topics_working_on ?? [],
     preferredCoachingStyle: row.preferred_coaching_style ?? "",
+    learningStyle,
     confidenceLevel: row.confidence_level,
+    biggestStrength: row.biggest_strength ?? "",
     speakingHabits: row.speaking_habits ?? [],
+    emotionalTriggers: row.emotional_triggers ?? [],
     favoriteScenarios: row.favorite_scenarios ?? [],
     pastExercises: row.past_exercises ?? [],
     notes: row.notes ?? {},
     lastSessionId: row.last_session_id,
     lastSessionSummary: row.last_session_summary ?? "",
     lastScenarioTitle: row.last_scenario_title ?? "",
+    lastSessionAt: row.last_session_at ?? null,
     sessionsCompleted: row.sessions_completed ?? 0,
     updatedAt: row.updated_at,
   };
@@ -537,28 +558,71 @@ export async function getCoachMemory(
 
 export async function saveCoachMemory(memory: CoachMemory): Promise<void> {
   const supabase = requireSupabase();
-  const { error } = await supabase.from("coach_memory").upsert({
+  const payload = {
     user_id: memory.userId,
     display_name: memory.displayName,
+    preferred_nickname: memory.preferredNickname,
     occupation: memory.occupation,
     communication_goals: memory.communicationGoals,
+    long_term_challenges: memory.longTermChallenges,
     biggest_fears: memory.biggestFears,
     recent_wins: memory.recentWins,
     topics_working_on: memory.topicsWorkingOn,
     preferred_coaching_style: memory.preferredCoachingStyle,
+    learning_style: memory.learningStyle || "",
     confidence_level: memory.confidenceLevel,
+    biggest_strength: memory.biggestStrength,
     speaking_habits: memory.speakingHabits,
+    emotional_triggers: memory.emotionalTriggers,
     favorite_scenarios: memory.favoriteScenarios,
     past_exercises: memory.pastExercises,
     notes: memory.notes,
     last_session_id: memory.lastSessionId,
     last_session_summary: memory.lastSessionSummary,
     last_scenario_title: memory.lastScenarioTitle,
+    last_session_at: memory.lastSessionAt,
     sessions_completed: memory.sessionsCompleted,
     updated_at: memory.updatedAt,
-  });
+  };
+
+  const { error } = await supabase.from("coach_memory").upsert(payload);
 
   if (error) {
+    // Soft-fallback if Phase 1 columns not migrated yet
+    if (
+      error.message.includes("preferred_nickname") ||
+      error.message.includes("long_term_challenges") ||
+      error.message.includes("learning_style") ||
+      error.message.includes("biggest_strength") ||
+      error.message.includes("emotional_triggers") ||
+      error.message.includes("last_session_at")
+    ) {
+      const legacy = {
+        user_id: payload.user_id,
+        display_name: payload.display_name,
+        occupation: payload.occupation,
+        communication_goals: payload.communication_goals,
+        biggest_fears: payload.biggest_fears,
+        recent_wins: payload.recent_wins,
+        topics_working_on: payload.topics_working_on,
+        preferred_coaching_style: payload.preferred_coaching_style,
+        confidence_level: payload.confidence_level,
+        speaking_habits: payload.speaking_habits,
+        favorite_scenarios: payload.favorite_scenarios,
+        past_exercises: payload.past_exercises,
+        notes: payload.notes,
+        last_session_id: payload.last_session_id,
+        last_session_summary: payload.last_session_summary,
+        last_scenario_title: payload.last_scenario_title,
+        sessions_completed: payload.sessions_completed,
+        updated_at: payload.updated_at,
+      };
+      const retry = await supabase.from("coach_memory").upsert(legacy);
+      if (retry.error) {
+        throw new Error(`Failed to save coach memory: ${retry.error.message}`);
+      }
+      return;
+    }
     if (error.message.includes("coach_memory") || error.code === "PGRST205") {
       console.warn("[coach] coach_memory unavailable:", error.message);
       return;
