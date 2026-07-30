@@ -11,7 +11,9 @@ import {
 } from "@/lib/auth/founder-dev";
 import { AUTH_COPY, mapAuthError } from "@/lib/auth/messages";
 import { assertPasswordPolicy } from "@/lib/auth/password";
-import { founderUserIdAllowlist } from "@/lib/auth/allowlist";
+import { founderUserIdAllowlist, resolveEffectiveRole } from "@/lib/auth/allowlist";
+import type { UserRole } from "@/lib/auth/constants";
+import { canAccessFounderPortal, isValidRole } from "@/lib/auth/roles";
 import { recordLogin } from "@/lib/auth/session";
 import { safeNextPath } from "@/lib/auth/safe-next";
 import {
@@ -189,7 +191,9 @@ export async function loginAction(
     .trim()
     .toLowerCase();
   const password = String(formData.get("password") ?? "");
-  const next = safeNextPath(String(formData.get("next") ?? ""), "/app/dashboard");
+  const portal = String(formData.get("portal") ?? "app");
+  const defaultNext = portal === "founder" ? "/founder" : "/app/dashboard";
+  const next = safeNextPath(String(formData.get("next") ?? ""), defaultNext);
   const remember = String(formData.get("remember") ?? "") === "on";
 
   const emailErr = validateEmail(email);
@@ -259,12 +263,21 @@ export async function loginAction(
     .eq("id", data.user.id)
     .maybeSingle();
 
-  logAuthEvent("auth_login_success", { role: profile?.role ?? "user" });
+  const baseRole: UserRole =
+    typeof profile?.role === "string" && isValidRole(profile.role)
+      ? profile.role
+      : "user";
+  const role = resolveEffectiveRole(data.user.id, baseRole);
+  const founderPortal = canAccessFounderPortal(role);
+
+  logAuthEvent("auth_login_success", { role });
 
   if (profile?.must_change_password) {
     return {
       ok: true,
-      redirectTo: `/change-password?next=${encodeURIComponent(next)}`,
+      redirectTo: `/change-password?next=${encodeURIComponent(
+        founderPortal && portal === "founder" ? "/founder" : next
+      )}`,
     };
   }
 
@@ -275,18 +288,23 @@ export async function loginAction(
     };
   }
 
-  if (profile && !profile.onboarding_complete) {
-    return { ok: true, redirectTo: "/onboarding" };
+  // Founder Portal login: skip gym onboarding and require portal role.
+  if (portal === "founder" || next.startsWith("/founder")) {
+    if (!founderPortal) {
+      return {
+        ok: false,
+        message:
+          "This account does not have Founder Portal access. Sign in from the member login, or ask an admin to grant the founder role.",
+      };
+    }
+    return {
+      ok: true,
+      redirectTo: next.startsWith("/founder") ? next : "/founder",
+    };
   }
 
-  if (next.startsWith("/founder")) {
-    const role = (profile?.role as string) || "user";
-    if (role !== "founder" && role !== "admin" && role !== "system") {
-      const allow = founderUserIdAllowlist();
-      if (!allow.has(data.user.id)) {
-        return { ok: true, redirectTo: "/app/dashboard" };
-      }
-    }
+  if (profile && !profile.onboarding_complete) {
+    return { ok: true, redirectTo: "/onboarding" };
   }
 
   return { ok: true, redirectTo: next };
