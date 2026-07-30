@@ -1,6 +1,8 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
+import { formatCoachMemoryBlock } from "@/lib/coach/memory";
+import { loadCoachPromptContextForUser } from "@/lib/coach/memory-server";
 import { buildMockCoachResponse } from "@/lib/coach/mock";
 
 function getClient() {
@@ -101,6 +103,9 @@ export async function POST(req: Request) {
       );
     }
 
+    const memory = await loadCoachPromptContextForUser(gate.userId);
+    const memoryBlock = formatCoachMemoryBlock(memory);
+
     const client = getClient();
     if (!client) {
       return NextResponse.json(
@@ -136,6 +141,8 @@ You are Forge, the AI coach inside TalkForge (Forge Learning Architecture).
 
 TalkForge is a Performance Laboratory: prepare people to perform despite fear.
 Confidence is a byproduct of capability. Coach behaviors — never identity labels.
+
+${memoryBlock}
 
 The user is practicing this scenario:
 ${scenarioBlock}

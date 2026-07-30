@@ -9,7 +9,10 @@ import {
   setMicrophoneEnabled,
   type RealtimeConnection,
 } from "@/lib/ce/realtime";
-import type { CeTrack } from "@/lib/ce/session-config";
+import {
+  CE_TRACK_TITLES,
+  type CeTrack,
+} from "@/lib/ce/session-config";
 import {
   applyRealtimeTranscriptEvent,
   type TranscriptTurn,
@@ -19,6 +22,14 @@ import {
   saveVoiceTranscript,
   setActiveVoiceSessionId,
 } from "@/lib/ce/transcript-store";
+import { voiceTurnsToConversationTurns } from "@/lib/coach/report";
+import {
+  completePracticeSession,
+  createPracticeSession,
+  persistActiveSession,
+} from "@/lib/session";
+import { getUser } from "@/lib/storage";
+import type { PracticeSession } from "@/lib/types";
 
 type VoiceArenaProps = {
   track?: CeTrack;
@@ -40,6 +51,15 @@ type Momentum = {
   strength: string;
   improve: string;
   nextAction: string;
+  breakthrough?: string;
+  biggestWeakness?: string;
+  homework?: string;
+  coachSummary?: string;
+  overallScore?: number;
+  confidence?: number;
+  empathy?: number;
+  listening?: number;
+  clarity?: number;
 };
 
 export default function VoiceArena({
@@ -52,6 +72,8 @@ export default function VoiceArena({
   const voiceSessionIdRef = useRef<string | null>(null);
   const realtimeSessionIdRef = useRef<string | null>(null);
   const createdAtRef = useRef<string>("");
+  const practiceSessionRef = useRef<PracticeSession | null>(null);
+  const welcomeHintRef = useRef<string>("");
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState("");
@@ -64,6 +86,8 @@ export default function VoiceArena({
   const [micLive, setMicLive] = useState(false);
   const [momentum, setMomentum] = useState<Momentum | null>(null);
   const [momentumLoading, setMomentumLoading] = useState(false);
+  const [savedSessionId, setSavedSessionId] = useState<string | null>(null);
+  const [welcomeLine, setWelcomeLine] = useState("");
 
   const showDevDiagnostics = process.env.NODE_ENV === "development";
 
@@ -96,6 +120,18 @@ export default function VoiceArena({
       turns: nextTurns,
     });
     setActiveVoiceSessionId(id);
+
+    const practice = practiceSessionRef.current;
+    if (practice) {
+      const conversation = voiceTurnsToConversationTurns(nextTurns);
+      void persistActiveSession(practice, conversation)
+        .then((updated) => {
+          practiceSessionRef.current = updated;
+        })
+        .catch((err) => {
+          console.warn("[voice] persist session failed", err);
+        });
+    }
   }
 
   function handleServerEvent(event: Record<string, unknown>) {
@@ -161,6 +197,8 @@ export default function VoiceArena({
     setMicLive(false);
     setEvents([]);
     setMomentum(null);
+    setSavedSessionId(null);
+    practiceSessionRef.current = null;
     setPhase("minting");
     pushEvent("Minting session…");
 
@@ -171,6 +209,21 @@ export default function VoiceArena({
     try {
       disconnectRealtime(connectionRef.current);
       connectionRef.current = null;
+
+      // Permanent practice_sessions row — voice history survives End.
+      const scenarioTitle =
+        eventTitle?.trim() || CE_TRACK_TITLES[track] || "Voice practice with Forge";
+      const practice = await createPracticeSession({
+        scenarioId: `voice_${track}`,
+        scenarioTitle,
+        missionPrompt:
+          successCriteria?.trim() ||
+          "Practice clear, warm, confident communication out loud with Forge.",
+        modality: "voice",
+      });
+      practiceSessionRef.current = practice;
+      setSavedSessionId(practice.id);
+      pushEvent(`Session saved · ${practice.id.slice(0, 8)}`);
 
       const tokenRes = await fetch("/api/realtime/session", {
         method: "POST",
@@ -185,6 +238,12 @@ export default function VoiceArena({
         value?: string;
         session_id?: string | null;
         error?: string;
+        memory?: {
+          firstName?: string;
+          isReturning?: boolean;
+          welcomeHint?: string;
+          lastScenarioTitle?: string;
+        };
       };
 
       if (!tokenRes.ok || !tokenData.value) {
@@ -192,6 +251,18 @@ export default function VoiceArena({
       }
 
       realtimeSessionIdRef.current = tokenData.session_id ?? null;
+      welcomeHintRef.current = tokenData.memory?.welcomeHint?.trim() || "";
+      if (tokenData.memory?.isReturning && tokenData.memory.firstName) {
+        setWelcomeLine(
+          `Welcome back, ${tokenData.memory.firstName}${
+            tokenData.memory.lastScenarioTitle
+              ? ` · last: ${tokenData.memory.lastScenarioTitle}`
+              : ""
+          }`
+        );
+      } else {
+        setWelcomeLine("");
+      }
       setPhase("connecting");
       pushEvent("Connecting…");
 
@@ -225,8 +296,12 @@ export default function VoiceArena({
       }
 
       setPhase("speaking");
-      requestOpeningSpeech(connection.dc);
-      pushEvent("Forge opening");
+      requestOpeningSpeech(connection.dc, welcomeHintRef.current);
+      pushEvent(
+        tokenData.memory?.isReturning
+          ? "Forge opening · returning member"
+          : "Forge opening"
+      );
     } catch (err) {
       console.error(err);
       disconnectRealtime(connectionRef.current);
@@ -270,6 +345,14 @@ export default function VoiceArena({
     setMomentumLoading(true);
     setMomentum(null);
 
+    let wrap: Momentum = {
+      strength: "You showed up and practiced — that already builds readiness.",
+      improve:
+        "Next time, say one full thought so we can coach something specific.",
+      nextAction:
+        "Try one clearer opening line in your next real conversation.",
+    };
+
     try {
       const res = await fetch("/api/session-momentum", {
         method: "POST",
@@ -280,7 +363,7 @@ export default function VoiceArena({
         }),
       });
       const data = (await res.json()) as Momentum;
-      setMomentum({
+      wrap = {
         strength:
           data.strength ||
           "You showed up and practiced — that already builds readiness.",
@@ -290,18 +373,42 @@ export default function VoiceArena({
         nextAction:
           data.nextAction ||
           "Try one clearer opening line in your next real conversation.",
-      });
+        breakthrough: data.breakthrough,
+        biggestWeakness: data.biggestWeakness,
+        homework: data.homework,
+        coachSummary: data.coachSummary,
+        overallScore: data.overallScore,
+        confidence: data.confidence,
+        empathy: data.empathy,
+        listening: data.listening,
+        clarity: data.clarity,
+      };
+      setMomentum(wrap);
     } catch {
-      setMomentum({
-        strength: "You showed up and practiced — that already builds readiness.",
-        improve:
-          "Next time, say one full thought so we can coach something specific.",
-        nextAction:
-          "Try one clearer opening line in your next real conversation.",
-      });
-    } finally {
-      setMomentumLoading(false);
+      setMomentum(wrap);
     }
+
+    // Complete permanent history in Supabase
+    const practice = practiceSessionRef.current;
+    if (practice) {
+      try {
+        const user = await getUser().catch(() => null);
+        const conversation = voiceTurnsToConversationTurns(snapshot);
+        const completed = await completePracticeSession(practice, conversation, {
+          modality: "voice",
+          momentum: wrap,
+          displayName: user?.displayName,
+        });
+        practiceSessionRef.current = completed;
+        setSavedSessionId(completed.id);
+        pushEvent(`History saved · session # report`);
+      } catch (err) {
+        console.warn("[voice] complete session failed", err);
+        pushEvent("History save failed");
+      }
+    }
+
+    setMomentumLoading(false);
   }
 
   const busy =
@@ -376,8 +483,14 @@ export default function VoiceArena({
               </h1>
               <p className="mt-5 max-w-md text-base leading-7 text-white/55">
                 You don’t have to perform here. One tap — I’ll greet you. Hold to
-                speak when you’re ready. We’ll practice gently.
+                speak when you’re ready. Every session becomes part of your
+                communication history.
               </p>
+              {welcomeLine ? (
+                <p className="mt-3 max-w-md text-sm leading-6 text-blue-200/80">
+                  {welcomeLine}
+                </p>
+              ) : null}
               {successCriteria?.trim() && (
                 <p className="mt-4 max-w-md text-sm leading-6 text-white/40">
                   You’re aiming for: {successCriteria.trim()}
@@ -439,7 +552,13 @@ export default function VoiceArena({
                 </div>
               ) : null}
 
-              <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
+              {savedSessionId ? (
+                <p className="mt-8 text-xs uppercase tracking-[0.18em] text-emerald-300/80">
+                  Saved to your history
+                </p>
+              ) : null}
+
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <button
                   type="button"
                   onClick={handleStart}
@@ -448,8 +567,14 @@ export default function VoiceArena({
                   Practice again
                 </button>
                 <Link
-                  href="/app/dashboard"
+                  href="/app/progress"
                   className="rounded-full border border-white/20 px-6 py-3.5 text-sm text-white/80 transition hover:bg-white/10"
+                >
+                  See your growth
+                </Link>
+                <Link
+                  href="/app/dashboard"
+                  className="rounded-full border border-white/10 px-6 py-3.5 text-sm text-white/50 transition hover:bg-white/10"
                 >
                   Done for now
                 </Link>

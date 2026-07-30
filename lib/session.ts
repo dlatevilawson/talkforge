@@ -1,5 +1,16 @@
 import { ensureGuestUser } from "./auth";
-import { saveSession } from "./storage";
+import { applyReportToMemory, emptyCoachMemory } from "@/lib/coach/memory";
+import {
+  buildSessionReport,
+  type MomentumLike,
+} from "@/lib/coach/report";
+import {
+  countCompletedSessions,
+  getCoachMemory,
+  saveCoachMemory,
+  saveSession,
+  saveSessionReport,
+} from "./storage";
 import type { ConversationTurn, ForgeCoaching, PracticeSession } from "./types";
 
 function createId(): string {
@@ -13,6 +24,7 @@ export async function createPracticeSession(input: {
   scenarioId: string;
   scenarioTitle: string;
   missionPrompt: string;
+  modality?: "voice" | "text";
 }): Promise<PracticeSession> {
   const user = await ensureGuestUser();
 
@@ -24,6 +36,7 @@ export async function createPracticeSession(input: {
     missionPrompt: input.missionPrompt,
     startedAt: new Date().toISOString(),
     turns: [],
+    modality: input.modality ?? "text",
   };
 
   await saveSession(session);
@@ -49,16 +62,87 @@ export function averageForgeScore(
 
 export async function completePracticeSession(
   session: PracticeSession,
-  turns: ConversationTurn[]
+  turns: ConversationTurn[],
+  options?: {
+    momentum?: MomentumLike | null;
+    modality?: "voice" | "text";
+    durationSeconds?: number | null;
+    displayName?: string;
+  }
 ): Promise<PracticeSession> {
+  const modality = options?.modality ?? session.modality ?? "text";
+  const completedAt = new Date().toISOString();
+  const durationSeconds =
+    options?.durationSeconds ??
+    Math.max(
+      0,
+      Math.round(
+        (Date.parse(completedAt) - Date.parse(session.startedAt)) / 1000
+      )
+    );
+
+  let sessionNumber = 1;
+  try {
+    const priorCount = await countCompletedSessions(session.userId);
+    // If this session was already completed once, don't double-count.
+    sessionNumber = session.completedAt
+      ? Math.max(1, priorCount)
+      : priorCount + 1;
+  } catch {
+    sessionNumber = 1;
+  }
+
   const completed: PracticeSession = {
     ...session,
     turns,
-    completedAt: new Date().toISOString(),
+    completedAt,
     averageScore: averageForgeScore(turns),
+    modality,
+    durationSeconds,
   };
 
   await saveSession(completed);
+
+  // Permanent session report + relationship memory (soft-fail if tables missing)
+  try {
+    const report = buildSessionReport({
+      session: completed,
+      turns,
+      sessionNumber,
+      modality,
+      durationSeconds,
+      momentum: options?.momentum,
+    });
+
+    // Prefer averageScore from report when forge turns absent (voice)
+    if (
+      typeof completed.averageScore !== "number" &&
+      typeof report.overallScore === "number"
+    ) {
+      completed.averageScore = report.overallScore;
+      await saveSession(completed);
+    }
+
+    await saveSessionReport(report);
+
+    const existing =
+      (await getCoachMemory(session.userId)) ??
+      emptyCoachMemory(session.userId, options?.displayName ?? "");
+    const nextMemory = applyReportToMemory(
+      existing,
+      report,
+      options?.displayName
+    );
+    // Keep sessions_completed aligned with report number
+    nextMemory.sessionsCompleted = Math.max(
+      nextMemory.sessionsCompleted,
+      sessionNumber
+    );
+    await saveCoachMemory(nextMemory);
+  } catch (err) {
+    console.warn("[coach] failed to persist session report/memory", err);
+  }
+
   return completed;
 }
 
