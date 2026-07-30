@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
 import { loadCoachPromptContextForUser } from "@/lib/coach/memory-server";
 import { analyzeTranscriptText, clampScore } from "@/lib/coach/metrics";
+import { FORGE_MENTOR_PHILOSOPHY } from "@/lib/coach/philosophy";
 
 type TurnIn = {
   role?: string;
@@ -73,17 +74,15 @@ function fallbackMomentum(
   const scores = heuristicScores(userTexts);
   if (!hasUserSpeech) {
     return {
-      strength:
-        "You chose to show up and begin — that courage already sets you apart from waiting forever.",
-      improve:
-        "Next time, say one full thought out loud so we can reveal what you’re already capable of.",
+      strength: "You showed up. That already counts.",
+      improve: "Next time, say one full thought out loud — even a messy one.",
       nextAction:
-        "Before your next real conversation, name one thing you want to sound clear about — then practice it once with Forge.",
+        "Before your next real conversation, notice one thing you want to sound clear about.",
       breakthrough: "You showed up to practice.",
-      biggestWeakness: "Need one full spoken thought to coach specifically.",
+      biggestWeakness: "We still need one full spoken thought to work with.",
       homework: "Speak one complete opening line out loud before your next conversation.",
       coachSummary:
-        "Session was brief. Showing up matters — next time, give Forge one full thought to work with.",
+        "Short session. Showing up mattered. Next time we’ll sit with one real thought together.",
       ...scores,
       overallScore: 55,
       confidence: 58,
@@ -95,17 +94,16 @@ function fallbackMomentum(
 
   const name = firstName && firstName !== "there" ? firstName : "You";
   return {
-    strength:
-      `${name} practiced out loud instead of only thinking it through — that is real preparation.`,
+    strength: `${name} practiced out loud instead of only thinking it through.`,
     improve:
-      "Slow down at the start of your next answer and state your main point in one sentence first.",
+      "Would it help to start your next answer with one clear sentence before expanding?",
     nextAction:
-      "In your next real conversation, lead with that one-sentence point — you’re becoming someone who prepares.",
-    breakthrough: "Practiced out loud with a real coach loop.",
-    biggestWeakness: "Lead with one clear sentence before expanding.",
-    homework: "In your next real conversation, open with one crisp point.",
+      "In your next real conversation, try leading with that one sentence — see how it feels.",
+    breakthrough: "Practiced out loud, not just in your head.",
+    biggestWeakness: "Starting with one clear sentence before expanding.",
+    homework: "Open your next real conversation with one crisp point.",
     coachSummary:
-      "Solid practice rep. Strength: speaking out loud. Focus: lead with one sentence. Homework: use that opener in the real conversation.",
+      "Good rep. You spoke. Next time we can slow the opening and find the line that feels like you.",
     ...scores,
   };
 }
@@ -159,23 +157,25 @@ export async function POST(req: Request) {
     const completion = await client.responses.create({
       model: "gpt-5",
       input: `
-You are Forge, the warm practice coach inside TalkForge (a communication gym).
+You are Forge, a mentor wrapping a short practice session inside TalkForge.
 
-The user just finished a short voice practice. Create a permanent session wrap for their communication history.
+${FORGE_MENTOR_PHILOSOPHY}
+
+Create a permanent session wrap that sounds like someone who was paying attention — not a report card.
 
 Member context:
 - Name: ${memory.firstName}
 - Sessions completed before today: ${memory.sessionsCompleted}
-- Last focus: ${memory.topicsWorkingOn[0] ?? "general communication"}
-- Adaptive insight: ${memory.adaptiveInsight ?? "none"}
+- Patterns noticed: ${memory.speakingHabits.join("; ") || "none yet"}
+- Pattern insight: ${memory.adaptiveInsight ?? "none"}
 
-Rules (FLA-001 + AMD-001 Human Dignity Standard):
-- Honor courage first: acknowledge that showing up to practice matters.
-- Reflect genuine capability with evidence — do not invent empty praise.
-- Guide ONE clear, achievable behavioral improvement.
-- Reinforce identity: they are becoming someone who prepares before conversations that matter.
-- Coach behaviors only. Never diagnose identity. Never shame.
-- Score dimensions 1–100 based only on evidence in the transcript.
+Rules:
+- Honor courage first with evidence — never empty praise.
+- Celebrate one small win before naming a focus.
+- Phrase improvement as an invitation ("would something like this…") not a command ("try this").
+- coachSummary should sound like a mentor noticing a pattern in 2–3 short sentences.
+- Never shame. Never diagnose identity. Behaviors only.
+- Score dimensions 1–100 from transcript evidence only.
 - Optimize for transfer outside the app.
 
 Target event context: ${eventTitle}
@@ -185,13 +185,13 @@ ${lines.join("\n")}
 
 Return ONLY valid JSON:
 {
-  "strength": "Honor courage + one evidenced capability (1–2 sentences)",
-  "improve": "one concrete behavioral improvement (1 sentence)",
-  "nextAction": "one clear real-world action (1–2 sentences)",
+  "strength": "one evidenced strength (1–2 short sentences)",
+  "improve": "one invited improvement (1 sentence, not a command)",
+  "nextAction": "one real-world next step that feels owned by them (1–2 sentences)",
   "breakthrough": "today's breakthrough in one short sentence",
-  "biggestWeakness": "biggest weakness / focus area in one short sentence",
+  "biggestWeakness": "focus area in one short, kind sentence",
   "homework": "one homework action for the real world",
-  "coachSummary": "2–3 sentence coach summary of the session",
+  "coachSummary": "2–3 short mentor sentences — noticed pattern + warm close",
   "overallScore": 72,
   "confidence": 70,
   "empathy": 68,

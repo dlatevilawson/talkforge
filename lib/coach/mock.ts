@@ -42,11 +42,16 @@ export function buildMockCoachResponse(
           message.length > 100 ? "…" : ""
         }"`;
 
+  const shortOrFrustrated =
+    message.trim().split(/\s+/).length <= 4 ||
+    /lecture|tired|frustrated|ugh|whatever/i.test(message);
+
   return {
-    npc:
-      turn === 1
-        ? `Interesting start. For ${scenarioHint.toLowerCase()}, I want a bit more structure before we go deeper. What constraints are you assuming?`
-        : "Okay — push one level deeper on the tradeoff. What breaks if that assumption is wrong?",
+    npc: shortOrFrustrated
+      ? "Got it. Sounds heavy. What happened?"
+      : turn === 1
+        ? `Okay. For ${scenarioHint.toLowerCase()} — what's the part that feels hardest right now?`
+        : "Hmm. What breaks if that assumption is wrong?",
     forge: {
       score: Math.min(92, 62 + Math.min(message.length, 40)),
       clarity: 70,
@@ -56,8 +61,8 @@ export function buildMockCoachResponse(
       doneWell:
         "You stayed in the exchange and offered a concrete next step instead of freezing.",
       improve:
-        "Name one constraint or tradeoff explicitly before expanding the solution.",
-      whyItMatters: `In ${eventHint}, interviewers reward structured thinking under probe — clarity here transfers to the real room.`,
+        "Would naming one constraint before expanding help you feel steadier?",
+      whyItMatters: `In ${eventHint}, structured thinking under probe transfers to the real room.`,
       evidence,
       rewrite: message
         ? `${message.trim().replace(/\?*$/, "")} — Before I go further: I'm assuming X and optimizing for Y. Does that match what you care about?`

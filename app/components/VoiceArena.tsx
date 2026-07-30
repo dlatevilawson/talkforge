@@ -482,9 +482,8 @@ export default function VoiceArena({
                 {eventTitle?.trim() || "I’m ready when you are"}
               </h1>
               <p className="mt-5 max-w-md text-base leading-7 text-white/55">
-                You don’t have to perform here. One tap — I’ll greet you. Hold to
-                speak when you’re ready. Every session becomes part of your
-                communication history.
+                You don’t have to perform here. I’ll listen first. Hold to speak
+                when you’re ready — we’ll figure it out together.
               </p>
               {welcomeLine ? (
                 <p className="mt-3 max-w-md text-sm leading-6 text-blue-200/80">
