@@ -73,6 +73,9 @@ export type PracticeSession = {
   completedAt?: string;
   turns: ConversationTurn[];
   averageScore?: number;
+  /** voice | text — defaults to text for legacy rows */
+  modality?: "voice" | "text";
+  durationSeconds?: number;
 };
 
 export type Reflection = {
@@ -90,6 +93,14 @@ export type ProgressSummary = {
   lastSessionAt: string | null;
   lastScenarioTitle: string | null;
 };
+
+export type {
+  CoachMemory,
+  CoachPromptContext,
+  GrowthSummary,
+  SessionReport,
+  SkillKey,
+} from "@/lib/coach/types";
 
 /** Transfer funnel counters (North Star instrumentation — PPS-001). */
 export type TransferSummary = {

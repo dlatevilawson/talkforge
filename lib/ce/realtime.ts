@@ -164,18 +164,24 @@ function createSilentAudioStream(): MediaStream {
 }
 
 /** Ask Forge to open with coach-first presence (DEC-CE-M2-UX). */
-export function requestOpeningSpeech(dc: RTCDataChannel): void {
+export function requestOpeningSpeech(
+  dc: RTCDataChannel,
+  welcomeHint?: string
+): void {
   if (dc.readyState !== "open") {
     throw new Error("Data channel not open — cannot request opening speech.");
   }
+
+  const instructions = welcomeHint?.trim()
+    ? `Speak now as Forge the coach. ${welcomeHint.trim()} Keep it to 2–4 short sentences. Ask one short opening question. Coach first — not a cold interviewer. Do not give a long lecture.`
+    : "Speak now as Forge the coach. Greet them warmly, say you're here to practice with them, and ask one short opening question. Coach first — not a cold interviewer. Do not give a long lecture.";
 
   dc.send(
     JSON.stringify({
       type: "response.create",
       response: {
         output_modalities: ["audio"],
-        instructions:
-          "Speak now as Forge the coach. Greet them warmly, say you're here to practice with them, and ask one short opening question. Coach first — not a cold interviewer. Do not give a long lecture.",
+        instructions,
       },
     })
   );

@@ -1,3 +1,5 @@
+import { formatCoachMemoryBlock } from "@/lib/coach/memory";
+import type { CoachPromptContext } from "@/lib/coach/types";
 import type { ForgeEvent } from "@/lib/types";
 
 /** OpenAI Realtime model for CE-M1+. */
@@ -11,15 +13,23 @@ export const CE_TRANSCRIBE_MODEL = "gpt-4o-mini-transcribe";
 
 export type CeTrack = ForgeEvent["track"] | "hello";
 
+export const CE_TRACK_TITLES: Record<CeTrack, string> = {
+  hello: "Voice practice with Forge",
+  system_design: "System design interview practice",
+  behavioral_tech: "Behavioral interview practice",
+  coding_interview: "Coding interview practice",
+};
+
 /**
  * Forge voice presence instructions (DEC-CE-M2-UX).
  * Coach first; interviewer second. Transcripts remain evidence — not the product face.
  * Never invent identity labels (FLA-001).
  */
-export function buildNpcInstructions(input?: {
+export function buildSystemInstructions(input?: {
   track?: CeTrack;
   eventTitle?: string;
   successCriteria?: string;
+  memory?: CoachPromptContext | null;
 }): string {
   const track = input?.track ?? "system_design";
   const eventLine = input?.eventTitle
@@ -38,6 +48,18 @@ export function buildNpcInstructions(input?: {
           ? "Keep the first exchange short and welcoming."
           : "You may offer a light interview-style prompt as practice — not as cold interrogation.";
 
+  const memoryBlock = input?.memory
+    ? formatCoachMemoryBlock(input.memory)
+    : "";
+
+  const openingRule = input?.memory?.isReturning
+    ? "When the session begins, speak first using the Opening style from relationship memory. Welcome them back by name. Reference the last practice briefly. Do NOT introduce yourself as if meeting for the first time."
+    : "When the session begins, speak first: greet them as Forge, welcome them to practice, reassure them they do not have to perform here — this is practice — recognize that showing up takes courage, then invite them to begin with one simple opening question or prompt.";
+
+  const evolutionRule = input?.memory?.adaptiveInsight
+    ? `If natural, weave in this adaptive insight once (do not lecture): ${input.memory.adaptiveInsight}`
+    : "As you learn their patterns in this session, coach the behavior — not their identity.";
+
   return [
     "You are Forge, the practice coach inside TalkForge — a communication gym.",
     "Primary role: coach. Secondary: you may briefly role-play an interviewer to create realistic practice.",
@@ -52,9 +74,9 @@ export function buildNpcInstructions(input?: {
     eventLine,
     successLine,
     practiceHint,
-    "When the session begins, speak first: greet them as Forge, welcome them to practice,",
-    "reassure them they do not have to perform here — this is practice —",
-    "recognize that showing up takes courage, then invite them to begin with one simple opening question or prompt.",
+    memoryBlock,
+    openingRule,
+    evolutionRule,
   ]
     .filter(Boolean)
     .join(" ");
@@ -65,12 +87,13 @@ export function buildClientSecretRequest(input?: {
   track?: CeTrack;
   eventTitle?: string;
   successCriteria?: string;
+  memory?: CoachPromptContext | null;
 }) {
   return {
     session: {
       type: "realtime" as const,
       model: CE_REALTIME_MODEL,
-      instructions: buildNpcInstructions(input),
+      instructions: buildSystemInstructions(input),
       audio: {
         input: {
           transcription: {

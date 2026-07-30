@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
+import { loadCoachPromptContextForUser } from "@/lib/coach/memory-server";
 import {
   buildClientSecretRequest,
   type CeTrack,
@@ -15,7 +16,7 @@ type SessionBody = {
 
 /**
  * CE-M1: Mint an ephemeral OpenAI Realtime client secret.
- * The browser never receives OPENAI_API_KEY — only a short-lived ek_ token.
+ * Injects coach relationship memory so Forge welcomes returning members.
  */
 export async function POST(req: Request) {
   const gate = await requireApiUser();
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
   }
 
   const track = normalizeTrack(body.track);
+  const memory = await loadCoachPromptContextForUser(gate.userId);
   const payload = buildClientSecretRequest({
     track,
     eventTitle:
@@ -53,6 +55,7 @@ export async function POST(req: Request) {
       typeof body.successCriteria === "string"
         ? body.successCriteria
         : undefined,
+    memory,
   });
 
   try {
@@ -93,6 +96,14 @@ export async function POST(req: Request) {
       model: data.session?.model ?? payload.session.model,
       track,
       milestone: "CE-M1",
+      memory: {
+        firstName: memory.firstName,
+        isReturning: memory.isReturning,
+        sessionsCompleted: memory.sessionsCompleted,
+        welcomeHint: memory.welcomeHint,
+        adaptiveInsight: memory.adaptiveInsight,
+        lastScenarioTitle: memory.lastScenarioTitle,
+      },
     });
   } catch (error) {
     console.error("[CE-M1] client_secrets error", error);

@@ -494,8 +494,37 @@ export default function TrainingArena({
     setError("");
 
     try {
-      const completed = await completePracticeSession(session, conversation);
-      router.push(`/reflect/${completed.id}`);
+      const lastForge = [...conversation]
+        .reverse()
+        .find((turn) => turn.role === "forge");
+      const coaching =
+        lastForge && lastForge.role === "forge" ? lastForge.coaching : null;
+      const completed = await completePracticeSession(session, conversation, {
+        modality: "text",
+        momentum: coaching
+          ? {
+              strength: coaching.doneWell,
+              improve: coaching.improve,
+              nextAction: coaching.whyItMatters || coaching.rewrite,
+              breakthrough: coaching.doneWell,
+              biggestWeakness: coaching.improve,
+              homework: coaching.whyItMatters || coaching.improve,
+              coachSummary: [
+                coaching.doneWell,
+                coaching.improve,
+                coaching.whyItMatters,
+              ]
+                .filter(Boolean)
+                .join(" "),
+              overallScore: coaching.score,
+              confidence: coaching.confidence,
+              empathy: coaching.warmth,
+              listening: coaching.curiosity,
+              clarity: coaching.clarity,
+            }
+          : null,
+      });
+      router.push(`/app/reflect/${completed.id}`);
     } catch (err) {
       console.error(err);
       setEnding(false);
