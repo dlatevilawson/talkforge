@@ -34,6 +34,28 @@ as $$
     and column_name = 'id';
 $$;
 
+-- DROP POLICY IF EXISTS still errors when the relation is missing.
+create or replace function public._tf_drop_policy_if_table_exists(
+  policy_name text,
+  schema_name text,
+  table_name text
+)
+returns void
+language plpgsql
+as $$
+begin
+  if to_regclass(format('%I.%I', schema_name, table_name)) is null then
+    return;
+  end if;
+  execute format(
+    'drop policy if exists %I on %I.%I',
+    policy_name,
+    schema_name,
+    table_name
+  );
+end;
+$$;
+
 -- ---------------------------------------------------------------------------
 -- 1) Archive tables (preserve guest / orphan rows — never hard-delete)
 -- ---------------------------------------------------------------------------
@@ -76,17 +98,21 @@ create table if not exists public.legacy_guest_reflections (
 -- 2) Drop legacy open policies + FK constraints that block type changes
 -- ---------------------------------------------------------------------------
 
-drop policy if exists "profiles_anon_all" on public.profiles;
-drop policy if exists "sessions_anon_all" on public.practice_sessions;
-drop policy if exists "reflections_anon_all" on public.reflections;
-drop policy if exists "founder_notes_anon_all" on public.founder_notes;
-drop policy if exists "founder_briefs_anon_all" on public.founder_briefs;
+select public._tf_drop_policy_if_table_exists('profiles_anon_all', 'public', 'profiles');
+select public._tf_drop_policy_if_table_exists('sessions_anon_all', 'public', 'practice_sessions');
+select public._tf_drop_policy_if_table_exists('reflections_anon_all', 'public', 'reflections');
+select public._tf_drop_policy_if_table_exists('founder_notes_anon_all', 'public', 'founder_notes');
+select public._tf_drop_policy_if_table_exists('founder_briefs_anon_all', 'public', 'founder_briefs');
 
 do $$
 declare
   r record;
 begin
   -- Drop FKs that reference public.profiles (blocks id type change).
+  if to_regclass('public.profiles') is null then
+    raise exception 'public.profiles is required before running this upgrade migration';
+  end if;
+
   for r in
     select c.conname, c.conrelid::regclass as tbl
     from pg_constraint c
@@ -602,13 +628,13 @@ alter table public.founder_notes enable row level security;
 alter table public.founder_briefs enable row level security;
 alter table public.waitlist_members enable row level security;
 
-drop policy if exists "profiles_select_own" on public.profiles;
+select public._tf_drop_policy_if_table_exists('profiles_select_own', 'public', 'profiles');
 create policy "profiles_select_own"
   on public.profiles for select
   to authenticated
   using (id = auth.uid() or public.is_founder_or_admin());
 
-drop policy if exists "profiles_update_own" on public.profiles;
+select public._tf_drop_policy_if_table_exists('profiles_update_own', 'public', 'profiles');
 create policy "profiles_update_own"
   on public.profiles for update
   to authenticated
@@ -618,48 +644,50 @@ create policy "profiles_update_own"
     and role = (select p.role from public.profiles p where p.id = auth.uid())
   );
 
-drop policy if exists "profiles_admin_update" on public.profiles;
+select public._tf_drop_policy_if_table_exists('profiles_admin_update', 'public', 'profiles');
 create policy "profiles_admin_update"
   on public.profiles for update
   to authenticated
   using (public.is_founder_or_admin())
   with check (public.is_founder_or_admin());
 
-drop policy if exists "sessions_own" on public.practice_sessions;
+select public._tf_drop_policy_if_table_exists('sessions_own', 'public', 'practice_sessions');
 create policy "sessions_own"
   on public.practice_sessions for all
   to authenticated
   using (user_id = auth.uid() or public.is_founder_or_admin())
   with check (user_id = auth.uid());
 
-drop policy if exists "reflections_own" on public.reflections;
+select public._tf_drop_policy_if_table_exists('reflections_own', 'public', 'reflections');
 create policy "reflections_own"
   on public.reflections for all
   to authenticated
   using (user_id = auth.uid() or public.is_founder_or_admin())
   with check (user_id = auth.uid());
 
-drop policy if exists "founder_notes_staff" on public.founder_notes;
+select public._tf_drop_policy_if_table_exists('founder_notes_anon_all', 'public', 'founder_notes');
+select public._tf_drop_policy_if_table_exists('founder_notes_staff', 'public', 'founder_notes');
 create policy "founder_notes_staff"
   on public.founder_notes for all
   to authenticated
   using (public.is_founder_or_admin())
   with check (public.is_founder_or_admin());
 
-drop policy if exists "founder_briefs_staff" on public.founder_briefs;
+select public._tf_drop_policy_if_table_exists('founder_briefs_anon_all', 'public', 'founder_briefs');
+select public._tf_drop_policy_if_table_exists('founder_briefs_staff', 'public', 'founder_briefs');
 create policy "founder_briefs_staff"
   on public.founder_briefs for all
   to authenticated
   using (public.is_founder_or_admin())
   with check (public.is_founder_or_admin());
 
-drop policy if exists "waitlist_anon_insert" on public.waitlist_members;
+select public._tf_drop_policy_if_table_exists('waitlist_anon_insert', 'public', 'waitlist_members');
 create policy "waitlist_anon_insert"
   on public.waitlist_members for insert
   to anon, authenticated
   with check (true);
 
-drop policy if exists "waitlist_staff_select" on public.waitlist_members;
+select public._tf_drop_policy_if_table_exists('waitlist_staff_select', 'public', 'waitlist_members');
 create policy "waitlist_staff_select"
   on public.waitlist_members for select
   to authenticated
@@ -671,6 +699,7 @@ create policy "waitlist_staff_select"
 
 drop function if exists public._tf_is_uuid_text(text);
 drop function if exists public._tf_profiles_id_type();
+drop function if exists public._tf_drop_policy_if_table_exists(text, text, text);
 
 -- Done.
 -- Optional follow-up (Founder promotion), run separately after verifying schema:
