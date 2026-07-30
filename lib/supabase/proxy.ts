@@ -61,14 +61,16 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (!userId) {
-    const dest = pathname.startsWith("/founder")
-      ? "/login/founder"
-      : "/signup";
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname =
-      pathname.startsWith("/change-password") || pathname.startsWith("/onboarding")
+    // Single production auth system: members → signup, staff areas → login.
+    // Founder Portal is NOT a separate login — role is checked after auth.
+    const dest =
+      pathname.startsWith("/founder") ||
+      pathname.startsWith("/change-password") ||
+      pathname.startsWith("/onboarding")
         ? "/login"
-        : dest;
+        : "/signup";
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = dest;
     redirectUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(redirectUrl);
   }

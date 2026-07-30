@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | AUTH-001 |
-| **Version** | 1.0.0 |
-| **Status** | Implemented |
-| **Date** | 2026-07-29 |
+| **Version** | 1.1.0 |
+| **Status** | Implemented — see AUTH-001-PRODUCTION-SYSTEM.md |
+| **Date** | 2026-07-30 |
 | **Branch** | `cursor/auth-production-98b4` |
 
 ---
@@ -97,13 +97,17 @@ Default email: `founder@talkforge.io`. Seeded via service role on first login at
 
 ## Ops checklist
 
-1. Apply `supabase/migrations/20260729_auth_foundation.sql`
-2. Enable Email provider in Supabase Auth
-3. **URL Configuration (required for phone confirmation links):**
+1. Apply `supabase/migrations/20260730_upgrade_legacy_profiles.sql` on existing production DBs (legacy text-id `profiles`)
+2. Or, greenfield only: `supabase/migrations/20260729_auth_foundation.sql` + `20260729_tip_secure_role_trigger.sql`
+3. Enable Email provider in Supabase Auth
+4. **URL Configuration (required for phone confirmation links):**
    - Site URL: `https://talkforge.io`
    - Redirect URLs: `https://talkforge.io/**`, `http://localhost:3000/**`
-4. Paste branded templates from `supabase/email-templates/` (or run `SUPABASE_ACCESS_TOKEN=… npm run auth:configure`)
-5. Set Vercel env: URL, anon key, `NEXT_PUBLIC_SITE_URL=https://talkforge.io`, service role (server)
-6. Assign Founder role to your user id
+5. Paste branded templates from `supabase/email-templates/` (or run `SUPABASE_ACCESS_TOKEN=… npm run auth:configure`)
+6. Set Vercel env: URL, anon key, `NEXT_PUBLIC_SITE_URL=https://talkforge.io`, service role (server)
+7. Complete AUTH member smoke (signup → verify → login → logout → reset) **before** elevating Founder role
+8. Assign Founder role to your verified user id (SQL or `FOUNDER_USER_IDS`)
+
+See also: `atos/product/AUTH-001-PRODUCTION-SYSTEM.md`.
 
 Until Site URL is updated, users can still verify on phones via **6-digit code** or **paste confirmation link** at `/verify-email`.

@@ -1,35 +1,18 @@
-import { Suspense } from "react";
-import LoginForm from "@/app/components/auth/LoginForm";
+import { redirect } from "next/navigation";
 import { safeNextPath } from "@/lib/auth/safe-next";
 
 /**
- * Founder Portal login entry.
- * Uses the same Supabase Auth identity as member login; after success,
- * authorized founders are sent to Headquarters (`/founder`).
+ * Compatibility alias — production auth is a single system at `/login`.
+ * Founder Portal access is role-gated after the same email/password session.
+ * Dev-only Founder bootstrap (`FOUNDER_DEV_*`) never runs in production.
  */
-export default async function FounderLoginPage({
+export default async function FounderLoginRedirectPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; error?: string; notice?: string }>;
+  searchParams: Promise<{ next?: string }>;
 }) {
   const params = await searchParams;
   const requested = safeNextPath(params.next, "/founder");
   const next = requested.startsWith("/founder") ? requested : "/founder";
-
-  const notice =
-    params.notice === "verified"
-      ? "Email verified. You can sign in to the Founder Portal."
-      : params.error === "auth_callback"
-        ? "That verification link is invalid or expired. Sign in or request a new email."
-        : params.error === "auth_unavailable"
-          ? "Authentication is temporarily unavailable."
-          : params.error === "forbidden"
-            ? "That account does not have Founder Portal access."
-            : undefined;
-
-  return (
-    <Suspense>
-      <LoginForm next={next} notice={notice} variant="founder" />
-    </Suspense>
-  );
+  redirect(`/login?next=${encodeURIComponent(next)}`);
 }
