@@ -61,7 +61,9 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (!userId) {
-    const dest = pathname.startsWith("/founder") ? "/login" : "/signup";
+    const dest = pathname.startsWith("/founder")
+      ? "/login/founder"
+      : "/signup";
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname =
       pathname.startsWith("/change-password") || pathname.startsWith("/onboarding")

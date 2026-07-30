@@ -22,22 +22,30 @@ import {
 } from "@/lib/identity";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
-function Submit() {
+function Submit({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
-    <AuthSubmit pending={pending} label="Sign in" pendingLabel="Signing in…" />
+    <AuthSubmit
+      pending={pending}
+      label={label}
+      pendingLabel="Signing in…"
+    />
   );
 }
 
 export default function LoginForm({
   next,
   notice,
+  variant = "member",
 }: {
   next: string;
   notice?: string;
+  /** Founder Portal entry uses the same auth action with portal-bound next. */
+  variant?: "member" | "founder";
 }) {
   const router = useRouter();
   const [state, action] = useActionState(loginAction, {} as AuthActionState);
+  const isFounder = variant === "founder";
 
   useEffect(() => {
     if (state.ok && state.redirectTo) {
@@ -71,23 +79,50 @@ export default function LoginForm({
 
   return (
     <AuthShell
-      eyebrow="Welcome back"
-      title="Sign in"
-      description="Use your TalkForge email and password. Founder Portal access is granted by role — not a separate login."
+      eyebrow={isFounder ? "Founder Portal" : "Welcome back"}
+      title={isFounder ? "Founder sign in" : "Sign in"}
+      description={
+        isFounder
+          ? "Sign in with your Founder account to open Headquarters. Same TalkForge identity — portal access is role-gated."
+          : "Use your TalkForge email and password. Founder Portal access is granted by role on the same account."
+      }
       footer={
-        <>
-          New here?{" "}
-          <Link
-            href={`/signup?next=${encodeURIComponent(next)}`}
-            className="text-zinc-200 underline"
-          >
-            Create an account
-          </Link>
-        </>
+        isFounder ? (
+          <>
+            Member gym?{" "}
+            <Link href="/login" className="text-zinc-200 underline">
+              Sign in here
+            </Link>
+          </>
+        ) : (
+          <>
+            New here?{" "}
+            <Link
+              href={`/signup?next=${encodeURIComponent(next)}`}
+              className="text-zinc-200 underline"
+            >
+              Create an account
+            </Link>
+            <span className="mt-2 block">
+              Founder?{" "}
+              <Link
+                href="/login/founder"
+                className="text-zinc-200 underline"
+              >
+                Founder Portal sign in
+              </Link>
+            </span>
+          </>
+        )
       }
     >
       <form action={action} className="space-y-4">
         <input type="hidden" name="next" value={next} />
+        <input
+          type="hidden"
+          name="portal"
+          value={isFounder ? "founder" : "app"}
+        />
         {notice ? <AuthAlert message={notice} tone="success" /> : null}
         <AuthInput
           id="email"
@@ -116,7 +151,7 @@ export default function LoginForm({
           </Link>
         </div>
         <AuthAlert message={state.message} />
-        <Submit />
+        <Submit label={isFounder ? "Enter Founder Portal" : "Sign in"} />
       </form>
     </AuthShell>
   );
