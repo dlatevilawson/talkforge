@@ -1,5 +1,5 @@
-import { getSupabaseClient } from "@/lib/supabase/client";
 import type { FounderNote, NoteCategory } from "./ops-types";
+import { getFounderAuthUserId, getFounderSupabase } from "./supabase";
 
 export const NOTE_CATEGORIES: NoteCategory[] = [
   "Product",
@@ -9,7 +9,6 @@ export const NOTE_CATEGORIES: NoteCategory[] = [
   "Future Ideas",
 ];
 
-const ATLAS_SYSTEM_USER_ID = "atlas-founder-os";
 const NOTE_SCENARIO_ID = "atlas-founder-note";
 
 const CATEGORY_RULES: Array<{ category: NoteCategory; patterns: RegExp[] }> = [
@@ -95,19 +94,8 @@ function isMissingTableError(error: { code?: string; message: string }): boolean
   );
 }
 
-async function ensureAtlasSystemUser(): Promise<void> {
-  const supabase = getSupabaseClient();
-  if (!supabase) return;
-
-  await supabase.from("profiles").upsert({
-    id: ATLAS_SYSTEM_USER_ID,
-    display_name: "Atlas Founder OS",
-    created_at: new Date().toISOString(),
-  });
-}
-
 async function listNotesFallback(limit: number): Promise<FounderNote[]> {
-  const supabase = getSupabaseClient();
+  const supabase = await getFounderSupabase();
   if (!supabase) return [];
 
   const { data, error } = await supabase
@@ -133,12 +121,16 @@ async function createNoteFallback(
   body: string,
   category: NoteCategory
 ): Promise<FounderNote> {
-  const supabase = getSupabaseClient();
+  const supabase = await getFounderSupabase();
   if (!supabase) {
     throw new Error("Supabase is not configured.");
   }
 
-  await ensureAtlasSystemUser();
+  const userId = await getFounderAuthUserId(supabase);
+  if (!userId) {
+    throw new Error("Sign in required to save founder notes.");
+  }
+
   const id = createId("note");
   const now = new Date().toISOString();
 
@@ -146,7 +138,7 @@ async function createNoteFallback(
     .from("practice_sessions")
     .insert({
       id,
-      user_id: ATLAS_SYSTEM_USER_ID,
+      user_id: userId,
       scenario_id: NOTE_SCENARIO_ID,
       scenario_title: category,
       mission_prompt: body,
@@ -171,7 +163,7 @@ async function createNoteFallback(
 }
 
 export async function listFounderNotes(limit = 20): Promise<FounderNote[]> {
-  const supabase = getSupabaseClient();
+  const supabase = await getFounderSupabase();
   if (!supabase) return [];
 
   const { data, error } = await supabase
@@ -196,7 +188,7 @@ export async function createFounderNote(body: string): Promise<FounderNote> {
     throw new Error("Note body is required.");
   }
 
-  const supabase = getSupabaseClient();
+  const supabase = await getFounderSupabase();
   if (!supabase) {
     throw new Error("Supabase is not configured.");
   }
