@@ -51,12 +51,12 @@ export default async function FounderDashboardPage() {
         <Card
           title="Authentication"
           body={supabase.configured ? "Supabase Auth" : "Not configured"}
-          detail="TIP Phase I · email/password · RBAC"
+          detail="AUTH-001 · email/password · RBAC · connected"
         />
         <Card
           title="User growth"
-          body="GA4 live"
-          detail={`Property ${gaId} · wire cohort queries next`}
+          body={`${snapshot.founderMetrics.users} profiles`}
+          detail={snapshot.founderMetrics.growth.label}
         />
         <Card
           title="Google Analytics"
@@ -66,12 +66,16 @@ export default async function FounderDashboardPage() {
         <Card
           title="Supabase"
           body={supabase.configured ? "Connected" : "Missing env"}
-          detail={supabase.message}
+          detail={snapshot.database.message}
         />
         <Card
           title="Database"
-          body="profiles + RLS"
-          detail="Auth-scoped policies · apply TIP migrations"
+          body={
+            snapshot.database.profileCount != null
+              ? `${snapshot.database.profileCount} profiles`
+              : "profiles + RLS"
+          }
+          detail={snapshot.database.message}
         />
         <Card
           title="Error monitoring"

@@ -1,5 +1,4 @@
 import OpenAI from "openai";
-import { getSupabaseClient } from "@/lib/supabase/client";
 import type {
   CompanyHealth,
   DailyFounderBrief,
@@ -7,8 +6,8 @@ import type {
   MissionControl,
   NextAction,
 } from "./ops-types";
+import { getFounderAuthUserId, getFounderSupabase } from "./supabase";
 
-const ATLAS_SYSTEM_USER_ID = "atlas-founder-os";
 const BRIEF_SCENARIO_ID = "atlas-founder-brief";
 
 function todayKey(date = new Date()): string {
@@ -59,19 +58,8 @@ function isMissingTableError(error: { code?: string; message: string }): boolean
   );
 }
 
-async function ensureAtlasSystemUser(): Promise<void> {
-  const supabase = getSupabaseClient();
-  if (!supabase) return;
-
-  await supabase.from("profiles").upsert({
-    id: ATLAS_SYSTEM_USER_ID,
-    display_name: "Atlas Founder OS",
-    created_at: new Date().toISOString(),
-  });
-}
-
 async function loadCachedBrief(date: string): Promise<DailyFounderBrief | null> {
-  const supabase = getSupabaseClient();
+  const supabase = await getFounderSupabase();
   if (!supabase) return null;
 
   const { data, error } = await supabase
@@ -134,7 +122,7 @@ async function loadCachedBrief(date: string): Promise<DailyFounderBrief | null> 
 }
 
 async function cacheBrief(brief: DailyFounderBrief): Promise<void> {
-  const supabase = getSupabaseClient();
+  const supabase = await getFounderSupabase();
   if (!supabase) return;
 
   const { error } = await supabase.from("founder_briefs").upsert({
@@ -148,10 +136,13 @@ async function cacheBrief(brief: DailyFounderBrief): Promise<void> {
   if (!error) return;
   if (!isMissingTableError(error)) return;
 
-  await ensureAtlasSystemUser();
+  // AUTH-001: practice_sessions.user_id must be a real auth profile uuid
+  const userId = await getFounderAuthUserId(supabase);
+  if (!userId) return;
+
   await supabase.from("practice_sessions").upsert({
     id: `brief_${brief.date}`,
-    user_id: ATLAS_SYSTEM_USER_ID,
+    user_id: userId,
     scenario_id: BRIEF_SCENARIO_ID,
     scenario_title: brief.source,
     mission_prompt: brief.summary,

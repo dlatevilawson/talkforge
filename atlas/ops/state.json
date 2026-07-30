@@ -1,6 +1,6 @@
 {
-  "version": "3.0",
-  "updatedAt": "2026-07-16T16:40:00.000Z",
+  "version": "3.1",
+  "updatedAt": "2026-07-30T18:00:00.000Z",
   "product": {
     "name": "TalkForge",
     "phase": "MVP",
@@ -18,22 +18,22 @@
     ]
   },
   "todayMission": {
-    "title": "Stabilize the founder control loop",
-    "detail": "Ship Atlas Phase 3 executive dashboard, prove notes + daily brief, keep the practice loop green."
+    "title": "Verify AUTH-001 founder metrics",
+    "detail": "Confirm dashboard reads profiles/sessions via Founder session + AUTH-001 RLS, not legacy anon queries."
   },
   "milestone": {
     "id": "M1",
-    "title": "MVP coaching loop live on Supabase",
-    "detail": "Guests can practice, get coached, reflect, and persist progress in the cloud.",
+    "title": "MVP coaching loop live on Supabase Auth",
+    "detail": "Members authenticate with Supabase Auth; practice, coaching, and reflection persist under AUTH-001 RLS.",
     "status": "in_progress",
-    "progress": 72
+    "progress": 82
   },
   "deployment": {
     "provider": "Vercel",
     "environment": "production-ready branch",
     "status": "healthy",
     "url": "https://github.com/dlatevilawson/talkforge",
-    "message": "Main is shipping Atlas Founder OS + Supabase MVP persistence."
+    "message": "Main ships Atlas Founder OS + AUTH-001 Supabase Auth persistence."
   },
   "links": {
     "github": "https://github.com/dlatevilawson/talkforge",
@@ -45,7 +45,7 @@
     {
       "rank": 1,
       "title": "Protect the communication loop",
-      "detail": "Guest → mission → coaching → reflection → progress must stay green.",
+      "detail": "Auth → mission → coaching → reflection → progress must stay green under AUTH-001.",
       "status": "in_progress"
     },
     {
@@ -71,9 +71,9 @@
     {
       "id": "BUG-001",
       "title": "Supabase Auth not connected",
-      "detail": "Guest identity uses a browser session pointer. Real auth is still deferred.",
+      "detail": "Resolved by AUTH-001 / TIP Phase I: production identity is Supabase Auth + profiles RLS. Founder portal uses the same session.",
       "severity": "medium",
-      "status": "open"
+      "status": "resolved"
     },
     {
       "id": "BUG-002",

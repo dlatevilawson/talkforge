@@ -340,7 +340,13 @@ export default function FounderOS({ snapshot }: FounderOSProps) {
             >
               {companyHealth.database.backend}
             </p>
-            <p className="mt-4 text-sm leading-6 text-zinc-300">
+            <p className="mt-4 text-2xl font-semibold tracking-tight text-zinc-50">
+              {companyHealth.database.profileCount ?? "—"}
+              <span className="ml-2 text-sm font-normal text-zinc-500">
+                profiles
+              </span>
+            </p>
+            <p className="mt-3 text-sm leading-6 text-zinc-300">
               {companyHealth.database.message}
             </p>
           </Panel>

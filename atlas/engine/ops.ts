@@ -1,9 +1,10 @@
 import { readFile } from "fs/promises";
 import path from "path";
-import { getSupabaseClient, getSupabaseConfigStatus } from "@/lib/supabase/client";
+import { getSupabaseConfigStatus } from "@/lib/supabase/config";
 import type { ConversationTurn, PracticeSession } from "@/lib/types";
 import { loadDailyFounderBrief } from "./brief";
 import { listFounderNotes } from "./notes";
+import { getFounderAuthUserId, getFounderSupabase } from "./supabase";
 import type {
   AiUsage,
   CompanyHealth,
@@ -25,6 +26,19 @@ import type {
 const OPS_STATE_PATH = path.join(process.cwd(), "atlas", "ops", "state.json");
 const DEFAULT_REPO = "dlatevilawson/talkforge";
 
+/** AUTH-001 profile columns used by founder metrics (not legacy guest-only rows). */
+const PROFILE_METRICS_SELECT =
+  "id, created_at, email, role, account_status, display_name";
+
+type ProfileMetricRow = {
+  id: string;
+  created_at: string;
+  email: string | null;
+  role: string | null;
+  account_status: string | null;
+  display_name: string | null;
+};
+
 async function loadOpsState(): Promise<OpsStateFile> {
   const raw = await readFile(OPS_STATE_PATH, "utf8");
   return JSON.parse(raw) as OpsStateFile;
@@ -41,7 +55,7 @@ function daysAgo(days: number): Date {
 }
 
 async function loadPracticeSessions(): Promise<PracticeSession[]> {
-  const supabase = getSupabaseClient();
+  const supabase = await getFounderSupabase();
   if (!supabase) return [];
 
   const { data, error } = await supabase
@@ -74,7 +88,7 @@ async function loadPracticeSessions(): Promise<PracticeSession[]> {
 }
 
 async function loadReflectionCount(): Promise<number> {
-  const supabase = getSupabaseClient();
+  const supabase = await getFounderSupabase();
   if (!supabase) return 0;
 
   const { count, error } = await supabase
@@ -85,21 +99,29 @@ async function loadReflectionCount(): Promise<number> {
   return count ?? 0;
 }
 
-async function loadProfiles(): Promise<Array<{ id: string; created_at: string }>> {
-  const supabase = getSupabaseClient();
+async function loadProfiles(): Promise<ProfileMetricRow[]> {
+  const supabase = await getFounderSupabase();
   if (!supabase) return [];
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, created_at")
+    .select(PROFILE_METRICS_SELECT)
     .order("created_at", { ascending: false })
-    .limit(200);
+    .limit(500);
 
   if (error || !data) return [];
-  return data.filter((row) => row.id !== "atlas-founder-os");
+
+  return (data as ProfileMetricRow[]).filter((row) => {
+    if (!row.id || row.id === "atlas-founder-os") return false;
+    // AUTH-001: exclude soft-deleted accounts from live metrics
+    if (row.account_status === "deleted") return false;
+    return true;
+  });
 }
 
-async function pingDatabase(): Promise<DatabaseStatus> {
+async function pingDatabase(
+  profiles: ProfileMetricRow[]
+): Promise<DatabaseStatus> {
   const config = getSupabaseConfigStatus();
   if (!config.configured) {
     return {
@@ -112,7 +134,7 @@ async function pingDatabase(): Promise<DatabaseStatus> {
     };
   }
 
-  const supabase = getSupabaseClient();
+  const supabase = await getFounderSupabase();
   if (!supabase) {
     return {
       configured: false,
@@ -124,8 +146,8 @@ async function pingDatabase(): Promise<DatabaseStatus> {
     };
   }
 
+  const authUserId = await getFounderAuthUserId(supabase);
   const { error } = await supabase.from("profiles").select("id").limit(1);
-  const profiles = await loadProfiles();
 
   if (error) {
     return {
@@ -133,18 +155,25 @@ async function pingDatabase(): Promise<DatabaseStatus> {
       reachable: false,
       backend: "supabase",
       profileCount: null,
-      message: `Supabase configured but query failed: ${error.message}`,
+      message: !authUserId
+        ? `Founder session missing — RLS blocked profiles read: ${error.message}`
+        : `AUTH-001 query failed: ${error.message}`,
       tone: "bad",
     };
   }
+
+  const active = profiles.filter((p) => p.account_status === "active").length;
+  const authLabel = authUserId
+    ? "Auth session connected"
+    : "No auth session (anon RLS)";
 
   return {
     configured: true,
     reachable: true,
     backend: "supabase",
     profileCount: profiles.length,
-    message: `Supabase reachable · ${profiles.length} profiles`,
-    tone: "good",
+    message: `AUTH-001 · ${authLabel} · ${profiles.length} profiles (${active} active)`,
+    tone: authUserId ? "good" : "warn",
   };
 }
 
@@ -257,7 +286,7 @@ function buildAiUsage(
 
 function buildFounderMetrics(
   sessions: PracticeSession[],
-  profiles: Array<{ id: string; created_at: string }>
+  profiles: ProfileMetricRow[]
 ): FounderMetrics {
   const completed = sessions.filter((session) => session.completedAt);
   const scored = completed.filter(
@@ -549,18 +578,19 @@ function decideNextAction(input: {
 
 /**
  * Aggregate institutional ops state with live product, database, AI, and GitHub signals.
+ * All Supabase reads use the Founder server session against AUTH-001 RLS.
  */
 export async function loadFounderOpsSnapshot(): Promise<FounderOpsSnapshot> {
   const state = await loadOpsState();
-  const [sessions, reflectionsSaved, database, githubStatus, notes, profiles] =
+  const [sessions, reflectionsSaved, githubStatus, notes, profiles] =
     await Promise.all([
       loadPracticeSessions(),
       loadReflectionCount(),
-      pingDatabase(),
       loadGithubActivity(state),
       listFounderNotes(12),
       loadProfiles(),
     ]);
+  const database = await pingDatabase(profiles);
 
   const founderMetrics = buildFounderMetrics(sessions, profiles);
   const productHealth = buildProductHealth(
