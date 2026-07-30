@@ -96,6 +96,35 @@ check("TIP-001 documentation exists", () => {
   );
 });
 
+check("AUTH production system doc exists", () => {
+  assert.equal(
+    existsSync(resolve(root, "atos/product/AUTH-001-PRODUCTION-SYSTEM.md")),
+    true
+  );
+});
+
+check("legacy profiles upgrade migration exists", () => {
+  assert.equal(
+    existsSync(
+      resolve(root, "supabase/migrations/20260730_upgrade_legacy_profiles.sql")
+    ),
+    true
+  );
+});
+
+check("Founder DEV bootstrap is production-locked", () => {
+  const src = readFileSync(resolve(root, "lib/auth/founder-dev.ts"), "utf8");
+  assert.match(src, /NODE_ENV === "production"/);
+  assert.match(src, /VERCEL_ENV === "production"/);
+  assert.match(src, /FOUNDER_DEV_ENABLED/);
+});
+
+check("unauthenticated /founder uses shared /login (not separate auth)", () => {
+  const src = readFileSync(resolve(root, "lib/supabase/proxy.ts"), "utf8");
+  assert.doesNotMatch(src, /\/login\/founder/);
+  assert.match(src, /pathname\.startsWith\("\/founder"\)/);
+});
+
 check("typecheck passes", () => {
   const r = spawnSync("npm", ["run", "typecheck"], {
     cwd: root,

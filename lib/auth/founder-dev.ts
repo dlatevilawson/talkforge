@@ -1,7 +1,12 @@
 /**
  * Development-only Founder bootstrap.
+ *
+ * NEVER the production authentication mechanism.
  * Locked out when NODE_ENV or VERCEL_ENV is production.
  * Credentials come from environment variables — never commit secrets.
+ *
+ * Production Founder access = normal email/password login + profiles.role
+ * (or FOUNDER_USER_IDS allowlist). See AUTH-001-PRODUCTION-SYSTEM.md.
  */
 
 export function founderDevAllowed(): boolean {
