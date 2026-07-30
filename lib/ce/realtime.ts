@@ -1,3 +1,4 @@
+import { buildOpeningSpeechInstructions } from "@/lib/coach/philosophy";
 import { buildSessionUpdateForTranscription } from "./session-config";
 
 /**
@@ -163,7 +164,7 @@ function createSilentAudioStream(): MediaStream {
   return stream;
 }
 
-/** Ask Forge to open with coach-first presence (DEC-CE-M2-UX). */
+/** Ask Forge to open with mentor pacing — understand first, never a topic menu. */
 export function requestOpeningSpeech(
   dc: RTCDataChannel,
   welcomeHint?: string
@@ -172,16 +173,12 @@ export function requestOpeningSpeech(
     throw new Error("Data channel not open — cannot request opening speech.");
   }
 
-  const instructions = welcomeHint?.trim()
-    ? `Speak now as Forge the coach. ${welcomeHint.trim()} Keep it to 2–4 short sentences. Ask one short opening question. Coach first — not a cold interviewer. Do not give a long lecture.`
-    : "Speak now as Forge the coach. Greet them warmly, say you're here to practice with them, and ask one short opening question. Coach first — not a cold interviewer. Do not give a long lecture.";
-
   dc.send(
     JSON.stringify({
       type: "response.create",
       response: {
         output_modalities: ["audio"],
-        instructions,
+        instructions: buildOpeningSpeechInstructions(welcomeHint),
       },
     })
   );

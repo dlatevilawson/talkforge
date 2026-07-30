@@ -149,15 +149,15 @@ export function buildAdaptiveInsight(reports: SessionReport[]): string | null {
   );
 
   if (older.length > 0 && recentInterruptions < olderInterruptions - 0.5) {
-    return `You've been interrupting less over the last ${recent.length} sessions — keep that space open for the other person.`;
+    return `I've noticed something — over the last ${recent.length} sessions, you've been leaving more space before jumping in.`;
   }
 
   if (older.length > 0 && recentEmpathy > olderEmpathy + 3) {
-    return `Your empathy score has been climbing across recent sessions. That warmth is becoming a strength.`;
+    return `I've noticed your warmth showing up more in recent practice. People feel that.`;
   }
 
   if (older.length > 0 && recentConf > olderConf + 5) {
-    return `Your confidence has risen from about ${olderConf} to ${recentConf} across recent practice. That is real growth.`;
+    return `I've noticed you sounding steadier lately — more grounded than when we started.`;
   }
 
   // Scenario avoidance signal
@@ -170,7 +170,7 @@ export function buildAdaptiveInsight(reports: SessionReport[]): string | null {
   ).length;
 
   if (sorted.length >= 4 && presentationHeavy >= 3 && conflictSparse === 0) {
-    return `You've practiced presentations and interviews often, but haven't revisited conflict or negotiation recently. Want to stretch there today?`;
+    return `I've noticed we keep landing on presentations and interviews — and we haven't sat with conflict or negotiation in a while.`;
   }
 
   if (sorted.length >= 6) {
@@ -187,8 +187,20 @@ export function buildAdaptiveInsight(reports: SessionReport[]): string | null {
         .filter((n): n is number => typeof n === "number")
     );
     if (late > early + 8) {
-      return `Looking across your history: early sessions averaged around ${early}; recent ones average ${late}. The practice is compounding.`;
+      return `I've noticed real growth across your history — early practice felt heavier; lately you sound more capable in the room.`;
     }
+  }
+
+  // Explain-first pattern proxy from weak clarity + higher confidence
+  const explainFirst = recent.filter(
+    (r) =>
+      typeof r.clarity === "number" &&
+      typeof r.confidence === "number" &&
+      r.clarity < 60 &&
+      r.confidence >= 65
+  ).length;
+  if (explainFirst >= 2) {
+    return `I've noticed something — when the conversation gets hard, your first instinct is often to explain. Let's notice that together.`;
   }
 
   return null;

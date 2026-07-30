@@ -63,11 +63,7 @@ export function applyReportToMemory(
     confidenceLevel: report.confidence ?? memory.confidenceLevel,
     speakingHabits: uniqPush(
       memory.speakingHabits,
-      report.fillerWords >= 5
-        ? "Tends to use filler words when thinking"
-        : report.questionsAsked >= 3
-          ? "Asks clarifying questions"
-          : "",
+      inferHabitFromReport(report),
       6
     ),
     lastSessionId: report.sessionId,
@@ -76,6 +72,60 @@ export function applyReportToMemory(
     sessionsCompleted: Math.max(memory.sessionsCompleted + 1, report.sessionNumber),
     updatedAt: new Date().toISOString(),
   };
+}
+
+function inferHabitFromReport(report: SessionReport): string {
+  if (report.fillerWords >= 5) {
+    return "Uses filler words when thinking under pressure";
+  }
+  if (report.interruptions >= 3) {
+    return "Tends to jump in quickly — may cut space short";
+  }
+  if (report.questionsAsked >= 3) {
+    return "Asks clarifying questions when engaged";
+  }
+  if (
+    (report.clarity ?? 0) < 60 &&
+    (report.confidence ?? 0) >= 65
+  ) {
+    return "Leans toward explaining before checking understanding";
+  }
+  return "";
+}
+
+/**
+ * Build a short, human welcome hint — curiosity first, never a topic menu.
+ */
+export function buildWelcomeHint(input: {
+  firstName: string;
+  isReturning: boolean;
+  lastScenarioTitle: string;
+  recentWin?: string;
+  speakingHabit?: string;
+  adaptiveInsight?: string | null;
+}): string {
+  const { firstName, isReturning } = input;
+
+  if (!isReturning) {
+    return `Say hello to ${firstName === "there" ? "them" : firstName} warmly. One short sentence that they're safe here — no performance. Ask one simple curious question about what brought them in. Then wait.`;
+  }
+
+  const name = firstName === "there" ? "there" : firstName;
+  const pattern =
+    input.adaptiveInsight?.trim() ||
+    input.speakingHabit?.trim() ||
+    "";
+  const last = input.lastScenarioTitle.trim();
+
+  if (pattern) {
+    return `Welcome back, ${name}. In 2–3 short sentences: notice one pattern (${pattern}). Do not lecture. Do not offer a menu of topics. End with one curious question about what they'd like to sit with today. Then wait.`;
+  }
+
+  if (last) {
+    return `Welcome back, ${name}. Briefly remember last time (${last}) in one calm sentence — no score recap, no topic menu. Ask one curious question about what's on their mind today. 2–3 short sentences max. Then wait.`;
+  }
+
+  return `Welcome back, ${name}. One warm sentence that you remember them. Ask one curious question about what's present today. No options list. Then wait.`;
 }
 
 export function buildCoachPromptContext(
@@ -87,21 +137,14 @@ export function buildCoachPromptContext(
   const isReturning = mem.sessionsCompleted > 0 || recentReports.length > 0;
   const adaptiveInsight = buildAdaptiveInsight(recentReports);
 
-  let welcomeHint: string;
-  if (!isReturning) {
-    welcomeHint = `Welcome them warmly as Forge. This is their first saved practice. Keep it short and inviting.`;
-  } else {
-    const last = mem.lastScenarioTitle
-      ? `Last time you practiced ${mem.lastScenarioTitle}.`
-      : `You've practiced with me before.`;
-    const win = mem.recentWins[0]
-      ? ` Call out this recent win briefly: ${mem.recentWins[0]}`
-      : "";
-    const focus = mem.topicsWorkingOn[0]
-      ? ` Offer to continue working on: ${mem.topicsWorkingOn[0]}`
-      : " Invite them to choose today's focus.";
-    welcomeHint = `Welcome back, ${name}. ${last}${win}${focus} Do not restart like a stranger. Sound like their coach who remembers.`;
-  }
+  const welcomeHint = buildWelcomeHint({
+    firstName: name,
+    isReturning,
+    lastScenarioTitle: mem.lastScenarioTitle,
+    recentWin: mem.recentWins[0],
+    speakingHabit: mem.speakingHabits[0],
+    adaptiveInsight,
+  });
 
   return {
     firstName: name,
@@ -128,6 +171,7 @@ export function formatCoachMemoryBlock(ctx: CoachPromptContext): string {
 Member relationship memory:
 - First saved session for ${ctx.firstName}.
 - Opening style: ${ctx.welcomeHint}
+- Remember: understand before coaching. No topic menus.
 `;
   }
 
@@ -137,14 +181,14 @@ Member relationship memory (use this — do not pretend you just met them):
 - Sessions completed: ${ctx.sessionsCompleted}
 - Last scenario: ${ctx.lastScenarioTitle || "(unknown)"}
 - Last summary: ${ctx.lastSessionSummary || "(none)"}
-- Recent wins: ${ctx.recentWins.join("; ") || "(none yet)"}
-- Topics in progress: ${ctx.topicsWorkingOn.join("; ") || "(none yet)"}
+- Patterns / habits noticed: ${ctx.speakingHabits.join("; ") || "(none yet)"}
+- Recent wins (celebrate lightly, don't oversell): ${ctx.recentWins.join("; ") || "(none yet)"}
+- Soft focus areas (do NOT recite as a checklist): ${ctx.topicsWorkingOn.join("; ") || "(none yet)"}
 - Goals: ${ctx.communicationGoals.join("; ") || "(not set)"}
 - Fears to handle gently: ${ctx.biggestFears.join("; ") || "(not set)"}
-- Speaking habits: ${ctx.speakingHabits.join("; ") || "(none noted)"}
-- Preferred coaching style: ${ctx.preferredCoachingStyle || "warm and direct"}
+- Preferred coaching style: ${ctx.preferredCoachingStyle || "warm, curious, unhurried"}
 - Confidence level (approx): ${ctx.confidenceLevel ?? "unknown"}
-- Adaptive insight: ${ctx.adaptiveInsight || "(none)"}
+- Pattern insight (use once, gently — never as a lecture): ${ctx.adaptiveInsight || "(none)"}
 - Opening style: ${ctx.welcomeHint}
 `;
 }
