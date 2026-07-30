@@ -32,6 +32,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [LP-001](LP-001-production-landing.md) | Production Landing Page v1.0 | **Deployed** (Decision 037) — virid live; DNS + waitlist SQL pending |
 | — | [LP-002](LP-002-founder-emotional-center.md) | Founder counsel — emotional center | **Authoritative** (Decision 038) |
 | — | [OPS-001](OPS-001-launch-surface.md) | Launch surface checklist (Git/GA/favicon/SEO) | **Active** (Decision 039) |
+| — | [UNI-001](UNI-001-unified-platform.md) | Unified platform architecture | **Implemented** (Decision 040) |
 | — | [Brand Identity Project](brand-identity/README.md) | Full identity process (BID Phases 1–7) | **Working — CD recommendation ready** |
 | — | [FILM-001](FILM-001-hero-film-v1.md) | Hero film V1 production log (draft cut) | Draft on site |
 | — | [Hero Film System](hero-film/README.md) | Philosophy → Brief → Story Bible → Shot List → Prompt Bible → Edit Plan | **Authoritative process** |

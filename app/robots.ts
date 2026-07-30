@@ -5,7 +5,20 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/atlas", "/dashboard", "/prepare", "/voice", "/auth"],
+      disallow: [
+        "/api/",
+        "/app/",
+        "/founder/",
+        "/login",
+        "/signup",
+        "/forgot-password",
+        "/reset-password",
+        "/verify-email",
+        "/auth/",
+        "/logout",
+        "/onboarding",
+        "/change-password",
+      ],
     },
     sitemap: "https://talkforge.io/sitemap.xml",
   };

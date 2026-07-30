@@ -157,3 +157,39 @@ export function getTransferSummary(userId?: string): TransferSummary {
     ).length,
   };
 }
+
+/**
+ * Reassign local Forge practice artifacts from a guest id to an authenticated user.
+ * Returns the number of records updated.
+ */
+export function reassignLocalPracticeData(
+  fromUserId: string,
+  toUserId: string
+): number {
+  if (!fromUserId || !toUserId || fromUserId === toUserId) return 0;
+
+  let count = 0;
+
+  const events = readJson<ForgeEvent[]>(EVENTS_KEY, []).map((event) => {
+    if (event.userId !== fromUserId) return event;
+    count += 1;
+    return { ...event, userId: toUserId };
+  });
+  writeJson(EVENTS_KEY, events);
+
+  const links = readJson<SessionEventLink[]>(LINKS_KEY, []).map((link) => {
+    if (link.userId !== fromUserId) return link;
+    count += 1;
+    return { ...link, userId: toUserId };
+  });
+  writeJson(LINKS_KEY, links);
+
+  const realities = readJson<RealityCapture[]>(REALITY_KEY, []).map((item) => {
+    if (item.userId !== fromUserId) return item;
+    count += 1;
+    return { ...item, userId: toUserId };
+  });
+  writeJson(REALITY_KEY, realities);
+
+  return count;
+}

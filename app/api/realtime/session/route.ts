@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireApiUser } from "@/lib/auth/api-guard";
 import {
   buildClientSecretRequest,
   type CeTrack,
@@ -17,6 +18,11 @@ type SessionBody = {
  * The browser never receives OPENAI_API_KEY — only a short-lived ek_ token.
  */
 export async function POST(req: Request) {
+  const gate = await requireApiUser();
+  if (!gate.ok) {
+    return NextResponse.json({ error: gate.error }, { status: gate.status });
+  }
+
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     return NextResponse.json(

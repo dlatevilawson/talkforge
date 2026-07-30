@@ -5,15 +5,16 @@ import { useEffect, useState } from "react";
 import TalkForgeLogo from "@/app/components/landing/TalkForgeLogo";
 
 const links = [
-  { href: "#belief", label: "What We Believe" },
-  { href: "#experience", label: "Experience" },
-  { href: "#mission", label: "Mission" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/", label: "Home" },
+  { href: "/#experience", label: "Features" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/about", label: "About" },
 ] as const;
 
 export default function LandingNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -22,7 +23,16 @@ export default function LandingNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    void fetch("/api/auth/session")
+      .then((r) => r.json())
+      .then((d: { authenticated?: boolean }) => setAuthed(Boolean(d.authenticated)))
+      .catch(() => setAuthed(false));
+  }, []);
+
   const onFilm = !scrolled;
+  const startHref = authed ? "/app/dashboard" : "/signup";
+  const startLabel = authed ? "Open Gym" : "Start Training";
 
   return (
     <header
@@ -41,12 +51,9 @@ export default function LandingNav() {
           <TalkForgeLogo tone={onFilm ? "light" : "default"} />
         </Link>
 
-        <nav
-          aria-label="Primary"
-          className="hidden items-center gap-8 md:flex"
-        >
+        <nav aria-label="Primary" className="hidden items-center gap-8 md:flex">
           {links.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className={`text-sm transition-colors ${
@@ -56,18 +63,28 @@ export default function LandingNav() {
               }`}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
-          <a
-            href="#waitlist"
+          <Link
+            href="/login"
+            className={`text-sm transition-colors ${
+              onFilm
+                ? "text-[#d9d2c5]/90 hover:text-[#f7f3ea]"
+                : "text-[var(--lp-muted)] hover:text-[var(--lp-ink)]"
+            }`}
+          >
+            Login
+          </Link>
+          <Link
+            href={startHref}
             className={`rounded-full px-4 py-2 text-sm font-medium transition ${
               onFilm
                 ? "bg-[var(--tf-gold)] text-[#121417] hover:bg-[var(--tf-gold-light)]"
                 : "bg-[var(--lp-ink)] text-[var(--lp-bg)] hover:bg-[var(--lp-ink-soft)]"
             }`}
           >
-            Join Waitlist
-          </a>
+            {startLabel}
+          </Link>
         </nav>
 
         <button
@@ -96,22 +113,29 @@ export default function LandingNav() {
         >
           <nav aria-label="Mobile" className="flex flex-col gap-3">
             {links.map((link) => (
-              <a
+              <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
                 className="py-2 text-base text-[var(--lp-ink)]"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
-            <a
-              href="#waitlist"
+            <Link
+              href="/login"
+              onClick={() => setOpen(false)}
+              className="py-2 text-base text-[var(--lp-ink)]"
+            >
+              Login
+            </Link>
+            <Link
+              href={startHref}
               onClick={() => setOpen(false)}
               className="mt-2 rounded-full bg-[var(--lp-ink)] px-4 py-3 text-center text-sm font-medium text-[var(--lp-bg)]"
             >
-              Join Waitlist
-            </a>
+              {startLabel}
+            </Link>
           </nav>
         </div>
       )}

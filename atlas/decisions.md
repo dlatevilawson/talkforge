@@ -565,6 +565,48 @@ Authoritative — Code complete; GitHub Login Connection + GA Measurement ID are
 
 ---
 
+# Decision 040
+
+Title:
+Unify TalkForge into one platform — `/app` gym + `/founder` portal + cookie-bridged guest auth.
+
+Reason:
+
+Founder Atlas Task UNI-001: single product experience from landing → training → auth → gym. Preserve LP/brand/GA. Extend existing guest identity with httpOnly cookie session + Next.js 16 `proxy.ts` protection — do not introduce a second auth provider. Founder Portal at `/founder` with FOUNDER_DEV_* env seed (not hardcoded). Volume: `atos/product/UNI-001-unified-platform.md`.
+
+Status:
+Authoritative — Implemented on branch; merge when validated
+
+---
+
+# Decision 041
+
+Title:
+Production authentication foundation — Supabase Auth + role-based authorization (AUTH-001).
+
+Reason:
+
+Founder Atlas Task: replace interim guest cookie identity with production Supabase Authentication. Auth owns identity, authentication, authorization, and session only. Email/password Phase 1; providers stubbed for additive growth. Shared login for all roles including Founder. Dev Founder bootstrap env-gated and production-locked. Volume: `atos/product/AUTH-001-authentication-foundation.md`.
+
+Status:
+Authoritative — Implemented on branch; apply SQL migration + Supabase email templates before production cutover
+
+---
+
+# Decision 042
+
+Title:
+TalkForge Identity Platform (TIP) Phase I — permanent authentication foundation.
+
+Reason:
+
+Founder Atlas Engineering Directive: build production identity infrastructure (not a login page fix). Supabase Auth + RBAC + SSR sessions + branded emails + security headers + observability. Supersedes interim guest cookies. Volume: `atos/product/TIP-001-identity-platform.md` + deliverables.
+
+Status:
+Authoritative — Implemented on branch; Supabase Site URL + template apply remains Founder ops step (`npm run auth:configure`)
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

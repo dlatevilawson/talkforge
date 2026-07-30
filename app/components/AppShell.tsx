@@ -1,56 +1,104 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getUser } from "@/lib/storage";
+import { canAccessFounderPortal } from "@/lib/auth/roles";
+import type { UserRole } from "@/lib/auth/constants";
+import { migrateGuestPracticeData } from "@/lib/auth/migrate-guest";
+import { trackAuthEvent } from "@/lib/auth/analytics";
+import {
+  bindAuthenticatedUserId,
+  clearCurrentUserId,
+  clearPendingGuestUserId,
+  getCurrentUserId,
+  isGuestUserId,
+  stashPendingGuestUserId,
+} from "@/lib/identity";
 
-/** Beta: one clear path — Practice is the gym floor. */
 const links = [
-  { href: "/voice", label: "Practice" },
-  { href: "/dashboard", label: "Home" },
-  { href: "/progress", label: "Progress" },
-];
-
-const navLinks =
-  process.env.NODE_ENV === "development"
-    ? [...links, { href: "/atlas", label: "Atlas" }]
-    : links;
+  { href: "/app/dashboard", label: "Dashboard" },
+  { href: "/app/practice", label: "Practice" },
+  { href: "/app/progress", label: "Progress" },
+  { href: "/app/profile", label: "Profile" },
+  { href: "/app/settings", label: "Settings" },
+] as const;
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [name, setName] = useState("Friend");
+  const [showFounder, setShowFounder] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-
-    async function loadName() {
+    async function load() {
       try {
-        const user = await getUser();
-        if (!cancelled) {
-          const display = user?.displayName?.trim();
+        const res = await fetch("/api/auth/session");
+        const data = (await res.json()) as {
+          authenticated?: boolean;
+          displayName?: string | null;
+          role?: string | null;
+          userId?: string | null;
+        };
+        if (cancelled) return;
+        if (data.authenticated && data.userId) {
+          const prior = getCurrentUserId();
+          if (prior && isGuestUserId(prior) && prior !== data.userId) {
+            stashPendingGuestUserId(prior);
+          }
+          bindAuthenticatedUserId(data.userId);
+          void migrateGuestPracticeData(data.userId);
+          const display = data.displayName?.trim();
           setName(
             display && display !== "Guest" ? display : "Friend"
           );
+          setShowFounder(
+            canAccessFounderPortal(
+              (data.role as UserRole | null) ?? null
+            )
+          );
+        } else {
+          // Logged out / guest mode: drop any stale auth UUID pointer.
+          const prior = getCurrentUserId();
+          if (prior && !isGuestUserId(prior)) {
+            clearCurrentUserId();
+          }
+          setName("Friend");
+          setShowFounder(false);
         }
       } catch {
-        if (!cancelled) {
-          setName("Friend");
-        }
+        if (!cancelled) setName("Friend");
       }
     }
-
-    void loadName();
+    void load();
     return () => {
       cancelled = true;
     };
   }, [pathname]);
 
+  async function logout() {
+    trackAuthEvent("auth_logout");
+    await fetch("/api/auth/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "logout" }),
+    });
+    clearCurrentUserId();
+    clearPendingGuestUserId();
+    router.push("/");
+    router.refresh();
+  }
+
+  const nav = showFounder
+    ? [...links, { href: "/founder", label: "Founder Portal" }]
+    : links;
+
   return (
     <div className="min-h-screen bg-[var(--tf-bg)] font-sans text-[var(--tf-fg)]">
       <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Link href="/" className="text-lg font-semibold tracking-wide">
+          <Link href="/app/dashboard" className="text-lg font-semibold tracking-wide">
             TalkForge
           </Link>
 
@@ -58,7 +106,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             aria-label="Primary"
             className="flex flex-wrap items-center gap-1 sm:gap-2"
           >
-            {navLinks.map((link) => {
+            {nav.map((link) => {
               const active =
                 pathname === link.href || pathname.startsWith(`${link.href}/`);
               return (
@@ -77,7 +125,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          <p className="text-sm text-zinc-400">{name}</p>
+          <div className="flex items-center gap-3">
+            <p className="text-sm text-zinc-400">{name}</p>
+            <button
+              type="button"
+              onClick={() => void logout()}
+              className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/10"
+            >
+              Sign out
+            </button>
+          </div>
         </div>
       </header>
 

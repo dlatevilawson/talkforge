@@ -1,4 +1,9 @@
-import { clearCurrentUserId, getCurrentUserId } from "./identity";
+import {
+  bindAuthenticatedUserId,
+  clearCurrentUserId,
+  getCurrentUserId,
+  isGuestUserId,
+} from "./identity";
 import { getSupabaseClient } from "./supabase/client";
 import type {
   ConversationTurn,
@@ -22,11 +27,16 @@ function mapProfile(row: {
   id: string;
   display_name: string;
   created_at: string;
+  email?: string | null;
+  role?: string | null;
 }): TalkForgeUser {
   return {
     id: row.id,
-    displayName: row.display_name,
+    displayName: row.display_name || "Member",
     createdAt: row.created_at,
+    email: row.email ?? "",
+    isGuest: isGuestUserId(row.id),
+    role: (row.role as TalkForgeUser["role"]) ?? undefined,
   };
 }
 
@@ -72,15 +82,67 @@ function mapReflection(row: {
   };
 }
 
+/**
+ * Resolve the active user. Supabase Auth is authoritative — never prefer a
+ * stale guest id in sessionStorage once an authenticated session exists.
+ */
 export async function getUser(): Promise<TalkForgeUser | null> {
-  const id = getCurrentUserId();
-  if (!id) return null;
-
   const supabase = requireSupabase();
+
+  const {
+    data: { user: authUser },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError) {
+    // Soft-fail auth lookup and fall through to cached pointer for rare races.
+  }
+
+  if (authUser?.id) {
+    bindAuthenticatedUserId(authUser.id);
+
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, display_name, created_at, email, role")
+      .eq("id", authUser.id)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`Failed to load profile: ${error.message}`);
+    }
+
+    if (data) {
+      return mapProfile(data);
+    }
+
+    // Profile trigger may lag briefly after signup — synthesize from auth user.
+    return {
+      id: authUser.id,
+      displayName:
+        (typeof authUser.user_metadata?.display_name === "string" &&
+          authUser.user_metadata.display_name.trim()) ||
+        authUser.email?.split("@")[0] ||
+        "Member",
+      createdAt: authUser.created_at ?? new Date().toISOString(),
+      email: authUser.email ?? "",
+      isGuest: false,
+      role: "user",
+    };
+  }
+
+  // Unauthenticated: only return a legacy guest pointer (never a stale auth UUID).
+  const cachedId = getCurrentUserId();
+  if (!cachedId || !isGuestUserId(cachedId)) {
+    if (cachedId && !isGuestUserId(cachedId)) {
+      clearCurrentUserId();
+    }
+    return null;
+  }
+
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, display_name, created_at")
-    .eq("id", id)
+    .select("id, display_name, created_at, email, role")
+    .eq("id", cachedId)
     .maybeSingle();
 
   if (error) {
@@ -92,11 +154,11 @@ export async function getUser(): Promise<TalkForgeUser | null> {
 
 export async function saveUser(user: TalkForgeUser): Promise<void> {
   const supabase = requireSupabase();
-  const { error } = await supabase.from("profiles").upsert({
-    id: user.id,
-    display_name: user.displayName,
-    created_at: user.createdAt,
-  });
+  // Profiles are created by auth triggers — clients may only update safe fields.
+  const { error } = await supabase
+    .from("profiles")
+    .update({ display_name: user.displayName })
+    .eq("id", user.id);
 
   if (error) {
     throw new Error(`Failed to save profile: ${error.message}`);
@@ -256,14 +318,29 @@ export async function getProgressSummary(
 }
 
 export async function clearAllTalkForgeData(): Promise<void> {
-  const userId = getCurrentUserId();
+  const supabase = requireSupabase();
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
+  const userId = authUser?.id ?? getCurrentUserId();
   clearCurrentUserId();
   if (!userId) return;
 
-  const supabase = requireSupabase();
   // Cascades to practice_sessions and reflections via schema FKs.
-  const { error } = await supabase.from("profiles").delete().eq("id", userId);
-  if (error) {
-    throw new Error(`Failed to clear profile data: ${error.message}`);
+  // Authenticated members typically cannot delete their own profile under RLS —
+  // clear practice rows they own instead.
+  const { error: sessionsError } = await supabase
+    .from("practice_sessions")
+    .delete()
+    .eq("user_id", userId);
+  if (sessionsError) {
+    throw new Error(`Failed to clear sessions: ${sessionsError.message}`);
+  }
+  const { error: reflectionsError } = await supabase
+    .from("reflections")
+    .delete()
+    .eq("user_id", userId);
+  if (reflectionsError) {
+    throw new Error(`Failed to clear reflections: ${reflectionsError.message}`);
   }
 }

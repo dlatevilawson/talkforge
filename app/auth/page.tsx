@@ -46,7 +46,7 @@ export default function AuthPage() {
       } else {
         await ensureGuestUser(name);
       }
-      router.push("/dashboard");
+      router.push("/app/dashboard");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Could not create guest profile."

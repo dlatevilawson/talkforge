@@ -515,7 +515,7 @@ export default function TrainingArena({
         <div className="mx-auto flex min-h-[100dvh] max-w-3xl flex-col py-6 sm:py-10">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <Link
-              href={eventId ? "/prepare" : "/training"}
+              href={eventId ? "/app/prepare" : "/app/training"}
               className="inline-flex items-center text-gray-400 transition hover:text-white"
             >
               ← {eventId ? "Back to Event" : "Back to Practice"}
@@ -634,7 +634,7 @@ export default function TrainingArena({
     <main className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black text-white">
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
         <Link
-          href="/training"
+          href="/app/training"
           className="inline-flex items-center text-gray-400 transition hover:text-white"
         >
           ← Back to Practice

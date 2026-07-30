@@ -2,32 +2,32 @@ import Link from "next/link";
 
 const missions = [
   {
-    href: "/small-talk",
+    href: "/app/small-talk",
     title: "Small Talk",
     description: "Start easy conversations with warmth and curiosity.",
   },
   {
-    href: "/interview",
+    href: "/app/interview",
     title: "Interview",
     description: "Practice clear, confident answers under pressure.",
   },
   {
-    href: "/leadership",
+    href: "/app/leadership",
     title: "Leadership",
     description: "Guide people with clarity, empathy, and direction.",
   },
   {
-    href: "/negotiation",
+    href: "/app/negotiation",
     title: "Negotiation",
     description: "Ask for what you need without losing the relationship.",
   },
   {
-    href: "/storytelling",
+    href: "/app/storytelling",
     title: "Storytelling",
     description: "Make ideas memorable with structure and presence.",
   },
   {
-    href: "/difficult-conversations",
+    href: "/app/difficult-conversations",
     title: "Difficult Conversations",
     description: "Stay calm, honest, and constructive when stakes are high.",
   },
