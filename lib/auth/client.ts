@@ -2,7 +2,7 @@
 
 /** Client helpers for Gym identity sync. Prefer Server Actions for sign-in/out. */
 
-import { clearCurrentUserId } from "@/lib/identity";
+import { clearCurrentUserId, clearPendingGuestUserId } from "@/lib/identity";
 
 export async function destroySession() {
   await fetch("/api/auth/session", {
@@ -11,4 +11,5 @@ export async function destroySession() {
     body: JSON.stringify({ action: "logout" }),
   });
   clearCurrentUserId();
+  clearPendingGuestUserId();
 }

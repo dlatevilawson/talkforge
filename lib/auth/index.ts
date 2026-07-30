@@ -1,5 +1,6 @@
 /** Client-safe auth exports. Server-only APIs: `@/lib/auth/session`, `@/lib/auth/roles`. */
 export { ensureGuestUser, updateDisplayName } from "./guest";
+export { migrateGuestPracticeData } from "./migrate-guest";
 export type { UserRole, AccountStatus } from "./constants";
 export {
   APP_ROLES,

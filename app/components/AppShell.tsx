@@ -5,8 +5,16 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { canAccessFounderPortal } from "@/lib/auth/roles";
 import type { UserRole } from "@/lib/auth/constants";
-import { clearCurrentUserId, setCurrentUserId } from "@/lib/identity";
+import { migrateGuestPracticeData } from "@/lib/auth/migrate-guest";
 import { trackAuthEvent } from "@/lib/auth/analytics";
+import {
+  bindAuthenticatedUserId,
+  clearCurrentUserId,
+  clearPendingGuestUserId,
+  getCurrentUserId,
+  isGuestUserId,
+  stashPendingGuestUserId,
+} from "@/lib/identity";
 
 const links = [
   { href: "/app/dashboard", label: "Dashboard" },
@@ -34,16 +42,31 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           userId?: string | null;
         };
         if (cancelled) return;
-        if (data.userId) {
-          setCurrentUserId(data.userId);
+        if (data.authenticated && data.userId) {
+          const prior = getCurrentUserId();
+          if (prior && isGuestUserId(prior) && prior !== data.userId) {
+            stashPendingGuestUserId(prior);
+          }
+          bindAuthenticatedUserId(data.userId);
+          void migrateGuestPracticeData(data.userId);
+          const display = data.displayName?.trim();
+          setName(
+            display && display !== "Guest" ? display : "Friend"
+          );
+          setShowFounder(
+            canAccessFounderPortal(
+              (data.role as UserRole | null) ?? null
+            )
+          );
+        } else {
+          // Logged out / guest mode: drop any stale auth UUID pointer.
+          const prior = getCurrentUserId();
+          if (prior && !isGuestUserId(prior)) {
+            clearCurrentUserId();
+          }
+          setName("Friend");
+          setShowFounder(false);
         }
-        const display = data.displayName?.trim();
-        setName(display && display !== "Guest" ? display : "Friend");
-        setShowFounder(
-          canAccessFounderPortal(
-            (data.role as UserRole | null) ?? null
-          )
-        );
       } catch {
         if (!cancelled) setName("Friend");
       }
@@ -62,6 +85,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       body: JSON.stringify({ action: "logout" }),
     });
     clearCurrentUserId();
+    clearPendingGuestUserId();
     router.push("/");
     router.refresh();
   }

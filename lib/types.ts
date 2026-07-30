@@ -55,6 +55,10 @@ export type TalkForgeUser = {
   id: string;
   displayName: string;
   createdAt: string;
+  /** Account email from profiles / auth — empty for legacy guest rows. */
+  email?: string;
+  /** True only for legacy guest_* identities; authenticated members are false. */
+  isGuest?: boolean;
   /** App role from profiles — authorization is server-enforced. */
   role?: "guest" | "user" | "premium" | "founder" | "admin" | "system";
 };

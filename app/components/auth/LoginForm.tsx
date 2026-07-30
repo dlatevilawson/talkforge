@@ -12,7 +12,15 @@ import {
   AuthSubmit,
 } from "@/app/components/auth/AuthShell";
 import { PasswordField } from "@/app/components/auth/PasswordField";
+import { migrateGuestPracticeData } from "@/lib/auth/migrate-guest";
 import { trackAuthEvent } from "@/lib/auth/analytics";
+import {
+  bindAuthenticatedUserId,
+  getCurrentUserId,
+  isGuestUserId,
+  stashPendingGuestUserId,
+} from "@/lib/identity";
+import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 function Submit() {
   const { pending } = useFormStatus();
@@ -34,8 +42,26 @@ export default function LoginForm({
   useEffect(() => {
     if (state.ok && state.redirectTo) {
       trackAuthEvent("auth_login_success");
-      router.push(state.redirectTo);
-      router.refresh();
+      void (async () => {
+        try {
+          const prior = getCurrentUserId();
+          if (prior && isGuestUserId(prior)) {
+            stashPendingGuestUserId(prior);
+          }
+          const supabase = createBrowserSupabaseClient();
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
+          if (user?.id) {
+            bindAuthenticatedUserId(user.id);
+            await migrateGuestPracticeData(user.id);
+          }
+        } catch {
+          // Non-fatal — AppShell will bind identity on /app.
+        }
+        router.push(state.redirectTo!);
+        router.refresh();
+      })();
       return;
     }
     if (state.message && !state.ok) {
