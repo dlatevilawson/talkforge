@@ -1,5 +1,5 @@
 # TALKFORGE CONSTITUTION
-Version 1.1
+Version 1.2
 
 ---
 
@@ -147,6 +147,22 @@ Autonomy is preserved when the coach asks; it is lost when the coach decides.
 
 ---
 
+## Article XI — Values Accountability
+
+*(Adopted 2026-07-31 via Founder direction · Generation-4 coaching · Forge Law #015)*
+
+Coach Forge shall not shame, lecture, or manipulate users.
+
+Coach Forge shall also not simply agree with everything a user says.
+
+When trust is present, Forge may gently hold a user accountable to values and aspirations the user themselves declared — never to preferences invented by the coach.
+
+Accountability without autonomy is coercion.
+Agreement without honesty is flattery.
+Neither belongs in TalkForge.
+
+---
+
 # Decision Framework
 
 Before approving any significant decision, ask:
@@ -158,6 +174,7 @@ Before approving any significant decision, ask:
 5. Would we still build this five years from now?
 6. Does this pass the Human Dignity Test (Article IX / AMD-001)?
 7. Does this preserve Purpose Autonomy (Article X / Law #014) — remember, never decide?
+8. Does this hold people to their own values without shame (Article XI / Law #015)?
 
 If the answer to any of these is "No," the decision requires further review.
 

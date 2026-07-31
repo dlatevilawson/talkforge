@@ -3,12 +3,12 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ROADMAP-001 |
-| **Version** | 1.3.0 |
+| **Version** | 1.4.0 |
 | **Status** | Authoritative product direction |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Updated** | 2026-07-31 |
-| **Binding laws** | Forge Laws #012 · #013 · #014 (`atlas/forge-laws.md`) |
+| **Binding laws** | Forge Laws #012 · #013 · #014 · #015 (`atlas/forge-laws.md`) |
 
 ## North Star
 
@@ -24,7 +24,18 @@ Promise (north-star phrasing):
 
 > An AI that remembers who you’re becoming—and gently helps you stay on that path.
 
-That does not turn Forge into a calendar or task manager. It keeps Forge in its lane: a coach that uses conversations to help people reconnect with the life they said they wanted to build.
+That does not turn Forge into a calendar or task manager. It keeps Forge in its lane: a coach that uses conversations to help people reconnect with the life they said they wanted to build — and holds them accountable to **their own** values.
+
+## Evolution of AI coaching (product philosophy)
+
+| Generation | Behavior | Moat |
+|---|---|---|
+| **1** | AI answers your questions | Commodity |
+| **2** | AI remembers your conversations | Storage |
+| **3** | AI recognizes your patterns | Insight |
+| **4 — TalkForge** | AI remembers the person you’re trying to become and helps you practice becoming that person | Relationship + purpose |
+
+Generation 4 is almost empty in the market today. That is the category TalkForge is defining.
 
 ## Product decision filter (immutable)
 
@@ -35,6 +46,21 @@ If a feature fails this test, it does not ship.
 ## Purpose autonomy (immutable — Law #014 / Constitution Article X)
 
 > **Forge may remember what matters to you, but it must never decide what should matter to you.**
+
+## Values accountability (immutable — Law #015)
+
+> **Forge holds you accountable to your own values — never to its preferences.**
+
+Forge won’t shame, lecture, or manipulate — and it also won’t simply agree with everything you say.
+
+Examples of healthy challenge:
+
+- “Can I gently challenge something you just said?”
+- “That doesn’t sound like the version of yourself you’ve been trying to become.”
+- “Last month you said patience mattered to you. Do you think today’s response reflected that value?”
+
+Not: “You’re wrong.”  
+Instead: “I’m holding you to what *you* said matters.”
 
 ## Guiding Principles (Never Break)
 
@@ -49,6 +75,7 @@ If a feature fails this test, it does not ship.
 9. **Continuity before menus** — Forge Law #012.
 10. **Emotional calibration before intelligence display** — Forge Law #013.
 11. **Protect declared purpose — never invent it** — Forge Law #014.
+12. **Accountability to their values — never shame** — Forge Law #015.
 
 ## Phase map
 
@@ -63,6 +90,7 @@ If a feature fails this test, it does not ship.
 | **6** | Communication Genome | Discovered personal patterns (hard to copy) |
 | **7** | Communication Twin | Coach that understands how *this* person grows |
 | **8** | Purpose Alignment | Help people stay aligned with the life they declared |
+| **9** | Forge Timeline | A life history of becoming — not a chat log |
 
 ## Phase 1 — Build Trust (MVP → Beta)
 
@@ -90,16 +118,27 @@ The goal is **trust**.
 
 ### Checklist
 
-- [ ] Learn the user’s preferred name
-- [ ] Learn why they’re here
+- [x] Learn the user’s preferred name
+- [x] Learn why they’re here *(goals / north star in Settings + session learning)*
 - [ ] Learn what conversations they avoid
-- [ ] Learn what success looks like to them
-- [ ] Learn how they prefer to receive feedback
-- [ ] Remember personal milestones they choose to share
-- [ ] Refer back to previous conversations naturally
-- [ ] Occasionally celebrate progress without being prompted
-- [ ] Ask follow-up questions instead of assuming
+- [x] Learn what success looks like to them *(goals + lasting session insights)*
+- [x] Learn how they prefer to receive feedback *(coaching / learning style)*
+- [x] Remember personal milestones they choose to share *(Life Compass milestones)*
+- [x] Refer back to previous conversations naturally *(Law #012 continuity openings)*
+- [x] Occasionally celebrate progress without being prompted *(pattern + wrap insights)*
+- [x] Ask follow-up questions instead of assuming *(mentor pacing)*
 - [ ] Never repeat information the user has already shared unless confirming it
+
+### Shipping now (living relationship layer)
+
+| Capability | Status |
+|---|---|
+| One lasting session insight (not only a score) | Shipping |
+| Pattern noticing across sessions | Shipping |
+| Soft emotional notes (not diagnoses) | Shipping |
+| Coaching maturity evolves with sessions | Shipping |
+| Living profile — “What Forge knows about you” | Shipping |
+| Motivators + long-term goal / north star in Settings | Shipping |
 
 ### Continuity standard (Law #012)
 
@@ -163,6 +202,7 @@ Forge should protect the goals users have already declared.
 | Commitment memory | “I’ll have that conversation tomorrow” → gentle follow-up | Shipping |
 | Life Compass | North star + relationships + learning + health — a compass, not a dashboard | Shipping |
 | Vision check-in | Every few weeks: still agree with who you wanted to become? | Shipping |
+| Values accountability | Challenge against *their* declared values — never shame | Doctrine shipping · engine next |
 
 ### Guiding rule
 
@@ -174,8 +214,26 @@ Not a calendar. Not a task manager. Not productivity software.
 
 A coach that uses conversations to reconnect people with their own declared path — with humility and permission.
 
+## Phase 9 — The Forge Timeline
+
+**Not a conversation history. A life history.**
+
+A scrollable documentary of who they’ve become — years of growth, milestones, practice breakthroughs, and real-world wins they choose to mark.
+
+Examples of entries (user-declared + practice-derived, never invented biography):
+
+- Moved to a new country · first snow · overwhelm + wonder  
+- Started building their company · first launch · first hard conversation  
+- Became calmer in conflict · confidence moved meaningfully · negotiated something that mattered  
+- Practiced a keynote · spoke to a large room  
+
+Most apps remember files.
+TalkForge remembers the important moments of a user’s life — with consent and Purpose Autonomy.
+
+**Status:** Designed — not built yet. Depends on Phase 1.5 trust + Phase 8 goal/milestone substrate.
+
 ## Current execution focus
 
-**Phase 1 → Phase 1.5**, while laying the first Purpose Alignment (Phase 8) rails so practice has meaning beyond the session.
+**Phase 1 → Phase 1.5**, with Phase 8 rails live and Gen-4 philosophy binding.
 
-Earn trust. Protect declared purpose. Then deepen engines.
+Earn trust. Protect declared purpose. Hold people to their own values. Then deepen engines — and eventually the Timeline.

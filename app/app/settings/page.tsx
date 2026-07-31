@@ -50,6 +50,8 @@ export default function SettingsPage() {
   const [nickname, setNickname] = useState("");
   const [goals, setGoals] = useState("");
   const [challenges, setChallenges] = useState("");
+  const [motivators, setMotivators] = useState("");
+  const [longTermGoal, setLongTermGoal] = useState("");
   const [triggers, setTriggers] = useState("");
   const [coachingStyle, setCoachingStyle] = useState("");
   const [learningStyle, setLearningStyle] = useState<LearningStyle>("");
@@ -92,6 +94,8 @@ export default function SettingsPage() {
           setNickname(existing.preferredNickname);
           setGoals(existing.communicationGoals.join(", "));
           setChallenges(existing.longTermChallenges.join(", "));
+          setMotivators(existing.motivators.join(", "));
+          setLongTermGoal(existing.longTermGoal);
           setTriggers(existing.emotionalTriggers.join(", "));
           setCoachingStyle(existing.preferredCoachingStyle);
           setLearningStyle(existing.learningStyle);
@@ -154,6 +158,8 @@ export default function SettingsPage() {
         preferredNickname: nickname.trim(),
         communicationGoals: parseMemoryList(goals),
         longTermChallenges: parseMemoryList(challenges),
+        motivators: parseMemoryList(motivators),
+        longTermGoal: longTermGoal.trim(),
         emotionalTriggers: parseMemoryList(triggers),
         preferredCoachingStyle: coachingStyle.trim(),
         learningStyle,
@@ -305,6 +311,30 @@ export default function SettingsPage() {
                   onChange={(e) => setChallenges(e.target.value)}
                   rows={2}
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
+                />
+              </Field>
+
+              <Field
+                label="Motivators"
+                hint="What pulls you forward — helping people, authenticity, learning by doing…"
+              >
+                <textarea
+                  value={motivators}
+                  onChange={(e) => setMotivators(e.target.value)}
+                  rows={2}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
+                />
+              </Field>
+
+              <Field
+                label="Long-term goal"
+                hint="One sentence Forge can grow with you toward"
+              >
+                <input
+                  value={longTermGoal}
+                  onChange={(e) => setLongTermGoal(e.target.value)}
+                  placeholder="e.g. Become the kind of communicator people trust under pressure"
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 placeholder:text-zinc-600 focus:ring-2"
                 />
               </Field>
 

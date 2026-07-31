@@ -55,6 +55,9 @@ type Momentum = {
   biggestWeakness?: string;
   homework?: string;
   coachSummary?: string;
+  sessionInsight?: string;
+  emotionalNote?: string;
+  patternNoticed?: string;
   overallScore?: number;
   confidence?: number;
   empathy?: number;
@@ -377,6 +380,9 @@ export default function VoiceArena({
         biggestWeakness: data.biggestWeakness,
         homework: data.homework,
         coachSummary: data.coachSummary,
+        sessionInsight: data.sessionInsight,
+        emotionalNote: data.emotionalNote,
+        patternNoticed: data.patternNoticed,
         overallScore: data.overallScore,
         confidence: data.confidence,
         empathy: data.empathy,
@@ -511,11 +517,11 @@ export default function VoiceArena({
                 </span>
               </div>
               <h1 className="mt-8 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
-                Leave with momentum
+                One thing Forge noticed
               </h1>
               <p className="mt-3 max-w-md text-base leading-7 text-white/50">
-                One strength. One improvement. One thing to try in the real
-                conversation.
+                Not a scorecard — one lasting insight, then a next step for the
+                real conversation.
               </p>
 
               {momentumLoading ? (
@@ -524,6 +530,19 @@ export default function VoiceArena({
                 </p>
               ) : momentum ? (
                 <div className="mt-10 w-full max-w-xl space-y-5 text-left">
+                  <div className="rounded-2xl border border-sky-400/25 bg-sky-500/10 px-5 py-5">
+                    <p className="text-xs uppercase tracking-[0.2em] text-sky-200/70">
+                      Today&apos;s insight
+                    </p>
+                    <p className="mt-3 text-lg leading-8 text-white">
+                      {momentum.sessionInsight || momentum.strength}
+                    </p>
+                    {momentum.patternNoticed ? (
+                      <p className="mt-3 text-sm leading-6 text-sky-100/70">
+                        Pattern: {momentum.patternNoticed}
+                      </p>
+                    ) : null}
+                  </div>
                   <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
                     <p className="text-xs uppercase tracking-[0.2em] text-white/40">
                       Strength

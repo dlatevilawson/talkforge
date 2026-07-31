@@ -30,6 +30,13 @@ export function emptyCoachMemory(userId: string, displayName = ""): CoachMemory 
     biggestStrength: "",
     speakingHabits: [],
     emotionalTriggers: [],
+    communicationStrengths: [],
+    growthAreas: [],
+    motivators: [],
+    knownPatterns: [],
+    emotionalNotes: [],
+    longTermGoal: "",
+    lastSessionInsight: "",
     ...emptyPurposeFields(),
     favoriteScenarios: [],
     pastExercises: [],
@@ -74,6 +81,14 @@ function relativeSessionPhrase(iso: string | null | undefined): string {
   return "Last time we practiced";
 }
 
+function coachingMaturity(
+  sessions: number
+): CoachPromptContext["coachingMaturity"] {
+  if (sessions >= 10) return "deep";
+  if (sessions >= 3) return "familiar";
+  return "new";
+}
+
 /**
  * Merge a completed session report into relationship memory.
  * Keeps only facts that improve the next conversation.
@@ -93,8 +108,24 @@ export function applyReportToMemory(
       memory.topicsWorkingOn,
       report.biggestWeakness
     ),
+    growthAreas: uniqPush(memory.growthAreas, report.biggestWeakness, 6),
+    communicationStrengths: uniqPush(
+      memory.communicationStrengths,
+      report.breakthrough,
+      6
+    ),
     biggestStrength:
       report.breakthrough.trim() || memory.biggestStrength,
+    knownPatterns: uniqPush(
+      memory.knownPatterns,
+      report.patternNoticed || inferHabitFromReport(report),
+      8
+    ),
+    emotionalNotes: uniqPush(
+      memory.emotionalNotes,
+      report.emotionalNote,
+      8
+    ),
     favoriteScenarios: uniqPush(memory.favoriteScenarios, scenario),
     pastExercises: uniqPush(memory.pastExercises, scenario, 12),
     confidenceLevel: report.confidence ?? memory.confidenceLevel,
@@ -104,6 +135,8 @@ export function applyReportToMemory(
       6
     ),
     commitments: mergeCommitment(memory.commitments, extracted),
+    lastSessionInsight:
+      report.sessionInsight.trim() || memory.lastSessionInsight,
     lastSessionId: report.sessionId,
     lastSessionSummary: report.coachSummary.slice(0, 400),
     lastScenarioTitle: scenario,
@@ -114,6 +147,7 @@ export function applyReportToMemory(
 }
 
 function inferHabitFromReport(report: SessionReport): string {
+  if (report.patternNoticed.trim()) return report.patternNoticed.trim();
   if (report.fillerWords >= 5) {
     return "Uses filler words when thinking under pressure";
   }
@@ -152,6 +186,9 @@ export function buildWelcomeHint(input: {
   driftAsk?: string | null;
   visionCheck?: string | null;
   purposeOpening?: string | null;
+  lastInsight?: string;
+  emotionalNote?: string;
+  maturity?: CoachPromptContext["coachingMaturity"];
 }): string {
   const { name, isReturning } = input;
 
@@ -186,6 +223,16 @@ export function buildWelcomeHint(input: {
     input.adaptiveInsight?.trim() ||
     input.speakingHabit?.trim() ||
     "";
+  const emotion = input.emotionalNote?.trim() || "";
+  const depth =
+    input.maturity === "deep"
+      ? "They already know you. Skip motivational speeches. Say you know they've done this before — go one level deeper."
+      : input.maturity === "familiar"
+        ? "You've practiced together before. Be warm, not introductory."
+        : "";
+  const softEmotion = emotion
+    ? ` If it fits, gently remember the emotional texture (${emotion}) — never diagnose.`
+    : "";
 
   if (north && input.purposeOpening) {
     return `Forge Law #012 + #014 purpose. Welcome back, ${name}. Connect today's practice to their declared north star (${north}) in one short sentence — e.g. practice that counts toward what they said they want to build. Then one open choice: keep going there, or something new on their mind? No blank menu. Then wait.`;
@@ -196,7 +243,11 @@ export function buildWelcomeHint(input: {
       struggle ||
       pattern ||
       (win ? `you made progress: ${win}` : "");
-    return `Forge Law #012 continuity. Welcome back, ${name}. In 3 short sentences, speak like this (adapt to facts — do not invent numbers): "${when} you wanted to work on ${goal}. ${observed}. Want to keep working there, or is there something new on your mind today?" Never ask "What would you like to practice today?" as a blank menu. Then wait.`;
+    return `Forge Law #012 continuity. Welcome back, ${name}. ${depth}${softEmotion} In 3 short sentences, speak like this (adapt to facts — do not invent numbers): "${when} you wanted to work on ${goal}. ${observed}. Want to keep working there, or is there something new on your mind today?" Never ask "What would you like to practice today?" as a blank menu. Then wait.`;
+  }
+
+  if (input.lastInsight?.trim()) {
+    return `Forge Law #012. Welcome back, ${name}. ${depth}${softEmotion} Briefly carry forward last session's insight (${input.lastInsight.trim()}) without lecturing. Then one open choice: continue there, or something new on their mind? Then wait.`;
   }
 
   if (struggle) {
@@ -215,13 +266,33 @@ export function buildWelcomeHint(input: {
   return `Forge Law #012. Welcome back, ${name}. One warm sentence that you remember them. Ask whether they want to continue recent work or something new is on their mind. No options list of skills. Then wait.`;
 }
 
+/** Which purpose overlay wins the welcome (mirrors buildWelcomeHint priority). */
+export function selectPurposeOpeningKind(input: {
+  isReturning: boolean;
+  commitmentFollowUp?: string | null;
+  milestoneFollowUp?: string | null;
+  visionCheck?: string | null;
+  driftAsk?: string | null;
+  purposeOpening?: string | null;
+  northStar?: string;
+}): CoachPromptContext["purposeOpeningKind"] {
+  if (!input.isReturning) return "none";
+  if (input.commitmentFollowUp?.trim()) return "commitment";
+  if (input.milestoneFollowUp?.trim()) return "milestone";
+  if (input.visionCheck?.trim()) return "vision";
+  if (input.driftAsk?.trim()) return "drift";
+  if (input.northStar?.trim() && input.purposeOpening?.trim()) return "purpose";
+  return "none";
+}
+
 export function buildCoachPromptContext(
   memory: CoachMemory | null,
   recentReports: SessionReport[] = []
 ): CoachPromptContext {
   const mem = memory ?? emptyCoachMemory("unknown");
   const name = preferredName(mem);
-  const isReturning = mem.sessionsCompleted > 0 || recentReports.length > 0;
+  const sessionsCompleted = mem.sessionsCompleted || recentReports.length;
+  const isReturning = sessionsCompleted > 0;
   const adaptiveInsight = buildAdaptiveInsight(recentReports);
   const lastReport = recentReports[0];
   const lastSessionAt =
@@ -229,9 +300,19 @@ export function buildCoachPromptContext(
     lastReport?.completedAt ||
     lastReport?.createdAt ||
     null;
+  const maturity = coachingMaturity(sessionsCompleted);
 
   const purposeHints = buildPurposePromptHints(mem, recentReports);
   const purposeBlock = formatPurposeMemoryBlock(mem, recentReports);
+
+  const purposeOverlays = {
+    commitmentFollowUp: purposeHints.commitmentFollowUp,
+    milestoneFollowUp: purposeHints.milestoneFollowUp,
+    driftAsk: purposeHints.driftAsk,
+    visionCheck: purposeHints.visionCheck,
+    purposeOpening: purposeHints.purposeOpening,
+    northStar: mem.northStar,
+  };
 
   const welcomeHint = buildWelcomeHint({
     name,
@@ -240,35 +321,48 @@ export function buildCoachPromptContext(
     lastSessionAt,
     lastStruggle: mem.topicsWorkingOn[0] || lastReport?.biggestWeakness,
     recentWin: mem.recentWins[0] || mem.biggestStrength,
-    speakingHabit: mem.speakingHabits[0],
+    speakingHabit: mem.knownPatterns[0] || mem.speakingHabits[0],
     adaptiveInsight,
     longTermChallenge: mem.longTermChallenges[0],
-    communicationGoal: mem.communicationGoals[0],
-    northStar: mem.northStar,
-    commitmentFollowUp: purposeHints.commitmentFollowUp,
-    milestoneFollowUp: purposeHints.milestoneFollowUp,
-    driftAsk: purposeHints.driftAsk,
-    visionCheck: purposeHints.visionCheck,
-    purposeOpening: purposeHints.purposeOpening,
+    communicationGoal:
+      mem.communicationGoals[0] || mem.longTermGoal || mem.northStar,
+    lastInsight: mem.lastSessionInsight || lastReport?.sessionInsight,
+    emotionalNote: mem.emotionalNotes[0] || lastReport?.emotionalNote,
+    maturity,
+    ...purposeOverlays,
+  });
+
+  const purposeOpeningKind = selectPurposeOpeningKind({
+    isReturning,
+    ...purposeOverlays,
   });
 
   const openCommitment =
-    mem.commitments.find((c) => c.status === "open")?.text || "";
+    mem.commitments.find((c) => c.status === "open" && !c.followedUpAt)?.text ||
+    mem.commitments.find((c) => c.status === "open")?.text ||
+    "";
 
   return {
     firstName: name,
     nickname: mem.preferredNickname.trim(),
     isReturning,
-    sessionsCompleted: mem.sessionsCompleted || recentReports.length,
+    sessionsCompleted,
+    coachingMaturity: maturity,
     lastScenarioTitle: mem.lastScenarioTitle,
     lastSessionSummary: mem.lastSessionSummary,
     lastSessionAt,
+    lastSessionInsight:
+      mem.lastSessionInsight || lastReport?.sessionInsight || "",
     recentWins: mem.recentWins.slice(0, 3),
     topicsWorkingOn: mem.topicsWorkingOn.slice(0, 3),
     communicationGoals: mem.communicationGoals.slice(0, 3),
     longTermChallenges: mem.longTermChallenges.slice(0, 3),
     biggestFears: mem.biggestFears.slice(0, 3),
     emotionalTriggers: mem.emotionalTriggers.slice(0, 3),
+    emotionalNotes: mem.emotionalNotes.slice(0, 3),
+    knownPatterns: mem.knownPatterns.slice(0, 4),
+    motivators: mem.motivators.slice(0, 4),
+    longTermGoal: mem.longTermGoal || mem.northStar,
     preferredCoachingStyle: mem.preferredCoachingStyle,
     learningStyle: mem.learningStyle,
     confidenceLevel: mem.confidenceLevel,
@@ -281,6 +375,7 @@ export function buildCoachPromptContext(
     personTheyWantToBecome: mem.personTheyWantToBecome,
     openCommitment,
     purposeBlock,
+    purposeOpeningKind,
   };
 }
 
@@ -298,6 +393,13 @@ export function formatCoachMemoryBlock(ctx: CoachPromptContext): string {
       ? LEARNING_STYLE_LABELS[ctx.learningStyle as Exclude<LearningStyle, "">]
       : "(not set)";
 
+  const maturityLine =
+    ctx.coachingMaturity === "deep"
+      ? "Relationship maturity: deep — skip pep talks; go one level deeper."
+      : ctx.coachingMaturity === "familiar"
+        ? "Relationship maturity: familiar — they know you; don't re-introduce."
+        : "Relationship maturity: new — earn trust gently.";
+
   if (!ctx.isReturning) {
     return `
 Member relationship memory:
@@ -305,6 +407,7 @@ Member relationship memory:
 - Nickname: ${ctx.nickname || "(none)"}
 - Opening style: ${ctx.welcomeHint}
 - Learning style: ${learning}
+- ${maturityLine}
 - Remember: understand before coaching. No topic menus.
 ${ctx.purposeBlock}
 `;
@@ -314,16 +417,20 @@ ${ctx.purposeBlock}
 Member relationship memory (use this — do not pretend you just met them):
 - Call them: ${ctx.firstName}${ctx.nickname ? ` (nickname: ${ctx.nickname})` : ""}
 - Sessions completed: ${ctx.sessionsCompleted}
+- ${maturityLine}
 - Last scenario: ${ctx.lastScenarioTitle || "(unknown)"}
 - Last practiced: ${ctx.lastSessionAt || "(unknown)"}
+- Last lasting insight: ${ctx.lastSessionInsight || "(none)"}
 - Last summary: ${ctx.lastSessionSummary || "(none)"}
 - Biggest strength: ${ctx.biggestStrength || "(none yet)"}
-- Patterns / habits: ${ctx.speakingHabits.join("; ") || "(none yet)"}
+- Known patterns: ${ctx.knownPatterns.join("; ") || ctx.speakingHabits.join("; ") || "(none yet)"}
+- Emotional notes (handle gently — not diagnoses): ${ctx.emotionalNotes.join("; ") || ctx.emotionalTriggers.join("; ") || "(none yet)"}
 - Recent wins: ${ctx.recentWins.join("; ") || "(none yet)"}
 - Soft focus / last struggle (do NOT recite as a checklist): ${ctx.topicsWorkingOn.join("; ") || "(none yet)"}
 - Long-term challenges: ${ctx.longTermChallenges.join("; ") || "(not set)"}
 - Communication goals: ${ctx.communicationGoals.join("; ") || "(not set)"}
-- Emotional triggers (handle gently): ${ctx.emotionalTriggers.join("; ") || ctx.biggestFears.join("; ") || "(not set)"}
+- Motivators: ${ctx.motivators.join("; ") || "(not set)"}
+- Long-term goal: ${ctx.longTermGoal || ctx.northStar || "(not set)"}
 - Preferred coaching style: ${ctx.preferredCoachingStyle || "warm, curious, unhurried"}
 - Learning style: ${learning}
 - Confidence level (approx): ${ctx.confidenceLevel ?? "unknown"}

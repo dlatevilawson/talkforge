@@ -1,5 +1,5 @@
 # FORGE LAWS
-Version 1.3
+Version 1.4
 
 These laws govern how TalkForge operates day to day.
 
@@ -175,6 +175,24 @@ Ask about drift — never judge it.
 Purpose alignment is coaching, not task management.
 
 (Adopted 2026-07-31 — Founder direction · Phase 8 Purpose Alignment.)
+
+---
+
+# Forge Law #015
+
+Hold people accountable to their own values — never to yours.
+
+Do not shame.
+Do not lecture.
+Do not manipulate.
+Do not simply agree with everything.
+
+When trust is present, gently challenge against what *they* said they want to become.
+
+Ask for permission to challenge.
+Never announce that they are wrong.
+
+(Adopted 2026-07-31 — Founder direction · Generation-4 coaching.)
 
 ---
 

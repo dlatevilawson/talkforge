@@ -1,6 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { buildCoachPromptContext, emptyCoachMemory } from "@/lib/coach/memory";
-import { buildPurposePromptHints } from "@/lib/coach/purpose";
 import type {
   CoachMemory,
   CoachPromptContext,
@@ -88,6 +87,13 @@ function mapMemory(row: Record<string, unknown>): CoachMemory {
     biggestStrength: String(row.biggest_strength ?? ""),
     speakingHabits: asStringArray(row.speaking_habits),
     emotionalTriggers: asStringArray(row.emotional_triggers),
+    communicationStrengths: asStringArray(row.communication_strengths),
+    growthAreas: asStringArray(row.growth_areas),
+    motivators: asStringArray(row.motivators),
+    knownPatterns: asStringArray(row.known_patterns),
+    emotionalNotes: asStringArray(row.emotional_notes),
+    longTermGoal: String(row.long_term_goal ?? ""),
+    lastSessionInsight: String(row.last_session_insight ?? ""),
     northStar: String(row.north_star ?? ""),
     lifeVision: String(row.life_vision ?? ""),
     personTheyWantToBecome: String(row.person_they_want_to_become ?? ""),
@@ -155,6 +161,9 @@ function mapReport(row: Record<string, unknown>): SessionReport {
     biggestWeakness: String(row.biggest_weakness ?? ""),
     homework: String(row.homework ?? ""),
     coachSummary: String(row.coach_summary ?? ""),
+    sessionInsight: String(row.session_insight ?? ""),
+    emotionalNote: String(row.emotional_note ?? ""),
+    patternNoticed: String(row.pattern_noticed ?? ""),
     transcript,
     createdAt: String(row.created_at ?? new Date().toISOString()),
     scenarioTitle:
@@ -198,7 +207,6 @@ export async function loadCoachPromptContextForUser(
       memory.displayName;
     if (display) memory = { ...memory, displayName: display };
 
-    // If memory table missing / empty, synthesize from completed sessions.
     if (!memoryRow && (!reportRows || reportRows.length === 0)) {
       const { data: sessions } = await supabase
         .from("practice_sessions")
@@ -257,18 +265,22 @@ export async function touchPurposeFollowUpsForUser(
     const reports = (reportRows ?? []).map((row) =>
       mapReport(row as Record<string, unknown>)
     );
-    const hints = buildPurposePromptHints(memory, reports);
+    // Only advance the overlay that actually won the welcome — avoid burning
+    // vision checks when a commitment follow-up opened the session instead.
+    const kind = buildCoachPromptContext(memory, reports).purposeOpeningKind;
     const now = new Date().toISOString();
     let changed = false;
     let next = { ...memory };
 
-    if (hints.visionCheck) {
+    if (kind === "vision") {
       next = { ...next, lastVisionCheckAt: now };
       changed = true;
     }
-    if (hints.commitmentFollowUp && next.commitments.length > 0) {
-      const openIdx = next.commitments.findIndex((c) => c.status === "open");
-      if (openIdx >= 0 && !next.commitments[openIdx].followedUpAt) {
+    if (kind === "commitment" && next.commitments.length > 0) {
+      const openIdx = next.commitments.findIndex(
+        (c) => c.status === "open" && !c.followedUpAt
+      );
+      if (openIdx >= 0) {
         const commitments = [...next.commitments];
         commitments[openIdx] = {
           ...commitments[openIdx],

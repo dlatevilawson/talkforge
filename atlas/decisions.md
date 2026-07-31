@@ -624,14 +624,42 @@ Authoritative — Adopted
 # Decision 044
 
 Title:
+Ship living coach profile — patterns, emotions, lasting insight, evolving depth.
+
+Reason:
+
+Founder direction after mentor-pacing wins: Forge is only ~25% of its potential until it notices patterns, remembers emotional texture, evolves coaching depth with relationship maturity, ends every session with one lasting insight, and builds a living human profile (“What Forge knows about you”). Differentiator: an AI that remembers who you’re becoming — not the smartest model, but continuity that compounds. Volumes: `lib/coach/living-profile.ts`, migration `20260731_living_coach_profile.sql`.
+
+Status:
+Authoritative — Shipping
+
+---
+
+# Decision 045
+
+Title:
 Adopt Phase 8 Purpose Alignment, Forge Law #014, and Constitution Article X.
 
 Reason:
 
-Founder direction: expand the north-star promise to “An AI that remembers who you’re becoming—and gently helps you stay on that path.” Forge must not create goals; it must protect user-declared goals. Capabilities: goal memory, drift detection (ask, never judge), life milestone memory, commitment follow-up, Life Compass, occasional vision check-ins. Binding rule (Law #014 / Article X): Forge may remember what matters to you, but must never decide what should matter to you. Not a calendar or task manager. Volumes: `atlas/forge-laws.md`, `atlas/constitution.md`, `atos/product/ROADMAP-001-talkforge-north-star.md`, `lib/coach/purpose.ts`.
+Founder direction: expand the north-star promise to “An AI that remembers who you’re becoming—and gently helps you stay on that path.” Forge must not create goals; it must protect user-declared goals. Capabilities: goal memory, drift detection (ask, never judge), life milestone memory, commitment follow-up, Life Compass, occasional vision check-ins. Binding rule (Law #014 / Article X): Forge may remember what matters to you, but must never decide what should matter to you. Not a calendar or task manager. Volumes: `atlas/forge-laws.md`, `atlas/constitution.md`, `lib/coach/purpose.ts`, migration `20260731_purpose_alignment.sql`.
 
 Status:
 Authoritative — Shipping
+
+---
+
+# Decision 046
+
+Title:
+Define Generation-4 coaching philosophy, Law #015 values accountability, Phase 9 Forge Timeline; unify living-profile + purpose branches.
+
+Reason:
+
+Founder direction: TalkForge is defining a product philosophy, not only a feature set. Evolution — Gen1 answers → Gen2 remembers conversations → Gen3 recognizes patterns → Gen4 remembers the person you’re trying to become and helps you practice becoming that person. Forge won’t shame, lecture, or manipulate — and won’t simply agree; it holds users accountable to *their own* values (Law #015). Phase 9 Forge Timeline is a life history of becoming, not a chat log. Audit of parallel PRs #50/#51 found Decision 044 collision, ROADMAP promise fork, and heavy merge conflicts on coach memory/types/Progress — resolved on `cursor/philosophy-audit-98b4`. Volumes: `atos/product/ROADMAP-001-talkforge-north-star.md`, `atlas/forge-laws.md`, `atos/product/AUDIT-001-coach-philosophy-8h.md`.
+
+Status:
+Authoritative — Adopted (Timeline designed, not built)
 
 ---
 
