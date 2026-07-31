@@ -160,6 +160,29 @@ export function buildAdaptiveInsight(reports: SessionReport[]): string | null {
     return `I've noticed you sounding steadier lately — more grounded than when we started.`;
   }
 
+  // Storytelling / personal-memory pattern — human-mentor noticing
+  const storyRich = recent.filter((r) => {
+    const text = `${r.breakthrough} ${r.sessionInsight} ${r.patternNoticed} ${r.emotionalNote}`.toLowerCase();
+    return (
+      (typeof r.storytelling === "number" && r.storytelling >= 68) ||
+      text.includes("stor") ||
+      text.includes("memory") ||
+      text.includes("personal") ||
+      text.includes("childhood")
+    );
+  }).length;
+  if (storyRich >= 2) {
+    return `I've noticed something — when we move into a personal memory, you slow down. Your language gets richer. That might be closer to your natural voice.`;
+  }
+
+  // Carry forward a recent pattern_noticed if present
+  const latestPattern = [...sorted]
+    .reverse()
+    .find((r) => r.patternNoticed?.trim())?.patternNoticed;
+  if (latestPattern) {
+    return `I've noticed something — ${latestPattern}`;
+  }
+
   // Scenario avoidance signal
   const titles = sorted.map((r) => (r.scenarioTitle ?? "").toLowerCase());
   const presentationHeavy = titles.filter(

@@ -81,6 +81,9 @@ create table if not exists public.session_reports (
   biggest_weakness text not null default '',
   homework text not null default '',
   coach_summary text not null default '',
+  session_insight text not null default '',
+  emotional_note text not null default '',
+  pattern_noticed text not null default '',
   transcript jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now()
 );
@@ -105,6 +108,13 @@ create table if not exists public.coach_memory (
   biggest_strength text not null default '',
   speaking_habits text[] not null default '{}',
   emotional_triggers text[] not null default '{}',
+  communication_strengths text[] not null default '{}',
+  growth_areas text[] not null default '{}',
+  motivators text[] not null default '{}',
+  known_patterns text[] not null default '{}',
+  emotional_notes text[] not null default '{}',
+  long_term_goal text not null default '',
+  last_session_insight text not null default '',
   favorite_scenarios text[] not null default '{}',
   past_exercises text[] not null default '{}',
   notes jsonb not null default '{}'::jsonb,

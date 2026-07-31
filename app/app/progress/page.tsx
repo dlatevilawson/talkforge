@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
+  buildLivingCoachProfile,
+  type LivingCoachProfile,
+} from "@/lib/coach/living-profile";
+import {
+  getCoachMemory,
   getGrowthSummary,
   getProgressSummary,
   getUser,
@@ -61,6 +66,7 @@ export default function ProgressPage() {
     lastScenarioTitle: null,
   });
   const [growth, setGrowth] = useState<GrowthSummary | null>(null);
+  const [living, setLiving] = useState<LivingCoachProfile | null>(null);
   const [reports, setReports] = useState<SessionReport[]>([]);
   const [sessions, setSessions] = useState<PracticeSession[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,12 +87,13 @@ export default function ProgressPage() {
           return;
         }
 
-        const [summary, growthSummary, sessionReports, allSessions] =
+        const [summary, growthSummary, sessionReports, allSessions, memory] =
           await Promise.all([
             getProgressSummary(user.id),
             getGrowthSummary(user.id),
             listSessionReports(user.id),
             listSessions(user.id),
+            getCoachMemory(user.id).catch(() => null),
           ]);
 
         if (cancelled) return;
@@ -94,6 +101,7 @@ export default function ProgressPage() {
         setGrowth(growthSummary);
         setReports(sessionReports);
         setSessions(allSessions.filter((session) => session.completedAt));
+        setLiving(buildLivingCoachProfile(memory, sessionReports));
       } catch (err) {
         if (!cancelled) {
           setError(
@@ -169,10 +177,62 @@ export default function ProgressPage() {
           {growth?.adaptiveInsight ? (
             <section className="mt-8 rounded-2xl border border-sky-400/20 bg-sky-500/10 px-5 py-5">
               <p className="text-xs uppercase tracking-[0.2em] text-sky-200/70">
-                Coach insight
+                Pattern Forge noticed
               </p>
               <p className="mt-2 text-base leading-7 text-zinc-100">
                 {growth.adaptiveInsight}
+              </p>
+            </section>
+          ) : null}
+
+          {living && living.sessionsCompleted > 0 ? (
+            <section className="mt-10 rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
+              <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+                What Forge knows about you
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">
+                Not a profile page — a living coach view
+              </h2>
+              <p className="mt-2 text-sm text-zinc-500">{living.relationshipLine}</p>
+
+              {living.lastSessionInsight ? (
+                <p className="mt-5 rounded-xl border border-sky-400/20 bg-sky-500/10 px-4 py-3 text-sm leading-6 text-zinc-100">
+                  Last insight: {living.lastSessionInsight}
+                </p>
+              ) : null}
+
+              <div className="mt-6 grid gap-6 sm:grid-cols-2">
+                <ProfileList title="Communication strengths" items={living.strengths} />
+                <ProfileList title="Growth areas" items={living.growthAreas} />
+                <ProfileList title="Known patterns" items={living.knownPatterns} />
+                <ProfileList title="Emotional notes" items={living.emotionalNotes} />
+                <ProfileList title="Motivators" items={living.motivators} />
+                <div>
+                  <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">
+                    Preferred coaching style
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-zinc-300">
+                    {living.preferredCoachingStyle}
+                    {living.learningStyle ? ` · ${living.learningStyle}` : ""}
+                  </p>
+                  {living.longTermGoal ? (
+                    <>
+                      <p className="mt-4 text-xs uppercase tracking-[0.16em] text-zinc-500">
+                        Long-term goal
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-zinc-300">
+                        {living.longTermGoal}
+                      </p>
+                    </>
+                  ) : null}
+                </div>
+              </div>
+              <p className="mt-6 text-xs text-zinc-600">
+                Edit nickname, goals, and coaching preferences in{" "}
+                <Link href="/app/settings" className="text-zinc-400 underline">
+                  Settings
+                </Link>
+                .
               </p>
             </section>
           ) : null}
@@ -303,6 +363,9 @@ export default function ProgressPage() {
                       biggestWeakness: "",
                       homework: "",
                       coachSummary: "",
+                      sessionInsight: "",
+                      emotionalNote: "",
+                      patternNoticed: "",
                       transcript: [],
                       createdAt: session.completedAt ?? session.startedAt,
                       scenarioTitle: session.scenarioTitle,
@@ -372,6 +435,18 @@ export default function ProgressPage() {
                           />
                         </div>
 
+                        {report.sessionInsight ? (
+                          <Block
+                            title="Lasting insight"
+                            body={report.sessionInsight}
+                          />
+                        ) : null}
+                        {report.patternNoticed ? (
+                          <Block title="Pattern noticed" body={report.patternNoticed} />
+                        ) : null}
+                        {report.emotionalNote ? (
+                          <Block title="Emotional note" body={report.emotionalNote} />
+                        ) : null}
                         {report.coachSummary ? (
                           <Block title="Coach summary" body={report.coachSummary} />
                         ) : null}
@@ -465,6 +540,23 @@ function Block({ title, body }: { title: string; body: string }) {
         {title}
       </p>
       <p className="mt-2 text-sm leading-6 text-zinc-300">{body}</p>
+    </div>
+  );
+}
+
+function ProfileList({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div>
+      <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">{title}</p>
+      {items.length === 0 ? (
+        <p className="mt-2 text-sm text-zinc-600">Still learning this…</p>
+      ) : (
+        <ul className="mt-2 space-y-1.5 text-sm leading-6 text-zinc-300">
+          {items.map((item) => (
+            <li key={item}>· {item}</li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

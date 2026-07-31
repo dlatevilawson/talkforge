@@ -98,6 +98,9 @@ function mapSessionReport(row: {
   biggest_weakness: string;
   homework: string;
   coach_summary: string;
+  session_insight?: string | null;
+  emotional_note?: string | null;
+  pattern_noticed?: string | null;
   transcript: SessionReport["transcript"] | null;
   created_at: string;
   scenario_title?: string | null;
@@ -125,6 +128,9 @@ function mapSessionReport(row: {
     biggestWeakness: row.biggest_weakness ?? "",
     homework: row.homework ?? "",
     coachSummary: row.coach_summary ?? "",
+    sessionInsight: row.session_insight ?? "",
+    emotionalNote: row.emotional_note ?? "",
+    patternNoticed: row.pattern_noticed ?? "",
     transcript: Array.isArray(row.transcript) ? row.transcript : [],
     createdAt: row.created_at,
     scenarioTitle: row.scenario_title ?? undefined,
@@ -149,6 +155,13 @@ function mapCoachMemory(row: {
   biggest_strength?: string | null;
   speaking_habits: string[] | null;
   emotional_triggers?: string[] | null;
+  communication_strengths?: string[] | null;
+  growth_areas?: string[] | null;
+  motivators?: string[] | null;
+  known_patterns?: string[] | null;
+  emotional_notes?: string[] | null;
+  long_term_goal?: string | null;
+  last_session_insight?: string | null;
   favorite_scenarios: string[] | null;
   past_exercises: string[] | null;
   notes: Record<string, unknown> | null;
@@ -184,6 +197,13 @@ function mapCoachMemory(row: {
     biggestStrength: row.biggest_strength ?? "",
     speakingHabits: row.speaking_habits ?? [],
     emotionalTriggers: row.emotional_triggers ?? [],
+    communicationStrengths: row.communication_strengths ?? [],
+    growthAreas: row.growth_areas ?? [],
+    motivators: row.motivators ?? [],
+    knownPatterns: row.known_patterns ?? [],
+    emotionalNotes: row.emotional_notes ?? [],
+    longTermGoal: row.long_term_goal ?? "",
+    lastSessionInsight: row.last_session_insight ?? "",
     favoriteScenarios: row.favorite_scenarios ?? [],
     pastExercises: row.past_exercises ?? [],
     notes: row.notes ?? {},
@@ -419,7 +439,7 @@ export async function countCompletedSessions(userId: string): Promise<number> {
 
 export async function saveSessionReport(report: SessionReport): Promise<void> {
   const supabase = requireSupabase();
-  const { error } = await supabase.from("session_reports").upsert({
+  const payload = {
     session_id: report.sessionId,
     user_id: report.userId,
     session_number: report.sessionNumber,
@@ -440,11 +460,35 @@ export async function saveSessionReport(report: SessionReport): Promise<void> {
     biggest_weakness: report.biggestWeakness,
     homework: report.homework,
     coach_summary: report.coachSummary,
+    session_insight: report.sessionInsight,
+    emotional_note: report.emotionalNote,
+    pattern_noticed: report.patternNoticed,
     transcript: report.transcript,
     created_at: report.createdAt,
-  });
+  };
+  const { error } = await supabase.from("session_reports").upsert(payload);
 
   if (error) {
+    if (
+      error.message.includes("session_insight") ||
+      error.message.includes("emotional_note") ||
+      error.message.includes("pattern_noticed")
+    ) {
+      const {
+        session_insight: _i,
+        emotional_note: _e,
+        pattern_noticed: _p,
+        ...legacy
+      } = payload;
+      void _i;
+      void _e;
+      void _p;
+      const retry = await supabase.from("session_reports").upsert(legacy);
+      if (retry.error) {
+        console.warn("[coach] session_reports legacy save:", retry.error.message);
+      }
+      return;
+    }
     // Soft-fail before migration is applied — session row still saved.
     if (
       error.message.includes("session_reports") ||
@@ -574,6 +618,13 @@ export async function saveCoachMemory(memory: CoachMemory): Promise<void> {
     biggest_strength: memory.biggestStrength,
     speaking_habits: memory.speakingHabits,
     emotional_triggers: memory.emotionalTriggers,
+    communication_strengths: memory.communicationStrengths,
+    growth_areas: memory.growthAreas,
+    motivators: memory.motivators,
+    known_patterns: memory.knownPatterns,
+    emotional_notes: memory.emotionalNotes,
+    long_term_goal: memory.longTermGoal,
+    last_session_insight: memory.lastSessionInsight,
     favorite_scenarios: memory.favoriteScenarios,
     past_exercises: memory.pastExercises,
     notes: memory.notes,
@@ -588,14 +639,21 @@ export async function saveCoachMemory(memory: CoachMemory): Promise<void> {
   const { error } = await supabase.from("coach_memory").upsert(payload);
 
   if (error) {
-    // Soft-fallback if Phase 1 columns not migrated yet
+    // Soft-fallback if newer columns not migrated yet
     if (
       error.message.includes("preferred_nickname") ||
       error.message.includes("long_term_challenges") ||
       error.message.includes("learning_style") ||
       error.message.includes("biggest_strength") ||
       error.message.includes("emotional_triggers") ||
-      error.message.includes("last_session_at")
+      error.message.includes("last_session_at") ||
+      error.message.includes("communication_strengths") ||
+      error.message.includes("growth_areas") ||
+      error.message.includes("motivators") ||
+      error.message.includes("known_patterns") ||
+      error.message.includes("emotional_notes") ||
+      error.message.includes("long_term_goal") ||
+      error.message.includes("last_session_insight")
     ) {
       const legacy = {
         user_id: payload.user_id,
@@ -664,6 +722,9 @@ export async function getGrowthSummary(userId: string): Promise<GrowthSummary> {
     biggestWeakness: "",
     homework: "",
     coachSummary: "",
+    sessionInsight: "",
+    emotionalNote: "",
+    patternNoticed: "",
     transcript: [],
     createdAt: session.completedAt ?? session.startedAt,
     scenarioTitle: session.scenarioTitle,

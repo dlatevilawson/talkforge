@@ -20,6 +20,9 @@ export type MomentumLike = {
   biggestWeakness?: string;
   homework?: string;
   coachSummary?: string;
+  sessionInsight?: string;
+  emotionalNote?: string;
+  patternNoticed?: string;
 };
 
 function userTextsFromTurns(turns: ConversationTurn[]): string[] {
@@ -105,6 +108,12 @@ export function buildSessionReport(input: {
     [breakthrough, `Focus next: ${biggestWeakness}`, `Homework: ${homework}`]
       .filter(Boolean)
       .join(" ");
+  const sessionInsight =
+    momentum?.sessionInsight?.trim() ||
+    breakthrough ||
+    "You showed up and practiced.";
+  const emotionalNote = momentum?.emotionalNote?.trim() || "";
+  const patternNoticed = momentum?.patternNoticed?.trim() || "";
 
   const started = Date.parse(session.startedAt);
   const ended = Date.parse(
@@ -137,6 +146,9 @@ export function buildSessionReport(input: {
     biggestWeakness,
     homework,
     coachSummary,
+    sessionInsight,
+    emotionalNote,
+    patternNoticed,
     transcript: transcriptFromTurns(turns),
     createdAt: new Date().toISOString(),
     scenarioTitle: session.scenarioTitle,

@@ -18,6 +18,9 @@ export type SessionMomentum = {
   biggestWeakness: string;
   homework: string;
   coachSummary: string;
+  sessionInsight: string;
+  emotionalNote: string;
+  patternNoticed: string;
   overallScore: number;
   confidence: number;
   empathy: number;
@@ -83,6 +86,9 @@ function fallbackMomentum(
       homework: "Speak one complete opening line out loud before your next conversation.",
       coachSummary:
         "Short session. Showing up mattered. Next time we’ll sit with one real thought together.",
+      sessionInsight: "Today you showed up — that is the beginning of every real change.",
+      emotionalNote: "",
+      patternNoticed: "",
       ...scores,
       overallScore: 55,
       confidence: 58,
@@ -93,6 +99,9 @@ function fallbackMomentum(
   }
 
   const name = firstName && firstName !== "there" ? firstName : "You";
+  const personal = userTexts.some((t) =>
+    /\b(i|my|when i|remember|childhood|family|moved|grew up)\b/i.test(t)
+  );
   return {
     strength: `${name} practiced out loud instead of only thinking it through.`,
     improve:
@@ -104,6 +113,15 @@ function fallbackMomentum(
     homework: "Open your next real conversation with one crisp point.",
     coachSummary:
       "Good rep. You spoke. Next time we can slow the opening and find the line that feels like you.",
+    sessionInsight: personal
+      ? "Today you trusted a personal memory enough to speak it out loud."
+      : "Today you practiced out loud instead of only rehearsing in your head.",
+    emotionalNote: personal
+      ? "Personal memory seemed to open something — stay gentle there."
+      : "",
+    patternNoticed: personal
+      ? "Voice softens and details get richer when a personal story appears."
+      : "",
     ...scores,
   };
 }
@@ -166,15 +184,26 @@ Create a permanent session wrap that sounds like someone who was paying attentio
 Member context:
 - Name: ${memory.firstName}
 - Sessions completed before today: ${memory.sessionsCompleted}
-- Patterns noticed: ${memory.speakingHabits.join("; ") || "none yet"}
+- Coaching maturity: ${memory.coachingMaturity}
+- Known patterns: ${memory.knownPatterns.join("; ") || memory.speakingHabits.join("; ") || "none yet"}
+- Emotional notes so far: ${memory.emotionalNotes.join("; ") || "none yet"}
+- Last lasting insight: ${memory.lastSessionInsight || "none"}
 - Pattern insight: ${memory.adaptiveInsight ?? "none"}
+
+Most important fields:
+1) sessionInsight — ONE lasting sentence they might remember years later.
+   Not a score. Not "good job." Something noticed about them.
+   Examples: "Today you trusted your own memories more than last time."
+   "Today you answered faster, but you reflected less."
+   "You didn't become more articulate today — you became more honest."
+2) patternNoticed — one behavioral/emotional pattern from THIS transcript (or empty).
+3) emotionalNote — soft emotional read if present (uncertain, opened up, tense) — never a diagnosis.
 
 Rules:
 - Honor courage first with evidence — never empty praise.
 - Celebrate one small win before naming a focus.
-- Phrase improvement as an invitation ("would something like this…") not a command ("try this").
-- coachSummary should sound like a mentor noticing a pattern in 2–3 short sentences.
-- Never shame. Never diagnose identity. Behaviors only.
+- Phrase improvement as an invitation, not a command.
+- Never invent numbers or facts not in the transcript.
 - Score dimensions 1–100 from transcript evidence only.
 - Optimize for transfer outside the app.
 
@@ -187,11 +216,14 @@ Return ONLY valid JSON:
 {
   "strength": "one evidenced strength (1–2 short sentences)",
   "improve": "one invited improvement (1 sentence, not a command)",
-  "nextAction": "one real-world next step that feels owned by them (1–2 sentences)",
+  "nextAction": "one real-world next step (1–2 sentences)",
   "breakthrough": "today's breakthrough in one short sentence",
   "biggestWeakness": "focus area in one short, kind sentence",
   "homework": "one homework action for the real world",
-  "coachSummary": "2–3 short mentor sentences — noticed pattern + warm close",
+  "coachSummary": "2–3 short mentor sentences",
+  "sessionInsight": "ONE lasting sentence about what you genuinely noticed",
+  "emotionalNote": "soft emotional note or empty string",
+  "patternNoticed": "one pattern noticed or empty string",
   "overallScore": 72,
   "confidence": 70,
   "empathy": 68,
@@ -220,6 +252,8 @@ Return ONLY valid JSON:
       );
     }
 
+    const fallback = fallbackMomentum(hasUserSpeech, userTexts, memory.firstName);
+
     return NextResponse.json({
       strength: parsed.strength.trim(),
       improve: parsed.improve.trim(),
@@ -240,6 +274,18 @@ Return ONLY valid JSON:
         typeof parsed.coachSummary === "string"
           ? parsed.coachSummary.trim()
           : `${parsed.strength.trim()} Focus: ${parsed.improve.trim()}`,
+      sessionInsight:
+        typeof parsed.sessionInsight === "string" && parsed.sessionInsight.trim()
+          ? parsed.sessionInsight.trim()
+          : fallback.sessionInsight,
+      emotionalNote:
+        typeof parsed.emotionalNote === "string"
+          ? parsed.emotionalNote.trim()
+          : "",
+      patternNoticed:
+        typeof parsed.patternNoticed === "string"
+          ? parsed.patternNoticed.trim()
+          : "",
       overallScore:
         clampScore(parsed.overallScore) ?? scores.overallScore,
       confidence: clampScore(parsed.confidence) ?? scores.confidence,

@@ -19,44 +19,37 @@ function asLearningStyle(value: unknown): LearningStyle {
   return "";
 }
 
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? (value as string[]) : [];
+}
+
 function mapMemory(row: Record<string, unknown>): CoachMemory {
   return {
     userId: String(row.user_id),
     displayName: String(row.display_name ?? ""),
     preferredNickname: String(row.preferred_nickname ?? ""),
     occupation: String(row.occupation ?? ""),
-    communicationGoals: Array.isArray(row.communication_goals)
-      ? (row.communication_goals as string[])
-      : [],
-    longTermChallenges: Array.isArray(row.long_term_challenges)
-      ? (row.long_term_challenges as string[])
-      : [],
-    biggestFears: Array.isArray(row.biggest_fears)
-      ? (row.biggest_fears as string[])
-      : [],
-    recentWins: Array.isArray(row.recent_wins)
-      ? (row.recent_wins as string[])
-      : [],
-    topicsWorkingOn: Array.isArray(row.topics_working_on)
-      ? (row.topics_working_on as string[])
-      : [],
+    communicationGoals: asStringArray(row.communication_goals),
+    longTermChallenges: asStringArray(row.long_term_challenges),
+    biggestFears: asStringArray(row.biggest_fears),
+    recentWins: asStringArray(row.recent_wins),
+    topicsWorkingOn: asStringArray(row.topics_working_on),
     preferredCoachingStyle: String(row.preferred_coaching_style ?? ""),
     learningStyle: asLearningStyle(row.learning_style),
     confidenceLevel:
       typeof row.confidence_level === "number" ? row.confidence_level : null,
     biggestStrength: String(row.biggest_strength ?? ""),
-    speakingHabits: Array.isArray(row.speaking_habits)
-      ? (row.speaking_habits as string[])
-      : [],
-    emotionalTriggers: Array.isArray(row.emotional_triggers)
-      ? (row.emotional_triggers as string[])
-      : [],
-    favoriteScenarios: Array.isArray(row.favorite_scenarios)
-      ? (row.favorite_scenarios as string[])
-      : [],
-    pastExercises: Array.isArray(row.past_exercises)
-      ? (row.past_exercises as string[])
-      : [],
+    speakingHabits: asStringArray(row.speaking_habits),
+    emotionalTriggers: asStringArray(row.emotional_triggers),
+    communicationStrengths: asStringArray(row.communication_strengths),
+    growthAreas: asStringArray(row.growth_areas),
+    motivators: asStringArray(row.motivators),
+    knownPatterns: asStringArray(row.known_patterns),
+    emotionalNotes: asStringArray(row.emotional_notes),
+    longTermGoal: String(row.long_term_goal ?? ""),
+    lastSessionInsight: String(row.last_session_insight ?? ""),
+    favoriteScenarios: asStringArray(row.favorite_scenarios),
+    pastExercises: asStringArray(row.past_exercises),
     notes:
       row.notes && typeof row.notes === "object"
         ? (row.notes as Record<string, unknown>)
@@ -105,6 +98,9 @@ function mapReport(row: Record<string, unknown>): SessionReport {
     biggestWeakness: String(row.biggest_weakness ?? ""),
     homework: String(row.homework ?? ""),
     coachSummary: String(row.coach_summary ?? ""),
+    sessionInsight: String(row.session_insight ?? ""),
+    emotionalNote: String(row.emotional_note ?? ""),
+    patternNoticed: String(row.pattern_noticed ?? ""),
     transcript,
     createdAt: String(row.created_at ?? new Date().toISOString()),
     scenarioTitle:
@@ -148,7 +144,6 @@ export async function loadCoachPromptContextForUser(
       memory.displayName;
     if (display) memory = { ...memory, displayName: display };
 
-    // If memory table missing / empty, synthesize from completed sessions.
     if (!memoryRow && (!reportRows || reportRows.length === 0)) {
       const { data: sessions } = await supabase
         .from("practice_sessions")

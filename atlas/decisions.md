@@ -621,6 +621,20 @@ Authoritative — Adopted
 
 ---
 
+# Decision 044
+
+Title:
+Ship living coach profile — patterns, emotions, lasting insight, evolving depth.
+
+Reason:
+
+Founder direction after mentor-pacing wins: Forge is only ~25% of its potential until it notices patterns, remembers emotional texture, evolves coaching depth with relationship maturity, ends every session with one lasting insight, and builds a living human profile (“What Forge knows about you”). Differentiator: an AI that remembers who you’re becoming — not the smartest model, but continuity that compounds. Volumes: `lib/coach/living-profile.ts`, `atos/product/ROADMAP-001-talkforge-north-star.md`, migration `20260731_living_coach_profile.sql`.
+
+Status:
+Authoritative — Shipping
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

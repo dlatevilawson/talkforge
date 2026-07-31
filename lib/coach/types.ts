@@ -20,6 +20,12 @@ export type SessionReport = {
   biggestWeakness: string;
   homework: string;
   coachSummary: string;
+  /** One lasting sentence people remember years later */
+  sessionInsight: string;
+  /** Soft emotional read from this session (not a diagnosis) */
+  emotionalNote: string;
+  /** One pattern Forge noticed this session */
+  patternNoticed: string;
   transcript: Array<{ role: "user" | "coach"; text: string }>;
   createdAt: string;
   /** Joined from practice_sessions when available */
@@ -52,6 +58,13 @@ export type CoachMemory = {
   biggestStrength: string;
   speakingHabits: string[];
   emotionalTriggers: string[];
+  communicationStrengths: string[];
+  growthAreas: string[];
+  motivators: string[];
+  knownPatterns: string[];
+  emotionalNotes: string[];
+  longTermGoal: string;
+  lastSessionInsight: string;
   favoriteScenarios: string[];
   pastExercises: string[];
   notes: Record<string, unknown>;
@@ -98,15 +111,21 @@ export type CoachPromptContext = {
   nickname: string;
   isReturning: boolean;
   sessionsCompleted: number;
+  coachingMaturity: "new" | "familiar" | "deep";
   lastScenarioTitle: string;
   lastSessionSummary: string;
   lastSessionAt: string | null;
+  lastSessionInsight: string;
   recentWins: string[];
   topicsWorkingOn: string[];
   communicationGoals: string[];
   longTermChallenges: string[];
   biggestFears: string[];
   emotionalTriggers: string[];
+  emotionalNotes: string[];
+  knownPatterns: string[];
+  motivators: string[];
+  longTermGoal: string;
   preferredCoachingStyle: string;
   learningStyle: LearningStyle;
   confidenceLevel: number | null;

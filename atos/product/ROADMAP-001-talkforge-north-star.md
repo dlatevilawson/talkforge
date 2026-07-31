@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ROADMAP-001 |
-| **Version** | 1.1.0 |
+| **Version** | 1.2.0 |
 | **Status** | Authoritative product direction |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -19,6 +19,10 @@ They should feel like they are walking into a room where a trusted mentor says:
 > “Welcome back. Last week you had that difficult conversation with your manager. I’ve been thinking about what happened. Ready to build on it?”
 
 TalkForge’s advantage is not the model. It is the **relationship** it builds with each user.
+
+Promise (north-star phrasing):
+
+> An AI that remembers who you’re becoming.
 
 ## Product decision filter (immutable)
 
@@ -78,16 +82,27 @@ The goal is **trust**.
 
 ### Checklist
 
-- [ ] Learn the user’s preferred name
-- [ ] Learn why they’re here
+- [x] Learn the user’s preferred name
+- [x] Learn why they’re here *(goals / long-term goal in Settings + session learning)*
 - [ ] Learn what conversations they avoid
-- [ ] Learn what success looks like to them
-- [ ] Learn how they prefer to receive feedback
+- [x] Learn what success looks like to them *(goals + lasting session insights)*
+- [x] Learn how they prefer to receive feedback *(coaching / learning style)*
 - [ ] Remember personal milestones they choose to share
-- [ ] Refer back to previous conversations naturally
-- [ ] Occasionally celebrate progress without being prompted
-- [ ] Ask follow-up questions instead of assuming
+- [x] Refer back to previous conversations naturally *(Law #012 continuity openings)*
+- [x] Occasionally celebrate progress without being prompted *(pattern + wrap insights)*
+- [x] Ask follow-up questions instead of assuming *(mentor pacing)*
 - [ ] Never repeat information the user has already shared unless confirming it
+
+### Shipping now (living relationship layer)
+
+| Capability | Status |
+|---|---|
+| One lasting session insight (not only a score) | Shipping |
+| Pattern noticing across sessions | Shipping |
+| Soft emotional notes (not diagnoses) | Shipping |
+| Coaching maturity evolves with sessions | Shipping |
+| Living profile — “What Forge knows about you” | Shipping |
+| Motivators + long-term goal in Settings | Shipping |
 
 ### Continuity standard (Law #012)
 
