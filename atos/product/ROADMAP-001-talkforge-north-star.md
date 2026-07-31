@@ -3,11 +3,12 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ROADMAP-001 |
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Status** | Authoritative product direction |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
-| **Updated** | 2026-07-30 |
+| **Updated** | 2026-07-31 |
+| **Binding laws** | Forge Laws #012 · #013 (`atlas/forge-laws.md`) |
 
 ## North Star
 
@@ -19,6 +20,12 @@ They should feel like they are walking into a room where a trusted mentor says:
 
 TalkForge’s advantage is not the model. It is the **relationship** it builds with each user.
 
+## Product decision filter (immutable)
+
+> **Forge should leave users feeling more understood than evaluated.**
+
+If a feature fails this test, it does not ship.
+
 ## Guiding Principles (Never Break)
 
 1. **Coach before teacher** — Understand before explaining.
@@ -29,61 +36,66 @@ TalkForge’s advantage is not the model. It is the **relationship** it builds w
 6. **Progress over perfection** — Reward consistency.
 7. **Confidence through repetition** — Make practice safe enough to return.
 8. **Remember people, not just sessions** — Every conversation builds on the last.
+9. **Continuity before menus** — Forge Law #012.
+10. **Emotional calibration before intelligence display** — Forge Law #013.
 
 ## Phase map
 
 | Phase | Name | Goal |
 |---|---|---|
 | **1** | Build Trust | Someone finishes one session and immediately wants another |
+| **1.5** | Relationship Building | Memory becomes trust — the user feels known |
 | **2** | Adaptive Conversation Engine | Reusable pressure / emotion / dynamics behaviors (moat) |
 | **3** | Voice First | Phone-call & radio-style practice + live voice metrics |
-| **4** | Growth Intelligence | Weekly/monthly life coaching reports + relationship memory |
+| **4** | Growth Intelligence | Weekly/monthly life coaching + **Relationship Strength** |
 | **5** | Real World Missions | Before / during / after real conversations |
 | **6** | Communication Genome | Discovered personal patterns (hard to copy) |
 | **7** | Communication Twin | Coach that understands how *this* person grows |
 
 ## Phase 1 — Build Trust (MVP → Beta)
 
-### 1. Persistent Identity
+### Exit criteria (binding)
+
+Stay on Phase 1 until a returning member wants another session **because they felt remembered** — not because the UI was clever.
+
+### Capability status
 
 | Capability | Status |
 |---|---|
-| User accounts | Done (AUTH-001 / TIP) |
-| Session history | Done (`practice_sessions` + `session_reports`) |
-| Progress dashboard | Done (`/app/progress`) |
-| Cloud sync | Done (Supabase + RLS) |
-| Remember name | Done |
-| Preferred nickname | Shipping (coach_memory + Settings) |
-| Communication goals | Shipping (editable memory) |
-| Long-term challenges | Shipping (editable memory) |
-| Confidence level | Partial → Shipping (updated from sessions + Settings) |
-| Learning style | Shipping (editable memory) |
+| User accounts / cloud sync | Done |
+| Session history + progress | Done |
+| Mentor pacing / less lecture mode | Done |
+| Name / nickname / goals / challenges | Shipping |
+| Pattern welcome (continuity) | Shipping — Law #012 |
+| Emotional calibration | Shipping — Law #013 |
 
-### 2. Human Conversation Engine
+## Phase 1.5 — Relationship Building
 
-| Capability | Status |
-|---|---|
-| Mentor pacing / ask before teaching | Done (philosophy module) |
-| Shorter responses / reduce lecture mode | Done (prompt constraints) |
-| Encourage more than correct | Done (wrap + philosophy) |
-| Admit uncertainty / humility | Done (prompt constraints) |
-| Detect nervous / frustrated / overwhelmed | Partial (heuristics + short-message path) — deepen in Phase 2 |
-| Adapt tone / depth / challenge automatically | Partial — deepen in Phase 2 Emotion Engine |
+**Inserted before Phase 2.** This is where most AI products fail.
 
-### 3. Permanent Memory
+The goal is not memory.
+The goal is **trust**.
 
-| Capability | Status |
-|---|---|
-| Last session + previous goals | Done |
-| Biggest weakness / strength | Done / Shipping |
-| Recurring habits | Done (speaking_habits + adaptive insights) |
-| Frequently practiced scenarios | Done |
-| Preferred coaching style | Shipping (Settings) |
-| Emotional triggers | Shipping (editable memory) |
-| Relationships user mentions | Phase 4 |
-| Pattern welcome (“Last week you struggled…”) | Shipping |
+### Checklist
 
-**Phase 1 exit criteria:** A returning member hears a mentor who remembers a struggle or pattern — not a generic “Welcome back” — and finishes wanting another session.
+- [ ] Learn the user’s preferred name
+- [ ] Learn why they’re here
+- [ ] Learn what conversations they avoid
+- [ ] Learn what success looks like to them
+- [ ] Learn how they prefer to receive feedback
+- [ ] Remember personal milestones they choose to share
+- [ ] Refer back to previous conversations naturally
+- [ ] Occasionally celebrate progress without being prompted
+- [ ] Ask follow-up questions instead of assuming
+- [ ] Never repeat information the user has already shared unless confirming it
+
+### Continuity standard (Law #012)
+
+Every returning session opens with continuity — goal + observed progress + one open choice — not a blank menu.
+
+### Gate to Phase 2
+
+Do not start Phase 2 engines until Phase 1.5 checklist is felt in production with real members.
 
 ## Phase 2 — Adaptive Conversation Engine (Moat)
 
@@ -101,8 +113,14 @@ Reusable behaviors, not thousands of scripts:
 
 ## Phase 4 — Growth Intelligence
 
-- Weekly review + monthly report (“You interrupted 37% less.”)
-- Relationship memory (Mom, Boss, Spouse, Recruiter…) with follow-ups across months
+Measure what competitors don’t — **Relationship Strength**, not only skill scores:
+
+- “You’ve become more patient during disagreements.”
+- “You interrupt 42% less than six weeks ago.”
+- “You’re asking better follow-up questions.”
+- “You now pause before responding instead of reacting.”
+
+Also: weekly review, monthly report, relationship memory (Mom, Boss, Spouse, Recruiter…) with follow-ups across months.
 
 ## Phase 5 — Real World Missions
 
@@ -118,5 +136,5 @@ Forge understands how this specific person thinks, speaks, persuades, learns, ha
 
 ## Current execution focus
 
-**Stay on Phase 1 until trust is felt in the first two sessions.**  
-Do not start Phase 2 engines until Phase 1 exit criteria are met in production with real members.
+**Phase 1 → Phase 1.5.**  
+Earn trust. Build relationship. Then — and only then — build engines.

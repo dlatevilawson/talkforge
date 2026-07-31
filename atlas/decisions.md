@@ -607,6 +607,20 @@ Authoritative — Implemented on branch; Supabase Site URL + template apply rema
 
 ---
 
+# Decision 043
+
+Title:
+Adopt Forge Laws #012 and #013; insert Phase 1.5 Relationship Building.
+
+Reason:
+
+Founder direction: continuity and emotional calibration are immutable product laws, not roadmap notes. Law #012 — a user should never have to introduce themselves twice; every returning session begins with continuity. Law #013 — optimize for emotional calibration, not sounding intelligent; leave users more understood than evaluated. Phase 1.5 (Relationship Building) is inserted before Phase 2 Adaptive Conversation Engine. Product decision filter binds all features. Volumes: `atlas/forge-laws.md`, `atos/product/ROADMAP-001-talkforge-north-star.md`.
+
+Status:
+Authoritative — Adopted
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

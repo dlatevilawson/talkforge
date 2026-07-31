@@ -123,8 +123,11 @@ function inferHabitFromReport(report: SessionReport): string {
 }
 
 /**
- * Build a short, human welcome hint — struggle/pattern first, never a topic menu.
- * Target feel: "Last week you struggled slowing down during disagreements…"
+ * Forge Law #012 — continuity opening.
+ * Target feel:
+ * "Last week you wanted to become more confident speaking to your manager.
+ *  You slowed your pace, but you still rushed when challenged.
+ *  Want to keep working there, or is there something new on your mind today?"
  */
 export function buildWelcomeHint(input: {
   name: string;
@@ -136,37 +139,49 @@ export function buildWelcomeHint(input: {
   speakingHabit?: string;
   adaptiveInsight?: string | null;
   longTermChallenge?: string;
+  communicationGoal?: string;
 }): string {
   const { name, isReturning } = input;
 
   if (!isReturning) {
-    return `Say hello to ${name === "there" ? "them" : name} warmly. One short sentence that they're safe here — no performance. Ask one simple curious question about what brought them in. Then wait.`;
+    return `Say hello to ${name === "there" ? "them" : name} warmly. One short sentence that they're safe here — no performance. Ask one simple curious question about why they're here. Then wait. Never ask a blank menu of practice topics.`;
   }
 
   const when = relativeSessionPhrase(input.lastSessionAt);
-  const struggle =
-    input.lastStruggle?.trim() ||
+  const goal =
+    input.communicationGoal?.trim() ||
     input.longTermChallenge?.trim() ||
     "";
+  const struggle = input.lastStruggle?.trim() || "";
+  const win = input.recentWin?.trim() || "";
   const pattern =
     input.adaptiveInsight?.trim() ||
     input.speakingHabit?.trim() ||
     "";
 
+  // Full Law #012 shape: goal + progress/struggle + open choice
+  if (goal && (struggle || pattern || win)) {
+    const observed =
+      struggle ||
+      pattern ||
+      (win ? `you made progress: ${win}` : "");
+    return `Forge Law #012 continuity. Welcome back, ${name}. In 3 short sentences, speak like this (adapt to facts — do not invent numbers): "${when} you wanted to work on ${goal}. ${observed}. Want to keep working there, or is there something new on your mind today?" Never ask "What would you like to practice today?" as a blank menu. Then wait.`;
+  }
+
   if (struggle) {
-    return `Welcome back, ${name}. In 2 short sentences say something like: "${when} you were working on ${struggle}. Let's see how that feels today." Do not offer a menu of topics. One curious check-in question if needed. Then wait.`;
+    return `Forge Law #012. Welcome back, ${name}. Continuity: "${when} you were working on ${struggle}. Want to keep going there, or is something else on your mind?" No topic menu. Then wait.`;
   }
 
   if (pattern) {
-    return `Welcome back, ${name}. Gently notice one pattern (${pattern}). Invite them to build on it today — no lecture, no topic menu. 2–3 short sentences. Then wait.`;
+    return `Forge Law #012. Welcome back, ${name}. Gently notice one pattern (${pattern}). Offer one open choice to continue or shift. No lecture. No topic menu. Then wait.`;
   }
 
   const last = input.lastScenarioTitle.trim();
   if (last) {
-    return `Welcome back, ${name}. ${when} you practiced ${last}. One calm sentence of continuity, then one curious question about what's present today. No options list. Then wait.`;
+    return `Forge Law #012. Welcome back, ${name}. ${when} you practiced ${last}. One calm continuity sentence, then: keep going there, or something new on your mind? No blank menu. Then wait.`;
   }
 
-  return `Welcome back, ${name}. One warm sentence that you remember them. Ask one curious question about what's present today. No options list. Then wait.`;
+  return `Forge Law #012. Welcome back, ${name}. One warm sentence that you remember them. Ask whether they want to continue recent work or something new is on their mind. No options list of skills. Then wait.`;
 }
 
 export function buildCoachPromptContext(
@@ -194,6 +209,7 @@ export function buildCoachPromptContext(
     speakingHabit: mem.speakingHabits[0],
     adaptiveInsight,
     longTermChallenge: mem.longTermChallenges[0],
+    communicationGoal: mem.communicationGoals[0],
   });
 
   return {
