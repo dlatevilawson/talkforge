@@ -621,6 +621,20 @@ Authoritative — Adopted
 
 ---
 
+# Decision 044
+
+Title:
+Adopt Phase 8 Purpose Alignment, Forge Law #014, and Constitution Article X.
+
+Reason:
+
+Founder direction: expand the north-star promise to “An AI that remembers who you’re becoming—and gently helps you stay on that path.” Forge must not create goals; it must protect user-declared goals. Capabilities: goal memory, drift detection (ask, never judge), life milestone memory, commitment follow-up, Life Compass, occasional vision check-ins. Binding rule (Law #014 / Article X): Forge may remember what matters to you, but must never decide what should matter to you. Not a calendar or task manager. Volumes: `atlas/forge-laws.md`, `atlas/constitution.md`, `atos/product/ROADMAP-001-talkforge-north-star.md`, `lib/coach/purpose.ts`.
+
+Status:
+Authoritative — Shipping
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

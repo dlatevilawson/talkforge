@@ -35,6 +35,25 @@ export type LearningStyle =
   | "example_first"
   | "challenge_first";
 
+/** User-declared life milestone — never invented by Forge. */
+export type LifeMilestone = {
+  id: string;
+  label: string;
+  date: string | null;
+  note: string;
+};
+
+/** Soft real-world commitment remembered for gentle follow-up. */
+export type LifeCommitment = {
+  id: string;
+  text: string;
+  plannedFor: string | null;
+  status: "open" | "done" | "skipped";
+  createdAt: string;
+  followedUpAt: string | null;
+  source: "user" | "session";
+};
+
 /** Selective relationship memory — only what improves the next conversation. */
 export type CoachMemory = {
   userId: string;
@@ -52,6 +71,21 @@ export type CoachMemory = {
   biggestStrength: string;
   speakingHabits: string[];
   emotionalTriggers: string[];
+  /** Phase 8 — Purpose Alignment (user-declared) */
+  northStar: string;
+  lifeVision: string;
+  personTheyWantToBecome: string;
+  compassRelationships: string;
+  compassLearning: string;
+  compassHealth: string;
+  careerGoals: string[];
+  familyGoals: string[];
+  healthGoals: string[];
+  businessGoals: string[];
+  learningGoals: string[];
+  lifeMilestones: LifeMilestone[];
+  commitments: LifeCommitment[];
+  lastVisionCheckAt: string | null;
   favoriteScenarios: string[];
   pastExercises: string[];
   notes: Record<string, unknown>;
@@ -114,4 +148,9 @@ export type CoachPromptContext = {
   speakingHabits: string[];
   adaptiveInsight: string | null;
   welcomeHint: string;
+  northStar: string;
+  lifeVision: string;
+  personTheyWantToBecome: string;
+  openCommitment: string;
+  purposeBlock: string;
 };

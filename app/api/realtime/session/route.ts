@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
-import { loadCoachPromptContextForUser } from "@/lib/coach/memory-server";
+import {
+  loadCoachPromptContextForUser,
+  touchPurposeFollowUpsForUser,
+} from "@/lib/coach/memory-server";
 import {
   buildClientSecretRequest,
   type CeTrack,
@@ -89,6 +92,9 @@ export async function POST(req: Request) {
       );
     }
 
+    // Soft-advance vision/commitment follow-ups so openings don't loop.
+    void touchPurposeFollowUpsForUser(gate.userId);
+
     return NextResponse.json({
       value: data.value,
       expires_at: data.expires_at,
@@ -103,6 +109,7 @@ export async function POST(req: Request) {
         welcomeHint: memory.welcomeHint,
         adaptiveInsight: memory.adaptiveInsight,
         lastScenarioTitle: memory.lastScenarioTitle,
+        northStar: memory.northStar || null,
       },
     });
   } catch (error) {

@@ -1,4 +1,11 @@
 import { buildAdaptiveInsight } from "@/lib/coach/growth";
+import {
+  buildPurposePromptHints,
+  emptyPurposeFields,
+  extractCommitmentFromReport,
+  formatPurposeMemoryBlock,
+  mergeCommitment,
+} from "@/lib/coach/purpose";
 import type {
   CoachMemory,
   CoachPromptContext,
@@ -23,6 +30,7 @@ export function emptyCoachMemory(userId: string, displayName = ""): CoachMemory 
     biggestStrength: "",
     speakingHabits: [],
     emotionalTriggers: [],
+    ...emptyPurposeFields(),
     favoriteScenarios: [],
     pastExercises: [],
     notes: {},
@@ -76,6 +84,7 @@ export function applyReportToMemory(
   displayName?: string
 ): CoachMemory {
   const scenario = report.scenarioTitle?.trim() || memory.lastScenarioTitle;
+  const extracted = extractCommitmentFromReport(report);
   return {
     ...memory,
     displayName: displayName?.trim() || memory.displayName,
@@ -94,6 +103,7 @@ export function applyReportToMemory(
       inferHabitFromReport(report),
       6
     ),
+    commitments: mergeCommitment(memory.commitments, extracted),
     lastSessionId: report.sessionId,
     lastSessionSummary: report.coachSummary.slice(0, 400),
     lastScenarioTitle: scenario,
@@ -123,11 +133,7 @@ function inferHabitFromReport(report: SessionReport): string {
 }
 
 /**
- * Forge Law #012 — continuity opening.
- * Target feel:
- * "Last week you wanted to become more confident speaking to your manager.
- *  You slowed your pace, but you still rushed when challenged.
- *  Want to keep working there, or is there something new on your mind today?"
+ * Forge Law #012 — continuity opening, with optional Phase 8 purpose overlays.
  */
 export function buildWelcomeHint(input: {
   name: string;
@@ -140,6 +146,12 @@ export function buildWelcomeHint(input: {
   adaptiveInsight?: string | null;
   longTermChallenge?: string;
   communicationGoal?: string;
+  northStar?: string;
+  commitmentFollowUp?: string | null;
+  milestoneFollowUp?: string | null;
+  driftAsk?: string | null;
+  visionCheck?: string | null;
+  purposeOpening?: string | null;
 }): string {
   const { name, isReturning } = input;
 
@@ -147,10 +159,26 @@ export function buildWelcomeHint(input: {
     return `Say hello to ${name === "there" ? "them" : name} warmly. One short sentence that they're safe here — no performance. Ask one simple curious question about why they're here. Then wait. Never ask a blank menu of practice topics.`;
   }
 
+  // Purpose overlays — at most one special ask in the opening
+  if (input.commitmentFollowUp?.trim()) {
+    return `Forge Law #012 + #014. Welcome back, ${name}. ${input.commitmentFollowUp.trim()} Then wait. No topic menu.`;
+  }
+  if (input.milestoneFollowUp?.trim()) {
+    return `Forge Law #012 + #014. Welcome back, ${name}. One warm continuity sentence, then: ${input.milestoneFollowUp.trim()} Then wait.`;
+  }
+  if (input.visionCheck?.trim()) {
+    return `Forge Law #012 + #014. Welcome back, ${name}. Brief warm hello, then: ${input.visionCheck.trim()} Then wait.`;
+  }
+  if (input.driftAsk?.trim()) {
+    return `Forge Law #012 + #014. Welcome back, ${name}. Briefly note the recent practice theme, then ask the drift question (never judge): ${input.driftAsk.trim()} Then wait.`;
+  }
+
   const when = relativeSessionPhrase(input.lastSessionAt);
+  const north = input.northStar?.trim() || "";
   const goal =
     input.communicationGoal?.trim() ||
     input.longTermChallenge?.trim() ||
+    north ||
     "";
   const struggle = input.lastStruggle?.trim() || "";
   const win = input.recentWin?.trim() || "";
@@ -159,7 +187,10 @@ export function buildWelcomeHint(input: {
     input.speakingHabit?.trim() ||
     "";
 
-  // Full Law #012 shape: goal + progress/struggle + open choice
+  if (north && input.purposeOpening) {
+    return `Forge Law #012 + #014 purpose. Welcome back, ${name}. Connect today's practice to their declared north star (${north}) in one short sentence — e.g. practice that counts toward what they said they want to build. Then one open choice: keep going there, or something new on their mind? No blank menu. Then wait.`;
+  }
+
   if (goal && (struggle || pattern || win)) {
     const observed =
       struggle ||
@@ -199,6 +230,9 @@ export function buildCoachPromptContext(
     lastReport?.createdAt ||
     null;
 
+  const purposeHints = buildPurposePromptHints(mem, recentReports);
+  const purposeBlock = formatPurposeMemoryBlock(mem, recentReports);
+
   const welcomeHint = buildWelcomeHint({
     name,
     isReturning,
@@ -210,7 +244,16 @@ export function buildCoachPromptContext(
     adaptiveInsight,
     longTermChallenge: mem.longTermChallenges[0],
     communicationGoal: mem.communicationGoals[0],
+    northStar: mem.northStar,
+    commitmentFollowUp: purposeHints.commitmentFollowUp,
+    milestoneFollowUp: purposeHints.milestoneFollowUp,
+    driftAsk: purposeHints.driftAsk,
+    visionCheck: purposeHints.visionCheck,
+    purposeOpening: purposeHints.purposeOpening,
   });
+
+  const openCommitment =
+    mem.commitments.find((c) => c.status === "open")?.text || "";
 
   return {
     firstName: name,
@@ -233,6 +276,11 @@ export function buildCoachPromptContext(
     speakingHabits: mem.speakingHabits.slice(0, 3),
     adaptiveInsight,
     welcomeHint,
+    northStar: mem.northStar,
+    lifeVision: mem.lifeVision,
+    personTheyWantToBecome: mem.personTheyWantToBecome,
+    openCommitment,
+    purposeBlock,
   };
 }
 
@@ -258,6 +306,7 @@ Member relationship memory:
 - Opening style: ${ctx.welcomeHint}
 - Learning style: ${learning}
 - Remember: understand before coaching. No topic menus.
+${ctx.purposeBlock}
 `;
   }
 
@@ -280,6 +329,7 @@ Member relationship memory (use this — do not pretend you just met them):
 - Confidence level (approx): ${ctx.confidenceLevel ?? "unknown"}
 - Pattern insight: ${ctx.adaptiveInsight || "(none)"}
 - Opening style: ${ctx.welcomeHint}
+${ctx.purposeBlock}
 `;
 }
 

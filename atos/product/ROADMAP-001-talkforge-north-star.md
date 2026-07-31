@@ -3,12 +3,12 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ROADMAP-001 |
-| **Version** | 1.1.0 |
+| **Version** | 1.3.0 |
 | **Status** | Authoritative product direction |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Updated** | 2026-07-31 |
-| **Binding laws** | Forge Laws #012 · #013 (`atlas/forge-laws.md`) |
+| **Binding laws** | Forge Laws #012 · #013 · #014 (`atlas/forge-laws.md`) |
 
 ## North Star
 
@@ -20,11 +20,21 @@ They should feel like they are walking into a room where a trusted mentor says:
 
 TalkForge’s advantage is not the model. It is the **relationship** it builds with each user.
 
+Promise (north-star phrasing):
+
+> An AI that remembers who you’re becoming—and gently helps you stay on that path.
+
+That does not turn Forge into a calendar or task manager. It keeps Forge in its lane: a coach that uses conversations to help people reconnect with the life they said they wanted to build.
+
 ## Product decision filter (immutable)
 
 > **Forge should leave users feeling more understood than evaluated.**
 
 If a feature fails this test, it does not ship.
+
+## Purpose autonomy (immutable — Law #014 / Constitution Article X)
+
+> **Forge may remember what matters to you, but it must never decide what should matter to you.**
 
 ## Guiding Principles (Never Break)
 
@@ -38,6 +48,7 @@ If a feature fails this test, it does not ship.
 8. **Remember people, not just sessions** — Every conversation builds on the last.
 9. **Continuity before menus** — Forge Law #012.
 10. **Emotional calibration before intelligence display** — Forge Law #013.
+11. **Protect declared purpose — never invent it** — Forge Law #014.
 
 ## Phase map
 
@@ -51,6 +62,7 @@ If a feature fails this test, it does not ship.
 | **5** | Real World Missions | Before / during / after real conversations |
 | **6** | Communication Genome | Discovered personal patterns (hard to copy) |
 | **7** | Communication Twin | Coach that understands how *this* person grows |
+| **8** | Purpose Alignment | Help people stay aligned with the life they declared |
 
 ## Phase 1 — Build Trust (MVP → Beta)
 
@@ -134,7 +146,36 @@ Discovered patterns (“You avoid conflict with authority.”) learned from hist
 
 Forge understands how this specific person thinks, speaks, persuades, learns, handles stress, negotiates, leads, and grows — without pretending to *be* them.
 
+## Phase 8 — Purpose Alignment
+
+**Mission:** Help people stay aligned with the life they said they wanted to build.
+
+Forge should not create goals for users.
+Forge should protect the goals users have already declared.
+
+### Capabilities
+
+| Capability | Intent | Status |
+|---|---|---|
+| Goal memory | North star, career, family, health, business, learning | Shipping |
+| Drift detection | Ask when practice clusters away from declared priorities | Shipping |
+| Life milestone memory | Anniversaries, school starts, named life moments | Shipping |
+| Commitment memory | “I’ll have that conversation tomorrow” → gentle follow-up | Shipping |
+| Life Compass | North star + relationships + learning + health — a compass, not a dashboard | Shipping |
+| Vision check-in | Every few weeks: still agree with who you wanted to become? | Shipping |
+
+### Guiding rule
+
+> Forge may remember what matters to you, but it must never decide what should matter to you.
+
+### What this is not
+
+Not a calendar. Not a task manager. Not productivity software.
+
+A coach that uses conversations to reconnect people with their own declared path — with humility and permission.
+
 ## Current execution focus
 
-**Phase 1 → Phase 1.5.**  
-Earn trust. Build relationship. Then — and only then — build engines.
+**Phase 1 → Phase 1.5**, while laying the first Purpose Alignment (Phase 8) rails so practice has meaning beyond the session.
+
+Earn trust. Protect declared purpose. Then deepen engines.
