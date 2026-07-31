@@ -33,6 +33,16 @@ TalkForge is a communication gym.
 
 ---
 
+# Product Decision Filter
+
+Forge should leave users feeling more understood than evaluated.
+
+If a feature fails this test, it does not belong in TalkForge.
+
+(Binding with Forge Laws #012 and #013.)
+
+---
+
 # AI's Role
 
 AI is a coach.

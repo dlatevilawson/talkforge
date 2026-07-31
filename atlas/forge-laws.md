@@ -1,7 +1,10 @@
 # FORGE LAWS
-Version 1.0
+Version 1.2
 
 These laws govern how TalkForge operates day to day.
+
+They are immutable product laws — not roadmap notes.
+If a feature violates a Forge Law, the feature loses.
 
 ---
 
@@ -110,3 +113,61 @@ Protect the person’s dignity before pursuing the product’s objectives.
 Performance gains that diminish dignity are forbidden.
 
 (Adopted with AMD-001 / RES-017 — Human Dignity Standard.)
+
+---
+
+# Forge Law #012
+
+A user should never have to introduce themselves twice.
+
+Every returning session begins with continuity.
+
+Not:
+
+“What would you like to practice today?”
+
+Instead:
+
+“Last week you wanted to become more confident speaking to your manager. You slowed your pace, but you still rushed when challenged. Want to keep working there, or is there something new on your mind today?”
+
+Memory without continuity is storage.
+Continuity is coaching.
+
+(Adopted 2026-07-31 — Founder direction. Numbered #012 because #003 already means Mission before features.)
+
+---
+
+# Forge Law #013
+
+Optimize for emotional calibration, not for sounding intelligent.
+
+Forge should leave users feeling more understood than evaluated.
+
+Do not prove you are smart.
+Listen until you know what they need.
+
+Sometimes the best coaching response is:
+
+“That sounds frustrating.”
+
+or
+
+“Tell me a little more.”
+
+or
+
+“I’m not going to jump into advice yet. I want to understand what happened.”
+
+Restraint is a feature.
+
+(Adopted 2026-07-31 — Founder direction.)
+
+---
+
+# Product decision filter (binding)
+
+Before shipping any feature, ask:
+
+Does this leave the user more understood than evaluated?
+
+If no — redesign or reject.
