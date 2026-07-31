@@ -167,14 +167,45 @@ export default function ProgressPage() {
       {loading ? (
         <p className="mt-8 text-sm text-zinc-500">Loading your progress…</p>
       ) : empty ? (
-        <div className="mt-10 rounded-2xl border border-dashed border-white/15 bg-white/5 px-5 py-6">
-          <p className="text-base font-medium text-white/90">
-            Nothing here yet — and that’s okay
-          </p>
-          <p className="mt-2 text-sm leading-6 text-zinc-400">
-            Complete one practice session with Forge. Your scores, transcript,
-            and coach summary will show up here permanently.
-          </p>
+        <div className="mt-10 space-y-6">
+          <div className="rounded-2xl border border-dashed border-white/15 bg-white/5 px-5 py-6">
+            <p className="text-base font-medium text-white/90">
+              Nothing here yet — and that’s okay
+            </p>
+            <p className="mt-2 text-sm leading-6 text-zinc-400">
+              Complete one practice session with Forge. Your scores, transcript,
+              and coach summary will show up here permanently.
+            </p>
+          </div>
+          {compass?.hasAny ? (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-5">
+              <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+                Life Compass
+              </p>
+              <p className="mt-2 text-base text-zinc-100">
+                {compass.northStar || "Your path is declared"}
+              </p>
+              <p className="mt-2 text-sm text-zinc-500">
+                Practice will connect to what you said you want to build.
+              </p>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.03] px-5 py-5">
+              <p className="text-base font-medium text-white/90">
+                Set your Life Compass
+              </p>
+              <p className="mt-2 text-sm leading-6 text-zinc-400">
+                Tell Forge your north star so practice has meaning beyond the
+                session.
+              </p>
+              <Link
+                href="/app/settings"
+                className="mt-3 inline-flex text-sm text-sky-300 underline"
+              >
+                Open Settings
+              </Link>
+            </div>
+          )}
         </div>
       ) : (
         <>
