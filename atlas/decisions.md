@@ -621,6 +621,22 @@ Authoritative — Adopted
 
 ---
 
+# Decision 044
+
+Title:
+Adopt Personal Operating Model (POM-001), Living Profile Law #001, and Forge Laws #014–#017 as founding principles.
+
+Reason:
+
+Founder direction: elevate architecture from implementation details to founding principles. Founding sentence — TalkForge does not store information so it can remember the past; it organizes information so it can coach the future. Freeze four-layer responsibilities (Reality → Understanding → Living Profile → Experiences). Evidence before Intelligence (#014). Purpose Autonomy / Personal Principles (#015). One-way intelligence flow — Experiences never write identity (#016). Continuity over analytics (#017). LP-LAW-001 hard-freezes identity schema against feature sprawl. Identity Statements renamed Personal Principles. Coaching Intensity replaces binary challenge toggle. System 1 freeze checklist governs next implementation. Volumes: `atos/product/POM-001-personal-operating-model.md`, `atos/product/LP-LAW-001-living-profile.md`, `atlas/forge-laws.md`, `atlas/constitution.md`, `atos/product/ROADMAP-001-talkforge-north-star.md`.
+
+Note: Open branches that proposed alternate Law #014/#015 numbering (purpose/values before this freeze) must rebase onto these founding numbers when merged.
+
+Status:
+Authoritative — Adopted (System 1 implementation follows; doctrine frozen)
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

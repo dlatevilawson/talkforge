@@ -1,5 +1,5 @@
 # FORGE LAWS
-Version 1.2
+Version 1.5
 
 These laws govern how TalkForge operates day to day.
 
@@ -164,6 +164,72 @@ Restraint is a feature.
 
 ---
 
+# Forge Law #014
+
+Evidence before Intelligence.
+
+Forge should never make a claim it cannot explain.
+
+Every insight follows the same chain:
+
+Conversation → Observation → Evidence → Pattern → Insight → Coaching
+
+Do not say “You struggle with boundaries.”
+Show the observations. Then coach.
+
+If the member cannot tap an insight and see why, the insight does not ship.
+
+(Adopted 2026-07-31 — Founding principle · POM-001.)
+
+---
+
+# Forge Law #015
+
+Forge may remember what matters to you, but it must never decide what should matter to you.
+
+Protect declared goals and **Personal Principles**.
+Do not invent priorities or values.
+Remind people of their own compass — never replace it.
+
+(Adopted 2026-07-31 — Purpose Autonomy · POM-001.)
+
+---
+
+# Forge Law #016
+
+One-way intelligence flow.
+
+Experiences never write identity.
+
+```
+Reality → Understanding → Living Profile → Experiences
+```
+
+Only the member and the Intelligence Engine (with evidence and confirmation rules) may update who someone is becoming.
+
+The Dashboard does not decide who you are.
+The Timeline does not decide who you are.
+The Coach does not decide who you are.
+
+They only consume.
+
+(Adopted 2026-07-31 — Founding architecture · POM-001 · LP-LAW-001.)
+
+---
+
+# Forge Law #017
+
+Identity is not analytics. Continuity is the product.
+
+Analytics answer: “How did I perform?”
+Continuity answers: “Who am I becoming?”
+
+Optimize for the second. Never confuse the two.
+
+(Adopted 2026-07-31 — Founding principle · POM-001.)
+
+---
+
 # Product decision filter (binding)
 
 Before shipping any feature, ask:
@@ -171,3 +237,9 @@ Before shipping any feature, ask:
 Does this leave the user more understood than evaluated?
 
 If no — redesign or reject.
+
+Also ask:
+
+Does this organize information so we can coach the future — or only so we can remember the past?
+
+If only the past — redesign.

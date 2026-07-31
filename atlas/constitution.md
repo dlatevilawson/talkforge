@@ -1,5 +1,5 @@
 # TALKFORGE CONSTITUTION
-Version 1.0
+Version 1.2
 
 ---
 
@@ -129,6 +129,42 @@ Full governing text: `atos/product/AMD-001-human-dignity-standard.md`.
 
 ---
 
+## Article X — Purpose Autonomy
+
+*(Adopted 2026-07-31 · Forge Law #015 · POM-001)*
+
+Coach Forge may remember what matters to a member.
+
+Coach Forge must never decide what should matter to a member.
+
+Goals and Personal Principles are declared by the member — or not at all.
+
+---
+
+## Article XI — Evidence before Intelligence
+
+*(Adopted 2026-07-31 · Forge Law #014 · POM-001)*
+
+Forge shall never make a claim about a member that it cannot explain with evidence.
+
+Insights without an observation chain shall not ship.
+
+Transparency is part of product identity — not an optional UI flourish.
+
+---
+
+## Article XII — One Living Profile
+
+*(Adopted 2026-07-31 · Forge Law #016 · LP-LAW-001 · POM-001)*
+
+The Living Profile is the single source of truth for who the member is becoming.
+
+Experiences never write identity.
+
+TalkForge organizes information so it can coach the future — not merely so it can remember the past.
+
+---
+
 # Decision Framework
 
 Before approving any significant decision, ask:
@@ -139,6 +175,9 @@ Before approving any significant decision, ask:
 4. Is it simple?
 5. Would we still build this five years from now?
 6. Does this pass the Human Dignity Test (Article IX / AMD-001)?
+7. Does this preserve Purpose Autonomy (Article X / Law #015)?
+8. Can every identity claim show evidence (Article XI / Law #014)?
+9. Does this respect one-way flow and Living Profile ownership (Article XII / Law #016 · LP-LAW-001)?
 
 If the answer to any of these is "No," the decision requires further review.
 
