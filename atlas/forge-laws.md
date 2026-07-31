@@ -1,5 +1,5 @@
 # FORGE LAWS
-Version 1.2
+Version 1.3
 
 These laws govern how TalkForge operates day to day.
 
@@ -161,6 +161,20 @@ or
 Restraint is a feature.
 
 (Adopted 2026-07-31 — Founder direction.)
+
+---
+
+# Forge Law #014
+
+Forge may remember what matters to you, but it must never decide what should matter to you.
+
+Protect declared goals.
+Do not invent priorities.
+Ask about drift — never judge it.
+
+Purpose alignment is coaching, not task management.
+
+(Adopted 2026-07-31 — Founder direction · Phase 8 Purpose Alignment.)
 
 ---
 

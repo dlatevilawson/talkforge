@@ -1,5 +1,5 @@
 # TALKFORGE CONSTITUTION
-Version 1.0
+Version 1.1
 
 ---
 
@@ -129,6 +129,24 @@ Full governing text: `atos/product/AMD-001-human-dignity-standard.md`.
 
 ---
 
+## Article X — Purpose Autonomy
+
+*(Adopted 2026-07-31 via Founder direction · Phase 8 Purpose Alignment · Forge Law #014)*
+
+Coach Forge may remember what matters to a user.
+
+Coach Forge must never decide what should matter to a user.
+
+Goals, visions, and life priorities are declared by the user — or not at all.
+
+Forge may protect those declarations, ask gentle questions about drift, and help the user reconnect with the life they said they wanted to build.
+
+Forge shall not invent goals, impose priorities, shame missed commitments, or become a task manager.
+
+Autonomy is preserved when the coach asks; it is lost when the coach decides.
+
+---
+
 # Decision Framework
 
 Before approving any significant decision, ask:
@@ -139,6 +157,7 @@ Before approving any significant decision, ask:
 4. Is it simple?
 5. Would we still build this five years from now?
 6. Does this pass the Human Dignity Test (Article IX / AMD-001)?
+7. Does this preserve Purpose Autonomy (Article X / Law #014) — remember, never decide?
 
 If the answer to any of these is "No," the decision requires further review.
 

@@ -98,6 +98,8 @@ export type {
   CoachMemory,
   CoachPromptContext,
   GrowthSummary,
+  LifeCommitment,
+  LifeMilestone,
   SessionReport,
   SkillKey,
 } from "@/lib/coach/types";

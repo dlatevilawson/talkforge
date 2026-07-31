@@ -9,6 +9,12 @@ import {
   emptyCoachMemory,
   parseMemoryList,
 } from "@/lib/coach/memory";
+import {
+  formatMilestonesText,
+  formatOpenCommitmentsText,
+  parseCommitmentsText,
+  parseMilestonesText,
+} from "@/lib/coach/purpose";
 import type { CoachMemory, LearningStyle } from "@/lib/coach/types";
 import {
   getCoachMemory,
@@ -48,6 +54,19 @@ export default function SettingsPage() {
   const [coachingStyle, setCoachingStyle] = useState("");
   const [learningStyle, setLearningStyle] = useState<LearningStyle>("");
   const [confidence, setConfidence] = useState("");
+  const [northStar, setNorthStar] = useState("");
+  const [lifeVision, setLifeVision] = useState("");
+  const [become, setBecome] = useState("");
+  const [compassRelationships, setCompassRelationships] = useState("");
+  const [compassLearning, setCompassLearning] = useState("");
+  const [compassHealth, setCompassHealth] = useState("");
+  const [careerGoals, setCareerGoals] = useState("");
+  const [familyGoals, setFamilyGoals] = useState("");
+  const [healthGoals, setHealthGoals] = useState("");
+  const [businessGoals, setBusinessGoals] = useState("");
+  const [learningGoals, setLearningGoals] = useState("");
+  const [milestonesText, setMilestonesText] = useState("");
+  const [commitmentsText, setCommitmentsText] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
   const [saveError, setSaveError] = useState("");
@@ -81,6 +100,19 @@ export default function SettingsPage() {
               ? String(existing.confidenceLevel)
               : ""
           );
+          setNorthStar(existing.northStar);
+          setLifeVision(existing.lifeVision);
+          setBecome(existing.personTheyWantToBecome);
+          setCompassRelationships(existing.compassRelationships);
+          setCompassLearning(existing.compassLearning);
+          setCompassHealth(existing.compassHealth);
+          setCareerGoals(existing.careerGoals.join(", "));
+          setFamilyGoals(existing.familyGoals.join(", "));
+          setHealthGoals(existing.healthGoals.join(", "));
+          setBusinessGoals(existing.businessGoals.join(", "));
+          setLearningGoals(existing.learningGoals.join(", "));
+          setMilestonesText(formatMilestonesText(existing.lifeMilestones));
+          setCommitmentsText(formatOpenCommitmentsText(existing.commitments));
         }
       } catch {
         if (!cancelled) setSession(null);
@@ -129,6 +161,25 @@ export default function SettingsPage() {
           conf != null && Number.isFinite(conf)
             ? Math.max(0, Math.min(100, Math.round(conf)))
             : null,
+        northStar: northStar.trim(),
+        lifeVision: lifeVision.trim(),
+        personTheyWantToBecome: become.trim(),
+        compassRelationships: compassRelationships.trim(),
+        compassLearning: compassLearning.trim(),
+        compassHealth: compassHealth.trim(),
+        careerGoals: parseMemoryList(careerGoals),
+        familyGoals: parseMemoryList(familyGoals),
+        healthGoals: parseMemoryList(healthGoals),
+        businessGoals: parseMemoryList(businessGoals),
+        learningGoals: parseMemoryList(learningGoals),
+        lifeMilestones: parseMilestonesText(
+          milestonesText,
+          base.lifeMilestones
+        ),
+        commitments: parseCommitmentsText(
+          commitmentsText,
+          base.commitments
+        ),
         updatedAt: new Date().toISOString(),
       };
       await saveCoachMemory(next);
@@ -152,8 +203,8 @@ export default function SettingsPage() {
     <div>
       <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
       <p className="mt-3 max-w-xl text-zinc-400">
-        Your account and what Forge should remember about how you grow —
-        so the next session feels continuous, not like starting over.
+        Your account, how you grow, and the life you said you want to build —
+        so Forge can protect your goals without ever deciding them for you.
       </p>
 
       {loading ? (
@@ -305,6 +356,153 @@ export default function SettingsPage() {
                   value={confidence}
                   onChange={(e) => setConfidence(e.target.value)}
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
+                />
+              </Field>
+
+              <div className="border-t border-white/10 pt-6">
+                <h3 className="text-base font-medium text-zinc-100">
+                  Life Compass
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-500">
+                  You declare what matters. Forge remembers and protects it —
+                  never invents or judges. Not a task list.
+                </p>
+              </div>
+
+              <Field
+                label="North Star"
+                hint="The life or work you’re building toward — e.g. Build TalkForge"
+              >
+                <input
+                  value={northStar}
+                  onChange={(e) => setNorthStar(e.target.value)}
+                  placeholder="What are you building toward?"
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 placeholder:text-zinc-600 focus:ring-2"
+                />
+              </Field>
+
+              <Field label="Relationships">
+                <input
+                  value={compassRelationships}
+                  onChange={(e) => setCompassRelationships(e.target.value)}
+                  placeholder="e.g. Family first"
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 placeholder:text-zinc-600 focus:ring-2"
+                />
+              </Field>
+
+              <Field label="Learning">
+                <input
+                  value={compassLearning}
+                  onChange={(e) => setCompassLearning(e.target.value)}
+                  placeholder="e.g. Improve communication every week"
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 placeholder:text-zinc-600 focus:ring-2"
+                />
+              </Field>
+
+              <Field label="Health">
+                <input
+                  value={compassHealth}
+                  onChange={(e) => setCompassHealth(e.target.value)}
+                  placeholder="e.g. Exercise consistently"
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 placeholder:text-zinc-600 focus:ring-2"
+                />
+              </Field>
+
+              <Field
+                label="Life vision"
+                hint="Longer picture — optional"
+              >
+                <textarea
+                  value={lifeVision}
+                  onChange={(e) => setLifeVision(e.target.value)}
+                  rows={2}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
+                />
+              </Field>
+
+              <Field
+                label="The person you want to become"
+                hint="Forge may ask every few weeks if this still feels true"
+              >
+                <textarea
+                  value={become}
+                  onChange={(e) => setBecome(e.target.value)}
+                  rows={2}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
+                />
+              </Field>
+
+              <Field label="Career goals" hint="Comma-separated">
+                <textarea
+                  value={careerGoals}
+                  onChange={(e) => setCareerGoals(e.target.value)}
+                  rows={2}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
+                />
+              </Field>
+
+              <Field label="Family goals" hint="Comma-separated">
+                <textarea
+                  value={familyGoals}
+                  onChange={(e) => setFamilyGoals(e.target.value)}
+                  rows={2}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
+                />
+              </Field>
+
+              <Field label="Business goals" hint="Comma-separated">
+                <textarea
+                  value={businessGoals}
+                  onChange={(e) => setBusinessGoals(e.target.value)}
+                  rows={2}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
+                />
+              </Field>
+
+              <Field label="Health goals" hint="Comma-separated">
+                <textarea
+                  value={healthGoals}
+                  onChange={(e) => setHealthGoals(e.target.value)}
+                  rows={2}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
+                />
+              </Field>
+
+              <Field
+                label="Learning goals"
+                hint="Books you’re writing, skills you’re learning — comma-separated"
+              >
+                <textarea
+                  value={learningGoals}
+                  onChange={(e) => setLearningGoals(e.target.value)}
+                  rows={2}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
+                />
+              </Field>
+
+              <Field
+                label="Life milestones"
+                hint="One per line: Label · YYYY-MM-DD · optional note"
+              >
+                <textarea
+                  value={milestonesText}
+                  onChange={(e) => setMilestonesText(e.target.value)}
+                  rows={3}
+                  placeholder={"Anniversary · 2026-08-12\nDaughter starts school · 2026-09-02"}
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 placeholder:text-zinc-600 focus:ring-2"
+                />
+              </Field>
+
+              <Field
+                label="Open commitments"
+                hint="Things you said you’d do — one per line. Forge asks how it went; never shames."
+              >
+                <textarea
+                  value={commitmentsText}
+                  onChange={(e) => setCommitmentsText(e.target.value)}
+                  rows={3}
+                  placeholder="Talk with my manager about the timeline"
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 placeholder:text-zinc-600 focus:ring-2"
                 />
               </Field>
 

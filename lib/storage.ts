@@ -133,6 +133,48 @@ function mapSessionReport(row: {
   };
 }
 
+function mapMilestones(value: unknown): CoachMemory["lifeMilestones"] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === "object")
+    .map((item, i) => ({
+      id: typeof item.id === "string" ? item.id : `m_${i}`,
+      label: String(item.label ?? ""),
+      date: typeof item.date === "string" ? item.date : null,
+      note: String(item.note ?? ""),
+    }))
+    .filter((m) => m.label.trim());
+}
+
+function mapCommitments(value: unknown): CoachMemory["commitments"] {
+  if (!Array.isArray(value)) return [];
+  const out: CoachMemory["commitments"] = [];
+  value.forEach((item, i) => {
+    if (!item || typeof item !== "object") return;
+    const row = item as Record<string, unknown>;
+    const status: CoachMemory["commitments"][number]["status"] =
+      row.status === "done" || row.status === "skipped" || row.status === "open"
+        ? row.status
+        : "open";
+    const text = String(row.text ?? "").trim();
+    if (!text) return;
+    out.push({
+      id: typeof row.id === "string" ? row.id : `c_${i}`,
+      text,
+      plannedFor: typeof row.plannedFor === "string" ? row.plannedFor : null,
+      status,
+      createdAt:
+        typeof row.createdAt === "string"
+          ? row.createdAt
+          : new Date().toISOString(),
+      followedUpAt:
+        typeof row.followedUpAt === "string" ? row.followedUpAt : null,
+      source: row.source === "session" ? "session" : "user",
+    });
+  });
+  return out;
+}
+
 function mapCoachMemory(row: {
   user_id: string;
   display_name: string;
@@ -149,6 +191,20 @@ function mapCoachMemory(row: {
   biggest_strength?: string | null;
   speaking_habits: string[] | null;
   emotional_triggers?: string[] | null;
+  north_star?: string | null;
+  life_vision?: string | null;
+  person_they_want_to_become?: string | null;
+  compass_relationships?: string | null;
+  compass_learning?: string | null;
+  compass_health?: string | null;
+  career_goals?: string[] | null;
+  family_goals?: string[] | null;
+  health_goals?: string[] | null;
+  business_goals?: string[] | null;
+  learning_goals?: string[] | null;
+  life_milestones?: unknown;
+  commitments?: unknown;
+  last_vision_check_at?: string | null;
   favorite_scenarios: string[] | null;
   past_exercises: string[] | null;
   notes: Record<string, unknown> | null;
@@ -184,6 +240,20 @@ function mapCoachMemory(row: {
     biggestStrength: row.biggest_strength ?? "",
     speakingHabits: row.speaking_habits ?? [],
     emotionalTriggers: row.emotional_triggers ?? [],
+    northStar: row.north_star ?? "",
+    lifeVision: row.life_vision ?? "",
+    personTheyWantToBecome: row.person_they_want_to_become ?? "",
+    compassRelationships: row.compass_relationships ?? "",
+    compassLearning: row.compass_learning ?? "",
+    compassHealth: row.compass_health ?? "",
+    careerGoals: row.career_goals ?? [],
+    familyGoals: row.family_goals ?? [],
+    healthGoals: row.health_goals ?? [],
+    businessGoals: row.business_goals ?? [],
+    learningGoals: row.learning_goals ?? [],
+    lifeMilestones: mapMilestones(row.life_milestones),
+    commitments: mapCommitments(row.commitments),
+    lastVisionCheckAt: row.last_vision_check_at ?? null,
     favoriteScenarios: row.favorite_scenarios ?? [],
     pastExercises: row.past_exercises ?? [],
     notes: row.notes ?? {},
@@ -574,6 +644,20 @@ export async function saveCoachMemory(memory: CoachMemory): Promise<void> {
     biggest_strength: memory.biggestStrength,
     speaking_habits: memory.speakingHabits,
     emotional_triggers: memory.emotionalTriggers,
+    north_star: memory.northStar,
+    life_vision: memory.lifeVision,
+    person_they_want_to_become: memory.personTheyWantToBecome,
+    compass_relationships: memory.compassRelationships,
+    compass_learning: memory.compassLearning,
+    compass_health: memory.compassHealth,
+    career_goals: memory.careerGoals,
+    family_goals: memory.familyGoals,
+    health_goals: memory.healthGoals,
+    business_goals: memory.businessGoals,
+    learning_goals: memory.learningGoals,
+    life_milestones: memory.lifeMilestones,
+    commitments: memory.commitments,
+    last_vision_check_at: memory.lastVisionCheckAt,
     favorite_scenarios: memory.favoriteScenarios,
     past_exercises: memory.pastExercises,
     notes: memory.notes,
@@ -588,14 +672,22 @@ export async function saveCoachMemory(memory: CoachMemory): Promise<void> {
   const { error } = await supabase.from("coach_memory").upsert(payload);
 
   if (error) {
-    // Soft-fallback if Phase 1 columns not migrated yet
+    // Soft-fallback if newer columns not migrated yet
     if (
       error.message.includes("preferred_nickname") ||
       error.message.includes("long_term_challenges") ||
       error.message.includes("learning_style") ||
       error.message.includes("biggest_strength") ||
       error.message.includes("emotional_triggers") ||
-      error.message.includes("last_session_at")
+      error.message.includes("last_session_at") ||
+      error.message.includes("north_star") ||
+      error.message.includes("life_vision") ||
+      error.message.includes("person_they_want_to_become") ||
+      error.message.includes("compass_relationships") ||
+      error.message.includes("career_goals") ||
+      error.message.includes("life_milestones") ||
+      error.message.includes("commitments") ||
+      error.message.includes("last_vision_check_at")
     ) {
       const legacy = {
         user_id: payload.user_id,

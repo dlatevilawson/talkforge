@@ -3,6 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
+  buildLifeCompass,
+  detectDrift,
+  type DriftSignal,
+  type LifeCompass,
+} from "@/lib/coach/purpose";
+import {
+  getCoachMemory,
   getGrowthSummary,
   getProgressSummary,
   getUser,
@@ -61,6 +68,8 @@ export default function ProgressPage() {
     lastScenarioTitle: null,
   });
   const [growth, setGrowth] = useState<GrowthSummary | null>(null);
+  const [compass, setCompass] = useState<LifeCompass | null>(null);
+  const [drift, setDrift] = useState<DriftSignal | null>(null);
   const [reports, setReports] = useState<SessionReport[]>([]);
   const [sessions, setSessions] = useState<PracticeSession[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,12 +90,13 @@ export default function ProgressPage() {
           return;
         }
 
-        const [summary, growthSummary, sessionReports, allSessions] =
+        const [summary, growthSummary, sessionReports, allSessions, memory] =
           await Promise.all([
             getProgressSummary(user.id),
             getGrowthSummary(user.id),
             listSessionReports(user.id),
             listSessions(user.id),
+            getCoachMemory(user.id).catch(() => null),
           ]);
 
         if (cancelled) return;
@@ -94,6 +104,8 @@ export default function ProgressPage() {
         setGrowth(growthSummary);
         setReports(sessionReports);
         setSessions(allSessions.filter((session) => session.completedAt));
+        setCompass(buildLifeCompass(memory));
+        setDrift(detectDrift(memory, sessionReports));
       } catch (err) {
         if (!cancelled) {
           setError(
@@ -133,8 +145,8 @@ export default function ProgressPage() {
           How you’re growing
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">
-          Every practice session becomes permanent history. Forge uses it to
-          coach you like someone who knows you — not a stranger every time.
+          Practice history and the path you declared. Forge remembers who
+          you’re becoming — and gently helps you stay on that path.
         </p>
         <div className="mt-6">
           <Link
@@ -176,6 +188,128 @@ export default function ProgressPage() {
               </p>
             </section>
           ) : null}
+
+          {compass?.hasAny ? (
+            <section className="mt-10 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent p-5 sm:p-7">
+              <p className="text-xs uppercase tracking-[0.2em] text-zinc-500">
+                Life Compass
+              </p>
+              <h2 className="mt-2 text-xl font-semibold">
+                The life you said you wanted to build
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">
+                Not a dashboard — a compass. Forge protects these; Forge never
+                decides them for you.
+              </p>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <CompassPoint
+                  label="North Star"
+                  body={compass.northStar || "Not set yet"}
+                  emphasize
+                />
+                <CompassPoint
+                  label="Relationships"
+                  body={compass.relationships || "Not set yet"}
+                />
+                <CompassPoint
+                  label="Learning"
+                  body={compass.learning || "Not set yet"}
+                />
+                <CompassPoint
+                  label="Health"
+                  body={compass.health || "Not set yet"}
+                />
+              </div>
+
+              {compass.personTheyWantToBecome || compass.lifeVision ? (
+                <p className="mt-6 text-sm leading-7 text-zinc-300">
+                  {compass.personTheyWantToBecome || compass.lifeVision}
+                </p>
+              ) : null}
+
+              {(compass.careerGoals.length > 0 ||
+                compass.familyGoals.length > 0 ||
+                compass.businessGoals.length > 0 ||
+                compass.learningGoals.length > 0 ||
+                compass.healthGoals.length > 0) && (
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  <GoalList title="Career" items={compass.careerGoals} />
+                  <GoalList title="Family" items={compass.familyGoals} />
+                  <GoalList title="Business" items={compass.businessGoals} />
+                  <GoalList title="Learning" items={compass.learningGoals} />
+                  <GoalList title="Health goals" items={compass.healthGoals} />
+                </div>
+              )}
+
+              {compass.milestones.length > 0 ? (
+                <div className="mt-6">
+                  <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">
+                    Milestones
+                  </p>
+                  <ul className="mt-2 space-y-1.5 text-sm leading-6 text-zinc-300">
+                    {compass.milestones.map((m) => (
+                      <li key={m.id}>
+                        · {m.label}
+                        {m.date ? ` · ${m.date}` : ""}
+                        {m.note ? ` — ${m.note}` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {compass.openCommitments.length > 0 ? (
+                <div className="mt-6">
+                  <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">
+                    Open commitments
+                  </p>
+                  <ul className="mt-2 space-y-1.5 text-sm leading-6 text-zinc-300">
+                    {compass.openCommitments.map((c) => (
+                      <li key={c.id}>· {c.text}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {drift ? (
+                <div className="mt-6 rounded-xl border border-amber-400/20 bg-amber-500/10 px-4 py-3">
+                  <p className="text-xs uppercase tracking-[0.16em] text-amber-200/70">
+                    Drift check — ask, never judge
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-zinc-200">
+                    Recent practice has clustered around {drift.theme}. Forge
+                    may gently ask whether that still serves your north star
+                    ({drift.northStar}).
+                  </p>
+                </div>
+              ) : null}
+
+              <p className="mt-6 text-xs text-zinc-600">
+                Edit your compass in{" "}
+                <Link href="/app/settings" className="text-zinc-400 underline">
+                  Settings
+                </Link>
+                .
+              </p>
+            </section>
+          ) : (
+            <section className="mt-10 rounded-2xl border border-dashed border-white/15 bg-white/[0.03] px-5 py-6">
+              <p className="text-base font-medium text-white/90">
+                Set your Life Compass
+              </p>
+              <p className="mt-2 text-sm leading-6 text-zinc-400">
+                Tell Forge what you’re building toward. Practice gets meaning
+                when it connects to a path you chose.
+              </p>
+              <Link
+                href="/app/settings"
+                className="mt-4 inline-flex text-sm text-sky-300 underline"
+              >
+                Declare your north star in Settings
+              </Link>
+            </section>
+          )}
 
           <section className="mt-10">
             <h2 className="text-xl font-semibold">Communication skills</h2>
@@ -465,6 +599,45 @@ function Block({ title, body }: { title: string; body: string }) {
         {title}
       </p>
       <p className="mt-2 text-sm leading-6 text-zinc-300">{body}</p>
+    </div>
+  );
+}
+
+function CompassPoint({
+  label,
+  body,
+  emphasize,
+}: {
+  label: string;
+  body: string;
+  emphasize?: boolean;
+}) {
+  return (
+    <div
+      className={
+        emphasize
+          ? "rounded-xl border border-sky-400/25 bg-sky-500/10 px-4 py-4"
+          : "rounded-xl border border-white/10 bg-black/20 px-4 py-4"
+      }
+    >
+      <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">
+        {label}
+      </p>
+      <p className="mt-2 text-sm leading-6 text-zinc-100">{body}</p>
+    </div>
+  );
+}
+
+function GoalList({ title, items }: { title: string; items: string[] }) {
+  if (items.length === 0) return null;
+  return (
+    <div>
+      <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">{title}</p>
+      <ul className="mt-2 space-y-1 text-sm leading-6 text-zinc-300">
+        {items.map((item) => (
+          <li key={item}>· {item}</li>
+        ))}
+      </ul>
     </div>
   );
 }
