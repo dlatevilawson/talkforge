@@ -6,11 +6,10 @@
 | **Title** | Multiple competing missions above the fold |
 | **Category** | Rejected Ideas |
 | **Status** | Rejected |
-| **Fact-check** | Opinion |
-| **Source** | SYS1-001 · SYS2-001 · POM-001 · Founder filters |
-| **Related** | IV-PHIL-002 · IV-LAW-005 · IV-LAW-006 |
-| **Captured** | 2026-08-01 |
+| **Importance** | Important |
 | **Owner** | Founder |
+| **Last Updated** | 2026-08-01 |
+| **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
 
 ---
@@ -27,10 +26,30 @@ Creates decision fatigue; fails SYS2 founding sentence.
 
 ---
 
-## Downstream (filled in later steps)
+## Relationships
+
+| Direction | Ideas |
+|---|---|
+| **Depends on** | — |
+| **Supports** | IV-UX-001 · IV-PHIL-004 · IV-FEAT-004 |
+| **Related** | IV-FUT-004 · IV-RES-003 |
+
+---
+
+## Evidence
+
+| Field | Value |
+|---|---|
+| **Why we believe this** | Equal-urgency menus recreate the problem System 2 exists to solve. |
+| **Sources** | Founder insight · Doctrine document (SYS2-001) · Scientific evidence (decision fatigue tradition) · Product intuition |
+| **Confidence** | High |
+
+---
+
+## Downstream (filled in later EXEC steps)
 
 | Field | Value |
 |---|---|
 | Blind spot review | *(Step 5)* |
 | Roadmap link | *(Step 12)* |
-| Priority | *(Step 11)* |
+| Priority | *(Step 11 — distinct from Importance)* |

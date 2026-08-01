@@ -5,12 +5,11 @@
 | **ID** | IV-RES-001 |
 | **Title** | Human Behavior Framework Phase I |
 | **Category** | Research Ideas |
-| **Status** | Captured |
-| **Fact-check** | Partially Verified |
-| **Source** | HBF-000 · RES-022 |
-| **Related** | IV-PROD-001 · IV-PROD-002 · KNOW-QUESTIONS |
-| **Captured** | 2026-08-01 |
+| **Status** | Researching |
+| **Importance** | Important |
 | **Owner** | Founder |
+| **Last Updated** | 2026-08-01 |
+| **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
 
 ---
@@ -27,10 +26,30 @@ Informs coaching constraints under dignity; must not be treated as Canonical.
 
 ---
 
-## Downstream (filled in later steps)
+## Relationships
+
+| Direction | Ideas |
+|---|---|
+| **Depends on** | AMD-001 · KA-001 |
+| **Supports** | IV-AI-002 · IV-FEAT-003 · IV-FEAT-007 |
+| **Related** | IV-RES-003 · IV-RES-004 · KNOW-QUESTIONS |
+
+---
+
+## Evidence
+
+| Field | Value |
+|---|---|
+| **Why we believe this** | Authorized Working framework (RES-022) with open research questions — useful counsel, not frozen truth. |
+| **Sources** | Doctrine document (HBF-000 · RES-022) · Research paper (framework synthesis) · Founder insight |
+| **Confidence** | Medium |
+
+---
+
+## Downstream (filled in later EXEC steps)
 
 | Field | Value |
 |---|---|
 | Blind spot review | *(Step 5)* |
 | Roadmap link | *(Step 12)* |
-| Priority | *(Step 11)* |
+| Priority | *(Step 11 — distinct from Importance)* |

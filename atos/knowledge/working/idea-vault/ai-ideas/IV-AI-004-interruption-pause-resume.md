@@ -5,12 +5,11 @@
 | **ID** | IV-AI-004 |
 | **Title** | Interruption handling + pause/resume |
 | **Category** | AI Ideas |
-| **Status** | Captured |
-| **Fact-check** | Opinion |
-| **Source** | SYS2-001 · CE-001 · coach permanence work |
-| **Related** | IV-PROD-002 · IV-LAW-003 |
-| **Captured** | 2026-08-01 |
+| **Status** | In Development |
+| **Importance** | Important |
 | **Owner** | Founder |
+| **Last Updated** | 2026-08-01 |
+| **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
 
 ---
@@ -27,10 +26,30 @@ Real practice feels human; technical fragility breaks trust.
 
 ---
 
-## Downstream (filled in later steps)
+## Relationships
+
+| Direction | Ideas |
+|---|---|
+| **Depends on** | IV-PROD-005 · IV-LAW-001 |
+| **Supports** | IV-FUT-002 · EXEC Step 15 |
+| **Related** | IV-AI-002 · IV-FEAT-007 |
+
+---
+
+## Evidence
+
+| Field | Value |
+|---|---|
+| **Why we believe this** | Real conversations interrupt; if the engine can’t pause/resume, practice feels fake. |
+| **Sources** | Founder insight · Internal experiment (CE work) · Product intuition · User interview (anticipated friction) |
+| **Confidence** | Medium |
+
+---
+
+## Downstream (filled in later EXEC steps)
 
 | Field | Value |
 |---|---|
 | Blind spot review | *(Step 5)* |
 | Roadmap link | *(Step 12)* |
-| Priority | *(Step 11)* |
+| Priority | *(Step 11 — distinct from Importance)* |

@@ -5,12 +5,11 @@
 | **ID** | IV-FEAT-004 |
 | **Title** | Adaptive Homepage |
 | **Category** | Features |
-| **Status** | Captured |
-| **Fact-check** | Opinion |
-| **Source** | SYS1-001 · SYS2-001 · EXEC Phase 3 |
-| **Related** | IV-PROD-001 · IV-PROD-002 |
-| **Captured** | 2026-08-01 |
+| **Status** | Reviewing |
+| **Importance** | Critical |
 | **Owner** | Founder |
+| **Last Updated** | 2026-08-01 |
+| **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
 
 ---
@@ -27,10 +26,30 @@ Primary System 2 surface.
 
 ---
 
-## Downstream (filled in later steps)
+## Relationships
+
+| Direction | Ideas |
+|---|---|
+| **Depends on** | IV-PROD-004 · IV-FEAT-001 · IV-FEAT-002 |
+| **Supports** | IV-UX-001 · IV-PHIL-004 · IV-REJ-005 |
+| **Related** | IV-FEAT-003 · IV-AI-005 · IV-RES-003 |
+
+---
+
+## Evidence
+
+| Field | Value |
+|---|---|
+| **Why we believe this** | Homepage is where relevance is felt; many equal missions recreate decision fatigue. |
+| **Sources** | Founder insight · Doctrine document (SYS2-001) · Scientific evidence (decision fatigue tradition) · Product intuition |
+| **Confidence** | Medium |
+
+---
+
+## Downstream (filled in later EXEC steps)
 
 | Field | Value |
 |---|---|
 | Blind spot review | *(Step 5)* |
 | Roadmap link | *(Step 12)* |
-| Priority | *(Step 11)* |
+| Priority | *(Step 11 — distinct from Importance)* |

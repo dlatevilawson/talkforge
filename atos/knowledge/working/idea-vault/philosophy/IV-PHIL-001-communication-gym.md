@@ -5,12 +5,11 @@
 | **ID** | IV-PHIL-001 |
 | **Title** | TalkForge is a Communication Gym |
 | **Category** | Philosophy |
-| **Status** | Active |
-| **Fact-check** | Opinion |
-| **Source** | SYS1-001 · Founder doctrine freeze |
-| **Related** | IV-PHIL-005 · IV-PROD-001 |
-| **Captured** | 2026-08-01 |
+| **Status** | Approved |
+| **Importance** | Critical |
 | **Owner** | Founder |
+| **Last Updated** | 2026-08-01 |
+| **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
 
 ---
@@ -27,10 +26,30 @@ Defines product identity. Features that optimize for reading advice instead of p
 
 ---
 
-## Downstream (filled in later steps)
+## Relationships
+
+| Direction | Ideas |
+|---|---|
+| **Depends on** | — |
+| **Supports** | IV-PHIL-005 · IV-PROD-001 · IV-PROD-005 · IV-FUT-001 |
+| **Related** | IV-PHIL-006 · IV-REJ-002 |
+
+---
+
+## Evidence
+
+| Field | Value |
+|---|---|
+| **Why we believe this** | Deliberate practice is how skill transfers; consumption alone rarely changes behavior in hard conversations. |
+| **Sources** | Founder insight · Product intuition · Scientific evidence (deliberate practice tradition) · Doctrine document (SYS1-001) |
+| **Confidence** | High |
+
+---
+
+## Downstream (filled in later EXEC steps)
 
 | Field | Value |
 |---|---|
 | Blind spot review | *(Step 5)* |
 | Roadmap link | *(Step 12)* |
-| Priority | *(Step 11)* |
+| Priority | *(Step 11 — distinct from Importance)* |

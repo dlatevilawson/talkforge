@@ -4,11 +4,12 @@
 |---|---|
 | **Document ID** | EXEC-001 |
 | **Title** | TalkForge Execution Plan |
-| **Version** | 1.0.0 |
-| **Status** | **Active — Step 1 awaiting Founder review** |
+| **Version** | 1.1.0 |
+| **Status** | **Active — Step 1 revised; awaiting Founder re-review** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Created** | 2026-08-01 |
+| **Updated** | 2026-08-01 |
 | **Authority** | Founder directive — company operating system |
 | **Related** | [Idea Vault](../knowledge/working/idea-vault/README.md) · KA-001 · TEA-001 · ROADMAP-001 · Constitution · Decision Ledger |
 
@@ -42,7 +43,7 @@ Create a permanent operating system for TalkForge that captures every important 
 
 | Step | Deliverable | Status | Path |
 |---|---|---|---|
-| **1** | Living Idea Vault | **Awaiting Founder review** | [`atos/knowledge/working/idea-vault/`](../knowledge/working/idea-vault/) |
+| **1** | Living Idea Vault | **Revised — awaiting Founder re-review** | [`atos/knowledge/working/idea-vault/`](../knowledge/working/idea-vault/) |
 | **2** | TalkForge Constitution v1.0 | ⬜ Blocked | *(not started)* |
 | **3** | Decision History (Ledger) | ⬜ Blocked | Existing: `atlas/decisions.md` — formal ledger step later |
 | **4** | Research Library | ⬜ Blocked | Partial: `atos/product/research/`, HBF — formal library later |
@@ -104,7 +105,9 @@ Do **not** begin Step 2 (Constitution) or any later step until the Founder expli
 | Date | Step | Decision |
 |---|---|---|
 | 2026-08-01 | Plan adopted as EXEC-001 | Decision 048 — execution gated per Founder |
-| 2026-08-01 | Step 1 Idea Vault built | **Awaiting Founder review** |
+| 2026-08-01 | Step 1 Idea Vault built | Submitted for review |
+| 2026-08-01 | Step 1 Founder Decision | 🟡 **Revise** — add lifecycle, relationships, evidence, importance; Law #001 |
+| 2026-08-01 | Step 1 revisions applied | **Awaiting Founder re-review** (freeze after approve) |
 | — | Step 1 | ☐ Approve · ☐ Revise · ☐ Reject |
 
 ---
@@ -114,3 +117,4 @@ Do **not** begin Step 2 (Constitution) or any later step until the Founder expli
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-08-01 | Initial capture of Founder Execution Plan; Step 1 Idea Vault delivered for review |
+| 1.1.0 | 2026-08-01 | Step 1 Revise applied: lifecycle status, relationships, evidence, importance; Idea Vault Law #001 |

@@ -5,12 +5,11 @@
 | **ID** | IV-FUT-002 |
 | **Title** | Voice conversations at full product scale |
 | **Category** | Future Ideas |
-| **Status** | Parking |
-| **Fact-check** | Opinion |
-| **Source** | ROADMAP-001 · SYS2-001 · Founder north star |
-| **Related** | EXEC Step 6 Future Parking Lot |
-| **Captured** | 2026-08-01 |
+| **Status** | Future |
+| **Importance** | Important |
 | **Owner** | Founder |
+| **Last Updated** | 2026-08-01 |
+| **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
 
 ---
@@ -27,10 +26,30 @@ Parked until foundation + CE proof gates clear.
 
 ---
 
-## Downstream (filled in later steps)
+## Relationships
+
+| Direction | Ideas |
+|---|---|
+| **Depends on** | IV-PROD-005 · IV-AI-004 · BR-001 gates |
+| **Supports** | IV-FUT-001 · IV-PROD-006 |
+| **Related** | IV-PHIL-001 · IV-RES-004 |
+
+---
+
+## Evidence
+
+| Field | Value |
+|---|---|
+| **Why we believe this** | Voice is core to practice realism but beta readiness still blocks scale. |
+| **Sources** | Internal experiment · Doctrine document (CE-001 · BR-001) · Founder insight |
+| **Confidence** | Medium |
+
+---
+
+## Downstream (filled in later EXEC steps)
 
 | Field | Value |
 |---|---|
 | Blind spot review | *(Step 5)* |
 | Roadmap link | *(Step 12)* |
-| Priority | *(Step 11)* |
+| Priority | *(Step 11 — distinct from Importance)* |

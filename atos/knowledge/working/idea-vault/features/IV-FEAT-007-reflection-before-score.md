@@ -5,12 +5,11 @@
 | **ID** | IV-FEAT-007 |
 | **Title** | Reflection before score |
 | **Category** | Features |
-| **Status** | Captured |
-| **Fact-check** | Opinion |
-| **Source** | SYS1-001 · SYS2-001 · EXEC Phase 3 |
-| **Related** | IV-PROD-001 · IV-PROD-002 |
-| **Captured** | 2026-08-01 |
+| **Status** | Inbox |
+| **Importance** | Important |
 | **Owner** | Founder |
+| **Last Updated** | 2026-08-01 |
+| **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
 
 ---
@@ -27,10 +26,30 @@ Calibration over evaluation theater.
 
 ---
 
-## Downstream (filled in later steps)
+## Relationships
+
+| Direction | Ideas |
+|---|---|
+| **Depends on** | IV-PHIL-003 · IV-LAW-002 |
+| **Supports** | IV-PROD-002 · IV-UX-005 |
+| **Related** | IV-AI-002 · IV-RES-001 |
+
+---
+
+## Evidence
+
+| Field | Value |
+|---|---|
+| **Why we believe this** | Immediate scores push evaluation ahead of understanding; reflection preserves coach feel. |
+| **Sources** | Founder insight · Doctrine document (SYS2-001) · Product intuition |
+| **Confidence** | Medium |
+
+---
+
+## Downstream (filled in later EXEC steps)
 
 | Field | Value |
 |---|---|
 | Blind spot review | *(Step 5)* |
 | Roadmap link | *(Step 12)* |
-| Priority | *(Step 11)* |
+| Priority | *(Step 11 — distinct from Importance)* |

@@ -631,7 +631,14 @@ Reason:
 Founder directive: build a permanent company operating system before building more product. Three phases — Foundation (knowledge base), Strategy, Product Execution. Hard rule: no new features until documented, categorized, blind-spot reviewed, and placed on the roadmap. Every step requires Founder review and approval before the next step. Immediate work is Step 1 only: Living Idea Vault under ATOS working knowledge. Volumes: `atos/product/EXEC-001-talkforge-execution-plan.md`, `atos/knowledge/working/idea-vault/`.
 
 Status:
-Authoritative — Plan adopted; **Step 1 Idea Vault awaiting Founder review**; Steps 2–18 blocked until prior step approved
+Authoritative — Plan adopted; Steps 2–18 blocked until prior step approved
+
+Amendment (2026-08-01) — Step 1 Founder Decision: **Revise**.
+
+Before Step 1 freezes, every idea must carry four metadata fields: (1) Lifecycle Status, (2) Relationships (Depends on / Supports / Related), (3) Evidence + Confidence, (4) Importance (Critical · Important · Useful · Optional). Adopt Idea Vault Law #001: *An idea is not knowledge until it can be understood, connected, and acted upon.* Do not expand the vault schema further — the vault supports the product; it is not the product. After revisions, Step 1 returns for Founder re-review and freeze.
+
+Status after amendment:
+**Step 1 revised — awaiting Founder re-review**; Steps 2–18 still blocked
 
 ---
 

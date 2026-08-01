@@ -5,12 +5,11 @@
 | **ID** | IV-AI-003 |
 | **Title** | Coaching style & teaching method selection |
 | **Category** | AI Ideas |
-| **Status** | Captured |
-| **Fact-check** | Opinion |
-| **Source** | SYS2-001 · CE-001 · coach permanence work |
-| **Related** | IV-PROD-002 · IV-LAW-003 |
-| **Captured** | 2026-08-01 |
+| **Status** | Reviewing |
+| **Importance** | Important |
 | **Owner** | Founder |
+| **Last Updated** | 2026-08-01 |
+| **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
 
 ---
@@ -27,10 +26,30 @@ Personalization without identity invention.
 
 ---
 
-## Downstream (filled in later steps)
+## Relationships
+
+| Direction | Ideas |
+|---|---|
+| **Depends on** | IV-FEAT-003 · IV-LAW-009 · IV-PROD-004 |
+| **Supports** | IV-FEAT-004 · IV-AI-005 |
+| **Related** | IV-AI-002 · IV-FEAT-001 |
+
+---
+
+## Evidence
+
+| Field | Value |
+|---|---|
+| **Why we believe this** | Style selection is how Pedagogy Engine becomes concrete without changing the lesson (What). |
+| **Sources** | Founder insight · Doctrine document (SYS2-001 · S2-LAW-002) · Product intuition |
+| **Confidence** | Medium |
+
+---
+
+## Downstream (filled in later EXEC steps)
 
 | Field | Value |
 |---|---|
 | Blind spot review | *(Step 5)* |
 | Roadmap link | *(Step 12)* |
-| Priority | *(Step 11)* |
+| Priority | *(Step 11 — distinct from Importance)* |

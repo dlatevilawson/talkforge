@@ -16,9 +16,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Current gate (binding)
 
-**EXEC-001 Step 1 (Idea Vault) is awaiting Founder review.**
+**EXEC-001 Step 1 (Idea Vault) was revised per Founder and is awaiting re-review / freeze.**
 
 - Do **not** start Step 2 (Constitution) or any later EXEC step until the Founder explicitly approves Step 1.
+- Every Idea Vault entry requires: **Status · Importance · Relationships · Evidence** (Idea Vault Law #001).
+- Do **not** expand the Idea Vault schema beyond the approved fields.
 - Capture meaningful new ideas in the Idea Vault **before** expanding the discussion.
 - Do **not** ship new product features that are not documented, categorized, blind-spot reviewed, and roadmap-linked (EXEC Operating Rules) — except continuation of already-ratified tracks the Founder has not paused (e.g. CE-001 milestones under RES-013).
 

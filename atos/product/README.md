@@ -18,8 +18,8 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 
 | Rank | ID | Role | Status |
 |---|---|---|---|
-| **Gate** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) | TalkForge Execution Plan — Foundation → Strategy → Build | **Active — Step 1 awaiting Founder review** |
-| **Step 1** | [Idea Vault](../knowledge/working/idea-vault/README.md) | Living repository for every idea | **Awaiting Founder review** |
+| **Gate** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) | TalkForge Execution Plan — Foundation → Strategy → Build | **Active — Step 1 revised; awaiting re-review** |
+| **Step 1** | [Idea Vault](../knowledge/working/idea-vault/README.md) | Living repository — Status · Relationships · Evidence · Importance | **Revised — awaiting Founder re-review** |
 
 **Agent rule:** Do not start EXEC-001 Step 2 (or later) until the Founder approves Step 1. No new features without documentation, categorization, blind-spot review, and roadmap placement (EXEC-001 Operating Rules).
 

@@ -5,12 +5,11 @@
 | **ID** | IV-PROD-003 |
 | **Title** | Personal Operating Model (POM) |
 | **Category** | Product Ideas |
-| **Status** | Active |
-| **Fact-check** | Opinion |
-| **Source** | POM-001 |
-| **Related** | IV-PROD-004 · IV-PHIL-002 · PCM-001 |
-| **Captured** | 2026-08-01 |
+| **Status** | Approved |
+| **Importance** | Critical |
 | **Owner** | Founder |
+| **Last Updated** | 2026-08-01 |
+| **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
 
 ---
@@ -27,10 +26,30 @@ Prevents building a chat log with better memory. Continuity architecture.
 
 ---
 
-## Downstream (filled in later steps)
+## Relationships
+
+| Direction | Ideas |
+|---|---|
+| **Depends on** | IV-PHIL-002 · IV-LAW-005 |
+| **Supports** | IV-PROD-004 · IV-PROD-006 · IV-PROD-001 |
+| **Related** | PCM-001 · IV-LAW-006 |
+
+---
+
+## Evidence
+
+| Field | Value |
+|---|---|
+| **Why we believe this** | Separating observed communication (PCM) from becoming-identity (POM) stops evidence and identity from collapsing into one messy store. |
+| **Sources** | Founder insight · Doctrine document (POM-001) · Product intuition |
+| **Confidence** | High |
+
+---
+
+## Downstream (filled in later EXEC steps)
 
 | Field | Value |
 |---|---|
 | Blind spot review | *(Step 5)* |
 | Roadmap link | *(Step 12)* |
-| Priority | *(Step 11)* |
+| Priority | *(Step 11 — distinct from Importance)* |

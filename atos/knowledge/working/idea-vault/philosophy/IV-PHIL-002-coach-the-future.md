@@ -5,12 +5,11 @@
 | **ID** | IV-PHIL-002 |
 | **Title** | Organize information to coach the future |
 | **Category** | Philosophy |
-| **Status** | Active |
-| **Fact-check** | Opinion |
-| **Source** | POM-001 · SYS1-001 founding sentence |
-| **Related** | IV-PROD-003 · IV-LAW-006 |
-| **Captured** | 2026-08-01 |
+| **Status** | Approved |
+| **Importance** | Critical |
 | **Owner** | Founder |
+| **Last Updated** | 2026-08-01 |
+| **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
 
 ---
@@ -27,10 +26,30 @@ Architecture filter for every engineering decision. Accumulation without becomin
 
 ---
 
-## Downstream (filled in later steps)
+## Relationships
+
+| Direction | Ideas |
+|---|---|
+| **Depends on** | — |
+| **Supports** | IV-PROD-003 · IV-PROD-004 · IV-LAW-006 · IV-FEAT-006 |
+| **Related** | IV-PHIL-004 · IV-PROD-006 |
+
+---
+
+## Evidence
+
+| Field | Value |
+|---|---|
+| **Why we believe this** | Memory without forward coaching becomes analytics theater; founding architecture rejects that failure mode. |
+| **Sources** | Founder insight · Doctrine document (POM-001 · SYS1-001) · Product intuition |
+| **Confidence** | High |
+
+---
+
+## Downstream (filled in later EXEC steps)
 
 | Field | Value |
 |---|---|
 | Blind spot review | *(Step 5)* |
 | Roadmap link | *(Step 12)* |
-| Priority | *(Step 11)* |
+| Priority | *(Step 11 — distinct from Importance)* |

@@ -6,11 +6,10 @@
 | **Title** | Optimize for engagement / time-in-app |
 | **Category** | Rejected Ideas |
 | **Status** | Rejected |
-| **Fact-check** | Opinion |
-| **Source** | SYS1-001 · SYS2-001 · POM-001 · Founder filters |
-| **Related** | IV-PHIL-002 · IV-LAW-005 · IV-LAW-006 |
-| **Captured** | 2026-08-01 |
+| **Importance** | Critical |
 | **Owner** | Founder |
+| **Last Updated** | 2026-08-01 |
+| **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
 
 ---
@@ -27,10 +26,30 @@ Conflicts with transfer promise and relevance moat.
 
 ---
 
-## Downstream (filled in later steps)
+## Relationships
+
+| Direction | Ideas |
+|---|---|
+| **Depends on** | — |
+| **Supports** | IV-RES-004 · IV-RES-003 · IV-PHIL-005 |
+| **Related** | IV-UX-005 · IV-REJ-005 |
+
+---
+
+## Evidence
+
+| Field | Value |
+|---|---|
+| **Why we believe this** | Engagement optimization would invert the customer promise and push time-in-app over real-life transfer. |
+| **Sources** | Founder insight · Doctrine document (SYS1-001 · SYS2-001) · Product intuition · Competitor analysis |
+| **Confidence** | High |
+
+---
+
+## Downstream (filled in later EXEC steps)
 
 | Field | Value |
 |---|---|
 | Blind spot review | *(Step 5)* |
 | Roadmap link | *(Step 12)* |
-| Priority | *(Step 11)* |
+| Priority | *(Step 11 — distinct from Importance)* |
