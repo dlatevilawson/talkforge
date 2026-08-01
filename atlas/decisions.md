@@ -637,6 +637,20 @@ Authoritative — Adopted (System 1 implementation follows; doctrine frozen)
 
 ---
 
+# Decision 045
+
+Title:
+Publish SYS1-001 System 1 Foundation as the mandatory pre-code company doctrine.
+
+Reason:
+
+Founder direction: organize System 1 into a single readable doctrine for every engineer, designer, AI agent, and future employee before they write a line of code. Sections: Mission, Product Identity (Communication Gym), Customer Promise, North Star, Coaching Philosophy, Intelligence Philosophy, Architecture, Living Profile Law, Success Metrics, Design Principles, Trust Principles, Final Product Test. Primary tagline adopted: “Practice the conversations that shape your life.” From this point the work changes from “what should we build?” to “how do we faithfully implement what we’ve already decided?” Volumes: `atos/product/SYS1-001-system-1-foundation.md`, `AGENTS.md`, `atos/product/README.md`.
+
+Status:
+Authoritative — Frozen
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

@@ -10,6 +10,11 @@
 | **Updated** | 2026-07-31 |
 | **Binding laws** | Forge Laws #012–#017 · LP-LAW-001 · POM-001 |
 | **Architecture** | `atos/product/POM-001-personal-operating-model.md` |
+| **Company doctrine** | `atos/product/SYS1-001-system-1-foundation.md` (**read first**) |
+
+## Tagline
+
+> **Practice the conversations that shape your life.**
 
 ## Founding sentence
 
