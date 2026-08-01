@@ -7,11 +7,17 @@ This version has breaking changes — APIs, conventions, and file structure may 
 <!-- BEGIN:talkforge-system-1 -->
 # TalkForge — read before any product code
 
-**Mandatory:** [`atos/product/SYS1-001-system-1-foundation.md`](atos/product/SYS1-001-system-1-foundation.md)
+**Mandatory (in order):**
 
-System 1 is **frozen**. Implement what has been decided. Do not invent parallel identity stores or features that fail the Final Product Test:
+1. [`atos/product/SYS1-001-system-1-foundation.md`](atos/product/SYS1-001-system-1-foundation.md) — **truth** (Living Profile)
+2. [`atos/product/SYS2-001-system-2-experience.md`](atos/product/SYS2-001-system-2-experience.md) — **judgment** (next experience)
 
-> Does this help someone show up better in a real conversation?
+System 1 and System 2 are **frozen**. Implement what has been decided.
+
+- Do not invent parallel identity stores (System 1).
+- Do not invent who the member is; hypothesize with invitations only (System 2).
+- One primary mission above the fold — reduce decision fatigue.
+- Final tests: real-conversation transfer · one meaningful step toward who they’re becoming.
 
 Tagline: *Practice the conversations that shape your life.*
 <!-- END:talkforge-system-1 -->

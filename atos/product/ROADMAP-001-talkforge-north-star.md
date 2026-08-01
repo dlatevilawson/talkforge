@@ -10,7 +10,7 @@
 | **Updated** | 2026-07-31 |
 | **Binding laws** | Forge Laws #012–#017 · LP-LAW-001 · POM-001 |
 | **Architecture** | `atos/product/POM-001-personal-operating-model.md` |
-| **Company doctrine** | `atos/product/SYS1-001-system-1-foundation.md` (**read first**) |
+| **Company doctrine** | SYS1-001 (truth) → SYS2-001 (judgment) — **read in order** |
 
 ## Tagline
 
@@ -152,10 +152,25 @@ Stay on Phase 1 until a returning member wants another session **because they fe
 
 Do not start Phase 2 engines until Phase 1.5 trust is felt — and System 1 Living Profile freeze is underway so engines consume one identity, not invent five.
 
+## System 2 — Experience (judgment engine)
+
+Doctrine frozen: `atos/product/SYS2-001-system-2-experience.md` · `S2-LAW-001`
+
+| Pillar | Role |
+|---|---|
+| Readiness | Decides the single next Mission |
+| Conversation | How practice unfolds |
+| Reflection | Meaning + transfer before score |
+| Adaptive Experience | Renders — never judges |
+
+Mission fields: Conversation · Why now · Evidence · **Purpose** · Intensity · CTA  
+
+May hypothesize; never assume. One mission above the fold.
+
 ## Current execution focus
 
-1. Complete **System 1** against POM-001 / LP-LAW-001  
-2. Keep Phase 1 → 1.5 trust feelings in production  
-3. Then deepen engines — all reading the Living Profile  
+1. Complete **System 1** substrate against POM-001 / LP-LAW-001  
+2. Implement **System 2** Readiness → one Mission homepage (consumes Living Profile only)  
+3. Keep Phase 1 → 1.5 trust feelings in production  
 
-Earn trust. Freeze identity. Coach the future.
+Earn trust. Freeze identity. Deliver the next meaningful step.

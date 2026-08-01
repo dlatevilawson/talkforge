@@ -651,6 +651,20 @@ Authoritative — Frozen
 
 ---
 
+# Decision 046
+
+Title:
+Freeze System 2 Experience doctrine (SYS2-001) and Judgment Law (S2-LAW-001).
+
+Reason:
+
+Founder direction after System 1 freeze: System 2 is the judgment engine — deliver the right conversation, at the right time, in the right way. Founding sentence: meet the member where they are, and help them take one meaningful step forward. Sharpenings adopted: System 2 may hypothesize but never assume; every Mission requires Evidence (why now) and Purpose (why it matters for who they’re becoming); optimize for relevance / reduce decision fatigue, not engagement; homepage as personal trainer with one mission above the fold; Discovery as first-class invitation behavior; S2-LAW-001 — every recommendation must reduce the distance between who the member is today and who they’re trying to become. Pillars: Readiness (decides), Conversation, Reflection, Adaptive Experience (renders only). Volumes: `atos/product/SYS2-001-system-2-experience.md`, `atos/product/S2-LAW-001-judgment.md`.
+
+Status:
+Authoritative — Frozen
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

@@ -17,7 +17,8 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 
 | Rank | ID | Role | Status |
 |---|---|---|---|
-| **0** | [SYS1-001](SYS1-001-system-1-foundation.md) | **System 1 Foundation — read before any code** | **Frozen — Authoritative** |
+| **0** | [SYS1-001](SYS1-001-system-1-foundation.md) | **System 1 Foundation (truth) — read first** | **Frozen — Authoritative** |
+| **0b** | [SYS2-001](SYS2-001-system-2-experience.md) | **System 2 Experience (judgment) — read second** | **Frozen — Authoritative** |
 
 Tagline: *Practice the conversations that shape your life.*
 
@@ -66,7 +67,9 @@ Tagline: *Practice the conversations that shape your life.*
 | — | [RES-015](../resolutions/RES-015-br-001-acceptance.md) | BR-001 Accepted; external invite blocked | Authoritative |
 | — | [FLA-001](FLA-001-forge-learning-architecture.md) | Canonical product learning specification | Authoritative |
 | — | [PCM-001](PCM-001-personal-communication-model.md) | Communication behavior evidence substrate | Product Canonical |
-| — | [SYS1-001](SYS1-001-system-1-foundation.md) | System 1 Foundation doctrine (pre-code reading for all roles) | **Frozen — Authoritative** |
+| — | [SYS1-001](SYS1-001-system-1-foundation.md) | System 1 Foundation — truth engine (pre-code) | **Frozen — Authoritative** |
+| — | [SYS2-001](SYS2-001-system-2-experience.md) | System 2 Experience — judgment engine (next step) | **Frozen — Authoritative** |
+| — | [S2-LAW-001](S2-LAW-001-judgment.md) | Every recommendation reduces distance to who they’re becoming | **Authoritative** |
 | — | [POM-001](POM-001-personal-operating-model.md) | Personal Operating Model — founding architecture (coach the future) | **Authoritative** |
 | — | [LP-LAW-001](LP-LAW-001-living-profile.md) | Living Profile single source of truth — hard freeze against schema creep | **Authoritative** |
 | — | [ROADMAP-001](ROADMAP-001-talkforge-north-star.md) | North star roadmap + System 1 freeze + Laws #012–#017 | **Authoritative** |
