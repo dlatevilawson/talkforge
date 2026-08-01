@@ -70,6 +70,7 @@ Tagline: *Practice the conversations that shape your life.*
 | — | [SYS1-001](SYS1-001-system-1-foundation.md) | System 1 Foundation — truth engine (pre-code) | **Frozen — Authoritative** |
 | — | [SYS2-001](SYS2-001-system-2-experience.md) | System 2 Experience — judgment engine (next step) | **Frozen — Authoritative** |
 | — | [S2-LAW-001](S2-LAW-001-judgment.md) | Every recommendation reduces distance to who they’re becoming | **Authoritative** |
+| — | [S2-LAW-002](S2-LAW-002-pedagogy.md) | Lesson recognizable; experience surprising (What ≠ How) | **Authoritative** |
 | — | [POM-001](POM-001-personal-operating-model.md) | Personal Operating Model — founding architecture (coach the future) | **Authoritative** |
 | — | [LP-LAW-001](LP-LAW-001-living-profile.md) | Living Profile single source of truth — hard freeze against schema creep | **Authoritative** |
 | — | [ROADMAP-001](ROADMAP-001-talkforge-north-star.md) | North star roadmap + System 1 freeze + Laws #012–#017 | **Authoritative** |

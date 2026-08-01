@@ -17,7 +17,8 @@ System 1 and System 2 are **frozen**. Implement what has been decided.
 - Do not invent parallel identity stores (System 1).
 - Do not invent who the member is; hypothesize with invitations only (System 2).
 - One primary mission above the fold — reduce decision fatigue.
-- Final tests: real-conversation transfer · one meaningful step toward who they’re becoming.
+- Stable coaching **objective** until growth; rotate **modality** intentionally (Pedagogy Engine) — lesson recognizable, experience surprising.
+- Final tests: real-conversation transfer · one meaningful step toward who they’re becoming · most effective teaching method today.
 
 Tagline: *Practice the conversations that shape your life.*
 <!-- END:talkforge-system-1 -->

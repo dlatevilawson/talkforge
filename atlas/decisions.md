@@ -665,6 +665,20 @@ Authoritative — Frozen
 
 ---
 
+# Decision 047
+
+Title:
+Amend System 2: Pedagogy Engine — consistency of principle, variety of experience.
+
+Reason:
+
+Founder clarification: consistency is not repeating the same format. The coaching objective (What) stays stable until growth; delivery modality (How) rotates intentionally — story, reflection, simulation, science, challenge, debrief, perspective, etc. Humans tire of predictable delivery, not meaningful repetition. System 2 Responsibility #5 — Pedagogy Engine. Founder principle: the lesson should remain recognizable; the experience should remain surprising. The coach should never become predictable; the growth should. Law: S2-LAW-002. SYS2-001 bumped to v1.1. Volumes: `atos/product/SYS2-001-system-2-experience.md`, `atos/product/S2-LAW-002-pedagogy.md`.
+
+Status:
+Authoritative — Frozen
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

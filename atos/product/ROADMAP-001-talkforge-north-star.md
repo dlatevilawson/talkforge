@@ -158,14 +158,16 @@ Doctrine frozen: `atos/product/SYS2-001-system-2-experience.md` · `S2-LAW-001`
 
 | Pillar | Role |
 |---|---|
-| Readiness | Decides the single next Mission |
-| Conversation | How practice unfolds |
+| Readiness | Decides stable coaching **objective** (What) |
+| Pedagogy | Decides today’s **modality** (How) — intentional variety |
+| Conversation | How interaction unfolds inside practice |
 | Reflection | Meaning + transfer before score |
 | Adaptive Experience | Renders — never judges |
 
-Mission fields: Conversation · Why now · Evidence · **Purpose** · Intensity · CTA  
+Mission fields: Objective · Modality · Why now · Evidence · **Purpose** · Intensity · CTA  
 
-May hypothesize; never assume. One mission above the fold.
+May hypothesize; never assume. One mission above the fold.  
+S2-LAW-002: lesson recognizable; experience surprising.
 
 ## Current execution focus
 
