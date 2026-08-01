@@ -3,12 +3,13 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ROADMAP-001 |
-| **Version** | 1.1.0 |
+| **Version** | 1.2.0 |
 | **Status** | Authoritative product direction |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
-| **Updated** | 2026-07-31 |
+| **Updated** | 2026-08-01 |
 | **Binding laws** | Forge Laws #012 · #013 (`atlas/forge-laws.md`) |
+| **Company OS** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) — Step 1 Idea Vault awaiting Founder review |
 
 ## North Star
 

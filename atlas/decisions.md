@@ -621,6 +621,20 @@ Authoritative — Adopted
 
 ---
 
+# Decision 048
+
+Title:
+Adopt TalkForge Execution Plan (EXEC-001) and begin with Idea Vault only.
+
+Reason:
+
+Founder directive: build a permanent company operating system before building more product. Three phases — Foundation (knowledge base), Strategy, Product Execution. Hard rule: no new features until documented, categorized, blind-spot reviewed, and placed on the roadmap. Every step requires Founder review and approval before the next step. Immediate work is Step 1 only: Living Idea Vault under ATOS working knowledge. Volumes: `atos/product/EXEC-001-talkforge-execution-plan.md`, `atos/knowledge/working/idea-vault/`.
+
+Status:
+Authoritative — Plan adopted; **Step 1 Idea Vault awaiting Founder review**; Steps 2–18 blocked until prior step approved
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
