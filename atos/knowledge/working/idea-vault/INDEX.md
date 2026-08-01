@@ -3,15 +3,17 @@
 | Field | Value |
 |---|---|
 | **Document ID** | IV-INDEX |
-| **Version** | 1.1.0 |
-| **Status** | Working — Awaiting Founder review after Revision |
+| **Version** | 1.2.0 |
+| **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
 | **Updated** | 2026-08-01 |
 | **Entry count** | 54 |
-| **Schema** | Status · Importance · Relationships · Evidence |
+| **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
 
 > **Idea Vault Law #001:** An idea is not knowledge until it can be understood, connected, and acted upon. ([IV-LAW-010](laws/IV-LAW-010-idea-is-not-knowledge.md))
+>
+> **Plane:** Working Knowledge — does not override Constitution, Decision Ledger, or Laws.
 
 ---
 

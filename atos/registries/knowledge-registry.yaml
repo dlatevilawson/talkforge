@@ -72,7 +72,10 @@ stores:
     state: active
     question_ledger: atos/knowledge/working/questions.md
     idea_vault: atos/knowledge/working/idea-vault/
-    idea_vault_status: awaiting_founder_review_exec_001_step_1
+    idea_vault_status: frozen_exec_001_step_1_complete
+    idea_vault_plane: working_knowledge
+    # Canonical Knowledge (Mission, Constitution, Laws, Definitions, Core Philosophy)
+    # requires formal approval and is NOT overridden by the Idea Vault.
   evidence:
     ref: KNOW-EVIDENCE
     path: atos/knowledge/evidence/

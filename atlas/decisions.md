@@ -640,6 +640,15 @@ Before Step 1 freezes, every idea must carry four metadata fields: (1) Lifecycle
 Status after amendment:
 **Step 1 revised — awaiting Founder re-review**; Steps 2–18 still blocked
 
+Amendment (2026-08-01) — Step 1 Founder Decision: ✅ **APPROVED**.
+
+Step 1 is Complete and Frozen. The Idea Vault is the official Working Knowledge system for TalkForge. Binding rules: (1) no new metadata fields without Founder Decision; (2) every new idea enters the Idea Vault before discussion continues elsewhere; (3) the vault captures, organizes, connects, and preserves — it does not make decisions; (4) the vault does not override Constitution, Decision Ledger, or Laws.
+
+Clarification adopted: **Canonical Knowledge** (Mission, Constitution, Laws, Definitions, Core Philosophy — formal approval to change) vs **Working Knowledge** (product ideas, UX, research, experiments, future features, blind spots — expected to evolve). Idea Vault = Working Knowledge plane.
+
+Status after approval:
+**Step 1 Complete & Frozen**; Step 2 (Constitution) blocked until Founder explicitly authorizes begin; Steps 3–18 remain gated
+
 ---
 
 # Future Decisions

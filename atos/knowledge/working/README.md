@@ -18,5 +18,5 @@ Working knowledge under development. Not Canonical. Not loadable as institutiona
 
 | Asset | Path |
 |---|---|
-| **Idea Vault** | [idea-vault/README.md](idea-vault/README.md) · [INDEX.md](idea-vault/INDEX.md) |
+| **Idea Vault** (Working Knowledge — Step 1 Frozen) | [idea-vault/README.md](idea-vault/README.md) · [INDEX.md](idea-vault/INDEX.md) |
 | **D-Q Question Ledger** | [questions.md](questions.md) |

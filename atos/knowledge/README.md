@@ -12,7 +12,7 @@
 | **Dependencies** | GOV-KNOW, SPEC-003, STD-002, KA-001 |
 | **Related Documents** | REG-KNOW, GOV-COMPAT, LOAD-MANIFEST, KA-REORG-001, EXEC-001, IV-ROOT |
 | **Approval History** | 2026-07-18 — M4 created; 2026-07-24 — KA-REORG-001 domain indexes |
-| **Change Log** | 2026-08-01 — Idea Vault under working/ (EXEC-001 Step 1); 2026-07-24 — Active stores; LOAD-MANIFEST; question ledger; labeling clarified |
+| **Change Log** | 2026-08-01 — Idea Vault Frozen as official Working Knowledge (EXEC-001 Step 1 Approved); 2026-07-24 — Active stores; LOAD-MANIFEST; question ledger; labeling clarified |
 
 ---
 

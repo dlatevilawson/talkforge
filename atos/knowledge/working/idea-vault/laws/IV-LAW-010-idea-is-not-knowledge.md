@@ -11,6 +11,7 @@
 | **Last Updated** | 2026-08-01 |
 | **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
+| **Governing note** | Binding for Idea Vault (Working Knowledge plane). Does not override Constitution, Decision Ledger, or Forge Laws. |
 
 ---
 
