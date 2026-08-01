@@ -9,7 +9,7 @@
 | **AI Steward** | Atlas |
 | **Updated** | 2026-08-01 |
 | **Binding laws** | Forge Laws #012 · #013 (`atlas/forge-laws.md`) |
-| **Company OS** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) — Step 1 Idea Vault Complete & Frozen; Step 2 pending authorization |
+| **Company OS** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) — Step 1 Frozen; Step 2 Constitution awaiting review ([CONST-001](CONST-001-talkforge-constitution.md)) |
 
 ## North Star
 

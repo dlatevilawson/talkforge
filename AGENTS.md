@@ -11,8 +11,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | Document | Role |
 |---|---|
 | [EXEC-001](atos/product/EXEC-001-talkforge-execution-plan.md) | Company Execution Plan — Foundation → Strategy → Build |
-| [Idea Vault](atos/knowledge/working/idea-vault/README.md) | Official Working Knowledge system (EXEC Step 1 — **Frozen**) |
-| [Idea Vault Index](atos/knowledge/working/idea-vault/INDEX.md) | Master index |
+| [CONST-001](atos/product/CONST-001-talkforge-constitution.md) | TalkForge Constitution v1.0 — Canonical Candidate (Step 2) |
+| [Constitution (live)](atlas/constitution.md) | Identity-plane Constitution copy |
+| [Idea Vault](atos/knowledge/working/idea-vault/README.md) | Official Working Knowledge system (Step 1 — **Frozen**) |
 
 ## Knowledge planes (binding)
 
@@ -21,17 +22,15 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | **Canonical Knowledge** | Defines the company (Mission, Constitution, Laws, Definitions, Core Philosophy) | Formal approval required |
 | **Working Knowledge** | Still being explored (ideas, UX, research, experiments, future, blind spots) | Expected to evolve |
 
-The Idea Vault is **Working Knowledge**. It does **not** override Constitution, Decision Ledger, or Laws.
+The Idea Vault is **Working Knowledge**. It does **not** override the Constitution, Decision Ledger, or Laws.
 
 ## Current gate (binding)
 
-**EXEC-001 Step 1 (Idea Vault) is Complete and Frozen.**
+**EXEC-001 Step 1 (Idea Vault) is Complete and Frozen.**  
+**EXEC-001 Step 2 (Constitution) is drafted and awaiting Founder review.**
 
-- Do **not** start Step 2 (Constitution) until the Founder explicitly authorizes beginning Step 2.
+- Do **not** start Step 3 (Decision Ledger) or any later EXEC step until the Founder approves Step 2.
+- Treat CONST-001 / `atlas/constitution.md` as Canonical Candidate — do not invent amendments.
 - Every new idea enters the Idea Vault **before** discussion continues elsewhere.
-- Every Idea Vault entry requires: **Status · Importance · Relationships · Evidence** (Idea Vault Law #001).
 - Do **not** add Idea Vault metadata fields without a Founder Decision.
-- The vault captures, organizes, connects, and preserves — it does **not** make decisions.
 - Do **not** ship new product features that are not documented, categorized, blind-spot reviewed, and roadmap-linked (EXEC Operating Rules) — except continuation of already-ratified tracks the Founder has not paused (e.g. CE-001 milestones under RES-013).
-
-When doctrine freeze docs (SYS1 / SYS2 / POM) are merged to the active branch, read them before implementing System 1 / System 2 surfaces.

@@ -651,6 +651,20 @@ Status after approval:
 
 ---
 
+# Decision 049
+
+Title:
+Authorize EXEC-001 Step 2 — TalkForge Constitution v1.0 (CONST-001).
+
+Reason:
+
+Founder authorized continuation after Step 1 freeze. Step 2 delivers Canonical Knowledge: Mission, Vision, Company Philosophy, Core Principles, Definitions, Product DNA, Company Glossary, Founding Principles, and Constitutional Articles (including Knowledge Planes). Constitution must not be confused with Working Knowledge (Idea Vault). Volumes: `atos/product/CONST-001-talkforge-constitution.md`, `atlas/constitution.md`, `atos/product/EXEC-001-talkforge-execution-plan.md`.
+
+Status:
+Authoritative — Step 2 drafted; **awaiting Founder Approve / Revise / Reject**; Steps 3–18 blocked until Step 2 approved
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

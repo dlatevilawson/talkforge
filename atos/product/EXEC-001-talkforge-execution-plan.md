@@ -4,14 +4,14 @@
 |---|---|
 | **Document ID** | EXEC-001 |
 | **Title** | TalkForge Execution Plan |
-| **Version** | 1.2.0 |
-| **Status** | **Active — Step 1 Complete & Frozen; Step 2 blocked pending Founder authorization** |
+| **Version** | 1.3.0 |
+| **Status** | **Active — Step 1 Frozen; Step 2 Constitution awaiting Founder review** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Created** | 2026-08-01 |
 | **Updated** | 2026-08-01 |
 | **Authority** | Founder directive — company operating system |
-| **Related** | [Idea Vault](../knowledge/working/idea-vault/README.md) · KA-001 · TEA-001 · ROADMAP-001 · Constitution · Decision Ledger |
+| **Related** | [Idea Vault](../knowledge/working/idea-vault/README.md) · [CONST-001](CONST-001-talkforge-constitution.md) · KA-001 · TEA-001 · ROADMAP-001 · Decision Ledger |
 
 ---
 
@@ -47,7 +47,7 @@ Create a permanent operating system for TalkForge that captures every important 
 
 | Phase | Goal | Status |
 |---|---|---|
-| **1 — Foundation** | Build the company’s knowledge base | **In progress** (Step 1 Complete & Frozen) |
+| **1 — Foundation** | Build the company’s knowledge base | **In progress** (Step 1 Frozen · Step 2 in review) |
 | **2 — Strategy** | Convert knowledge into executable strategy | ⬜ Not Started (blocked until Phase 1 complete) |
 | **3 — Product Execution** | Build TalkForge one validated system at a time | ⬜ Not Started (blocked until Phase 2 complete) |
 
@@ -58,7 +58,7 @@ Create a permanent operating system for TalkForge that captures every important 
 | Step | Deliverable | Status | Path |
 |---|---|---|---|
 | **1** | Living Idea Vault | ✅ **Complete & Frozen** | [`atos/knowledge/working/idea-vault/`](../knowledge/working/idea-vault/) |
-| **2** | TalkForge Constitution v1.0 | ⬜ Blocked | *(awaiting Founder authorization to begin)* |
+| **2** | TalkForge Constitution v1.0 | **Awaiting Founder review** | [`CONST-001`](CONST-001-talkforge-constitution.md) · [`atlas/constitution.md`](../../atlas/constitution.md) |
 | **3** | Decision History (Ledger) | ⬜ Blocked | Existing: `atlas/decisions.md` — formal ledger step later |
 | **4** | Research Library | ⬜ Blocked | Partial: `atos/product/research/`, HBF — formal library later |
 | **5** | Blind Spot Register | ⬜ Blocked | *(not started)* |
@@ -108,11 +108,12 @@ Create a permanent operating system for TalkForge that captures every important 
 
 ## Immediate next step (agents)
 
-**Step 1 is Complete and Frozen.**
+**Step 1 is Complete and Frozen.**  
+**Step 2 (Constitution v1.0) is drafted and awaiting Founder review.**
 
-Do **not** begin Step 2 (Constitution) until the Founder explicitly authorizes starting Step 2.
+Do **not** begin Step 3 (Decision Ledger) or any later step until the Founder approves Step 2.
 
-When authorized, Step 2 produces **Canonical Knowledge** (Constitution v1.0). The Idea Vault remains Working Knowledge and must not be treated as the Constitution.
+The Idea Vault remains Working Knowledge and must not be treated as the Constitution.
 
 ---
 
@@ -125,7 +126,9 @@ When authorized, Step 2 produces **Canonical Knowledge** (Constitution v1.0). Th
 | 2026-08-01 | Step 1 Founder Decision | 🟡 **Revise** — lifecycle, relationships, evidence, importance; Law #001 |
 | 2026-08-01 | Step 1 revisions applied | Re-submitted |
 | 2026-08-01 | Step 1 Founder Decision | ✅ **APPROVED** — Complete & Frozen |
-| — | Step 2 | ☐ Authorize begin · ☐ Hold |
+| 2026-08-01 | Step 2 authorized | Founder: Continue with Step 2 |
+| 2026-08-01 | Step 2 Constitution v1.0 drafted | **Awaiting Founder review** |
+| — | Step 2 | ☐ Approve · ☐ Revise · ☐ Reject |
 
 ---
 
@@ -134,5 +137,6 @@ When authorized, Step 2 produces **Canonical Knowledge** (Constitution v1.0). Th
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-08-01 | Initial capture of Founder Execution Plan; Step 1 Idea Vault delivered for review |
-| 1.1.0 | 2026-08-01 | Step 1 Revise applied: lifecycle, relationships, evidence, importance; Idea Vault Law #001 |
+| 1.1.0 | 2026-08-01 | Step 1 Revise applied: lifecycle status, relationships, evidence, importance; Idea Vault Law #001 |
 | 1.2.0 | 2026-08-01 | Step 1 Approved & Frozen; Canonical vs Working knowledge distinction made explicit |
+| 1.3.0 | 2026-08-01 | Step 2 Constitution v1.0 (CONST-001) drafted for Founder review |
