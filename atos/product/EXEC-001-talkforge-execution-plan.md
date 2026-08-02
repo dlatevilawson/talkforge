@@ -11,7 +11,7 @@
 | **Created** | 2026-08-01 |
 | **Updated** | 2026-08-02 |
 | **Authority** | Founder directive — company operating system |
-| **Related** | Idea Vault · CONST-001 · DEC-LEDGER-001 · MASTER-ROADMAP-001 · PHASE3-EXECUTION |
+| **Related** | [Idea Vault](../knowledge/working/idea-vault/README.md) · [CONST-001](CONST-001-talkforge-constitution.md) · DEC-LEDGER-001 · MASTER-ROADMAP-001 · PHASE3-EXECUTION · KA-001 · ROADMAP-001 |
 
 ---
 
@@ -24,7 +24,7 @@ Create a permanent operating system for TalkForge that captures every important 
 ## Hard gates (binding)
 
 1. **No new features** are built until they have been documented, categorized, reviewed for blind spots, and assigned a place in the roadmap.
-2. Founder authorized continuum for Steps 3–18 (2026-08-02) with end-of-arc verification review as needed.
+2. Founder authorized continuum for Steps 3–18 (2026-08-02) with end-of-arc verification review as needed (Decision 050); overall assessment **APPROVE** (Decision 051).
 3. **Step 1–2 schemas/instruments are Frozen** (Idea Vault metadata; Constitution + Law #001 + Admission Rule).
 4. Canonical admission still requires Constitutional Law #001 — build packages are not admission.
 
@@ -32,10 +32,14 @@ Create a permanent operating system for TalkForge that captures every important 
 
 ## Two kinds of knowledge (binding)
 
-| Kind | What it is | Change requires |
-|---|---|---|
-| **Canonical Knowledge** | Defines the company | Founder **admission** |
-| **Working Knowledge** | Still explored | Expected to evolve (Idea Vault et al.) |
+| Kind | What it is | Change requires | Examples |
+|---|---|---|---|
+| **Canonical Knowledge** | Things that **define the company** | Founder **admission** | Mission · Constitution · Laws · Definitions · Core Philosophy |
+| **Working Knowledge** | Everything still being **explored** | Expected to evolve | Product ideas · UX · Research · Experiments · Future features · Blind spots |
+
+- The **Idea Vault** is the official **Working Knowledge** system.
+- It does **not** override Constitution, Decision Ledger, or Laws.
+- Promotion from Working → Canonical requires formal Founder / institutional approval (Constitutional Admission Rule).
 
 ---
 
@@ -45,7 +49,7 @@ Create a permanent operating system for TalkForge that captures every important 
 |---|---|---|
 | **1 — Foundation** | Company knowledge base | ✅ **Complete** (Steps 1–7) |
 | **2 — Strategy** | Executable strategy | ✅ **Complete** (Steps 8–12) |
-| **3 — Product Execution** | Build validated systems | **Authorized** (Steps 13–18 packages) |
+| **3 — Product Execution** | Build validated systems | **Authorized** (Steps 13–18 packages) — OS Approved |
 
 ---
 
@@ -121,10 +125,7 @@ The company operating system is **Approved**. Phase 3 product implementation con
 
 ## Immediate next step (agents)
 
-
-Foundation + Strategy are complete. Execute Phase 3 per MASTER-ROADMAP-001 and BUILD-* packages, starting with **System 1** gaps (Living Profile SSOT, Provenance, Conversation Lifecycle, Unified LP UI).
-
-Founder may review the full arc at end for verification.
+Company OS is **Approved**. Continue Phase 3 engineering per MASTER-ROADMAP-001 and BUILD-* packages, starting with **System 1** gaps (Living Profile persistence, Provenance DB, Conversation Lifecycle, Unified LP UI) → System 2 → CE → UX → Testing → Iterate.
 
 ---
 
@@ -132,12 +133,12 @@ Founder may review the full arc at end for verification.
 
 | Date | Step | Decision |
 |---|---|---|
-| 2026-08-01 | Plan adopted | Decision 048 |
-| 2026-08-01 | Step 1 | ✅ Frozen (after Revise) |
-| 2026-08-02 | Step 2 | ✅ Frozen (contingent Law #001 + Admission Rule) |
-| 2026-08-02 | Steps 3–18 | ✅ Authorized continuum (Decision 050) — end review as needed |
-| 2026-08-02 | Steps 3–12 | ✅ Deliverables published |
-| 2026-08-02 | Steps 13–18 | ✅ Build/test packages published; code execution ongoing per roadmap |
+| 2026-08-01 | Plan adopted as EXEC-001 | Decision 048 |
+| 2026-08-01 | Step 1 Idea Vault | 🟡 Revise → ✅ APPROVED — Frozen |
+| 2026-08-01/02 | Step 2 Constitution | ✅ APPROVED contingent on Law #001 + Admission Rule — Frozen |
+| 2026-08-02 | Steps 3–18 continuum | ✅ Authorized (Decision 050) |
+| 2026-08-02 | Steps 3–12 deliverables | ✅ Published |
+| 2026-08-02 | Steps 13–18 packages | ✅ Published; code execution ongoing |
 | 2026-08-02 | Overall assessment | ✅ **APPROVE** (Decision 051) — Company OS approved; Phase 3 continues |
 
 ---
@@ -146,6 +147,10 @@ Founder may review the full arc at end for verification.
 
 | Version | Date | Change |
 |---|---|---|
-| 1.0.0–1.4.0 | 2026-08-01/02 | Steps 1–2 lifecycle |
+| 1.0.0 | 2026-08-01 | Initial capture; Step 1 Idea Vault |
+| 1.1.0 | 2026-08-01 | Step 1 Revise: lifecycle, relationships, evidence, importance; Law #001 |
+| 1.2.0 | 2026-08-01 | Step 1 Approved & Frozen; Canonical vs Working distinction |
+| 1.3.0 | 2026-08-01 | Step 2 Constitution drafted |
+| 1.4.0 | 2026-08-02 | Step 2 Approved & Frozen; Law #001 + Admission Rule + Article XIV |
 | 2.0.0 | 2026-08-02 | Steps 3–12 complete; Steps 13–18 packages authorized |
-| 2.1.0 | 2026-08-02 | Overall Founder Assessment: APPROVE (Decision 051) |
+| 2.1.0 | 2026-08-02 | Overall Founder Assessment: APPROVE (Decision 051); merge with main Step 2 freeze |

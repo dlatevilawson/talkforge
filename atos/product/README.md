@@ -25,7 +25,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | **Steps 8–12** | [MASTER-ROADMAP-001](MASTER-ROADMAP-001.md) | Strategy | ✅ Complete |
 | **Steps 13–18** | [PHASE3-EXECUTION](PHASE3-EXECUTION.md) | Build packages | ✅ Authorized |
 
-**Agent rule:** Do not start EXEC-001 Step 2 (or later) until the Founder approves Step 1. No new features without documentation, categorization, blind-spot review, and roadmap placement (EXEC-001 Operating Rules).
+**Agent rule:** Company OS Approved (Decision 051). Continue Phase 3 per MASTER-ROADMAP / BUILD packages. No new features without documentation, categorization, blind-spot review, and roadmap placement. Canonical admission still requires Constitutional Law #001.
 
 ## Priority (RES-013)
 
