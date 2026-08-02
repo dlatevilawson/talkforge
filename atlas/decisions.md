@@ -744,6 +744,39 @@ Authoritative — ✅ APPROVED 2026-08-02
 
 ---
 
+
+# Decision 052
+
+Title:
+Admit Craft Law #001 and Design Principle #001 as Canonical.
+
+Reason:
+
+Founder Admit. Craft Law #001: Every implementation should make TalkForge feel more human, more trustworthy, or more courageous—never merely more intelligent. Design Principle #001: Every interaction should reduce unnecessary cognitive load so the member can focus on becoming more prepared. Together they form the dual implementation test (feel + cognitive ease) for the discipline phase. Complements Forge Law #013; does not replace dignity (AMD-001) or Purpose Autonomy.
+
+Alternatives Considered:
+Fold only into PCI review without named Canonical laws; rejected — needs first-class ship filters. Number as Forge Law #014; rejected — avoids collision with POM Laws #014–#017.
+
+Blind Spots:
+Over-narrowing autonomy while reducing cognitive load — mitigated by DES-001 guardrail + Article IX / Purpose Autonomy.
+
+Risks:
+Vague “human” praise without pillars — mitigated by understood / safe / courageous triad.
+
+Final Decision:
+Admit both as Canonical: `CRAFT-LAW-001`, `DES-001`. Bind into Forge Laws product decision filter, PCI Craftsmanship Review, and BUILD package acceptance.
+
+Future Review Date:
+After first System 1 MVP slice ships — verify filters catch intelligence-theater and load-increasing UX.
+
+Volumes:
+`atos/product/CRAFT-LAW-001.md`, `atos/product/DES-001-cognitive-load.md`, `atlas/forge-laws.md`, `PCI-001`, Idea Vault IV-LAW-012 · IV-PHIL-009 · IV-PHIL-010
+
+Status:
+Authoritative — ✅ Admitted 2026-08-02
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

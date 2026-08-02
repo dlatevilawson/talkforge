@@ -87,6 +87,11 @@ Future features and reviews are evaluated across:
 | **3. Cognitive Excellence** | Obvious? Instantly understood? Reduces thinking? |
 | **4. Craftsmanship** | Intentional? Would users believe someone obsessed over this? |
 
+**Binding filters (Decision 052):**
+- **Craft Law #001** (`CRAFT-LAW-001`): more human, trustworthy, or courageous — never merely more intelligent.
+- **Design Principle #001** (`DES-001`): reduce unnecessary cognitive load so the member can focus on becoming more prepared.
+
+
 Functional excellence alone is **insufficient** for approval.
 
 ---

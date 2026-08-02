@@ -4,7 +4,7 @@
 |---|---|
 | **Document ID** | EXEC-001 |
 | **Title** | TalkForge Execution Plan |
-| **Version** | 2.1.0 |
+| **Version** | 2.2.0 |
 | **Status** | **Active — Company OS APPROVED; Phase 3 execution continues** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -107,6 +107,7 @@ Index: [PHASE3-EXECUTION.md](PHASE3-EXECUTION.md)
 | 7 | Build only after the foundation and strategy are complete. |
 | 8 | Improve existing systems before introducing new ones (Step 18). |
 | 9 | Nothing Canonical without Founder admission (Constitutional Law #001). |
+| 10 | Every implementation must pass Craft Law #001 + Design Principle #001 (Decision 052). |
 
 ---
 
@@ -154,3 +155,4 @@ Company OS is **Approved**. Continue Phase 3 engineering per MASTER-ROADMAP-001 
 | 1.4.0 | 2026-08-02 | Step 2 Approved & Frozen; Law #001 + Admission Rule + Article XIV |
 | 2.0.0 | 2026-08-02 | Steps 3–12 complete; Steps 13–18 packages authorized |
 | 2.1.0 | 2026-08-02 | Overall Founder Assessment: APPROVE (Decision 051); merge with main Step 2 freeze |
+| 2.2.0 | 2026-08-02 | Admitted CRAFT-LAW-001 + DES-001 (Decision 052) |

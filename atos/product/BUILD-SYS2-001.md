@@ -38,3 +38,10 @@ Transform System 1 into intelligent coaching: right conversation, right time, ri
 ## Owner
 
 Engineering + Atlas. Requires SYS1 substrate.
+
+## Canonical ship filters (Decision 052)
+
+1. **Craft Law #001** — more human, trustworthy, or courageous — never merely more intelligent (`CRAFT-LAW-001`).
+2. **Design Principle #001** — reduce unnecessary cognitive load (`DES-001`).
+
+Both must pass before ship.

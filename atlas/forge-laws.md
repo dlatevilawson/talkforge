@@ -168,6 +168,24 @@ Restraint is a feature.
 
 Before shipping any feature, ask:
 
-Does this leave the user more understood than evaluated?
+1. Does this leave the user more understood than evaluated? (Forge Law #013)
+2. Does this make TalkForge feel more human, more trustworthy, or more courageous — never merely more intelligent? (**Craft Law #001** · `CRAFT-LAW-001`)
+3. Does this reduce unnecessary cognitive load so the member can focus on becoming more prepared? (**Design Principle #001** · `DES-001`)
 
-If no — redesign or reject.
+If any answer is no — redesign or reject.
+
+---
+
+# Craft Law #001
+
+*(Admitted 2026-08-02 · Decision 052 · Canonical home: `atos/product/CRAFT-LAW-001.md`)*
+
+Every implementation should make TalkForge feel more human, more trustworthy, or more courageous—never merely more intelligent.
+
+---
+
+# Design Principle #001
+
+*(Admitted 2026-08-02 · Decision 052 · Canonical home: `atos/product/DES-001-cognitive-load.md`)*
+
+Every interaction should reduce unnecessary cognitive load so the member can focus on becoming more prepared.

@@ -24,6 +24,8 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | **Steps 3–7** | Ledger · Research · Blind Spots · Parking · Journal | Foundation | ✅ Complete |
 | **Steps 8–12** | [MASTER-ROADMAP-001](MASTER-ROADMAP-001.md) | Strategy | ✅ Complete |
 | **Steps 13–18** | [PHASE3-EXECUTION](PHASE3-EXECUTION.md) | Build packages | ✅ Authorized |
+| **Craft** | [CRAFT-LAW-001](CRAFT-LAW-001.md) | Human / trustworthy / courageous | ✅ Canonical |
+| **Design** | [DES-001](DES-001-cognitive-load.md) | Reduce unnecessary cognitive load | ✅ Canonical |
 
 **Agent rule:** Company OS Approved (Decision 051). Continue Phase 3 per MASTER-ROADMAP / BUILD packages. No new features without documentation, categorization, blind-spot review, and roadmap placement. Canonical admission still requires Constitutional Law #001.
 

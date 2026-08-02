@@ -5,7 +5,7 @@
 | **ID** | IV-PHIL-009 |
 | **Title** | Design Principle #001 — reduce unnecessary cognitive load |
 | **Category** | Philosophy |
-| **Status** | Reviewing |
+| **Status** | Approved |
 | **Importance** | Critical |
 | **Owner** | Founder |
 | **Last Updated** | 2026-08-02 |
@@ -68,7 +68,7 @@ When both are yes, we are likely building the right thing.
 
 **Proposed admission form:** Design Principle #001 (Canonical design instrument; complements Craft Law #001).
 
-**Admission status:** Working — awaiting Founder admission. Not Canonical until admitted.
+**Admission status:** ✅ Admitted 2026-08-02 — Admitted Canonical as DES-001 (Decision 052).
 
 ---
 

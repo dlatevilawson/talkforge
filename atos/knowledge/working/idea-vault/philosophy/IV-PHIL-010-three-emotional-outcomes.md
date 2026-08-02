@@ -5,7 +5,7 @@
 | **ID** | IV-PHIL-010 |
 | **Title** | Three emotional outcomes: understood, safe, ready |
 | **Category** | Philosophy |
-| **Status** | Reviewing |
+| **Status** | Approved |
 | **Importance** | Critical |
 | **Owner** | Founder |
 | **Last Updated** | 2026-08-02 |
@@ -43,6 +43,12 @@ Gives Craft Law #001 measurable emotional targets so “human” is not vague pr
 | **Why we believe this** | Founder synthesis of emotional goals across the designed architecture. |
 | **Sources** | Founder insight · Doctrine document (SYS1/SYS2 · Law #013) |
 | **Confidence** | High |
+
+---
+
+## Notes
+
+Supporting doctrine for Craft Law #001; remains Working counsel unless separately admitted.
 
 ---
 

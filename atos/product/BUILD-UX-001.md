@@ -29,3 +29,10 @@
 1. First viewport of app home = one mission, not dashboard clutter.
 2. Progress cannot own identity (LP-LAW).
 3. Coach interaction passes understood-over-evaluated filter.
+
+## Canonical ship filters (Decision 052)
+
+1. **Craft Law #001** — more human, trustworthy, or courageous — never merely more intelligent (`CRAFT-LAW-001`).
+2. **Design Principle #001** — reduce unnecessary cognitive load (`DES-001`).
+
+Both must pass before ship.

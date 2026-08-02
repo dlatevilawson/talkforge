@@ -5,7 +5,7 @@
 | **ID** | IV-LAW-012 |
 | **Title** | Craft Law #001 — human, trustworthy, courageous |
 | **Category** | Laws |
-| **Status** | Reviewing |
+| **Status** | Approved |
 | **Importance** | Critical |
 | **Owner** | Founder |
 | **Last Updated** | 2026-08-02 |
@@ -58,7 +58,7 @@ Craft Law is the implementation filter for those three outcomes. Intelligence wi
 
 **Proposed admission form:** Craft Law #001 (named series).
 
-**Admission status:** Working — awaiting Founder admission. Not Canonical until admitted.
+**Admission status:** ✅ Admitted 2026-08-02 — Admitted Canonical as CRAFT-LAW-001 (Decision 052).
 
 **Complement:** Design Principle #001 (IV-DES-001) — cognitive load. Craft asks “more human/trustworthy/courageous?” Design asks “does this make thinking easier?”
 

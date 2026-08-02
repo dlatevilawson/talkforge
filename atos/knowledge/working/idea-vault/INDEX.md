@@ -37,8 +37,8 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-PHIL-006](philosophy/IV-PHIL-006-tagline-shape-your-life.md) | Tagline: Practice the conversations that shape your life | Approved | Important | High | `philosophy/IV-PHIL-006-tagline-shape-your-life.md` |
 | [IV-PHIL-007](philosophy/IV-PHIL-007-imagine-admit-simplify.md) | Imagine everything; admit only what survives the Constitution | Reviewing | Critical | High | `philosophy/IV-PHIL-007-imagine-admit-simplify.md` |
 | [IV-PHIL-008](philosophy/IV-PHIL-008-narrowing-stack.md) | Narrowing stack: Profile → Readiness → Homepage → Coach | Reviewing | Critical | High | `philosophy/IV-PHIL-008-narrowing-stack.md` |
-| [IV-PHIL-009](philosophy/IV-PHIL-009-design-principle-001-cognitive-load.md) | Design Principle #001 — reduce unnecessary cognitive load | Reviewing | Critical | High | `philosophy/IV-PHIL-009-design-principle-001-cognitive-load.md` |
-| [IV-PHIL-010](philosophy/IV-PHIL-010-three-emotional-outcomes.md) | Three emotional outcomes: understood, safe, ready | Reviewing | Critical | High | `philosophy/IV-PHIL-010-three-emotional-outcomes.md` |
+| [IV-PHIL-009](philosophy/IV-PHIL-009-design-principle-001-cognitive-load.md) | Design Principle #001 — reduce unnecessary cognitive load | Approved | Critical | High | `philosophy/IV-PHIL-009-design-principle-001-cognitive-load.md` |
+| [IV-PHIL-010](philosophy/IV-PHIL-010-three-emotional-outcomes.md) | Three emotional outcomes: understood, safe, ready | Approved | Critical | High | `philosophy/IV-PHIL-010-three-emotional-outcomes.md` |
 
 ## Laws (12)
 
@@ -55,7 +55,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-LAW-009](laws/IV-LAW-009-s22.md) | Lesson recognizable; experience surprising | Approved | Critical | Medium | `laws/IV-LAW-009-s22.md` |
 | [IV-LAW-010](laws/IV-LAW-010-idea-is-not-knowledge.md) | Idea Vault Law #001 — understood, connected, acted upon | Approved | Critical | High | `laws/IV-LAW-010-idea-is-not-knowledge.md` |
 | [IV-LAW-011](laws/IV-LAW-011-constitutional-law-001.md) | Constitutional Law #001 — deliberate Canonical admission | Approved | Critical | High | `laws/IV-LAW-011-constitutional-law-001.md` |
-| [IV-LAW-012](laws/IV-LAW-012-craft-law-001.md) | Craft Law #001 — human, trustworthy, courageous | Reviewing | Critical | High | `laws/IV-LAW-012-craft-law-001.md` |
+| [IV-LAW-012](laws/IV-LAW-012-craft-law-001.md) | Craft Law #001 — human, trustworthy, courageous | Approved | Critical | High | `laws/IV-LAW-012-craft-law-001.md` |
 
 ## Product Ideas (6)
 
@@ -154,9 +154,9 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-LAW-011](laws/IV-LAW-011-constitutional-law-001.md) | Constitutional Law #001 — deliberate Canonical admission | Approved | Laws |
 | [IV-PHIL-007](philosophy/IV-PHIL-007-imagine-admit-simplify.md) | Imagine everything; admit only what survives the Constitution | Reviewing | Philosophy |
 | [IV-PHIL-008](philosophy/IV-PHIL-008-narrowing-stack.md) | Narrowing stack: Profile → Readiness → Homepage → Coach | Reviewing | Philosophy |
-| [IV-LAW-012](laws/IV-LAW-012-craft-law-001.md) | Craft Law #001 — human, trustworthy, courageous | Reviewing | Laws |
-| [IV-PHIL-009](philosophy/IV-PHIL-009-design-principle-001-cognitive-load.md) | Design Principle #001 — reduce unnecessary cognitive load | Reviewing | Philosophy |
-| [IV-PHIL-010](philosophy/IV-PHIL-010-three-emotional-outcomes.md) | Three emotional outcomes: understood, safe, ready | Reviewing | Philosophy |
+| [IV-LAW-012](laws/IV-LAW-012-craft-law-001.md) | Craft Law #001 — human, trustworthy, courageous | Approved | Laws |
+| [IV-PHIL-009](philosophy/IV-PHIL-009-design-principle-001-cognitive-load.md) | Design Principle #001 — reduce unnecessary cognitive load | Approved | Philosophy |
+| [IV-PHIL-010](philosophy/IV-PHIL-010-three-emotional-outcomes.md) | Three emotional outcomes: understood, safe, ready | Approved | Philosophy |
 | [IV-PROD-001](product-ideas/IV-PROD-001-system-1-foundation.md) | System 1 — Truth engine (Frozen) | Approved | Product Ideas |
 | [IV-PROD-002](product-ideas/IV-PROD-002-system-2-experience.md) | System 2 — Judgment engine (Frozen) | Approved | Product Ideas |
 | [IV-PROD-003](product-ideas/IV-PROD-003-personal-operating-model.md) | Personal Operating Model (POM) | Approved | Product Ideas |

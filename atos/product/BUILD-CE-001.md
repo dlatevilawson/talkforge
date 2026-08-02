@@ -36,3 +36,10 @@ Reliable practice conversations that feel human and feed understanding — witho
 2. Practice session always offers reflection before score (skippable).
 3. Session outputs feed Understanding/Evidence — never direct identity writes.
 4. Persona system remains parked until simulations stable.
+
+## Canonical ship filters (Decision 052)
+
+1. **Craft Law #001** — more human, trustworthy, or courageous — never merely more intelligent (`CRAFT-LAW-001`).
+2. **Design Principle #001** — reduce unnecessary cognitive load (`DES-001`).
+
+Both must pass before ship.

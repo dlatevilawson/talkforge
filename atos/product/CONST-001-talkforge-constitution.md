@@ -446,6 +446,8 @@ If the answer to any of these is “No,” the decision requires further review.
 | **Decision Ledger** | Records important decisions — cannot silently rewrite Articles |
 | **SYS1 / SYS2 / POM** | Product doctrine — must remain consistent with this Constitution |
 | **AMD-001** | Binding dignity standard implementing Article IX |
+| **CRAFT-LAW-001** | Craft Law #001 — human / trustworthy / courageous; never merely intelligent |
+| **DES-001** | Design Principle #001 — reduce unnecessary cognitive load |
 
 ---
 
@@ -500,3 +502,4 @@ Every product decision should make someone more confident, more capable, and mor
 |---|---|---|
 | 1.0.0 | 2026-08-01 | EXEC-001 Step 2 — full Constitution: Mission, Vision, Philosophy, Core Principles, Founding Principles, Product DNA, Definitions, Glossary, Articles I–XIII |
 | 1.1.0 | 2026-08-02 | Contingent Approve: Constitutional Law #001, Constitutional Admission Rule, Article XIV; Step 2 Frozen as Canonical |
+| 1.1.1 | 2026-08-02 | Related instruments: CRAFT-LAW-001 · DES-001 admitted (Decision 052) |
