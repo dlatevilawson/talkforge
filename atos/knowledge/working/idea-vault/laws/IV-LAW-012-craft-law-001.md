@@ -1,9 +1,9 @@
-# IV-LAW-012 — Craft Law #001 — more human, never merely more intelligent
+# IV-LAW-012 — Craft Law #001 — human, trustworthy, courageous
 
 | Field | Value |
 |---|---|
 | **ID** | IV-LAW-012 |
-| **Title** | Craft Law #001 — more human, never merely more intelligent |
+| **Title** | Craft Law #001 — human, trustworthy, courageous |
 | **Category** | Laws |
 | **Status** | Reviewing |
 | **Importance** | Critical |
@@ -16,13 +16,21 @@
 
 ## Statement
 
-Every implementation should make TalkForge feel more human, never merely more intelligent.
+Every implementation should make TalkForge feel more human, more trustworthy, or more courageous—never merely more intelligent.
 
 ---
 
 ## Why it matters
 
-At the inflection from imagination → discipline, the failure mode is clever systems that feel cold. This law binds implementation craft to humanity — the same spirit as Forge Law #013 (understood over evaluated), expressed as a build-time filter.
+“Human” alone is too broad. TalkForge’s emotional goals are consistent across the architecture:
+
+| Feel | Meaning | System expression |
+|---|---|---|
+| **Understood** | Human | Living Profile · Coach calibration (Law #013) |
+| **Safe to practice** | Trustworthy | Evidence · Provenance · Dignity · Continuity |
+| **Ready to act** | Courageous | Readiness · Coach · Transfer outside the app |
+
+Craft Law is the implementation filter for those three outcomes. Intelligence without them is theater.
 
 ---
 
@@ -30,9 +38,9 @@ At the inflection from imagination → discipline, the failure mode is clever sy
 
 | Direction | Ideas |
 |---|---|
-| **Depends on** | IV-PHIL-003 · IV-LAW-002 · PCI-001 |
-| **Supports** | BUILD-SYS1…UX · Coach interaction · Adaptive Homepage |
-| **Related** | IV-LAW-013 · IV-PHIL-007 · AMD-001 |
+| **Depends on** | IV-PHIL-003 · IV-LAW-002 · IV-LAW-003 · PCI-001 · AMD-001 |
+| **Supports** | All BUILD packages · Coach · Homepage · Pedagogy |
+| **Related** | IV-PHIL-007 · IV-PHIL-008 · IV-PHIL-009 · IV-DES-001 |
 
 ---
 
@@ -40,17 +48,19 @@ At the inflection from imagination → discipline, the failure mode is clever sy
 
 | Field | Value |
 |---|---|
-| **Why we believe this** | Founder inflection counsel: creativity stays alive; canon stays disciplined; craft must not optimize for intelligence display. |
-| **Sources** | Founder insight · Doctrine document (Forge Law #013 · PCI-001) · Product intuition |
+| **Why we believe this** | Founder refinement of Craft Law; three emotional outcomes recur across Profile, Evidence, Readiness, Coach, Pedagogy. |
+| **Sources** | Founder insight · Doctrine document (SYS1/SYS2 · Law #013 · PCI-001 · AMD-001) |
 | **Confidence** | High |
 
 ---
 
 ## Notes
 
-**Proposed admission form:** Craft Law #001 (named series, parallel to Constitutional Law #001 / Idea Vault Law #001) — avoids Forge Law #014–#017 numbering collision with POM doctrine branch. Alternate: Forge Law after #014–#017 land.
+**Proposed admission form:** Craft Law #001 (named series).
 
-**Admission status:** Working — awaiting Founder Constitutional/Forge admission. Not Canonical until admitted.
+**Admission status:** Working — awaiting Founder admission. Not Canonical until admitted.
+
+**Complement:** Design Principle #001 (IV-DES-001) — cognitive load. Craft asks “more human/trustworthy/courageous?” Design asks “does this make thinking easier?”
 
 ---
 
@@ -58,6 +68,6 @@ At the inflection from imagination → discipline, the failure mode is clever sy
 
 | Field | Value |
 |---|---|
-| Blind spot review | BS-004 scoring-before-understanding; intelligence-theater risk |
-| Roadmap link | MASTER-ROADMAP / all BUILD packages |
+| Blind spot review | BS-004 · intelligence-theater · engagement theater |
+| Roadmap link | All BUILD packages · PCI Craftsmanship Review |
 | Priority | Critical (if admitted) |
