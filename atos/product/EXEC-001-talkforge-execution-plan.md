@@ -126,7 +126,7 @@ The company operating system is **Approved**. Phase 3 product implementation con
 
 ## Immediate next step (agents)
 
-Company OS is **Approved**. Remediation applied ([REMEDIATE-001](REMEDIATE-001-architecture-remediation.md)). **AUDIT-001.1:** NO-GO for unconstrained features; CONDITIONAL GO for Living Profile unify + System 2 engines behind contracts. Respect [FREEZE-001](FREEZE-001-identity-pr-hold.md) and [OWN-001](OWN-001-identity-ownership-matrix.md).
+Company OS is **Approved**. Conditional remediation applied ([REMEDIATE-002](REMEDIATE-002-conditional-go.md)). **AUDIT-001.2:** GO only for production Living Profile migration verification and controlled hardening; NO-GO for feature expansion or held identity PR merges. Respect [FREEZE-001](FREEZE-001-identity-pr-hold.md) and [OWN-001](OWN-001-identity-ownership-matrix.md).
 
 
 ---

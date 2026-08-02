@@ -81,13 +81,29 @@ export default function ContinuityHome() {
         </p>
       )}
 
+      {readiness && readiness.ranked.length > 1 && (
+        <p className="mt-3 max-w-2xl text-xs leading-5 text-zinc-600">
+          Readiness narrowed {readiness.ranked.length} candidates to one next
+          step — not a mission menu.
+        </p>
+      )}
+
       <div className="mt-8 flex flex-wrap gap-3">
-        <Link
-          href={recommendation?.href ?? "/app/practice"}
-          className="rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:bg-zinc-200"
-        >
-          {recommendation?.title ?? "Practice with Forge"}
-        </Link>
+        {!readiness?.profileGatePassed ? (
+          <Link
+            href="/app/profile"
+            className="rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:bg-zinc-200"
+          >
+            Complete Living Profile
+          </Link>
+        ) : (
+          <Link
+            href={recommendation?.href ?? "/app/practice"}
+            className="rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:bg-zinc-200"
+          >
+            {recommendation?.title ?? "Practice with Forge"}
+          </Link>
+        )}
         <Link
           href="/app/profile"
           className="rounded-full border border-white/15 px-5 py-3.5 text-sm font-medium text-zinc-200 transition hover:bg-white/10"

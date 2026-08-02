@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | FREEZE-001 |
-| **Status** | Binding until AUDIT-001.1 GO for identity merge |
+| **Status** | Binding until AUDIT-001.2 review + Founder release |
 | **Date** | 2026-08-02 |
 | **Closes** | AUDIT-001 C5 |
 
@@ -17,7 +17,7 @@ Do **not** merge open identity / purpose / Living Profile schema PRs until:
 2. Forge Laws #014–#017 are reconciled on mainline.
 3. OWN-001 ownership matrix is accepted.
 4. Experience → identity shadow writes remain closed.
-5. AUDIT-001.1 does not reopen C4/C5.
+5. AUDIT-001.2 does not reopen C4/C5 and production `living_profiles` migration is verified.
 
 ---
 
@@ -35,7 +35,7 @@ Prefer **one** integration PR against admitted doctrine rather than merging held
 
 ## Allowed meanwhile
 
-- Remediation on `cursor/exec-foundation-strategy-98b4` (this line)
+- Conditional GO remediation on `cursor/conditional-go-remediation-98b4`
 - CE-001 substrate work that does **not** invent identity fields or mission menus
 - Documentation consistency
 
@@ -43,4 +43,4 @@ Prefer **one** integration PR against admitted doctrine rather than merging held
 
 ## Release of hold
 
-Founder (or Decision) marks FREEZE-001 lifted after AUDIT-001.1 confirms identity SSOT is settled.
+Founder (or Decision) marks FREEZE-001 lifted after AUDIT-001.2 review and production migration verification confirm the identity SSOT is live.

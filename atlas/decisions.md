@@ -845,6 +845,36 @@ Authoritative — Remediation accepted; CONDITIONAL GO 2026-08-02
 
 ---
 
+# Decision 055
+
+Title:
+Accept Conditional GO remediation (REMEDIATE-002) and AUDIT-001.2 — production migration verification only; feature expansion remains blocked.
+
+Reason:
+
+Conditional GO work completed the agreed scope: Living Profile migration is an applyable production migration; Profile and Settings now separate identity from continuity; member identity writes carry provenance; Coach consumes Living Profile as SSOT; Readiness can rank, narrow, and recommend without creating identity; MissionPicker and dashboard bypasses remain quarantined.
+
+Alternatives Considered:
+Lift feature freeze now — rejected, because production migration evidence is absent and held identity PRs remain collision risks. Extend scope with a confirmation UX or new experiences — rejected; not necessary to prove architectural fidelity.
+
+Risks:
+
+`living_profiles` may not yet exist in production. Code safely reports this state, but persistence cannot be accepted without migration verification.
+
+Final Decision:
+
+Accept REMEDIATE-002 and AUDIT-001.2. **GO** only for applying/verifying `20260802_living_profiles.sql` and controlled hardening. **NO-GO** for new features and held identity-PR merges. FREEZE-001 remains binding pending Founder release.
+
+Volumes:
+
+`atos/product/REMEDIATE-002-conditional-go.md`
+`atos/product/AUDIT-001.2-conditional-go-reaudit.md`
+
+Status:
+Authoritative — Conditional GO implementation accepted; production migration verification pending 2026-08-02
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

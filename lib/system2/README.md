@@ -9,7 +9,8 @@ Authorized by SYS2-001 / BUILD-SYS2 / AUDIT-001 remediation.
 
 ## Rules
 
-1. Homepage and coaching entry **must** call `buildAdaptiveHome` / `evaluateReadiness`.
+1. Homepage and coaching entry **must** call `buildAdaptiveHome` / `evaluateReadiness` / `recommendNextStep`.
 2. Do not present equal multi-mission menus as readiness.
 3. Experiences never write Living Profile identity (Forge Law #016).
-4. Full Readiness / Recommendation / Pedagogy engines land later — contracts first.
+4. Readiness may **recommend, rank, narrow** — never invent identity or store a second profile.
+5. Pending provenance is labeled `pending_evidence` and is not identity.

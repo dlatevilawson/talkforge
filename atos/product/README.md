@@ -26,8 +26,9 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | **Steps 13–18** | [PHASE3-EXECUTION](PHASE3-EXECUTION.md) | Build packages | ✅ Authorized |
 | **Craft** | [CRAFT-LAW-001](CRAFT-LAW-001.md) | Human / trustworthy / courageous | ✅ Canonical |
 | **Design** | [DES-001](DES-001-cognitive-load.md) | Reduce unnecessary cognitive load | ✅ Canonical |
-| **Audit** | [AUDIT-001](AUDIT-001-architecture-readiness.md) · [AUDIT-001.1](AUDIT-001.1-architecture-reaudit.md) | Architecture readiness | **NO-GO unconstrained · CONDITIONAL GO SYS1/SYS2** |
+| **Audit** | [AUDIT-001](AUDIT-001-architecture-readiness.md) · [AUDIT-001.1](AUDIT-001.1-architecture-reaudit.md) · [AUDIT-001.2](AUDIT-001.2-conditional-go-reaudit.md) | Architecture readiness | **GO production migration/hardening · NO-GO features** |
 | **Remediation** | [REMEDIATE-001](REMEDIATE-001-architecture-remediation.md) | Architecture remediation report | **Applied** |
+| **Conditional remediation** | [REMEDIATE-002](REMEDIATE-002-conditional-go.md) | LP SSOT + readiness contracts | **Applied; production migration pending** |
 | **Ownership** | [OWN-001](OWN-001-identity-ownership-matrix.md) | LP · PCM · CoachMemory ownership | **Authoritative** |
 | **PR freeze** | [FREEZE-001](FREEZE-001-identity-pr-hold.md) | Hold colliding identity PRs | **Binding** |
 | **SYS1** | [SYS1-001](SYS1-001-system-1-foundation.md) | Truth / Living Profile foundation | **In tree** |
@@ -35,7 +36,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | **POM** | [POM-001](POM-001-personal-operating-model.md) | Personal Operating Model | **In tree** |
 | **LP Law** | [LP-LAW-001](LP-LAW-001-living-profile.md) | Living Profile SSOT | **In tree** |
 
-**Agent rule:** Company OS Approved (Decision 051). **AUDIT-001.1:** no unconstrained features; CONDITIONAL GO only for Living Profile unify + System 2 engines behind contracts. Canonical admission still requires Constitutional Law #001.
+**Agent rule:** Company OS Approved (Decision 051). **AUDIT-001.2:** only production migration verification and controlled hardening may proceed; no feature expansion or held identity PR merge. Canonical admission still requires Constitutional Law #001.
 
 ## Priority (RES-013)
 

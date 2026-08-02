@@ -4,8 +4,16 @@
 export type {
   AdaptiveHomeModel,
   MissionRecommendation,
+  RankedCandidate,
+  ReadinessEvidenceHint,
   ReadinessResult,
   ReadinessState,
 } from "./types";
 
-export { buildAdaptiveHome, evaluateReadiness } from "./types";
+export {
+  buildAdaptiveHome,
+  evaluateReadiness,
+  narrowToObjective,
+  rankReadinessCandidates,
+  recommendNextStep,
+} from "./types";

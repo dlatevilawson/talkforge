@@ -23,3 +23,9 @@ export {
 export type { IdentityEvidenceProposal } from "./proposals";
 export { proposeIdentityEvidenceFromReport } from "./proposals";
 export { attachPendingProposals, emptyLivingProfile } from "./profile";
+export type { MemberLivingProfileInput } from "./member-writes";
+export { applyMemberLivingProfileUpdate } from "./member-writes";
+export {
+  backfillLivingProfileFromCoachMemory,
+  livingProfileNeedsBackfill,
+} from "./migrate-from-coach-memory";
