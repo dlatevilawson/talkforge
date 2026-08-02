@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | Authorized continuum — Company OS **APPROVED** (Decision 051) |
+| **Status** | Authorized continuum — **Remediation Freeze** (AUDIT-001 / Decision 053) |
 | **Updated** | 2026-08-02 |
 
 | Step | Package | Status |

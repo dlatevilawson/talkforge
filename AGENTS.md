@@ -19,6 +19,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | [DEC-LEDGER-001](atos/product/DEC-LEDGER-001-decision-ledger.md) | Decision Ledger rules |
 | [CRAFT-LAW-001](atos/product/CRAFT-LAW-001.md) | Craft Law #001 — human / trustworthy / courageous |
 | [DES-001](atos/product/DES-001-cognitive-load.md) | Design Principle #001 — reduce cognitive load |
+| [AUDIT-001](atos/product/AUDIT-001-architecture-readiness.md) | Architecture Readiness Audit — **NO-GO** until remediation |
 
 ## Knowledge planes (binding)
 
@@ -38,6 +39,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Iterate:** Improve existing systems before introducing new ones.
 - Phase 3 code follows BUILD-SYS1 → SYS2 → CE → UX dependencies.
 - **Dual ship test:** Craft Law #001 + Design Principle #001 (both must pass).
+- **Remediation Freeze (Decision 053):** No new features/UI/AI expansion until AUDIT-001 Critical Issues C1–C5 closed and AUDIT-001.1 GO.
 - Every major feature: Idea Vault → Blind Spot → Roadmap → Build.
 - Do **not** treat Idea Vault entries, agent drafts, or shipped features as Canonical without Founder admission.
 - Every new idea enters the Idea Vault **before** discussion continues elsewhere.

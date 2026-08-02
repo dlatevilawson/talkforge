@@ -1,7 +1,7 @@
 # Blind Spot Register — Index
 
 | **Updated** | 2026-08-02 |
-| **Count** | 6 |
+| **Count** | 7 |
 
 | ID | Title | Status | Severity | Related |
 |---|---|---|---|---|
@@ -11,3 +11,4 @@
 | [BS-004](bs-004.md) | Scoring before understanding | Mitigating | High | IV-FEAT-007 · IV-PHIL-003 |
 | [BS-005](bs-005.md) | CE voice fragility breaks practice trust | Mitigating | High | IV-PROD-005 · IV-AI-004 |
 | [BS-006](bs-006.md) | Working Knowledge treated as Canonical | Mitigating | High | IV-LAW-011 · CONST-001 |
+| [BS-007](bs-007.md) | Mission menu bypasses dependency chain | Open | High | IV-REJ-005 · AUDIT-001 C3 |
