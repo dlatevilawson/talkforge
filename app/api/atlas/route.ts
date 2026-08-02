@@ -7,8 +7,45 @@ import {
   isTargetPlaneEnabled,
   runTargetPipeline,
 } from "@/atlas/runtime";
+import { requireApiUser } from "@/lib/auth/api-guard";
+import { canAccessFounderPortal } from "@/lib/auth/roles";
+import { clientKeyFromHeaders, checkRateLimit } from "@/lib/auth/rate-limit";
+import { readSession } from "@/lib/auth/session";
 
 export async function POST(req: Request) {
+  // EXEC-HARDEN-001 / SEC-01: Atlas is founder-only and quota-bearing.
+  // Authenticate and authorize before reading the body or invoking any AI work.
+  const auth = await requireApiUser();
+  if (!auth.ok) {
+    return NextResponse.json(
+      { error: auth.error },
+      { status: auth.status }
+    );
+  }
+
+  const session = await readSession();
+  if (!session.role || !canAccessFounderPortal(session.role)) {
+    return NextResponse.json(
+      { error: "Founder access required." },
+      { status: 403 }
+    );
+  }
+
+  const rate = checkRateLimit(
+    `atlas:${auth.userId}:${clientKeyFromHeaders(req.headers)}`,
+    20,
+    60_000
+  );
+  if (!rate.ok) {
+    return NextResponse.json(
+      { error: "Atlas request limit reached. Try again shortly." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(rate.retryAfterSec) },
+      }
+    );
+  }
+
   try {
     const body = await req.json();
     const message = typeof body.message === "string" ? body.message.trim() : "";
