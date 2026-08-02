@@ -4,11 +4,12 @@
 |---|---|
 | **Document ID** | CONST-001 |
 | **Title** | TalkForge Constitution |
-| **Version** | 1.0.0 |
-| **Status** | **Canonical Candidate — Awaiting Founder review (EXEC-001 Step 2)** |
+| **Version** | 1.1.0 |
+| **Status** | **Frozen — Canonical (EXEC-001 Step 2 Complete)** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Created** | 2026-08-01 |
+| **Updated** | 2026-08-02 |
 | **Authority** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) Step 2 · Highest governing document of the company |
 | **Live identity copy** | [`atlas/constitution.md`](../../atlas/constitution.md) (must stay in sync) |
 | **Related** | `atlas/philosophy.md` · `atlas/forge-laws.md` · AMD-001 · Idea Vault (Working) · SYS1-001 · SYS2-001 · POM-001 |
@@ -23,6 +24,40 @@ This Constitution defines what should **rarely change**.
 It is **Canonical Knowledge**. It is not the Idea Vault. Working ideas may propose amendments; they do not amend this document by existing in the vault.
 
 If a proposal conflicts with this Constitution, the proposal loses — unless the Founder amends the Constitution explicitly.
+
+---
+
+---
+
+# Constitutional Law #001
+
+> **Nothing that defines TalkForge is Canonical until it has been deliberately admitted by Founder decision.**
+
+Working Knowledge may prepare, propose, and pressure-test.
+It does not admit.
+
+Capture in the Idea Vault is not admission.  
+Drafting by an agent is not admission.  
+Shipping a feature is not admission.  
+Informal consensus is not admission.
+
+Only explicit Founder decision admits Canonical Knowledge.
+
+---
+
+# Constitutional Admission Rule
+
+A statement may be **admitted** to this Constitution — or to any other Canonical home — only when all of the following are true:
+
+1. **It defines the company** — Mission, Vision, Philosophy, Laws, Definitions, Core Principles, Founding Principles, or Product DNA — not a product experiment, UX exploration, or temporary tactic.
+2. **The Founder explicitly admits it** — Approve language is recorded (Decision Ledger or constitutional amendment).
+3. **It is placed in the correct Canonical home** — Constitution, Forge Laws, or another Founder-designated Canonical instrument.
+4. **Conflicts are resolved by amendment** — it does not silently overwrite an existing Article or Law.
+5. **Working Knowledge alone never constitutes admission** — Idea Vault entries, research notes, and agent drafts remain Working until admitted.
+
+**Effect of admission:** The statement becomes Canonical Knowledge. Changing it thereafter requires formal Founder approval under the Amendment Process.
+
+**Effect of non-admission:** The statement may continue as Working Knowledge. It has no power to override this Constitution.
 
 ---
 
@@ -189,6 +224,9 @@ What TalkForge **is** (and is not):
 | **Dignity** | The member’s agency, self-belief, and worth — never traded for metrics (Article IX / AMD-001). |
 | **Forge Laws** | Immutable day-to-day operating laws (`atlas/forge-laws.md`). If a feature violates a Forge Law, the feature loses. |
 | **Founder** | Human responsible for protecting the mission and amending this Constitution. |
+| **Constitutional Law #001** | Nothing that defines TalkForge is Canonical until it has been deliberately admitted by Founder decision. |
+| **Constitutional Admission Rule** | Criteria and process by which a statement may enter Canonical Knowledge; Working Knowledge alone is never admission. |
+| **Admission** | Explicit Founder act that elevates a statement into Canonical Knowledge. |
 
 ---
 
@@ -368,6 +406,16 @@ Working Knowledge must not override Canonical Knowledge.
 
 ---
 
+## Article XIV — Constitutional Admission
+
+*(Adopted 2026-08-02 · Founder contingent Approve of EXEC-001 Step 2)*
+
+Nothing that defines TalkForge is Canonical until it has been deliberately admitted by Founder decision (**Constitutional Law #001**).
+
+Admission follows the **Constitutional Admission Rule**. Working Knowledge alone never amends this Constitution.
+
+---
+
 # 10. Decision Framework
 
 Before approving any significant decision, ask:
@@ -383,6 +431,7 @@ Before approving any significant decision, ask:
 9. Does this respect one-way flow and Living Profile ownership (Article XII)?
 10. Does this leave the user more understood than evaluated?
 11. Does this respect Canonical vs Working knowledge planes (Article XIII)?
+12. Does this respect Constitutional Law #001 and the Constitutional Admission Rule (Article XIV)?
 
 If the answer to any of these is “No,” the decision requires further review.
 
@@ -418,11 +467,11 @@ Atlas must always treat this Constitution as the highest governing document.
 
 This Constitution is stable.
 
-Changes require explicit constitutional review and approval by the Founder.
+Changes require explicit constitutional review and approval by the Founder — governed by **Constitutional Law #001** and the **Constitutional Admission Rule**.
 
 No AI agent may alter constitutional principles without Founder approval.
 
-Proposed amendments may originate in Working Knowledge (Idea Vault) but become Canonical only through Founder approval recorded in the Decision Ledger.
+Proposed amendments may originate in Working Knowledge (Idea Vault) but become Canonical only through Founder **admission** recorded in the Decision Ledger.
 
 ---
 
@@ -439,8 +488,9 @@ Every product decision should make someone more confident, more capable, and mor
 | Field | Value |
 |---|---|
 | Step | 2 — Company Constitution |
-| Status | ☐ Approve · ☐ Revise · ☐ Reject |
-| On Approve | Constitution v1.0 freezes as Canonical; Step 3 (Decision Ledger) may begin when authorized |
+| Status | ✅ **APPROVED** (2026-08-02) — contingent additions applied; **Frozen** |
+| Contingent additions | Constitutional Law #001 · Constitutional Admission Rule · Article XIV |
+| Next | Step 3 (Decision Ledger) blocked until Founder authorizes begin |
 
 ---
 
@@ -449,3 +499,4 @@ Every product decision should make someone more confident, more capable, and mor
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-08-01 | EXEC-001 Step 2 — full Constitution: Mission, Vision, Philosophy, Core Principles, Founding Principles, Product DNA, Definitions, Glossary, Articles I–XIII |
+| 1.1.0 | 2026-08-02 | Contingent Approve: Constitutional Law #001, Constitutional Admission Rule, Article XIV; Step 2 Frozen as Canonical |

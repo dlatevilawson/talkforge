@@ -167,7 +167,7 @@ An idea without relationships and evidence is storage — not yet knowledge (Law
 
 | Existing | Authority |
 |---|---|
-| `atlas/constitution.md` · `CONST-001` | Canonical Candidate (Constitution — EXEC Step 2 in review) |
+| `atlas/constitution.md` · `CONST-001` | **Frozen Canonical** — Constitutional Law #001 + Admission Rule (Article XIV) |
 | `atlas/forge-laws.md` | Canonical Laws — vault entries **point to** laws; laws remain authoritative |
 | `atlas/decisions.md` | Decision Ledger (Step 3) — decisions are not vault opinions |
 | `atos/product/research/`, HBF | Working research seeds (Step 4 library) |

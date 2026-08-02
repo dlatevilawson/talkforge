@@ -1,14 +1,47 @@
 # TALKFORGE CONSTITUTION
-Version 1.0 — EXEC-001 Step 2
+Version 1.1 — EXEC-001 Step 2 Frozen
 
 | Field | Value |
 |---|---|
-| **Status** | **Canonical Candidate — Awaiting Founder review** |
+| **Status** | **Frozen — Canonical** |
 | **Authoritative package** | `atos/product/CONST-001-talkforge-constitution.md` |
 | **Plane** | Canonical Knowledge |
-| **Updated** | 2026-08-01 |
+| **Updated** | 2026-08-02 |
 
 This file is the live identity-plane copy of the Constitution. On conflict with Working Knowledge (Idea Vault), **this Constitution wins**.
+
+---
+
+---
+
+# Constitutional Law #001
+
+> **Nothing that defines TalkForge is Canonical until it has been deliberately admitted by Founder decision.**
+
+Working Knowledge may prepare, propose, and pressure-test. It does not admit.
+
+Capture in the Idea Vault is not admission.  
+Drafting by an agent is not admission.  
+Shipping a feature is not admission.  
+Informal consensus is not admission.
+
+Only explicit Founder decision admits Canonical Knowledge.
+
+---
+
+# Constitutional Admission Rule
+
+A statement may be **admitted** to this Constitution — or to any other Canonical home — only when all of the following are true:
+
+1. **It defines the company** — Mission, Vision, Philosophy, Laws, Definitions, Core Principles, Founding Principles, or Product DNA — not a product experiment, UX exploration, or temporary tactic.
+2. **The Founder explicitly admits it** — Approve language is recorded (Decision Ledger or constitutional amendment).
+3. **It is placed in the correct Canonical home** — Constitution, Forge Laws, or another Founder-designated Canonical instrument.
+4. **Conflicts are resolved by amendment** — it does not silently overwrite an existing Article or Law.
+5. **Working Knowledge alone never constitutes admission** — Idea Vault entries, research notes, and agent drafts remain Working until admitted.
+
+**Effect of admission:** The statement becomes Canonical Knowledge. Changing it thereafter requires formal Founder approval under the Amendment Process.
+
+**Effect of non-admission:** The statement may continue as Working Knowledge. It has no power to override this Constitution.
 
 ---
 
@@ -104,6 +137,7 @@ Customer promise: Every practice session should make the next real conversation 
 6. Generation-4 coaching remembers who someone is becoming.
 7. Canonical Knowledge defines the company; Working Knowledge explores.
 8. An idea is not knowledge until it can be understood, connected, and acted upon.
+9. Nothing that defines TalkForge is Canonical until deliberately admitted by Founder decision.
 
 ---
 
@@ -278,6 +312,16 @@ Working Knowledge must not override Canonical Knowledge.
 
 ---
 
+## Article XIV — Constitutional Admission
+
+*(Adopted 2026-08-02 · Founder contingent Approve of EXEC-001 Step 2)*
+
+Nothing that defines TalkForge is Canonical until it has been deliberately admitted by Founder decision (**Constitutional Law #001**).
+
+Admission follows the **Constitutional Admission Rule**. Working Knowledge alone never amends this Constitution.
+
+---
+
 # Decision Framework
 
 Before approving any significant decision, ask:
@@ -293,6 +337,7 @@ Before approving any significant decision, ask:
 9. Does this respect one-way flow and Living Profile ownership (Article XII)?
 10. Does this leave the user more understood than evaluated?
 11. Does this respect Canonical vs Working knowledge planes (Article XIII)?
+12. Does this respect Constitutional Law #001 and the Constitutional Admission Rule (Article XIV)?
 
 If the answer to any of these is "No," the decision requires further review.
 
@@ -316,11 +361,11 @@ Atlas must always treat this Constitution as the highest governing document.
 
 This Constitution is stable.
 
-Changes require explicit constitutional review by the founder.
+Changes require explicit constitutional review by the founder — governed by **Constitutional Law #001** and the **Constitutional Admission Rule**.
 
 No AI agent may alter constitutional principles without founder approval.
 
-Proposed amendments may originate in Working Knowledge (Idea Vault) but become Canonical only through Founder approval recorded in the Decision Ledger.
+Proposed amendments may originate in Working Knowledge (Idea Vault) but become Canonical only through Founder **admission** recorded in the Decision Ledger.
 
 ---
 

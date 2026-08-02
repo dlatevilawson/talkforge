@@ -5,8 +5,8 @@
 | **Document ID** | IV-INDEX |
 | **Version** | 1.2.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
-| **Updated** | 2026-08-01 |
-| **Entry count** | 54 |
+| **Updated** | 2026-08-02 |
+| **Entry count** | 55 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
@@ -36,7 +36,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-PHIL-005](philosophy/IV-PHIL-005-practice-is-preparation.md) | Practice is preparation, never remediation | Approved | Critical | High | `philosophy/IV-PHIL-005-practice-is-preparation.md` |
 | [IV-PHIL-006](philosophy/IV-PHIL-006-tagline-shape-your-life.md) | Tagline: Practice the conversations that shape your life | Approved | Important | High | `philosophy/IV-PHIL-006-tagline-shape-your-life.md` |
 
-## Laws (10)
+## Laws (11)
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
@@ -50,6 +50,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-LAW-008](laws/IV-LAW-008-s21.md) | Recommendations reduce distance to becoming | Approved | Critical | High | `laws/IV-LAW-008-s21.md` |
 | [IV-LAW-009](laws/IV-LAW-009-s22.md) | Lesson recognizable; experience surprising | Approved | Critical | Medium | `laws/IV-LAW-009-s22.md` |
 | [IV-LAW-010](laws/IV-LAW-010-idea-is-not-knowledge.md) | Idea Vault Law #001 — understood, connected, acted upon | Approved | Critical | High | `laws/IV-LAW-010-idea-is-not-knowledge.md` |
+| [IV-LAW-011](laws/IV-LAW-011-constitutional-law-001.md) | Constitutional Law #001 — deliberate Canonical admission | Approved | Critical | High | `laws/IV-LAW-011-constitutional-law-001.md` |
 
 ## Product Ideas (6)
 
@@ -126,7 +127,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 
 ---
 
-## Critical ideas (35) — definitional weight
+## Critical ideas (36) — definitional weight
 
 | ID | Title | Status | Category |
 |---|---|---|---|
@@ -145,6 +146,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-LAW-008](laws/IV-LAW-008-s21.md) | Recommendations reduce distance to becoming | Approved | Laws |
 | [IV-LAW-009](laws/IV-LAW-009-s22.md) | Lesson recognizable; experience surprising | Approved | Laws |
 | [IV-LAW-010](laws/IV-LAW-010-idea-is-not-knowledge.md) | Idea Vault Law #001 — understood, connected, acted upon | Approved | Laws |
+| [IV-LAW-011](laws/IV-LAW-011-constitutional-law-001.md) | Constitutional Law #001 — deliberate Canonical admission | Approved | Laws |
 | [IV-PROD-001](product-ideas/IV-PROD-001-system-1-foundation.md) | System 1 — Truth engine (Frozen) | Approved | Product Ideas |
 | [IV-PROD-002](product-ideas/IV-PROD-002-system-2-experience.md) | System 2 — Judgment engine (Frozen) | Approved | Product Ideas |
 | [IV-PROD-003](product-ideas/IV-PROD-003-personal-operating-model.md) | Personal Operating Model (POM) | Approved | Product Ideas |

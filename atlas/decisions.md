@@ -663,6 +663,19 @@ Founder authorized continuation after Step 1 freeze. Step 2 delivers Canonical K
 Status:
 Authoritative — Step 2 drafted; **awaiting Founder Approve / Revise / Reject**; Steps 3–18 blocked until Step 2 approved
 
+Amendment (2026-08-02) — Step 2 Founder Decision: ✅ **APPROVED**, contingent on adding **Constitutional Law #001** and the **Constitutional Admission Rule**.
+
+Contingent additions applied and Step 2 Frozen as Canonical:
+
+- **Constitutional Law #001:** Nothing that defines TalkForge is Canonical until it has been deliberately admitted by Founder decision.
+- **Constitutional Admission Rule:** Five-part rule for Canonical admission; Working Knowledge alone is never admission.
+- **Article XIV — Constitutional Admission**
+
+Volumes: `atos/product/CONST-001-talkforge-constitution.md`, `atlas/constitution.md`.
+
+Status after contingent Approve:
+**Step 2 Complete & Frozen**; Step 3 (Decision Ledger) blocked until Founder explicitly authorizes begin; Steps 4–18 remain gated
+
 ---
 
 # Future Decisions

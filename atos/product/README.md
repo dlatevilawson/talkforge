@@ -18,9 +18,9 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 
 | Rank | ID | Role | Status |
 |---|---|---|---|
-| **Gate** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) | TalkForge Execution Plan — Foundation → Strategy → Build | **Active — Step 2 awaiting review** |
+| **Gate** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) | TalkForge Execution Plan — Foundation → Strategy → Build | **Active — Steps 1–2 Frozen; Step 3 pending authorization** |
 | **Step 1** | [Idea Vault](../knowledge/working/idea-vault/README.md) | Official Working Knowledge system (schema frozen) | ✅ **Complete & Frozen** |
-| **Step 2** | [CONST-001](CONST-001-talkforge-constitution.md) | TalkForge Constitution v1.0 (Canonical Candidate) | **Awaiting Founder review** |
+| **Step 2** | [CONST-001](CONST-001-talkforge-constitution.md) | TalkForge Constitution v1.0 + Law #001 + Admission Rule | ✅ **Complete & Frozen** |
 
 **Agent rule:** Do not start EXEC-001 Step 2 (or later) until the Founder approves Step 1. No new features without documentation, categorization, blind-spot review, and roadmap placement (EXEC-001 Operating Rules).
 
