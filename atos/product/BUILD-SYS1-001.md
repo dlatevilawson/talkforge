@@ -6,6 +6,7 @@
 | **Version** | 1.0.0 |
 | **Status** | **Authorized for Execution — EXEC-001 Step 13** |
 | **Updated** | 2026-08-02 |
+| **Code substrate** | `lib/system1/` — Living Profile · Provenance · Lifecycle types landed |
 | **Doctrine** | SYS1-001 · POM-001 · LP-LAW-001 · CONST Articles X–XII · MASTER-ROADMAP Phase A |
 | **Blind spots** | BS-001 · BS-006 |
 

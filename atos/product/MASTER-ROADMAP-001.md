@@ -21,10 +21,10 @@ Translate priorities into implementation phases with goal, dependencies, complex
 
 | Item | Goal | Dependencies | Complexity | Owner | Status |
 |---|---|---|---|---|---|
-| A1 Living Profile SSOT | One identity store for becoming | LP-LAW · POM | High | Eng / Atlas | Partial (profile/purpose branches) |
-| A2 Provenance / Evidence | Every claim explainable | Law #014 | High | Eng | Not started / partial memory |
+| A1 Living Profile SSOT | One identity store for becoming | LP-LAW · POM | High | Eng / Atlas | Types in `lib/system1/`; persistence/UI pending |
+| A2 Provenance / Evidence | Every claim explainable | Law #014 | High | Eng | Types + write guard in `lib/system1/`; DB pending |
 | A3 Understanding layer | Patterns → confirmed insights | A2 | High | Eng / Atlas | Partial coach memory |
-| A4 Conversation lifecycle | Avoided→…→Archived objects | A1 | Medium | Eng | Not started |
+| A4 Conversation lifecycle | Avoided→…→Archived objects | A1 | Medium | Eng | Types in `lib/system1/`; persistence pending |
 | A5 Reflection hooks | Post-practice reflection path | Sessions | Medium | Eng | Partial |
 | A6 Unified LP UI | One profile surface | A1 | Medium | Eng | Split surfaces today |
 
