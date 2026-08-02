@@ -126,7 +126,8 @@ The company operating system is **Approved**. Phase 3 product implementation con
 
 ## Immediate next step (agents)
 
-Company OS is **Approved**. Continue Phase 3 engineering per MASTER-ROADMAP-001 and BUILD-* packages, starting with **System 1** gaps (Living Profile persistence, Provenance DB, Conversation Lifecycle, Unified LP UI) → System 2 → CE → UX → Testing → Iterate.
+Company OS is **Approved**. **AUDIT-001: NO-GO** for new features until Critical Issues C1–C5 cleared ([AUDIT-001](AUDIT-001-architecture-readiness.md)). Remediation Freeze Sprint only; then AUDIT-001.1 re-score.
+
 
 ---
 
