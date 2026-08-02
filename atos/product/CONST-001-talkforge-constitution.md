@@ -490,7 +490,7 @@ Every product decision should make someone more confident, more capable, and mor
 | Step | 2 — Company Constitution |
 | Status | ✅ **APPROVED** (2026-08-02) — contingent additions applied; **Frozen** |
 | Contingent additions | Constitutional Law #001 · Constitutional Admission Rule · Article XIV |
-| Next | Step 3 (Decision Ledger) blocked until Founder authorizes begin |
+| Next | Steps 3–18 continuum authorized (Decision 050); Company OS APPROVED (Decision 051); Phase 3 continues |
 
 ---
 
