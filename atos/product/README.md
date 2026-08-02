@@ -18,7 +18,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 
 | Rank | ID | Role | Status |
 |---|---|---|---|
-| **Gate** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) | Company OS — Foundation+Strategy complete; Phase 3 authorized | **Active — v2.0** |
+| **Gate** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) | Company OS — **Founder APPROVED** (Decision 051); Phase 3 continues | **Active — v2.1** |
 | **Step 1** | [Idea Vault](../knowledge/working/idea-vault/README.md) | Working Knowledge | ✅ Frozen |
 | **Step 2** | [CONST-001](CONST-001-talkforge-constitution.md) | Constitution + Law #001 | ✅ Frozen |
 | **Steps 3–7** | Ledger · Research · Blind Spots · Parking · Journal | Foundation | ✅ Complete |

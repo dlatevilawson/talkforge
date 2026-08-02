@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| **Status** | Authorized continuum (Founder 2026-08-02) |
+| **Status** | Authorized continuum — Company OS **APPROVED** (Decision 051) |
 | **Updated** | 2026-08-02 |
 
 | Step | Package | Status |

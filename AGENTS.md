@@ -10,7 +10,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 | Document | Role |
 |---|---|
-| [EXEC-001](atos/product/EXEC-001-talkforge-execution-plan.md) | Execution Plan v2 — Foundation+Strategy complete; Phase 3 authorized |
+| [EXEC-001](atos/product/EXEC-001-talkforge-execution-plan.md) | Company OS — **Founder APPROVED** (Decision 051); Phase 3 continues |
 | [CONST-001](atos/product/CONST-001-talkforge-constitution.md) | Constitution — Frozen Canonical |
 | [Idea Vault](atos/knowledge/working/idea-vault/README.md) | Working Knowledge — Frozen schema |
 | [MASTER-ROADMAP-001](atos/product/MASTER-ROADMAP-001.md) | Implementation phases |
@@ -19,8 +19,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Binding
 
+- **Overall status:** Company OS ✅ APPROVED (Decision 051).
 - **Constitutional Law #001:** Nothing Canonical without Founder admission.
 - **Idea Vault Law #001:** Understood, connected, acted upon.
 - **Iterate:** Improve existing systems before new ones.
-- Phase 3 code must follow BUILD-SYS1 → SYS2 → CE → UX dependencies.
+- Phase 3 code follows BUILD-SYS1 → SYS2 → CE → UX dependencies.
 - Every major feature: Idea Vault → Blind Spot → Roadmap → Build.

@@ -9,7 +9,7 @@
 | **AI Steward** | Atlas |
 | **Updated** | 2026-08-01 |
 | **Binding laws** | Forge Laws #012 · #013 (`atlas/forge-laws.md`) |
-| **Company OS** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) v2 — Steps 1–12 complete; Phase 3 authorized ([MASTER-ROADMAP-001](MASTER-ROADMAP-001.md)) |
+| **Company OS** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) v2.1 — **APPROVED** (Decision 051); Phase 3 continues ([MASTER-ROADMAP-001](MASTER-ROADMAP-001.md)) |
 
 ## North Star
 
