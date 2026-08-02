@@ -126,7 +126,7 @@ The company operating system is **Approved**. Phase 3 product implementation con
 
 ## Immediate next step (agents)
 
-Company OS is **Approved**. Conditional remediation applied ([REMEDIATE-002](REMEDIATE-002-conditional-go.md)). **AUDIT-001.2:** GO only for production Living Profile migration verification and controlled hardening; NO-GO for feature expansion or held identity PR merges. Respect [FREEZE-001](FREEZE-001-identity-pr-hold.md) and [OWN-001](OWN-001-identity-ownership-matrix.md).
+Company OS is **Approved**. Final certification ([EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md)) is **NO-GO** for feature development. Only the report's required hardening fixes may proceed; no held identity PR merge. Respect [FREEZE-001](FREEZE-001-identity-pr-hold.md) and [OWN-001](OWN-001-identity-ownership-matrix.md).
 
 
 ---
