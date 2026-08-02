@@ -18,9 +18,12 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 
 | Rank | ID | Role | Status |
 |---|---|---|---|
-| **Gate** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) | TalkForge Execution Plan — Foundation → Strategy → Build | **Active — Steps 1–2 Frozen; Step 3 pending authorization** |
-| **Step 1** | [Idea Vault](../knowledge/working/idea-vault/README.md) | Official Working Knowledge system (schema frozen) | ✅ **Complete & Frozen** |
-| **Step 2** | [CONST-001](CONST-001-talkforge-constitution.md) | TalkForge Constitution v1.0 + Law #001 + Admission Rule | ✅ **Complete & Frozen** |
+| **Gate** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) | Company OS — Foundation+Strategy complete; Phase 3 authorized | **Active — v2.0** |
+| **Step 1** | [Idea Vault](../knowledge/working/idea-vault/README.md) | Working Knowledge | ✅ Frozen |
+| **Step 2** | [CONST-001](CONST-001-talkforge-constitution.md) | Constitution + Law #001 | ✅ Frozen |
+| **Steps 3–7** | Ledger · Research · Blind Spots · Parking · Journal | Foundation | ✅ Complete |
+| **Steps 8–12** | [MASTER-ROADMAP-001](MASTER-ROADMAP-001.md) | Strategy | ✅ Complete |
+| **Steps 13–18** | [PHASE3-EXECUTION](PHASE3-EXECUTION.md) | Build packages | ✅ Authorized |
 
 **Agent rule:** Do not start EXEC-001 Step 2 (or later) until the Founder approves Step 1. No new features without documentation, categorization, blind-spot review, and roadmap placement (EXEC-001 Operating Rules).
 

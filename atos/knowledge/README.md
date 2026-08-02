@@ -20,7 +20,7 @@ Knowledge stores for ATOS Version 1.0. Architecture: [KA-001](../product/KA-001-
 
 | Directory | Purpose |
 |---|---|
-| [working/](working/) | Working knowledge + [question ledger](working/questions.md) + [Idea Vault](working/idea-vault/README.md) |
+| [working/](working/) | Working knowledge: [Idea Vault](working/idea-vault/README.md) · [Research Library](working/research-library/README.md) · [Blind Spots](working/blind-spot-register/README.md) · [Parking Lot](working/future-parking-lot/README.md) · [Founder Journal](working/founder-journal/README.md) · [questions](working/questions.md) |
 | [evidence/](evidence/) | Evidence packs + [index](evidence/index/README.md) |
 | [promotion/](promotion/) | Promotion queue |
 | [canonical/](canonical/) | Domain indexes + ATOS Canonical publications |

@@ -74,6 +74,10 @@ stores:
     idea_vault: atos/knowledge/working/idea-vault/
     idea_vault_status: frozen_exec_001_step_1_complete
     idea_vault_plane: working_knowledge
+    research_library: atos/knowledge/working/research-library/
+    blind_spot_register: atos/knowledge/working/blind-spot-register/
+    future_parking_lot: atos/knowledge/working/future-parking-lot/
+    founder_journal: atos/knowledge/working/founder-journal/
     # Canonical Knowledge (Mission, Constitution, Laws, Definitions, Core Philosophy)
     # requires formal approval and is NOT overridden by the Idea Vault.
   evidence:
