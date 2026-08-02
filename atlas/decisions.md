@@ -897,6 +897,28 @@ Authoritative — Final certification NO-GO 2026-08-02
 
 ---
 
+# Decision 057
+
+Title:
+Halt EXEC-HARDEN-001 at Phase 2 — production Living Profile migration cannot be verified from the current environment.
+
+Reason:
+
+Phase 1 secured the quota-bearing Atlas endpoint and passed targeted verification. Phase 2 requires authorized production Supabase migration access. The Supabase CLI, database URL, access token, and service-role credential are unavailable in this environment. Continuing to later phases would violate the strict hardening order.
+
+Final Decision:
+
+Record HARDEN-001 as halted after Phase 1. **NO-GO** remains. Resume only at Phase 2 when an authorized operator can apply and verify `20260802_living_profiles.sql`. Do not start later hardening phases or feature work before that verification.
+
+Volumes:
+
+`atos/product/HARDEN-001-final-architecture-hardening.md`
+
+Status:
+Authoritative — Hardening halted; production migration access required 2026-08-02
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
