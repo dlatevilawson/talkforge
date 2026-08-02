@@ -19,3 +19,7 @@ export {
   canWriteLivingProfileField,
   CONVERSATION_LIFECYCLE_ORDER,
 } from "./types";
+
+export type { IdentityEvidenceProposal } from "./proposals";
+export { proposeIdentityEvidenceFromReport } from "./proposals";
+export { attachPendingProposals, emptyLivingProfile } from "./profile";

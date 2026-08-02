@@ -126,7 +126,7 @@ The company operating system is **Approved**. Phase 3 product implementation con
 
 ## Immediate next step (agents)
 
-Company OS is **Approved**. **AUDIT-001: NO-GO** for new features until Critical Issues C1–C5 cleared ([AUDIT-001](AUDIT-001-architecture-readiness.md)). Remediation Freeze Sprint only; then AUDIT-001.1 re-score.
+Company OS is **Approved**. Remediation applied ([REMEDIATE-001](REMEDIATE-001-architecture-remediation.md)). **AUDIT-001.1:** NO-GO for unconstrained features; CONDITIONAL GO for Living Profile unify + System 2 engines behind contracts. Respect [FREEZE-001](FREEZE-001-identity-pr-hold.md) and [OWN-001](OWN-001-identity-ownership-matrix.md).
 
 
 ---

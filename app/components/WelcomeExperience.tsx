@@ -129,7 +129,7 @@ export default function WelcomeExperience() {
             </Link>
             {returning && (
               <Link
-                href="/app/dashboard"
+                href="/app"
                 className="text-sm text-white/40 transition hover:text-white/70"
               >
                 Continue

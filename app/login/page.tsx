@@ -8,7 +8,7 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string; error?: string; notice?: string }>;
 }) {
   const params = await searchParams;
-  const next = safeNextPath(params.next, "/app/dashboard");
+  const next = safeNextPath(params.next, "/app");
   const notice =
     params.notice === "verified"
       ? "Email verified. You can sign in now."

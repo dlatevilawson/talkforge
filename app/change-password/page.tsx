@@ -10,7 +10,7 @@ export default async function ChangePasswordPage({
   const next =
     params.next && params.next.startsWith("/")
       ? params.next
-      : "/app/dashboard";
+      : "/app";
 
   return (
     <Suspense>

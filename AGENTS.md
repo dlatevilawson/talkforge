@@ -19,7 +19,16 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | [DEC-LEDGER-001](atos/product/DEC-LEDGER-001-decision-ledger.md) | Decision Ledger rules |
 | [CRAFT-LAW-001](atos/product/CRAFT-LAW-001.md) | Craft Law #001 — human / trustworthy / courageous |
 | [DES-001](atos/product/DES-001-cognitive-load.md) | Design Principle #001 — reduce cognitive load |
-| [AUDIT-001](atos/product/AUDIT-001-architecture-readiness.md) | Architecture Readiness Audit — **NO-GO** until remediation |
+| [AUDIT-001](atos/product/AUDIT-001-architecture-readiness.md) | Architecture Readiness Audit (baseline NO-GO) |
+| [AUDIT-001.1](atos/product/AUDIT-001.1-architecture-reaudit.md) | Re-audit — **NO-GO** unconstrained · **CONDITIONAL GO** SYS1/SYS2 |
+| [REMEDIATE-001](atos/product/REMEDIATE-001-architecture-remediation.md) | Remediation report |
+| [OWN-001](atos/product/OWN-001-identity-ownership-matrix.md) | Identity / evidence ownership matrix |
+| [FREEZE-001](atos/product/FREEZE-001-identity-pr-hold.md) | Identity PR hold |
+| [SYS1-001](atos/product/SYS1-001-system-1-foundation.md) | System 1 foundation |
+| [SYS2-001](atos/product/SYS2-001-system-2-experience.md) | System 2 experience |
+| [POM-001](atos/product/POM-001-personal-operating-model.md) | Personal Operating Model |
+| [LP-LAW-001](atos/product/LP-LAW-001-living-profile.md) | Living Profile Law |
+| [Forge Laws](atlas/forge-laws.md) | Operating laws #001–#017 |
 
 ## Knowledge planes (binding)
 
@@ -39,7 +48,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Iterate:** Improve existing systems before introducing new ones.
 - Phase 3 code follows BUILD-SYS1 → SYS2 → CE → UX dependencies.
 - **Dual ship test:** Craft Law #001 + Design Principle #001 (both must pass).
-- **Remediation Freeze (Decision 053):** No new features/UI/AI expansion until AUDIT-001 Critical Issues C1–C5 closed and AUDIT-001.1 GO.
+- **Remediation (Decision 053 + AUDIT-001.1):** Critical Issues C1–C5 addressed on remediation line. Still **NO-GO** for unconstrained features. **CONDITIONAL GO** only for LP unify + System 2 engines behind contracts. Respect FREEZE-001 / OWN-001 / Forge Laws #014–#017.
+- **Dependency chain:** Living Profile → Readiness → Adaptive Homepage → Coaching. No mission menus as home. Experiences never write identity.
 - Every major feature: Idea Vault → Blind Spot → Roadmap → Build.
 - Do **not** treat Idea Vault entries, agent drafts, or shipped features as Canonical without Founder admission.
 - Every new idea enters the Idea Vault **before** discussion continues elsewhere.

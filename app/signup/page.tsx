@@ -8,7 +8,7 @@ export default async function SignupPage({
   searchParams: Promise<{ next?: string }>;
 }) {
   const params = await searchParams;
-  const next = safeNextPath(params.next, "/app/dashboard");
+  const next = safeNextPath(params.next, "/app");
 
   return (
     <Suspense>

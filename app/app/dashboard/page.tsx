@@ -75,15 +75,22 @@ export default function DashboardPage() {
     <>
       <section className="rounded-3xl border border-white/10 bg-white/5 p-6 sm:p-8">
         <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
-          TalkForge
+          Activity
         </p>
         <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">
-          {displayName ? `Welcome back, ${displayName}` : "Welcome back"}
+          {displayName ? `${displayName}’s activity` : "Your activity"}
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">
+          Session history and scores live here. Home — not this page — is where
+          continuity and readiness start (Forge Law #017).
+        </p>
+        <p className="mt-2 text-sm text-zinc-500">
+          <Link href="/app" className="underline-offset-4 hover:underline">
+            Return to Home
+          </Link>
           {hasPractice
-            ? "Your next rep is waiting. Practice now — then take one clearer move into the real conversation."
-            : "You’re in the right place. Let’s get you onto the floor with Forge — no performance required."}
+            ? " for your next coaching step."
+            : " to begin with Forge."}
         </p>
 
         {error && (

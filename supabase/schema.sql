@@ -116,6 +116,24 @@ create table if not exists public.coach_memory (
   updated_at timestamptz not null default now()
 );
 
+-- Living Profile SSOT (POM-001 · LP-LAW-001 · AUDIT-001 C4)
+-- Experiences never write identity fields; provenance may hold unconfirmed proposals.
+create table if not exists public.living_profiles (
+  user_id uuid primary key
+    references public.profiles (id) on delete cascade,
+  display_name text not null default '',
+  preferred_nickname text not null default '',
+  purpose_statement text not null default '',
+  personal_principles jsonb not null default '[]'::jsonb,
+  seasons jsonb not null default '[]'::jsonb,
+  coaching_intensity text not null default 'steady'
+    check (coaching_intensity in ('gentle', 'steady', 'direct', 'challenging')),
+  preferred_coaching_style text not null default '',
+  mattering_conversation_ids text[] not null default '{}',
+  provenance jsonb not null default '[]'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.reflections (
   session_id text primary key references public.practice_sessions (id) on delete cascade,
   user_id uuid not null references public.profiles (id) on delete cascade,
@@ -290,6 +308,7 @@ alter table public.practice_sessions enable row level security;
 alter table public.reflections enable row level security;
 alter table public.session_reports enable row level security;
 alter table public.coach_memory enable row level security;
+alter table public.living_profiles enable row level security;
 alter table public.founder_notes enable row level security;
 alter table public.founder_briefs enable row level security;
 alter table public.waitlist_members enable row level security;
@@ -297,6 +316,11 @@ alter table public.waitlist_members enable row level security;
 drop trigger if exists coach_memory_set_updated_at on public.coach_memory;
 create trigger coach_memory_set_updated_at
   before update on public.coach_memory
+  for each row execute function public.set_updated_at();
+
+drop trigger if exists living_profiles_set_updated_at on public.living_profiles;
+create trigger living_profiles_set_updated_at
+  before update on public.living_profiles
   for each row execute function public.set_updated_at();
 
 -- Drop legacy open policies if present
@@ -353,6 +377,13 @@ create policy "session_reports_own"
 drop policy if exists "coach_memory_own" on public.coach_memory;
 create policy "coach_memory_own"
   on public.coach_memory for all
+  to authenticated
+  using (user_id = auth.uid() or public.is_founder_or_admin())
+  with check (user_id = auth.uid());
+
+drop policy if exists "living_profiles_own" on public.living_profiles;
+create policy "living_profiles_own"
+  on public.living_profiles for all
   to authenticated
   using (user_id = auth.uid() or public.is_founder_or_admin())
   with check (user_id = auth.uid());

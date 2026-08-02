@@ -68,7 +68,13 @@ function relativeSessionPhrase(iso: string | null | undefined): string {
 
 /**
  * Merge a completed session report into relationship memory.
- * Keeps only facts that improve the next conversation.
+ *
+ * AUDIT-001 C4 / Forge Law #016: experiences must NOT write identity-adjacent
+ * fields (strengths, habits, confidence, goals, wins-as-identity). Those become
+ * evidence proposals via `proposeIdentityEvidenceFromReport` (lib/system1).
+ *
+ * This function updates Reality/continuity fields only: last session, scenario
+ * history, session counts. Member-declared identity fields are left untouched.
  */
 export function applyReportToMemory(
   memory: CoachMemory,
@@ -79,21 +85,10 @@ export function applyReportToMemory(
   return {
     ...memory,
     displayName: displayName?.trim() || memory.displayName,
-    recentWins: uniqPush(memory.recentWins, report.breakthrough),
-    topicsWorkingOn: uniqPush(
-      memory.topicsWorkingOn,
-      report.biggestWeakness
-    ),
-    biggestStrength:
-      report.breakthrough.trim() || memory.biggestStrength,
+    // Identity-adjacent fields intentionally NOT updated from session reports:
+    // recentWins, topicsWorkingOn, biggestStrength, confidenceLevel, speakingHabits
     favoriteScenarios: uniqPush(memory.favoriteScenarios, scenario),
     pastExercises: uniqPush(memory.pastExercises, scenario, 12),
-    confidenceLevel: report.confidence ?? memory.confidenceLevel,
-    speakingHabits: uniqPush(
-      memory.speakingHabits,
-      inferHabitFromReport(report),
-      6
-    ),
     lastSessionId: report.sessionId,
     lastSessionSummary: report.coachSummary.slice(0, 400),
     lastScenarioTitle: scenario,
@@ -101,25 +96,6 @@ export function applyReportToMemory(
     sessionsCompleted: Math.max(memory.sessionsCompleted + 1, report.sessionNumber),
     updatedAt: new Date().toISOString(),
   };
-}
-
-function inferHabitFromReport(report: SessionReport): string {
-  if (report.fillerWords >= 5) {
-    return "Uses filler words when thinking under pressure";
-  }
-  if (report.interruptions >= 3) {
-    return "Tends to jump in quickly — may cut space short";
-  }
-  if (report.questionsAsked >= 3) {
-    return "Asks clarifying questions when engaged";
-  }
-  if (
-    (report.clarity ?? 0) < 60 &&
-    (report.confidence ?? 0) >= 65
-  ) {
-    return "Leans toward explaining before checking understanding";
-  }
-  return "";
 }
 
 /**

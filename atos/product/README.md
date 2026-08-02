@@ -26,9 +26,16 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | **Steps 13–18** | [PHASE3-EXECUTION](PHASE3-EXECUTION.md) | Build packages | ✅ Authorized |
 | **Craft** | [CRAFT-LAW-001](CRAFT-LAW-001.md) | Human / trustworthy / courageous | ✅ Canonical |
 | **Design** | [DES-001](DES-001-cognitive-load.md) | Reduce unnecessary cognitive load | ✅ Canonical |
-| **Audit** | [AUDIT-001](AUDIT-001-architecture-readiness.md) | Pre-implementation freeze audit | **NO-GO — remediate** |
+| **Audit** | [AUDIT-001](AUDIT-001-architecture-readiness.md) · [AUDIT-001.1](AUDIT-001.1-architecture-reaudit.md) | Architecture readiness | **NO-GO unconstrained · CONDITIONAL GO SYS1/SYS2** |
+| **Remediation** | [REMEDIATE-001](REMEDIATE-001-architecture-remediation.md) | Architecture remediation report | **Applied** |
+| **Ownership** | [OWN-001](OWN-001-identity-ownership-matrix.md) | LP · PCM · CoachMemory ownership | **Authoritative** |
+| **PR freeze** | [FREEZE-001](FREEZE-001-identity-pr-hold.md) | Hold colliding identity PRs | **Binding** |
+| **SYS1** | [SYS1-001](SYS1-001-system-1-foundation.md) | Truth / Living Profile foundation | **In tree** |
+| **SYS2** | [SYS2-001](SYS2-001-system-2-experience.md) | Experience / readiness / pedagogy | **In tree** |
+| **POM** | [POM-001](POM-001-personal-operating-model.md) | Personal Operating Model | **In tree** |
+| **LP Law** | [LP-LAW-001](LP-LAW-001-living-profile.md) | Living Profile SSOT | **In tree** |
 
-**Agent rule:** Company OS Approved (Decision 051). Continue Phase 3 per MASTER-ROADMAP / BUILD packages. No new features without documentation, categorization, blind-spot review, and roadmap placement. Canonical admission still requires Constitutional Law #001.
+**Agent rule:** Company OS Approved (Decision 051). **AUDIT-001.1:** no unconstrained features; CONDITIONAL GO only for Living Profile unify + System 2 engines behind contracts. Canonical admission still requires Constitutional Law #001.
 
 ## Priority (RES-013)
 
@@ -76,7 +83,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [FLA-001](FLA-001-forge-learning-architecture.md) | Canonical product learning specification | Authoritative |
 | — | [PCM-001](PCM-001-personal-communication-model.md) | Canonical representation of user growth | Product Canonical |
 | — | [ROADMAP-001](ROADMAP-001-talkforge-north-star.md) | North star roadmap (1 → 1.5 → 2…7) + decision filter | **Authoritative** |
-| — | [Forge Laws](../../atlas/forge-laws.md) | Immutable operating laws (#001–#013) | **Authoritative** |
+| — | [Forge Laws](../../atlas/forge-laws.md) | Immutable operating laws (#001–#017 + Craft/DES) | **Authoritative** |
 | **Gated** | [PPS-001](PPS-001-product-proof-sprint.md) | Product Proof Sprint 001 | **May not begin until CE-001 MVP** |
 | — | [RES-013](../resolutions/RES-013-ce-001-approved-for-execution.md) | Ratification of DIR-CE-001 | Authoritative |
 

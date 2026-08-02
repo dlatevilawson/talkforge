@@ -810,6 +810,41 @@ Authoritative — Audit accepted; **NO-GO** for unconstrained implementation 202
 
 ---
 
+# Decision 054
+
+Title:
+Accept Architecture Remediation (REMEDIATE-001) and AUDIT-001.1 re-score — CONDITIONAL GO for constrained SYS1/SYS2 work only.
+
+Reason:
+
+Remediation Freeze Sprint closed AUDIT-001 Critical Issues C1–C5 on the implementation line: SYS1/SYS2/POM/LP/S2 laws restored; Forge Laws #014–#017 reconciled; MissionPicker quarantined and ContinuityHome established; CoachMemory identity shadow writes stopped; Living Profile thin persistence + evidence proposals; OWN-001 ownership matrix; FREEZE-001 holds colliding identity PRs. AUDIT-001.1 overall ~7.0 — architecture coherent for disciplined consumption work, not free-form feature velocity.
+
+Alternatives Considered:
+Declare full GO for all features — rejected (prod LP migrate + UI unify + engine depth incomplete). Remain full freeze with zero code — rejected (would block required SSOT persistence).
+
+Blind Spots:
+Production `living_profiles` migration lag; legacy CoachMemory columns; heuristic readiness only.
+
+Risks:
+Teams interpret CONDITIONAL GO as feature green light — mitigated by FREEZE-001 and AGENTS gates.
+
+Final Decision:
+Accept REMEDIATE-001 and AUDIT-001.1. **NO-GO** unconstrained features. **CONDITIONAL GO** only for: (1) apply living_profiles migration, (2) unify Profile/Settings onto Living Profile per OWN-001, (3) implement System 2 engines behind existing contracts. Do not merge held identity PRs until FREEZE-001 lifted. Do not restore MissionPicker tiles.
+
+Future Review Date:
+After Living Profile UI unify + prod migrate; then consider freeze lift.
+
+Volumes:
+`atos/product/REMEDIATE-001-architecture-remediation.md`
+`atos/product/AUDIT-001.1-architecture-reaudit.md`
+`atos/product/OWN-001-identity-ownership-matrix.md`
+`atos/product/FREEZE-001-identity-pr-hold.md`
+
+Status:
+Authoritative — Remediation accepted; CONDITIONAL GO 2026-08-02
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
