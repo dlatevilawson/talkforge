@@ -3,12 +3,13 @@
 | Field | Value |
 |---|---|
 | **Document ID** | ROADMAP-001 |
-| **Version** | 1.1.0 |
+| **Version** | 1.2.0 |
 | **Status** | Authoritative product direction |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
-| **Updated** | 2026-07-31 |
+| **Updated** | 2026-08-01 |
 | **Binding laws** | Forge Laws #012 · #013 (`atlas/forge-laws.md`) |
+| **Company OS** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) — Steps 1–2 Frozen ([CONST-001](CONST-001-talkforge-constitution.md)); Step 3 pending authorization |
 
 ## North Star
 

@@ -3,15 +3,26 @@
 | Field | Value |
 |---|---|
 | **Document ID** | PRODUCT-README |
-| **Version** | 1.1.0 |
+| **Version** | 1.2.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Dependencies** | RES-012, RES-013 |
 | **Approval History** | 2026-07-20 — Product layer opened; 2026-07-20 — CE-001 Critical (RES-013) |
+| **Change Log** | 2026-08-01 — EXEC-001 company OS; Idea Vault Step 1 |
 
 Product doctrine built **on** ATOS (not inside constitutional Specs).
+
+## Company operating system (EXEC-001)
+
+| Rank | ID | Role | Status |
+|---|---|---|---|
+| **Gate** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) | TalkForge Execution Plan — Foundation → Strategy → Build | **Active — Steps 1–2 Frozen; Step 3 pending authorization** |
+| **Step 1** | [Idea Vault](../knowledge/working/idea-vault/README.md) | Official Working Knowledge system (schema frozen) | ✅ **Complete & Frozen** |
+| **Step 2** | [CONST-001](CONST-001-talkforge-constitution.md) | TalkForge Constitution v1.0 + Law #001 + Admission Rule | ✅ **Complete & Frozen** |
+
+**Agent rule:** Do not start EXEC-001 Step 2 (or later) until the Founder approves Step 1. No new features without documentation, categorization, blind-spot review, and roadmap placement (EXEC-001 Operating Rules).
 
 ## Priority (RES-013)
 

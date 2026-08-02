@@ -621,6 +621,63 @@ Authoritative — Adopted
 
 ---
 
+# Decision 048
+
+Title:
+Adopt TalkForge Execution Plan (EXEC-001) and begin with Idea Vault only.
+
+Reason:
+
+Founder directive: build a permanent company operating system before building more product. Three phases — Foundation (knowledge base), Strategy, Product Execution. Hard rule: no new features until documented, categorized, blind-spot reviewed, and placed on the roadmap. Every step requires Founder review and approval before the next step. Immediate work is Step 1 only: Living Idea Vault under ATOS working knowledge. Volumes: `atos/product/EXEC-001-talkforge-execution-plan.md`, `atos/knowledge/working/idea-vault/`.
+
+Status:
+Authoritative — Plan adopted; Steps 2–18 blocked until prior step approved
+
+Amendment (2026-08-01) — Step 1 Founder Decision: **Revise**.
+
+Before Step 1 freezes, every idea must carry four metadata fields: (1) Lifecycle Status, (2) Relationships (Depends on / Supports / Related), (3) Evidence + Confidence, (4) Importance (Critical · Important · Useful · Optional). Adopt Idea Vault Law #001: *An idea is not knowledge until it can be understood, connected, and acted upon.* Do not expand the vault schema further — the vault supports the product; it is not the product. After revisions, Step 1 returns for Founder re-review and freeze.
+
+Status after amendment:
+**Step 1 revised — awaiting Founder re-review**; Steps 2–18 still blocked
+
+Amendment (2026-08-01) — Step 1 Founder Decision: ✅ **APPROVED**.
+
+Step 1 is Complete and Frozen. The Idea Vault is the official Working Knowledge system for TalkForge. Binding rules: (1) no new metadata fields without Founder Decision; (2) every new idea enters the Idea Vault before discussion continues elsewhere; (3) the vault captures, organizes, connects, and preserves — it does not make decisions; (4) the vault does not override Constitution, Decision Ledger, or Laws.
+
+Clarification adopted: **Canonical Knowledge** (Mission, Constitution, Laws, Definitions, Core Philosophy — formal approval to change) vs **Working Knowledge** (product ideas, UX, research, experiments, future features, blind spots — expected to evolve). Idea Vault = Working Knowledge plane.
+
+Status after approval:
+**Step 1 Complete & Frozen**; Step 2 (Constitution) blocked until Founder explicitly authorizes begin; Steps 3–18 remain gated
+
+---
+
+# Decision 049
+
+Title:
+Authorize EXEC-001 Step 2 — TalkForge Constitution v1.0 (CONST-001).
+
+Reason:
+
+Founder authorized continuation after Step 1 freeze. Step 2 delivers Canonical Knowledge: Mission, Vision, Company Philosophy, Core Principles, Definitions, Product DNA, Company Glossary, Founding Principles, and Constitutional Articles (including Knowledge Planes). Constitution must not be confused with Working Knowledge (Idea Vault). Volumes: `atos/product/CONST-001-talkforge-constitution.md`, `atlas/constitution.md`, `atos/product/EXEC-001-talkforge-execution-plan.md`.
+
+Status:
+Authoritative — Step 2 drafted; **awaiting Founder Approve / Revise / Reject**; Steps 3–18 blocked until Step 2 approved
+
+Amendment (2026-08-02) — Step 2 Founder Decision: ✅ **APPROVED**, contingent on adding **Constitutional Law #001** and the **Constitutional Admission Rule**.
+
+Contingent additions applied and Step 2 Frozen as Canonical:
+
+- **Constitutional Law #001:** Nothing that defines TalkForge is Canonical until it has been deliberately admitted by Founder decision.
+- **Constitutional Admission Rule:** Five-part rule for Canonical admission; Working Knowledge alone is never admission.
+- **Article XIV — Constitutional Admission**
+
+Volumes: `atos/product/CONST-001-talkforge-constitution.md`, `atlas/constitution.md`.
+
+Status after contingent Approve:
+**Step 2 Complete & Frozen**; Step 3 (Decision Ledger) blocked until Founder explicitly authorizes begin; Steps 4–18 remain gated
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
