@@ -18,11 +18,25 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 
 | Rank | ID | Role | Status |
 |---|---|---|---|
-| **Gate** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) | TalkForge Execution Plan — Foundation → Strategy → Build | **Active — Steps 1–2 Frozen; Step 3 pending authorization** |
-| **Step 1** | [Idea Vault](../knowledge/working/idea-vault/README.md) | Official Working Knowledge system (schema frozen) | ✅ **Complete & Frozen** |
-| **Step 2** | [CONST-001](CONST-001-talkforge-constitution.md) | TalkForge Constitution v1.0 + Law #001 + Admission Rule | ✅ **Complete & Frozen** |
+| **Gate** | [EXEC-001](EXEC-001-talkforge-execution-plan.md) | Company OS — **Founder APPROVED** (Decision 051); Phase 3 continues | **Active — v2.1** |
+| **Step 1** | [Idea Vault](../knowledge/working/idea-vault/README.md) | Working Knowledge | ✅ Frozen |
+| **Step 2** | [CONST-001](CONST-001-talkforge-constitution.md) | Constitution + Law #001 | ✅ Frozen |
+| **Steps 3–7** | Ledger · Research · Blind Spots · Parking · Journal | Foundation | ✅ Complete |
+| **Steps 8–12** | [MASTER-ROADMAP-001](MASTER-ROADMAP-001.md) | Strategy | ✅ Complete |
+| **Steps 13–18** | [PHASE3-EXECUTION](PHASE3-EXECUTION.md) | Build packages | ✅ Authorized |
+| **Craft** | [CRAFT-LAW-001](CRAFT-LAW-001.md) | Human / trustworthy / courageous | ✅ Canonical |
+| **Design** | [DES-001](DES-001-cognitive-load.md) | Reduce unnecessary cognitive load | ✅ Canonical |
+| **Audit** | [AUDIT-001](AUDIT-001-architecture-readiness.md) · [AUDIT-001.1](AUDIT-001.1-architecture-reaudit.md) · [AUDIT-001.2](AUDIT-001.2-conditional-go-reaudit.md) | Architecture readiness | **GO production migration/hardening · NO-GO features** |
+| **Remediation** | [REMEDIATE-001](REMEDIATE-001-architecture-remediation.md) | Architecture remediation report | **Applied** |
+| **Conditional remediation** | [REMEDIATE-002](REMEDIATE-002-conditional-go.md) | LP SSOT + readiness contracts | **Applied; production migration pending** |
+| **Ownership** | [OWN-001](OWN-001-identity-ownership-matrix.md) | LP · PCM · CoachMemory ownership | **Authoritative** |
+| **PR freeze** | [FREEZE-001](FREEZE-001-identity-pr-hold.md) | Hold colliding identity PRs | **Binding** |
+| **SYS1** | [SYS1-001](SYS1-001-system-1-foundation.md) | Truth / Living Profile foundation | **In tree** |
+| **SYS2** | [SYS2-001](SYS2-001-system-2-experience.md) | Experience / readiness / pedagogy | **In tree** |
+| **POM** | [POM-001](POM-001-personal-operating-model.md) | Personal Operating Model | **In tree** |
+| **LP Law** | [LP-LAW-001](LP-LAW-001-living-profile.md) | Living Profile SSOT | **In tree** |
 
-**Agent rule:** Do not start EXEC-001 Step 2 (or later) until the Founder approves Step 1. No new features without documentation, categorization, blind-spot review, and roadmap placement (EXEC-001 Operating Rules).
+**Agent rule:** Company OS Approved (Decision 051). **AUDIT-001.2:** only production migration verification and controlled hardening may proceed; no feature expansion or held identity PR merge. Canonical admission still requires Constitutional Law #001.
 
 ## Priority (RES-013)
 
@@ -70,7 +84,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | — | [FLA-001](FLA-001-forge-learning-architecture.md) | Canonical product learning specification | Authoritative |
 | — | [PCM-001](PCM-001-personal-communication-model.md) | Canonical representation of user growth | Product Canonical |
 | — | [ROADMAP-001](ROADMAP-001-talkforge-north-star.md) | North star roadmap (1 → 1.5 → 2…7) + decision filter | **Authoritative** |
-| — | [Forge Laws](../../atlas/forge-laws.md) | Immutable operating laws (#001–#013) | **Authoritative** |
+| — | [Forge Laws](../../atlas/forge-laws.md) | Immutable operating laws (#001–#017 + Craft/DES) | **Authoritative** |
 | **Gated** | [PPS-001](PPS-001-product-proof-sprint.md) | Product Proof Sprint 001 | **May not begin until CE-001 MVP** |
 | — | [RES-013](../resolutions/RES-013-ce-001-approved-for-execution.md) | Ratification of DIR-CE-001 | Authoritative |
 

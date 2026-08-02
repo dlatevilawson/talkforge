@@ -1,0 +1,19 @@
+/**
+ * System 2 public surface — experience engines consume Living Profile only.
+ */
+export type {
+  AdaptiveHomeModel,
+  MissionRecommendation,
+  RankedCandidate,
+  ReadinessEvidenceHint,
+  ReadinessResult,
+  ReadinessState,
+} from "./types";
+
+export {
+  buildAdaptiveHome,
+  evaluateReadiness,
+  narrowToObjective,
+  rankReadinessCandidates,
+  recommendNextStep,
+} from "./types";

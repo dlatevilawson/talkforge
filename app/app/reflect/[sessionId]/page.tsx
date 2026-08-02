@@ -110,7 +110,7 @@ export default function ReflectPage() {
             </p>
           )}
           <Link
-            href="/app/dashboard"
+            href="/app"
             className="mt-6 inline-flex rounded-full bg-white px-5 py-3 text-sm font-semibold text-black"
           >
             Back to dashboard
@@ -219,7 +219,7 @@ export default function ReflectPage() {
             {saving ? "Saving to Supabase..." : "Save reflection"}
           </button>
           <Link
-            href="/app/dashboard"
+            href="/app"
             className="rounded-full border border-white/15 px-6 py-3 text-sm text-zinc-200 hover:bg-white/10"
           >
             Skip for now

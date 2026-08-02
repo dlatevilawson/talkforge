@@ -11,6 +11,7 @@ import type {
   GrowthSummary,
   SessionReport,
 } from "@/lib/coach/types";
+import type { LivingProfile } from "@/lib/system1/types";
 import type {
   ConversationTurn,
   PracticeSession,
@@ -628,6 +629,88 @@ export async function saveCoachMemory(memory: CoachMemory): Promise<void> {
       return;
     }
     throw new Error(`Failed to save coach memory: ${error.message}`);
+  }
+}
+
+function mapLivingProfile(row: {
+  user_id: string;
+  display_name?: string | null;
+  preferred_nickname?: string | null;
+  purpose_statement?: string | null;
+  personal_principles?: LivingProfile["personalPrinciples"] | null;
+  seasons?: LivingProfile["seasons"] | null;
+  coaching_intensity?: LivingProfile["coachingIntensity"] | null;
+  preferred_coaching_style?: string | null;
+  mattering_conversation_ids?: string[] | null;
+  provenance?: LivingProfile["provenance"] | null;
+  updated_at?: string | null;
+}): LivingProfile {
+  return {
+    userId: row.user_id,
+    displayName: row.display_name ?? "",
+    preferredNickname: row.preferred_nickname ?? "",
+    purposeStatement: row.purpose_statement ?? "",
+    personalPrinciples: row.personal_principles ?? [],
+    seasons: row.seasons ?? [],
+    coachingIntensity: row.coaching_intensity ?? "steady",
+    preferredCoachingStyle: row.preferred_coaching_style ?? "",
+    matteringConversationIds: row.mattering_conversation_ids ?? [],
+    provenance: row.provenance ?? [],
+    updatedAt: row.updated_at ?? new Date().toISOString(),
+  };
+}
+
+/** Living Profile SSOT — soft-fails if table not migrated yet. */
+export async function getLivingProfile(
+  userId: string
+): Promise<LivingProfile | null> {
+  const supabase = requireSupabase();
+  const { data, error } = await supabase
+    .from("living_profiles")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) {
+    if (
+      error.message.includes("living_profiles") ||
+      error.code === "PGRST205"
+    ) {
+      return null;
+    }
+    throw new Error(`Failed to load living profile: ${error.message}`);
+  }
+  if (!data) return null;
+  return mapLivingProfile(data);
+}
+
+export async function saveLivingProfile(profile: LivingProfile): Promise<void> {
+  const supabase = requireSupabase();
+  const payload = {
+    user_id: profile.userId,
+    display_name: profile.displayName,
+    preferred_nickname: profile.preferredNickname,
+    purpose_statement: profile.purposeStatement,
+    personal_principles: profile.personalPrinciples,
+    seasons: profile.seasons,
+    coaching_intensity: profile.coachingIntensity,
+    preferred_coaching_style: profile.preferredCoachingStyle,
+    mattering_conversation_ids: profile.matteringConversationIds,
+    provenance: profile.provenance,
+    updated_at: profile.updatedAt,
+  };
+
+  const { error } = await supabase.from("living_profiles").upsert(payload);
+
+  if (error) {
+    if (
+      error.message.includes("living_profiles") ||
+      error.code === "PGRST205"
+    ) {
+      console.warn("[system1] living_profiles unavailable:", error.message);
+      return;
+    }
+    throw new Error(`Failed to save living profile: ${error.message}`);
   }
 }
 

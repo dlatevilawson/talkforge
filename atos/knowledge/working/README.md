@@ -19,4 +19,8 @@ Working knowledge under development. Not Canonical. Not loadable as institutiona
 | Asset | Path |
 |---|---|
 | **Idea Vault** (Working Knowledge — Step 1 Frozen) | [idea-vault/README.md](idea-vault/README.md) · [INDEX.md](idea-vault/INDEX.md) |
+| **Research Library** (Step 4) | [research-library/README.md](research-library/README.md) |
+| **Blind Spot Register** (Step 5) | [blind-spot-register/README.md](blind-spot-register/README.md) |
+| **Future Parking Lot** (Step 6) | [future-parking-lot/README.md](future-parking-lot/README.md) |
+| **Founder Journal** (Step 7) | [founder-journal/README.md](founder-journal/README.md) |
 | **D-Q Question Ledger** | [questions.md](questions.md) |

@@ -192,7 +192,7 @@ export async function loginAction(
     .toLowerCase();
   const password = String(formData.get("password") ?? "");
   const portal = String(formData.get("portal") ?? "app");
-  const defaultNext = portal === "founder" ? "/founder" : "/app/dashboard";
+  const defaultNext = portal === "founder" ? "/founder" : "/app";
   const next = safeNextPath(String(formData.get("next") ?? ""), defaultNext);
   const remember = String(formData.get("remember") ?? "") === "on";
 
@@ -399,8 +399,8 @@ export async function changePasswordAction(
 
   const password = String(formData.get("password") ?? "");
   const confirm = String(formData.get("confirmPassword") ?? "");
-  const nextRaw = String(formData.get("next") ?? "/app/dashboard");
-  const next = nextRaw.startsWith("/") ? nextRaw : "/app/dashboard";
+  const nextRaw = String(formData.get("next") ?? "/app");
+  const next = nextRaw.startsWith("/") ? nextRaw : "/app";
 
   const policyErr = assertPasswordPolicy(password);
   if (policyErr) {
@@ -477,7 +477,7 @@ export async function completeOnboardingAction(
     };
   }
 
-  redirect("/app/dashboard");
+  redirect("/app");
 }
 
 export async function resendVerificationAction(

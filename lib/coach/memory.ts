@@ -5,6 +5,7 @@ import type {
   LearningStyle,
   SessionReport,
 } from "@/lib/coach/types";
+import type { LivingProfile } from "@/lib/system1/types";
 
 export function emptyCoachMemory(userId: string, displayName = ""): CoachMemory {
   return {
@@ -68,7 +69,13 @@ function relativeSessionPhrase(iso: string | null | undefined): string {
 
 /**
  * Merge a completed session report into relationship memory.
- * Keeps only facts that improve the next conversation.
+ *
+ * AUDIT-001 C4 / Forge Law #016: experiences must NOT write identity-adjacent
+ * fields (strengths, habits, confidence, goals, wins-as-identity). Those become
+ * evidence proposals via `proposeIdentityEvidenceFromReport` (lib/system1).
+ *
+ * This function updates Reality/continuity fields only: last session, scenario
+ * history, session counts. Member-declared identity fields are left untouched.
  */
 export function applyReportToMemory(
   memory: CoachMemory,
@@ -79,21 +86,10 @@ export function applyReportToMemory(
   return {
     ...memory,
     displayName: displayName?.trim() || memory.displayName,
-    recentWins: uniqPush(memory.recentWins, report.breakthrough),
-    topicsWorkingOn: uniqPush(
-      memory.topicsWorkingOn,
-      report.biggestWeakness
-    ),
-    biggestStrength:
-      report.breakthrough.trim() || memory.biggestStrength,
+    // Identity-adjacent fields intentionally NOT updated from session reports:
+    // recentWins, topicsWorkingOn, biggestStrength, confidenceLevel, speakingHabits
     favoriteScenarios: uniqPush(memory.favoriteScenarios, scenario),
     pastExercises: uniqPush(memory.pastExercises, scenario, 12),
-    confidenceLevel: report.confidence ?? memory.confidenceLevel,
-    speakingHabits: uniqPush(
-      memory.speakingHabits,
-      inferHabitFromReport(report),
-      6
-    ),
     lastSessionId: report.sessionId,
     lastSessionSummary: report.coachSummary.slice(0, 400),
     lastScenarioTitle: scenario,
@@ -101,25 +97,6 @@ export function applyReportToMemory(
     sessionsCompleted: Math.max(memory.sessionsCompleted + 1, report.sessionNumber),
     updatedAt: new Date().toISOString(),
   };
-}
-
-function inferHabitFromReport(report: SessionReport): string {
-  if (report.fillerWords >= 5) {
-    return "Uses filler words when thinking under pressure";
-  }
-  if (report.interruptions >= 3) {
-    return "Tends to jump in quickly — may cut space short";
-  }
-  if (report.questionsAsked >= 3) {
-    return "Asks clarifying questions when engaged";
-  }
-  if (
-    (report.clarity ?? 0) < 60 &&
-    (report.confidence ?? 0) >= 65
-  ) {
-    return "Leans toward explaining before checking understanding";
-  }
-  return "";
 }
 
 /**
@@ -184,12 +161,50 @@ export function buildWelcomeHint(input: {
   return `Forge Law #012. Welcome back, ${name}. One warm sentence that you remember them. Ask whether they want to continue recent work or something new is on their mind. No options list of skills. Then wait.`;
 }
 
+/**
+ * Build coach prompt context.
+ * Identity fields prefer Living Profile (SSOT). CoachMemory supplies continuity
+ * only (last session, learning style, emotional care, session history).
+ * Unconfirmed LP provenance is never treated as identity fact.
+ */
 export function buildCoachPromptContext(
   memory: CoachMemory | null,
-  recentReports: SessionReport[] = []
+  recentReports: SessionReport[] = [],
+  livingProfile: LivingProfile | null = null
 ): CoachPromptContext {
   const mem = memory ?? emptyCoachMemory("unknown");
-  const name = preferredName(mem);
+  const lp = livingProfile;
+
+  const nickname =
+    lp?.preferredNickname.trim() || mem.preferredNickname.trim();
+  const display =
+    lp?.displayName.trim() || mem.displayName.trim();
+  const nameMem = { ...mem, preferredNickname: nickname, displayName: display };
+  const name = preferredName(nameMem);
+
+  const communicationGoals = lp?.purposeStatement.trim()
+    ? [
+        lp.purposeStatement.trim(),
+        ...lp.personalPrinciples.map((p) => p.text).filter(Boolean),
+      ].slice(0, 3)
+    : mem.communicationGoals.slice(0, 3);
+
+  const longTermChallenges = lp?.seasons.length
+    ? lp.seasons.map((s) => s.label).filter(Boolean).slice(0, 3)
+    : mem.longTermChallenges.slice(0, 3);
+
+  const preferredCoachingStyle =
+    lp?.preferredCoachingStyle.trim() || mem.preferredCoachingStyle;
+
+  // Confirmed / member-declared strength only — never pending evidence
+  const confirmedStrength =
+    lp?.provenance.find(
+      (p) =>
+        p.memberConfirmed &&
+        (p.fieldPath.includes("strength") || p.sourceKind === "member_declared") &&
+        p.claim.trim()
+    )?.claim ?? "";
+
   const isReturning = mem.sessionsCompleted > 0 || recentReports.length > 0;
   const adaptiveInsight = buildAdaptiveInsight(recentReports);
   const lastReport = recentReports[0];
@@ -204,17 +219,17 @@ export function buildCoachPromptContext(
     isReturning,
     lastScenarioTitle: mem.lastScenarioTitle,
     lastSessionAt,
-    lastStruggle: mem.topicsWorkingOn[0] || lastReport?.biggestWeakness,
-    recentWin: mem.recentWins[0] || mem.biggestStrength,
-    speakingHabit: mem.speakingHabits[0],
+    lastStruggle: lastReport?.biggestWeakness || mem.topicsWorkingOn[0],
+    recentWin: confirmedStrength || mem.recentWins[0],
+    speakingHabit: "", // habits are evidence proposals — not identity facts in prompt as truth
     adaptiveInsight,
-    longTermChallenge: mem.longTermChallenges[0],
-    communicationGoal: mem.communicationGoals[0],
+    longTermChallenge: longTermChallenges[0],
+    communicationGoal: communicationGoals[0],
   });
 
   return {
     firstName: name,
-    nickname: mem.preferredNickname.trim(),
+    nickname,
     isReturning,
     sessionsCompleted: mem.sessionsCompleted || recentReports.length,
     lastScenarioTitle: mem.lastScenarioTitle,
@@ -222,15 +237,16 @@ export function buildCoachPromptContext(
     lastSessionAt,
     recentWins: mem.recentWins.slice(0, 3),
     topicsWorkingOn: mem.topicsWorkingOn.slice(0, 3),
-    communicationGoals: mem.communicationGoals.slice(0, 3),
-    longTermChallenges: mem.longTermChallenges.slice(0, 3),
+    communicationGoals,
+    longTermChallenges,
     biggestFears: mem.biggestFears.slice(0, 3),
     emotionalTriggers: mem.emotionalTriggers.slice(0, 3),
-    preferredCoachingStyle: mem.preferredCoachingStyle,
+    preferredCoachingStyle,
     learningStyle: mem.learningStyle,
-    confidenceLevel: mem.confidenceLevel,
-    biggestStrength: mem.biggestStrength,
-    speakingHabits: mem.speakingHabits.slice(0, 3),
+    // Do not treat session-scored confidence as identity
+    confidenceLevel: null,
+    biggestStrength: confirmedStrength || "",
+    speakingHabits: [],
     adaptiveInsight,
     welcomeHint,
   };
@@ -262,24 +278,22 @@ Member relationship memory:
   }
 
   return `
-Member relationship memory (use this — do not pretend you just met them):
+Member relationship memory (Living Profile = identity SSOT; continuity = last session):
 - Call them: ${ctx.firstName}${ctx.nickname ? ` (nickname: ${ctx.nickname})` : ""}
 - Sessions completed: ${ctx.sessionsCompleted}
 - Last scenario: ${ctx.lastScenarioTitle || "(unknown)"}
 - Last practiced: ${ctx.lastSessionAt || "(unknown)"}
 - Last summary: ${ctx.lastSessionSummary || "(none)"}
-- Biggest strength: ${ctx.biggestStrength || "(none yet)"}
-- Patterns / habits: ${ctx.speakingHabits.join("; ") || "(none yet)"}
-- Recent wins: ${ctx.recentWins.join("; ") || "(none yet)"}
-- Soft focus / last struggle (do NOT recite as a checklist): ${ctx.topicsWorkingOn.join("; ") || "(none yet)"}
-- Long-term challenges: ${ctx.longTermChallenges.join("; ") || "(not set)"}
-- Communication goals: ${ctx.communicationGoals.join("; ") || "(not set)"}
-- Emotional triggers (handle gently): ${ctx.emotionalTriggers.join("; ") || ctx.biggestFears.join("; ") || "(not set)"}
+- Confirmed strength (identity only if member/evidence-confirmed): ${ctx.biggestStrength || "(none yet)"}
+- Soft focus / last struggle (session context — NOT identity fact): ${ctx.topicsWorkingOn.join("; ") || "(none yet)"}
+- Life seasons / challenges (from Living Profile): ${ctx.longTermChallenges.join("; ") || "(not set)"}
+- Purpose / goals (from Living Profile): ${ctx.communicationGoals.join("; ") || "(not set)"}
+- Emotional triggers (continuity care): ${ctx.emotionalTriggers.join("; ") || ctx.biggestFears.join("; ") || "(not set)"}
 - Preferred coaching style: ${ctx.preferredCoachingStyle || "warm, curious, unhurried"}
 - Learning style: ${learning}
-- Confidence level (approx): ${ctx.confidenceLevel ?? "unknown"}
-- Pattern insight: ${ctx.adaptiveInsight || "(none)"}
+- Pattern insight (session analytics — not identity): ${ctx.adaptiveInsight || "(none)"}
 - Opening style: ${ctx.welcomeHint}
+- Law #016: do not invent or overwrite who they are becoming.
 `;
 }
 

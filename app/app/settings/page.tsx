@@ -36,18 +36,17 @@ const LEARNING_OPTIONS: Array<{ value: LearningStyle; label: string }> = [
   { value: "challenge_first", label: "Challenge first — stretch me gently" },
 ];
 
+/**
+ * Settings = account + coach continuity preferences only.
+ * Identity (purpose, principles, seasons, nickname) lives on Living Profile.
+ */
 export default function SettingsPage() {
   const router = useRouter();
   const [session, setSession] = useState<SessionPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [memory, setMemory] = useState<CoachMemory | null>(null);
-  const [nickname, setNickname] = useState("");
-  const [goals, setGoals] = useState("");
-  const [challenges, setChallenges] = useState("");
   const [triggers, setTriggers] = useState("");
-  const [coachingStyle, setCoachingStyle] = useState("");
   const [learningStyle, setLearningStyle] = useState<LearningStyle>("");
-  const [confidence, setConfidence] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
   const [saveError, setSaveError] = useState("");
@@ -58,7 +57,9 @@ export default function SettingsPage() {
     async function load() {
       try {
         const [sessionRes, user] = await Promise.all([
-          fetch("/api/auth/session").then((r) => r.json() as Promise<SessionPayload>),
+          fetch("/api/auth/session").then(
+            (r) => r.json() as Promise<SessionPayload>
+          ),
           getUser().catch(() => null),
         ]);
         if (cancelled) return;
@@ -70,17 +71,8 @@ export default function SettingsPage() {
             emptyCoachMemory(user.id, user.displayName);
           if (cancelled) return;
           setMemory(existing);
-          setNickname(existing.preferredNickname);
-          setGoals(existing.communicationGoals.join(", "));
-          setChallenges(existing.longTermChallenges.join(", "));
           setTriggers(existing.emotionalTriggers.join(", "));
-          setCoachingStyle(existing.preferredCoachingStyle);
           setLearningStyle(existing.learningStyle);
-          setConfidence(
-            typeof existing.confidenceLevel === "number"
-              ? String(existing.confidenceLevel)
-              : ""
-          );
         }
       } catch {
         if (!cancelled) setSession(null);
@@ -102,7 +94,7 @@ export default function SettingsPage() {
     router.refresh();
   }
 
-  async function handleSaveMemory(e: React.FormEvent) {
+  async function handleSaveContinuity(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setSaveMsg("");
@@ -114,26 +106,20 @@ export default function SettingsPage() {
         throw new Error("Sign in to save coaching preferences.");
       }
       const base = memory ?? emptyCoachMemory(user.id, user.displayName);
-      const conf = confidence.trim() ? Number(confidence) : null;
+      // Continuity-only writes. Identity fields are not updated here (OWN-001).
       const next: CoachMemory = {
         ...base,
         userId: user.id,
         displayName: user.displayName || base.displayName,
-        preferredNickname: nickname.trim(),
-        communicationGoals: parseMemoryList(goals),
-        longTermChallenges: parseMemoryList(challenges),
         emotionalTriggers: parseMemoryList(triggers),
-        preferredCoachingStyle: coachingStyle.trim(),
         learningStyle,
-        confidenceLevel:
-          conf != null && Number.isFinite(conf)
-            ? Math.max(0, Math.min(100, Math.round(conf)))
-            : null,
         updatedAt: new Date().toISOString(),
       };
       await saveCoachMemory(next);
       setMemory(next);
-      setSaveMsg("Saved. Forge will use this next time you practice.");
+      setSaveMsg(
+        "Continuity preferences saved. Identity lives on your Living Profile."
+      );
     } catch (err) {
       setSaveError(
         err instanceof Error ? err.message : "Could not save preferences."
@@ -152,8 +138,8 @@ export default function SettingsPage() {
     <div>
       <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
       <p className="mt-3 max-w-xl text-zinc-400">
-        Your account and what Forge should remember about how you grow —
-        so the next session feels continuous, not like starting over.
+        Account controls and coach continuity preferences. Who you are becoming
+        is edited on your Living Profile — not here.
       </p>
 
       {loading ? (
@@ -176,10 +162,10 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <dt className="text-zinc-500">Profile</dt>
+              <dt className="text-zinc-500">Living Profile</dt>
               <dd className="mt-1">
                 <Link href="/app/profile" className="text-blue-300 underline">
-                  Open profile
+                  Edit purpose, principles, seasons
                 </Link>
               </dd>
             </div>
@@ -216,65 +202,27 @@ export default function SettingsPage() {
 
           <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
             <h2 className="text-lg font-medium text-zinc-100">
-              What Forge remembers
+              Coach continuity
             </h2>
             <p className="mt-2 text-sm leading-6 text-zinc-500">
-              Optional — only what makes the next conversation better. Forge
-              also learns from your practice sessions automatically.
+              How Forge should pace and care for you in session. These are not
+              identity facts — goals and purpose live on your{" "}
+              <Link href="/app/profile" className="text-zinc-300 underline">
+                Living Profile
+              </Link>
+              .
             </p>
 
-            <form className="mt-6 space-y-5" onSubmit={handleSaveMemory}>
-              <Field label="Preferred nickname">
-                <input
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
-                  placeholder="What should Forge call you?"
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 placeholder:text-zinc-600 focus:ring-2"
-                />
-              </Field>
-
-              <Field
-                label="Communication goals"
-                hint="Comma-separated — e.g. stay calm in conflict, ask more questions"
-              >
-                <textarea
-                  value={goals}
-                  onChange={(e) => setGoals(e.target.value)}
-                  rows={2}
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 placeholder:text-zinc-600 focus:ring-2"
-                />
-              </Field>
-
-              <Field
-                label="Long-term challenges"
-                hint="What you’re working on over months, not one session"
-              >
-                <textarea
-                  value={challenges}
-                  onChange={(e) => setChallenges(e.target.value)}
-                  rows={2}
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
-                />
-              </Field>
-
+            <form className="mt-6 space-y-5" onSubmit={handleSaveContinuity}>
               <Field
                 label="Emotional triggers"
-                hint="Moments that throw you — interruptions, silence, authority…"
+                hint="Moments that throw you — coaching care only, not identity"
               >
                 <textarea
                   value={triggers}
                   onChange={(e) => setTriggers(e.target.value)}
                   rows={2}
                   className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
-                />
-              </Field>
-
-              <Field label="Preferred coaching style">
-                <input
-                  value={coachingStyle}
-                  onChange={(e) => setCoachingStyle(e.target.value)}
-                  placeholder="Warm and direct · gentle · challenge me"
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 placeholder:text-zinc-600 focus:ring-2"
                 />
               </Field>
 
@@ -294,20 +242,6 @@ export default function SettingsPage() {
                 </select>
               </Field>
 
-              <Field
-                label="Confidence level (0–100)"
-                hint="Optional self-rating — Forge also updates this from practice"
-              >
-                <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={confidence}
-                  onChange={(e) => setConfidence(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
-                />
-              </Field>
-
               {saveError ? (
                 <p className="text-sm text-red-300" role="alert">
                   {saveError}
@@ -322,7 +256,7 @@ export default function SettingsPage() {
                 disabled={saving}
                 className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-zinc-200 disabled:opacity-50"
               >
-                {saving ? "Saving…" : "Save coaching memory"}
+                {saving ? "Saving…" : "Save continuity preferences"}
               </button>
             </form>
           </section>

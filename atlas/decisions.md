@@ -678,6 +678,203 @@ Status after contingent Approve:
 
 ---
 
+
+# Decision 050
+
+Title:
+Authorize EXEC-001 Steps 3–18 continuum; review at end if needed.
+
+Reason:
+
+Founder authorized proceeding through the remainder of the Execution Plan after Steps 1–2 freeze. Steps 3–7 complete the Foundation knowledge systems; Steps 8–12 complete Strategy; Steps 13–18 authorize Product Execution via BUILD/TEST/ITERATE packages. End-of-arc verification review permitted. Constitutional Law #001 still governs Canonical admission — build authorization is not admission.
+
+Alternatives Considered:
+Continue step-by-step Founder gates for each of Steps 3–18; rejected in favor of continuum with end review.
+
+Blind Spots:
+BS-006 (Working treated as Canonical) — mitigated by Law #001 remaining binding.
+
+Risks:
+Documentation outrunning implementation quality; mitigated by MASTER-ROADMAP status honesty and Iterate rule.
+
+Final Decision:
+Authorize Steps 3–18 continuum. Publish Foundation + Strategy deliverables and Phase 3 build packages. Execute System 1→2→CE→UX per dependency map.
+
+Future Review Date:
+After first System 1 MVP slice ships — or Founder end-arc review.
+
+Volumes:
+`atos/product/EXEC-001-talkforge-execution-plan.md`, `DEC-LEDGER-001`, Research Library, Blind Spot Register, Future Parking Lot, Founder Journal, `CAT-001`, `VERIFY-001`, `DEP-MAP-001`, `PRIORITY-001`, `MASTER-ROADMAP-001`, `PHASE3-EXECUTION.md`
+
+Status:
+Authoritative — Continuum authorized 2026-08-02
+
+---
+
+
+# Decision 051
+
+Title:
+Overall assessment — APPROVE EXEC-001 company operating system (Steps 1–18 deliverables).
+
+Reason:
+
+Founder end-arc review: Status APPROVE. Foundation (Idea Vault, Constitution, Decision Ledger, Research Library, Blind Spot Register, Future Parking Lot, Founder Journal), Strategy (categorization, verification, dependencies, priority, master roadmap), and Phase 3 packages (SYS1/SYS2/CE/UX/TEST/ITERATE) plus System 1 type substrate are accepted. Phase 3 product implementation continues under the approved roadmap. Constitutional Law #001 and Idea Vault freezes remain binding.
+
+Alternatives Considered:
+Revise further documentation before approve; not required.
+
+Blind Spots:
+BS-006 remains relevant during implementation — packages and code must not silently become Canonical.
+
+Risks:
+Implementation lag behind OS documentation — accepted; Iterate rule and MASTER-ROADMAP status tracking mitigate.
+
+Final Decision:
+APPROVE the EXEC-001 company operating system deliverables. Continue Phase 3 engineering execution.
+
+Future Review Date:
+After System 1 MVP slice (Living Profile persistence + provenance + lifecycle) ships.
+
+Volumes:
+`atos/product/EXEC-001-talkforge-execution-plan.md`, `MASTER-ROADMAP-001`, `PHASE3-EXECUTION.md`, Idea Vault, CONST-001, Decision 048–050
+
+Status:
+Authoritative — ✅ APPROVED 2026-08-02
+
+---
+
+
+# Decision 052
+
+Title:
+Admit Craft Law #001 and Design Principle #001 as Canonical.
+
+Reason:
+
+Founder Admit. Craft Law #001: Every implementation should make TalkForge feel more human, more trustworthy, or more courageous—never merely more intelligent. Design Principle #001: Every interaction should reduce unnecessary cognitive load so the member can focus on becoming more prepared. Together they form the dual implementation test (feel + cognitive ease) for the discipline phase. Complements Forge Law #013; does not replace dignity (AMD-001) or Purpose Autonomy.
+
+Alternatives Considered:
+Fold only into PCI review without named Canonical laws; rejected — needs first-class ship filters. Number as Forge Law #014; rejected — avoids collision with POM Laws #014–#017.
+
+Blind Spots:
+Over-narrowing autonomy while reducing cognitive load — mitigated by DES-001 guardrail + Article IX / Purpose Autonomy.
+
+Risks:
+Vague “human” praise without pillars — mitigated by understood / safe / courageous triad.
+
+Final Decision:
+Admit both as Canonical: `CRAFT-LAW-001`, `DES-001`. Bind into Forge Laws product decision filter, PCI Craftsmanship Review, and BUILD package acceptance.
+
+Future Review Date:
+After first System 1 MVP slice ships — verify filters catch intelligence-theater and load-increasing UX.
+
+Volumes:
+`atos/product/CRAFT-LAW-001.md`, `atos/product/DES-001-cognitive-load.md`, `atlas/forge-laws.md`, `PCI-001`, Idea Vault IV-LAW-012 · IV-PHIL-009 · IV-PHIL-010
+
+Status:
+Authoritative — ✅ Admitted 2026-08-02
+
+---
+
+
+# Decision 053
+
+Title:
+Accept AUDIT-001 Architecture Readiness Audit — Pre-Implementation Freeze; NO-GO for new features pending remediation.
+
+Reason:
+
+Founder directed an adversarial architecture integrity review before further implementation. AUDIT-001 finds doctrine quality strong (~8.5/10) but doctrine integration (~3.5) and implementation fidelity (~2.5) insufficient. Critical issues: SYS1/SYS2/POM not on mainline; Forge Laws #014–#017 cited but missing/conflicted; live MissionPicker + dashboard bypass dependency chain; CoachMemory experience-writes vs Living Profile SSOT. Recommendation: NO-GO for new features/UI/AI expansion; GO only for Remediation Freeze Sprint; re-audit before Phase 3 velocity.
+
+Alternatives Considered:
+Proceed with Phase 3 feature velocity in parallel with cleanup — rejected (architecture debt compounds). Scrap OS — rejected (doctrine strengths should be protected).
+
+Blind Spots:
+Documented in AUDIT-001 § Blind Spots (menu-as-readiness, shadow LP, CE pressure vs chain, PCM∩POM).
+
+Risks:
+Slowing CE milestones — accepted temporarily; CE scoped as substrate not mission selector.
+
+Final Decision:
+Accept AUDIT-001 as authoritative audit counsel. Enter Remediation Freeze: no new features/experiences/AI capabilities/UI expansion until Critical Issues C1–C5 addressed and AUDIT-001.1 re-scores GO. Protect Craft/DES dual test, Constitutional admission, narrowing stack.
+
+Future Review Date:
+Upon completion of Remediation Freeze Sprint items 1–5 (AUDIT-001 remediation table).
+
+Volumes:
+`atos/product/AUDIT-001-architecture-readiness.md`
+
+Status:
+Authoritative — Audit accepted; **NO-GO** for unconstrained implementation 2026-08-02
+
+---
+
+# Decision 054
+
+Title:
+Accept Architecture Remediation (REMEDIATE-001) and AUDIT-001.1 re-score — CONDITIONAL GO for constrained SYS1/SYS2 work only.
+
+Reason:
+
+Remediation Freeze Sprint closed AUDIT-001 Critical Issues C1–C5 on the implementation line: SYS1/SYS2/POM/LP/S2 laws restored; Forge Laws #014–#017 reconciled; MissionPicker quarantined and ContinuityHome established; CoachMemory identity shadow writes stopped; Living Profile thin persistence + evidence proposals; OWN-001 ownership matrix; FREEZE-001 holds colliding identity PRs. AUDIT-001.1 overall ~7.0 — architecture coherent for disciplined consumption work, not free-form feature velocity.
+
+Alternatives Considered:
+Declare full GO for all features — rejected (prod LP migrate + UI unify + engine depth incomplete). Remain full freeze with zero code — rejected (would block required SSOT persistence).
+
+Blind Spots:
+Production `living_profiles` migration lag; legacy CoachMemory columns; heuristic readiness only.
+
+Risks:
+Teams interpret CONDITIONAL GO as feature green light — mitigated by FREEZE-001 and AGENTS gates.
+
+Final Decision:
+Accept REMEDIATE-001 and AUDIT-001.1. **NO-GO** unconstrained features. **CONDITIONAL GO** only for: (1) apply living_profiles migration, (2) unify Profile/Settings onto Living Profile per OWN-001, (3) implement System 2 engines behind existing contracts. Do not merge held identity PRs until FREEZE-001 lifted. Do not restore MissionPicker tiles.
+
+Future Review Date:
+After Living Profile UI unify + prod migrate; then consider freeze lift.
+
+Volumes:
+`atos/product/REMEDIATE-001-architecture-remediation.md`
+`atos/product/AUDIT-001.1-architecture-reaudit.md`
+`atos/product/OWN-001-identity-ownership-matrix.md`
+`atos/product/FREEZE-001-identity-pr-hold.md`
+
+Status:
+Authoritative — Remediation accepted; CONDITIONAL GO 2026-08-02
+
+---
+
+# Decision 055
+
+Title:
+Accept Conditional GO remediation (REMEDIATE-002) and AUDIT-001.2 — production migration verification only; feature expansion remains blocked.
+
+Reason:
+
+Conditional GO work completed the agreed scope: Living Profile migration is an applyable production migration; Profile and Settings now separate identity from continuity; member identity writes carry provenance; Coach consumes Living Profile as SSOT; Readiness can rank, narrow, and recommend without creating identity; MissionPicker and dashboard bypasses remain quarantined.
+
+Alternatives Considered:
+Lift feature freeze now — rejected, because production migration evidence is absent and held identity PRs remain collision risks. Extend scope with a confirmation UX or new experiences — rejected; not necessary to prove architectural fidelity.
+
+Risks:
+
+`living_profiles` may not yet exist in production. Code safely reports this state, but persistence cannot be accepted without migration verification.
+
+Final Decision:
+
+Accept REMEDIATE-002 and AUDIT-001.2. **GO** only for applying/verifying `20260802_living_profiles.sql` and controlled hardening. **NO-GO** for new features and held identity-PR merges. FREEZE-001 remains binding pending Founder release.
+
+Volumes:
+
+`atos/product/REMEDIATE-002-conditional-go.md`
+`atos/product/AUDIT-001.2-conditional-go-reaudit.md`
+
+Status:
+Authoritative — Conditional GO implementation accepted; production migration verification pending 2026-08-02
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

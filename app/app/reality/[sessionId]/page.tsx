@@ -135,7 +135,7 @@ export default function RealityCapturePage() {
     return (
       <>
         <p className="text-zinc-400">Session not found.</p>
-        <Link href="/app/dashboard" className="mt-4 inline-block text-blue-300">
+        <Link href="/app" className="mt-4 inline-block text-blue-300">
           Back to dashboard
         </Link>
       </>

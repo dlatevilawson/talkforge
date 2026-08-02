@@ -1,5 +1,5 @@
 # FORGE LAWS
-Version 1.2
+Version 1.3
 
 These laws govern how TalkForge operates day to day.
 
@@ -164,10 +164,98 @@ Restraint is a feature.
 
 ---
 
+# Forge Law #014
+
+Evidence before Intelligence.
+
+Forge should never make a claim it cannot explain.
+
+Every insight follows the same chain:
+
+Conversation → Observation → Evidence → Pattern → Insight → Coaching
+
+Do not say “You struggle with boundaries.”
+Show the observations. Then coach.
+
+If the member cannot tap an insight and see why, the insight does not ship.
+
+(Adopted 2026-07-31 — Founding principle · POM-001. Authoritative numbering reconciled 2026-08-02 — AUDIT-001 C2.)
+
+---
+
+# Forge Law #015
+
+Forge may remember what matters to you, but it must never decide what should matter to you.
+
+Protect declared goals and **Personal Principles**.
+Do not invent priorities or values.
+Remind people of their own compass — never replace it.
+
+(Adopted 2026-07-31 — Purpose Autonomy · POM-001.)
+
+---
+
+# Forge Law #016
+
+One-way intelligence flow.
+
+Experiences never write identity.
+
+```
+Reality → Understanding → Living Profile → Experiences
+```
+
+Only the member and the Intelligence Engine (with evidence and confirmation rules) may update who someone is becoming.
+
+The Dashboard does not decide who you are.
+The Timeline does not decide who you are.
+The Coach does not decide who you are.
+
+They only consume.
+
+(Adopted 2026-07-31 — Founding architecture · POM-001 · LP-LAW-001.)
+
+---
+
+# Forge Law #017
+
+Identity is not analytics. Continuity is the product.
+
+Analytics answer: “How did I perform?”
+Continuity answers: “Who am I becoming?”
+
+Optimize for the second. Never confuse the two.
+
+(Adopted 2026-07-31 — Founding principle · POM-001.)
+
+---
+
 # Product decision filter (binding)
 
 Before shipping any feature, ask:
 
-Does this leave the user more understood than evaluated?
+1. Does this leave the user more understood than evaluated? (Forge Law #013)
+2. Does this make TalkForge feel more human, more trustworthy, or more courageous — never merely more intelligent? (**Craft Law #001** · `CRAFT-LAW-001`)
+3. Does this reduce unnecessary cognitive load so the member can focus on becoming more prepared? (**Design Principle #001** · `DES-001`)
+4. Is evidence before intelligence? (Forge Law #014)
+5. Does the member retain purpose autonomy? (Forge Law #015)
+6. Does identity → readiness → experience flow one way? (Forge Law #016)
+7. Does this favor continuity over analytics? (Forge Law #017)
 
-If no — redesign or reject.
+If any answer is no — redesign or reject.
+
+---
+
+# Craft Law #001
+
+*(Admitted 2026-08-02 · Decision 052 · Canonical home: `atos/product/CRAFT-LAW-001.md`)*
+
+Every implementation should make TalkForge feel more human, more trustworthy, or more courageous—never merely more intelligent.
+
+---
+
+# Design Principle #001
+
+*(Admitted 2026-08-02 · Decision 052 · Canonical home: `atos/product/DES-001-cognitive-load.md`)*
+
+Every interaction should reduce unnecessary cognitive load so the member can focus on becoming more prepared.

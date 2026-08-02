@@ -122,21 +122,30 @@ export async function loadCoachPromptContextForUser(
   try {
     const supabase = await createServerSupabaseClient();
 
-    const [{ data: memoryRow }, { data: reportRows }, { data: profile }] =
-      await Promise.all([
-        supabase.from("coach_memory").select("*").eq("user_id", userId).maybeSingle(),
-        supabase
-          .from("session_reports")
-          .select("*")
-          .eq("user_id", userId)
-          .order("created_at", { ascending: false })
-          .limit(12),
-        supabase
-          .from("profiles")
-          .select("display_name, first_name")
-          .eq("id", userId)
-          .maybeSingle(),
-      ]);
+    const [
+      { data: memoryRow },
+      { data: reportRows },
+      { data: profile },
+      { data: livingRow },
+    ] = await Promise.all([
+      supabase.from("coach_memory").select("*").eq("user_id", userId).maybeSingle(),
+      supabase
+        .from("session_reports")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(12),
+      supabase
+        .from("profiles")
+        .select("display_name, first_name")
+        .eq("id", userId)
+        .maybeSingle(),
+      supabase
+        .from("living_profiles")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle(),
+    ]);
 
     let memory = memoryRow
       ? mapMemory(memoryRow as Record<string, unknown>)
@@ -148,7 +157,7 @@ export async function loadCoachPromptContextForUser(
       memory.displayName;
     if (display) memory = { ...memory, displayName: display };
 
-    // If memory table missing / empty, synthesize from completed sessions.
+    // Continuity-only synthesis from sessions — never invent identity/confidence.
     if (!memoryRow && (!reportRows || reportRows.length === 0)) {
       const { data: sessions } = await supabase
         .from("practice_sessions")
@@ -166,18 +175,47 @@ export async function loadCoachPromptContextForUser(
           lastSessionId: sessions[0].id,
           lastScenarioTitle: sessions[0].scenario_title ?? "",
           lastSessionAt: sessions[0].completed_at ?? null,
-          lastSessionSummary: sessions[0].average_score
-            ? `Last session score ${sessions[0].average_score}.`
-            : "You've practiced with Forge before.",
-          confidenceLevel: sessions[0].average_score ?? null,
+          lastSessionSummary: "You've practiced with Forge before.",
+          confidenceLevel: null,
         };
       }
     }
 
+    const livingProfile = livingRow
+      ? {
+          userId: String(livingRow.user_id),
+          displayName: String(livingRow.display_name ?? ""),
+          preferredNickname: String(livingRow.preferred_nickname ?? ""),
+          purposeStatement: String(livingRow.purpose_statement ?? ""),
+          personalPrinciples: Array.isArray(livingRow.personal_principles)
+            ? livingRow.personal_principles
+            : [],
+          seasons: Array.isArray(livingRow.seasons) ? livingRow.seasons : [],
+          coachingIntensity:
+            livingRow.coaching_intensity === "gentle" ||
+            livingRow.coaching_intensity === "direct" ||
+            livingRow.coaching_intensity === "challenging"
+              ? livingRow.coaching_intensity
+              : ("steady" as const),
+          preferredCoachingStyle: String(
+            livingRow.preferred_coaching_style ?? ""
+          ),
+          matteringConversationIds: Array.isArray(
+            livingRow.mattering_conversation_ids
+          )
+            ? livingRow.mattering_conversation_ids
+            : [],
+          provenance: Array.isArray(livingRow.provenance)
+            ? livingRow.provenance
+            : [],
+          updatedAt: String(livingRow.updated_at ?? new Date().toISOString()),
+        }
+      : null;
+
     const reports = (reportRows ?? []).map((row) =>
       mapReport(row as Record<string, unknown>)
     );
-    return buildCoachPromptContext(memory, reports);
+    return buildCoachPromptContext(memory, reports, livingProfile);
   } catch {
     return buildCoachPromptContext(emptyCoachMemory(userId));
   }

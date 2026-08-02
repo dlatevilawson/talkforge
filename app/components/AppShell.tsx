@@ -17,10 +17,11 @@ import {
 } from "@/lib/identity";
 
 const links = [
-  { href: "/app/dashboard", label: "Dashboard" },
+  { href: "/app", label: "Home" },
   { href: "/app/practice", label: "Practice" },
-  { href: "/app/progress", label: "Progress" },
   { href: "/app/profile", label: "Profile" },
+  { href: "/app/dashboard", label: "Activity" },
+  { href: "/app/progress", label: "Progress" },
   { href: "/app/settings", label: "Settings" },
 ] as const;
 
@@ -98,7 +99,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-[var(--tf-bg)] font-sans text-[var(--tf-fg)]">
       <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Link href="/app/dashboard" className="text-lg font-semibold tracking-wide">
+          <Link href="/app" className="text-lg font-semibold tracking-wide">
             TalkForge
           </Link>
 

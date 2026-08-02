@@ -1,71 +1,50 @@
 import Link from "next/link";
 
-const missions = [
-  {
-    href: "/app/small-talk",
-    title: "Small Talk",
-    description: "Start easy conversations with warmth and curiosity.",
-  },
-  {
-    href: "/app/interview",
-    title: "Interview",
-    description: "Practice clear, confident answers under pressure.",
-  },
-  {
-    href: "/app/leadership",
-    title: "Leadership",
-    description: "Guide people with clarity, empathy, and direction.",
-  },
-  {
-    href: "/app/negotiation",
-    title: "Negotiation",
-    description: "Ask for what you need without losing the relationship.",
-  },
-  {
-    href: "/app/storytelling",
-    title: "Storytelling",
-    description: "Make ideas memorable with structure and presence.",
-  },
-  {
-    href: "/app/difficult-conversations",
-    title: "Difficult Conversations",
-    description: "Stay calm, honest, and constructive when stakes are high.",
-  },
-];
-
+/**
+ * QUARANTINED — AUDIT-001 C3 / DES-001 / Forge Law #012.
+ *
+ * Former multi-mission menu ("What would you like to forge today?") bypassed
+ * Living Profile → Readiness → Adaptive Homepage. Mission tiles are disabled.
+ * Use ContinuityHome / buildAdaptiveHome for entry.
+ *
+ * Do not restore equal mission grids without Founder decision reversing
+ * IV-REJ-005 and AUDIT-001 remediation.
+ */
 export default function MissionPicker({
-  title = "What would you like to forge today?",
-  subtitle = "Every conversation is another opportunity to become more confident, more thoughtful, and more capable.",
+  title = "Mission menu retired",
+  subtitle = "TalkForge no longer asks you to choose a practice path before readiness. Continue from Home — one next step, not a blank menu.",
 }: {
   title?: string;
   subtitle?: string;
 }) {
   return (
-    <section>
+    <section className="rounded-3xl border border-dashed border-white/15 bg-black/20 p-6 sm:p-8">
       <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
-        Practice
+        Architecture
       </p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+      <h1 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
         {title}
       </h1>
       <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-400">
         {subtitle}
       </p>
-
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        {missions.map((mission) => (
-          <Link
-            key={mission.href}
-            href={mission.href}
-            className="rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400"
-          >
-            <h2 className="text-lg font-medium text-white">{mission.title}</h2>
-            <p className="mt-2 text-sm leading-6 text-zinc-400">
-              {mission.description}
-            </p>
-          </Link>
-        ))}
+      <div className="mt-8 flex flex-wrap gap-3">
+        <Link
+          href="/app"
+          className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
+        >
+          Go to Home
+        </Link>
+        <Link
+          href="/app/practice"
+          className="rounded-full border border-white/15 px-5 py-3 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
+        >
+          Continue with Forge
+        </Link>
       </div>
+      <p className="mt-6 text-xs text-zinc-600">
+        Multi-mission picker quarantined (AUDIT-001 C3). Do not add tiles here.
+      </p>
     </section>
   );
 }

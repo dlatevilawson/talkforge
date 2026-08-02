@@ -4,10 +4,17 @@ import {
   buildSessionReport,
   type MomentumLike,
 } from "@/lib/coach/report";
+import { proposeIdentityEvidenceFromReport } from "@/lib/system1/proposals";
+import {
+  attachPendingProposals,
+  emptyLivingProfile,
+} from "@/lib/system1/profile";
 import {
   countCompletedSessions,
   getCoachMemory,
+  getLivingProfile,
   saveCoachMemory,
+  saveLivingProfile,
   saveSession,
   saveSessionReport,
 } from "./storage";
@@ -139,6 +146,20 @@ export async function completePracticeSession(
       sessionNumber
     );
     await saveCoachMemory(nextMemory);
+
+    // Forge Law #016: session → evidence proposals on Living Profile provenance
+    // only (memberConfirmed: false). Never write identity fields from experiences.
+    const proposals = proposeIdentityEvidenceFromReport(report);
+    if (proposals.length > 0) {
+      const existingProfile =
+        (await getLivingProfile(session.userId)) ??
+        emptyLivingProfile(
+          session.userId,
+          options?.displayName ?? nextMemory.displayName
+        );
+      const nextProfile = attachPendingProposals(existingProfile, proposals);
+      await saveLivingProfile(nextProfile);
+    }
   } catch (err) {
     console.warn("[coach] failed to persist session report/memory", err);
   }
