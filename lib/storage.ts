@@ -892,10 +892,13 @@ export async function clearAllTalkForgeData(): Promise<void> {
   try {
     clearLocalPracticeData(authUser.id);
     clearVoiceTranscriptData();
-    clearCurrentUserId();
     if (!clearPendingGuestUserId()) {
       throw new Error("Pending guest data could not be cleared.");
     }
+    // The reset page navigates immediately after sign-out. Suppress the
+    // identity event so profile reload listeners cannot rebind this pointer
+    // during the small interval before the Auth session is destroyed.
+    clearCurrentUserId(false);
   } catch (error) {
     throw new Error(
       error instanceof Error

@@ -56,11 +56,11 @@ export function bindAuthenticatedUserId(authUserId: string): void {
   setCurrentUserId(authUserId);
 }
 
-export function clearCurrentUserId(): void {
+export function clearCurrentUserId(notify = true): void {
   if (typeof window === "undefined") return;
   const prior = getCurrentUserId();
   window.sessionStorage.removeItem(CURRENT_USER_ID_KEY);
-  if (prior) {
+  if (prior && notify) {
     notifyIdentityChanged(null);
   }
 }
