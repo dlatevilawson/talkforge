@@ -1,47 +1,65 @@
-/**
- * Runtime backfill: member-declared CoachMemory → Living Profile when LP empty.
- * Does not copy session-inferred identity fields (strengths, habits, confidence).
- */
+/** Explicit legacy migration: CoachMemory values become pending evidence only. */
 import type { CoachMemory } from "@/lib/coach/types";
-import type { LivingProfile } from "@/lib/system1/types";
-import { emptyLivingProfile } from "@/lib/system1/profile";
-import { applyMemberLivingProfileUpdate } from "@/lib/system1/member-writes";
+import {
+  canWriteLivingProfileField,
+  type LivingProfile,
+  type ProvenanceRecord,
+} from "@/lib/system1/types";
 
-export function livingProfileNeedsBackfill(profile: LivingProfile | null): boolean {
-  if (!profile) return true;
-  return (
-    !profile.preferredNickname.trim() &&
-    !profile.purposeStatement.trim() &&
-    profile.personalPrinciples.length === 0 &&
-    profile.seasons.length === 0 &&
-    !profile.preferredCoachingStyle.trim()
-  );
-}
+export type LegacyEvidenceMigrationResult = {
+  profile: LivingProfile;
+  importedCount: number;
+};
 
-export function backfillLivingProfileFromCoachMemory(
-  userId: string,
-  memory: CoachMemory | null,
-  existing: LivingProfile | null
-): LivingProfile {
-  const base =
-    existing ?? emptyLivingProfile(userId, memory?.displayName ?? "");
-  if (!memory) return base;
-  if (!livingProfileNeedsBackfill(base)) {
-    if (!base.displayName.trim() && memory.displayName.trim()) {
-      return { ...base, displayName: memory.displayName };
-    }
-    return base;
-  }
+export function attachLegacyCoachMemoryEvidence(
+  profile: LivingProfile,
+  memory: CoachMemory | null
+): LegacyEvidenceMigrationResult {
+  if (!memory) return { profile, importedCount: 0 };
 
   const goals = memory.communicationGoals.filter(Boolean);
-  const [purpose, ...principleLines] = goals;
+  const challenges = memory.longTermChallenges.filter(Boolean);
+  const candidates = [
+    ["preferredNickname", memory.preferredNickname.trim()],
+    ["purposeStatement", goals.join("; ")],
+    ["seasons", challenges.join("; ")],
+    ["preferredCoachingStyle", memory.preferredCoachingStyle.trim()],
+  ] as const;
+  const existingIds = new Set(profile.provenance.map((record) => record.id));
+  const timestamp = memory.updatedAt || new Date().toISOString();
+  const additions: ProvenanceRecord[] = [];
 
-  return applyMemberLivingProfileUpdate(base, {
-    displayName: memory.displayName || base.displayName,
-    preferredNickname: memory.preferredNickname,
-    purposeStatement: purpose ?? "",
-    principleLines,
-    seasonLabels: memory.longTermChallenges.filter(Boolean),
-    preferredCoachingStyle: memory.preferredCoachingStyle,
-  });
+  for (const [fieldPath, claim] of candidates) {
+    if (!claim) continue;
+    const id = `prov_legacy_${fieldPath}_${profile.userId}`;
+    if (existingIds.has(id)) continue;
+
+    const provenance: ProvenanceRecord = {
+      id,
+      fieldPath,
+      claim,
+      sourceKind: "imported",
+      evidenceRefs: ["coach_memory"],
+      confidence: "low",
+      createdAt: timestamp,
+      updatedAt: timestamp,
+      memberConfirmed: false,
+    };
+    if (
+      canWriteLivingProfileField("intelligence_with_evidence", provenance)
+    ) {
+      throw new Error("Unconfirmed legacy evidence cannot write identity.");
+    }
+    additions.push(provenance);
+  }
+
+  if (additions.length === 0) return { profile, importedCount: 0 };
+  return {
+    profile: {
+      ...profile,
+      provenance: [...additions, ...profile.provenance].slice(0, 200),
+      updatedAt: new Date().toISOString(),
+    },
+    importedCount: additions.length,
+  };
 }
