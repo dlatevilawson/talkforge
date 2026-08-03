@@ -1,5 +1,7 @@
 import VoiceArena from "@/app/components/VoiceArena";
 import type { CeTrack } from "@/lib/ce/session-config";
+import { evaluatePracticeRouteAccess } from "@/lib/system2/server-readiness";
+import { redirect } from "next/navigation";
 
 export default async function VoicePage({
   searchParams,
@@ -10,6 +12,11 @@ export default async function VoicePage({
     success?: string | string[];
   }>;
 }) {
+  const access = await evaluatePracticeRouteAccess();
+  if (!access.allowed) {
+    redirect("/app");
+  }
+
   const params = await searchParams;
   const trackRaw = first(params.track);
   const track: CeTrack =
