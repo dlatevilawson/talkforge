@@ -3,12 +3,14 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-004 |
-| **Version** | 0.5.0 |
+| **Version** | 1.0.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Milestone 6.4 complete — Founder final certification gate** |
+| **Status** | **Frozen Historical — Phase 6 certified** |
 | **Scope** | Database deployment integrity only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) — SEC-02 / required fix #6 |
 | **Prior certification** | [HARDEN-003](HARDEN-003-data-lifecycle-integrity.md) — Frozen Historical |
+| **Frozen by** | Founder approval — 2026-08-03 |
+| **Successor rule** | Future deployment-integrity changes require a new Founder-approved checkpoint |
 
 ---
 
@@ -20,6 +22,9 @@ prevent repository drift from reintroducing security defects.
 This checkpoint does not reopen HARDEN-001 through HARDEN-003. It does not
 authorize feature work, guest-migration changes, general security remediation,
 application schema redesign, or data-lifecycle changes.
+
+This document is now an immutable historical certification record. Corrections
+require an explicit Founder-approved successor checkpoint or re-certification.
 
 ---
 
@@ -341,7 +346,7 @@ certified migration bodies. It does not infer security from names or comments.
 
 ### Certification determination
 
-# **RECOMMEND CERTIFY AND FREEZE**
+# **CERTIFIED**
 
 HARDEN-004 meets its approved objectives:
 
@@ -371,9 +376,11 @@ Milestone 6.4 makes no runtime change and requires no production rollback.
 Emergency rollback of earlier HARDEN-004 repository controls would reopen
 SEC-02 redeployment risk and requires a new Founder-authorized checkpoint.
 
-### Founder Gate
+### Final Disposition
 
 # **NO-GO**
 
-Milestone 6.4 is complete. Await Founder final certification before marking
-HARDEN-004 frozen. Do not begin a successor checkpoint.
+Founder approval on 2026-08-03 closes Phase 6. HARDEN-004 is frozen and may not
+be modified except through a future Founder-approved checkpoint. This
+certification closes only EXEC-VERIFY-001 SEC-02 / required fix #6; the
+feature-development hold remains in force.
