@@ -34,75 +34,86 @@ create policy "living_profiles_own"
 
 -- One-time backfill: declared coach_memory fields → Living Profile when LP row absent.
 -- Does NOT copy session-inferred identity (strengths/habits/confidence).
-insert into public.living_profiles (
-  user_id,
-  display_name,
-  preferred_nickname,
-  purpose_statement,
-  personal_principles,
-  seasons,
-  preferred_coaching_style,
-  provenance,
-  updated_at
-)
-select
-  cm.user_id,
-  coalesce(cm.display_name, ''),
-  coalesce(cm.preferred_nickname, ''),
-  coalesce(cm.communication_goals[1], ''),
-  case
-    when coalesce(array_length(cm.communication_goals, 1), 0) > 1 then (
-      select jsonb_agg(
-        jsonb_build_object(
-          'id', 'prin_import_' || gs.i::text,
-          'text', cm.communication_goals[gs.i],
-          'declaredBy', 'member',
-          'provenanceId', null,
-          'createdAt', now()::text
-        )
+-- Some production environments predate coach_memory. Dynamic SQL keeps the
+-- canonical Living Profile migration applicable there without inventing an
+-- empty continuity store solely to satisfy this optional import.
+do $migration$
+begin
+  if to_regclass('public.coach_memory') is not null then
+    execute $backfill$
+      insert into public.living_profiles (
+        user_id,
+        display_name,
+        preferred_nickname,
+        purpose_statement,
+        personal_principles,
+        seasons,
+        preferred_coaching_style,
+        provenance,
+        updated_at
       )
-      from generate_series(2, array_length(cm.communication_goals, 1)) as gs(i)
-    )
-    else '[]'::jsonb
-  end,
-  case
-    when coalesce(array_length(cm.long_term_challenges, 1), 0) > 0 then (
-      select jsonb_agg(
-        jsonb_build_object(
-          'id', 'season_import_' || gs.i::text,
-          'kind', 'other',
-          'label', cm.long_term_challenges[gs.i],
-          'rank', case when gs.i = 1 then 'primary' else 'secondary' end,
-          'notes', '',
-          'startedAt', null
-        )
+      select
+        cm.user_id,
+        coalesce(cm.display_name, ''),
+        coalesce(cm.preferred_nickname, ''),
+        coalesce(cm.communication_goals[1], ''),
+        case
+          when coalesce(array_length(cm.communication_goals, 1), 0) > 1 then (
+            select jsonb_agg(
+              jsonb_build_object(
+                'id', 'prin_import_' || gs.i::text,
+                'text', cm.communication_goals[gs.i],
+                'declaredBy', 'member',
+                'provenanceId', null,
+                'createdAt', now()::text
+              )
+            )
+            from generate_series(2, array_length(cm.communication_goals, 1)) as gs(i)
+          )
+          else '[]'::jsonb
+        end,
+        case
+          when coalesce(array_length(cm.long_term_challenges, 1), 0) > 0 then (
+            select jsonb_agg(
+              jsonb_build_object(
+                'id', 'season_import_' || gs.i::text,
+                'kind', 'other',
+                'label', cm.long_term_challenges[gs.i],
+                'rank', case when gs.i = 1 then 'primary' else 'secondary' end,
+                'notes', '',
+                'startedAt', null
+              )
+            )
+            from generate_series(1, array_length(cm.long_term_challenges, 1)) as gs(i)
+          )
+          else '[]'::jsonb
+        end,
+        coalesce(cm.preferred_coaching_style, ''),
+        jsonb_build_array(
+          jsonb_build_object(
+            'id', 'prov_import_' || cm.user_id::text,
+            'fieldPath', 'imported_from_coach_memory',
+            'claim', 'Backfilled member-declared fields from coach_memory (identity migration)',
+            'sourceKind', 'imported',
+            'evidenceRefs', jsonb_build_array('coach_memory'),
+            'confidence', 'medium',
+            'createdAt', now()::text,
+            'updatedAt', now()::text,
+            'memberConfirmed', true
+          )
+        ),
+        now()
+      from public.coach_memory cm
+      where not exists (
+        select 1 from public.living_profiles lp where lp.user_id = cm.user_id
       )
-      from generate_series(1, array_length(cm.long_term_challenges, 1)) as gs(i)
-    )
-    else '[]'::jsonb
-  end,
-  coalesce(cm.preferred_coaching_style, ''),
-  jsonb_build_array(
-    jsonb_build_object(
-      'id', 'prov_import_' || cm.user_id::text,
-      'fieldPath', 'imported_from_coach_memory',
-      'claim', 'Backfilled member-declared fields from coach_memory (identity migration)',
-      'sourceKind', 'imported',
-      'evidenceRefs', jsonb_build_array('coach_memory'),
-      'confidence', 'medium',
-      'createdAt', now()::text,
-      'updatedAt', now()::text,
-      'memberConfirmed', true
-    )
-  ),
-  now()
-from public.coach_memory cm
-where not exists (
-  select 1 from public.living_profiles lp where lp.user_id = cm.user_id
-)
-and (
-  coalesce(cm.preferred_nickname, '') <> ''
-  or coalesce(array_length(cm.communication_goals, 1), 0) > 0
-  or coalesce(array_length(cm.long_term_challenges, 1), 0) > 0
-  or coalesce(cm.preferred_coaching_style, '') <> ''
-);
+      and (
+        coalesce(cm.preferred_nickname, '') <> ''
+        or coalesce(array_length(cm.communication_goals, 1), 0) > 0
+        or coalesce(array_length(cm.long_term_challenges, 1), 0) > 0
+        or coalesce(cm.preferred_coaching_style, '') <> ''
+      )
+    $backfill$;
+  end if;
+end
+$migration$;
