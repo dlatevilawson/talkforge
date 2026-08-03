@@ -14,7 +14,7 @@ import {
   getCoachMemory,
   getLivingProfile,
   saveCoachMemory,
-  saveLivingProfile,
+  saveLivingProfileProvenance,
   saveSession,
   saveSessionReport,
 } from "./storage";
@@ -158,7 +158,7 @@ export async function completePracticeSession(
           options?.displayName ?? nextMemory.displayName
         );
       const nextProfile = attachPendingProposals(existingProfile, proposals);
-      await saveLivingProfile(nextProfile);
+      await saveLivingProfileProvenance(nextProfile);
     }
   } catch (err) {
     console.warn("[coach] failed to persist session report/memory", err);

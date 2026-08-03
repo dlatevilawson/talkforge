@@ -25,6 +25,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | [REMEDIATE-002](atos/product/REMEDIATE-002-conditional-go.md) | Conditional GO implementation report |
 | [EXEC-VERIFY-001](atos/product/EXEC-VERIFY-001-final-architecture-certification.md) | Final architecture certification — **NO-GO** feature development |
 | [HARDEN-001](atos/product/HARDEN-001-final-architecture-hardening.md) | Phases 1–3 certification — **Frozen Historical** |
+| [HARDEN-002](atos/product/HARDEN-002-identity-integrity.md) | Phase 4 identity integrity — **Milestone 4.1 approval gate** |
 | [REMEDIATE-001](atos/product/REMEDIATE-001-architecture-remediation.md) | Remediation report |
 | [OWN-001](atos/product/OWN-001-identity-ownership-matrix.md) | Identity / evidence ownership matrix |
 | [FREEZE-001](atos/product/FREEZE-001-identity-pr-hold.md) | Identity PR hold |

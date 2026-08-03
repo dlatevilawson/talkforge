@@ -684,23 +684,21 @@ export async function getLivingProfile(
   return mapLivingProfile(data);
 }
 
-export async function saveLivingProfile(profile: LivingProfile): Promise<void> {
+export async function saveLivingProfileProvenance(
+  profile: Pick<LivingProfile, "userId" | "provenance" | "updatedAt">
+): Promise<void> {
   const supabase = requireSupabase();
   const payload = {
-    user_id: profile.userId,
-    display_name: profile.displayName,
-    preferred_nickname: profile.preferredNickname,
-    purpose_statement: profile.purposeStatement,
-    personal_principles: profile.personalPrinciples,
-    seasons: profile.seasons,
-    coaching_intensity: profile.coachingIntensity,
-    preferred_coaching_style: profile.preferredCoachingStyle,
-    mattering_conversation_ids: profile.matteringConversationIds,
     provenance: profile.provenance,
     updated_at: profile.updatedAt,
   };
 
-  const { error } = await supabase.from("living_profiles").upsert(payload);
+  const { data, error } = await supabase
+    .from("living_profiles")
+    .update(payload)
+    .eq("user_id", profile.userId)
+    .select("user_id")
+    .maybeSingle();
 
   if (error) {
     if (
@@ -711,6 +709,11 @@ export async function saveLivingProfile(profile: LivingProfile): Promise<void> {
       return;
     }
     throw new Error(`Failed to save living profile: ${error.message}`);
+  }
+  if (!data) {
+    throw new Error(
+      "Cannot append session evidence before a Living Profile exists."
+    );
   }
 }
 

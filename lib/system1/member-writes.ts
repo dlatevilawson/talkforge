@@ -8,6 +8,7 @@ import type {
   PersonalPrinciple,
   ProvenanceRecord,
 } from "@/lib/system1/types";
+import { canWriteLivingProfileField } from "@/lib/system1/types";
 
 export type MemberLivingProfileInput = {
   displayName?: string;
@@ -33,7 +34,7 @@ function memberProvenance(
   claim: string,
   now: string
 ): ProvenanceRecord {
-  return {
+  const provenance: ProvenanceRecord = {
     id: newId("prov"),
     fieldPath,
     claim,
@@ -44,6 +45,12 @@ function memberProvenance(
     updatedAt: now,
     memberConfirmed: true,
   };
+
+  if (!canWriteLivingProfileField("member", provenance)) {
+    throw new Error(`Member is not authorized to write ${fieldPath}.`);
+  }
+
+  return provenance;
 }
 
 /**
