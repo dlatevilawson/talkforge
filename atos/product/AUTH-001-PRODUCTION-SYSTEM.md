@@ -65,18 +65,20 @@ Never assign staff roles via signup form metadata (see `20260729_tip_secure_role
 
 ## Database
 
-Apply in Supabase SQL Editor **in order**:
+Use the exact ordered path in
+`supabase/migrations/manifest.json`. Existing TalkForge production starts with
+`20260730_upgrade_legacy_profiles.sql`; greenfield starts with
+`20260729_auth_foundation.sql` immediately followed by
+`20260729_tip_secure_role_trigger.sql`.
 
-1. `supabase/migrations/20260730_upgrade_legacy_profiles.sql` — upgrades legacy guest `profiles` (text id) → AUTH-001 uuid schema (**required on current production**)
-2. Confirm `20260729_tip_secure_role_trigger.sql` is applied (included in upgrade script’s `handle_new_user`)
-
-If starting a greenfield project, `20260729_auth_foundation.sql` alone is enough; production TalkForge already had the legacy table, so the upgrade migration is mandatory.
+The bootstrap paths are mutually exclusive. The greenfield foundation alone is
+not a secure or complete deployment. Do not deploy `supabase/schema.sql`.
 
 ---
 
 ## Ops checklist (production cutover)
 
-1. [ ] Run `20260730_upgrade_legacy_profiles.sql` (choose **Run and enable RLS** for archive tables)
+1. [ ] Select and verify the `existingProduction` path in `supabase/migrations/manifest.json`
 2. [ ] Supabase Auth → Site URL = `https://talkforge.io`
 3. [ ] Redirect allowlist includes `https://talkforge.io/**` and local dev URL
 4. [ ] Apply branded email templates (`npm run auth:configure` or Dashboard paste)

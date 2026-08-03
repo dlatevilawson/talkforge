@@ -42,6 +42,7 @@ Next.js proxy.ts ── getClaims() ──► gate /app /founder /onboarding
 - Auth routes: signup, login, forgot/reset, verify, callback, logout, onboarding, change-password
 - `supabase/migrations/20260729_auth_foundation.sql`
 - `supabase/migrations/20260729_tip_secure_role_trigger.sql`
+- `supabase/migrations/manifest.json`, `supabase/README.md` (deployment SSOT)
 - `supabase/email-templates/{verification,password-reset,welcome,email-change,invitation}.html`
 - `scripts/configure-supabase-auth.mjs`, `scripts/tip-auth-check.mjs`
 

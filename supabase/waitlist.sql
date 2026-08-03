@@ -1,5 +1,7 @@
--- TalkForge founding members waitlist (LP-001)
--- Run in Supabase SQL editor before production waitlist goes live.
+-- NON-DEPLOYABLE WAITLIST REFERENCE
+--
+-- Ordered migrations in supabase/migrations/manifest.json are the only
+-- deployment source of truth. This file is retained for LP-001 reference only.
 
 create table if not exists public.waitlist_members (
   id uuid primary key default gen_random_uuid(),
