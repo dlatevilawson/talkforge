@@ -3,12 +3,14 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-002 |
-| **Version** | 0.4.0 |
+| **Version** | 1.0.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Milestone 4.4 complete — Founder approval gate** |
+| **Status** | **Frozen Historical — Phase 4 certified** |
 | **Scope** | Phase 4 identity integrity only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) |
 | **Prior certification** | [HARDEN-001](HARDEN-001-final-architecture-hardening.md) — Frozen Historical |
+| **Frozen by** | Founder approval — 2026-08-03 |
+| **Successor rule** | Phase 5 requires a separate checkpoint document |
 
 ---
 
@@ -17,6 +19,10 @@
 Make Living Profile identity ownership enforceable in runtime and persistence.
 This checkpoint does not reopen HARDEN-001 and does not authorize feature
 development.
+
+This document is now an immutable historical certification record. Do not append
+Phase 5 or later implementation evidence. Corrections require an explicit
+Founder-authorized erratum or a separate re-certification document.
 
 ---
 
@@ -291,19 +297,25 @@ DATA-03 and should be used only for emergency service recovery.
 
 ---
 
-## Phase 4 Implementation Status
+## Phase 4 Certification Determination
 
-All HARDEN-002 implementation milestones are complete. This checkpoint remains
-open pending Founder certification and must not be frozen or extended into
-Phase 5 without an explicit Founder decision.
+# **CERTIFIED**
+
+Founder approval on 2026-08-03 closes Phase 4. Write authority, optimistic
+concurrency, provenance-safe legacy migration, and CoachMemory identity cutover
+meet the approved HARDEN-002 criteria.
+
+Authenticated browser coverage gaps remain documented in their milestone
+evidence. Future production evidence belongs in a separate re-certification
+record and does not reopen this checkpoint.
 
 ---
 
-## Gate
+## Final Disposition
 
 # **NO-GO**
 
-Milestone 4.4 stops at the Founder checkpoint. Do not begin Phase 5 without
-explicit Founder approval and a separate checkpoint document. Feature
+Phase 4 is officially complete and HARDEN-002 is frozen. Do not begin Phase 5
+without explicit Founder approval and a separate checkpoint document. Feature
 development and held identity merges remain blocked under EXEC-VERIFY-001 and
 FREEZE-001.
