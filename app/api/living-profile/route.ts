@@ -3,10 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getSupabaseConfigStatus } from "@/lib/supabase/config";
 import { emptyLivingProfile } from "@/lib/system1/profile";
 import { applyMemberLivingProfileUpdate } from "@/lib/system1/member-writes";
-import {
-  backfillLivingProfileFromCoachMemory,
-  livingProfileNeedsBackfill,
-} from "@/lib/system1/migrate-from-coach-memory";
+import { attachLegacyCoachMemoryEvidence } from "@/lib/system1/migrate-from-coach-memory";
 import { mapLivingProfileRow } from "@/lib/system1/persistence";
 import type { LivingProfile } from "@/lib/system1/types";
 import type { CoachMemory } from "@/lib/coach/types";
@@ -44,44 +41,6 @@ function mapCoachMemoryLite(row: Record<string, unknown>): CoachMemory {
     sessionsCompleted: 0,
     updatedAt: String(row.updated_at ?? new Date().toISOString()),
   };
-}
-
-async function upsertLivingProfile(
-  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
-  profile: LivingProfile
-): Promise<
-  | { ok: true; profile: LivingProfile }
-  | { ok: false; missingTable: true }
-> {
-  const payload = {
-    user_id: profile.userId,
-    display_name: profile.displayName,
-    preferred_nickname: profile.preferredNickname,
-    purpose_statement: profile.purposeStatement,
-    personal_principles: profile.personalPrinciples,
-    seasons: profile.seasons,
-    coaching_intensity: profile.coachingIntensity,
-    preferred_coaching_style: profile.preferredCoachingStyle,
-    mattering_conversation_ids: profile.matteringConversationIds,
-    provenance: profile.provenance,
-    updated_at: profile.updatedAt,
-  };
-
-  const { data, error } = await supabase
-    .from("living_profiles")
-    .upsert(payload)
-    .select("*")
-    .single();
-  if (error) {
-    if (
-      error.message.includes("living_profiles") ||
-      error.code === "PGRST205"
-    ) {
-      return { ok: false, missingTable: true };
-    }
-    throw new Error(error.message);
-  }
-  return { ok: true, profile: mapLivingProfileRow(data) };
 }
 
 type MemberSaveResult =
@@ -150,10 +109,57 @@ async function saveMemberLivingProfile(
   return { status: "saved", profile: mapLivingProfileRow(data) };
 }
 
-/**
- * Read Living Profile (SSOT). Backfills from coach_memory declared fields
- * when LP is empty — does not copy session-inferred identity.
- */
+async function saveLegacyEvidence(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  profile: LivingProfile
+): Promise<MemberSaveResult> {
+  const query =
+    profile.version === 0
+      ? supabase
+          .from("living_profiles")
+          .insert({
+            user_id: profile.userId,
+            version: 1,
+            display_name: profile.displayName,
+            provenance: profile.provenance,
+            updated_at: profile.updatedAt,
+          })
+          .select("*")
+          .single()
+      : supabase
+          .from("living_profiles")
+          .update({
+            version: profile.version + 1,
+            provenance: profile.provenance,
+            updated_at: profile.updatedAt,
+          })
+          .eq("user_id", profile.userId)
+          .eq("version", profile.version)
+          .select("*")
+          .maybeSingle();
+
+  const { data, error } = await query;
+  if (error) {
+    if (
+      error.message.includes("living_profiles") ||
+      error.message.includes("version") ||
+      error.code === "PGRST204" ||
+      error.code === "PGRST205" ||
+      error.code === "42703"
+    ) {
+      return { status: "missing_schema" };
+    }
+    if (error.code === "23505") {
+      return { status: "conflict" };
+    }
+    throw new Error(error.message);
+  }
+
+  if (!data) return { status: "conflict" };
+  return { status: "saved", profile: mapLivingProfileRow(data) };
+}
+
+/** Read Living Profile (SSOT). GET is strictly read-only. */
 export async function GET() {
   try {
     if (!getSupabaseConfigStatus().configured) {
@@ -197,40 +203,128 @@ export async function GET() {
       });
     }
 
-    let profile = data
+    const profile = data
       ? mapLivingProfileRow(data)
       : emptyLivingProfile(user.id, displayName);
-
-    if (livingProfileNeedsBackfill(profile)) {
-      const { data: memoryRow } = await supabase
-        .from("coach_memory")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      const memory = memoryRow
-        ? mapCoachMemoryLite(memoryRow as Record<string, unknown>)
-        : null;
-      const backfilled = backfillLivingProfileFromCoachMemory(
-        user.id,
-        memory,
-        profile
-      );
-      if (!livingProfileNeedsBackfill(backfilled)) {
-        const saved = await upsertLivingProfile(supabase, backfilled);
-        if (saved.ok) profile = saved.profile;
-        else {
-          return NextResponse.json({
-            profile: backfilled,
-            tableReady: false,
-          });
-        }
-      }
-    }
 
     return NextResponse.json({ profile, tableReady: true });
   } catch (err) {
     console.warn("[living-profile] GET failed", err);
     return NextResponse.json({ profile: null, tableReady: false });
+  }
+}
+
+/**
+ * Explicit one-time legacy migration. CoachMemory values become unconfirmed
+ * imported provenance only; no legacy value is promoted into identity fields.
+ */
+export async function POST() {
+  try {
+    if (!getSupabaseConfigStatus().configured) {
+      return NextResponse.json(
+        { error: "Supabase not configured" },
+        { status: 503 }
+      );
+    }
+
+    const supabase = await createServerSupabaseClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const [profileResult, memoryResult] = await Promise.all([
+      supabase
+        .from("living_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      supabase
+        .from("coach_memory")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+    ]);
+
+    if (profileResult.error) {
+      if (
+        profileResult.error.message.includes("living_profiles") ||
+        profileResult.error.code === "PGRST205"
+      ) {
+        return NextResponse.json(
+          { error: "Living Profile schema is unavailable." },
+          { status: 503 }
+        );
+      }
+      throw new Error(profileResult.error.message);
+    }
+
+    const displayName =
+      typeof user.user_metadata?.display_name === "string"
+        ? user.user_metadata.display_name
+        : "";
+    const current = profileResult.data
+      ? mapLivingProfileRow(profileResult.data)
+      : emptyLivingProfile(user.id, displayName);
+
+    if (memoryResult.error) {
+      if (
+        memoryResult.error.message.includes("coach_memory") ||
+        memoryResult.error.code === "PGRST205" ||
+        memoryResult.error.code === "42P01"
+      ) {
+        return NextResponse.json({
+          profile: current,
+          migratedCount: 0,
+          sourceAvailable: false,
+        });
+      }
+      throw new Error(memoryResult.error.message);
+    }
+
+    const memory = memoryResult.data
+      ? mapCoachMemoryLite(memoryResult.data as Record<string, unknown>)
+      : null;
+    const migration = attachLegacyCoachMemoryEvidence(current, memory);
+    if (migration.importedCount === 0) {
+      return NextResponse.json({
+        profile: current,
+        migratedCount: 0,
+        sourceAvailable: true,
+      });
+    }
+
+    const saved = await saveLegacyEvidence(supabase, migration.profile);
+    if (saved.status === "missing_schema") {
+      return NextResponse.json(
+        { error: "Living Profile versioning schema is unavailable." },
+        { status: 503 }
+      );
+    }
+    if (saved.status === "conflict") {
+      return NextResponse.json(
+        {
+          error:
+            "Living Profile changed during legacy migration. Reload and retry.",
+          conflict: true,
+        },
+        { status: 409 }
+      );
+    }
+
+    return NextResponse.json({
+      profile: saved.profile,
+      migratedCount: migration.importedCount,
+      sourceAvailable: true,
+    });
+  } catch (err) {
+    console.warn("[living-profile] POST legacy migration failed", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Migration failed" },
+      { status: 500 }
+    );
   }
 }
 
