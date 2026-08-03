@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-004 |
-| **Version** | 0.4.0 |
+| **Version** | 0.5.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Milestone 6.3 complete — Founder approval gate** |
+| **Status** | **Milestone 6.4 complete — Founder final certification gate** |
 | **Scope** | Database deployment integrity only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) — SEC-02 / required fix #6 |
 | **Prior certification** | [HARDEN-003](HARDEN-003-data-lifecycle-integrity.md) — Frozen Historical |
@@ -288,3 +288,92 @@ SEC-02 regression barrier.
 
 Milestone 6.3 stops at the Founder checkpoint. Do not begin production
 certification or freeze HARDEN-004 without explicit Founder approval.
+
+---
+
+## Milestone 6.4 — Production Certification
+
+# **COMPLETED**
+
+### Objective
+
+Verify the certified migration contract against the live production catalog,
+record final deployment-integrity evidence, and stop at the Founder Gate for
+HARDEN-004 certification and freeze.
+
+Milestone 6.4 is read-only. It does not apply SQL, alter production, modify
+migrations, or change application behavior.
+
+### Production evidence
+
+The authorized production Supabase project reported `ACTIVE_HEALTHY`.
+Read-only Management API catalog verification established:
+
+| Production invariant | Result |
+|---|---|
+| Live `handle_new_user()` body matches the certified TIP secure-role migration | **PASS** |
+| Trigger is `SECURITY DEFINER` with `search_path=public` | **PASS** |
+| Both Auth lifecycle triggers are present and enabled | **PASS — 2/2** |
+| Live `reset_my_talkforge_data()` body matches its certified migration | **PASS** |
+| Reset remains `SECURITY INVOKER` | **PASS** |
+| Reset execute: `anon` denied / `authenticated` granted | **PASS** |
+| Manifest-head public tables present | **PASS — 12/12** |
+| Active application tables have RLS enabled | **PASS — 9/9** |
+| Living Profile `version bigint not null default 1` | **PASS** |
+| `living_profiles_version_positive` exists and is validated | **PASS** |
+| CoachMemory learning-style constraint exists and is validated | **PASS** |
+| Waitlist staff-select policy exists | **PASS** |
+
+Function-body verification compares normalized live `prosrc` to the exact
+certified migration bodies. It does not infer security from names or comments.
+
+### Repository evidence
+
+| Criterion | Result |
+|---|---|
+| `npm run db:check` | **PASS — 9 migrations / 2 paths** |
+| `npm run db:check:self-test` | **PASS — insecure effective trigger rejected** |
+| `npm run auth:check` | **PASS — deployment gate + 13 TIP checks** |
+| Gated `npm run build` | **PASS** |
+| Migration SQL unchanged | **PASS** |
+| Reconciled snapshot unchanged | **PASS** |
+| Frozen HARDEN-001 through HARDEN-003 unchanged | **PASS** |
+
+### Certification determination
+
+# **RECOMMEND CERTIFY AND FREEZE**
+
+HARDEN-004 meets its approved objectives:
+
+1. ordered migrations are the declared and machine-readable deployment SSOT;
+2. alternate SQL artifacts are non-deployable and reconciled for review;
+3. effective-role security and critical reference parity are automated build
+   gates; and
+4. the live production catalog matches the certified security and active
+   schema contract.
+
+This closes EXEC-VERIFY-001 SEC-02 / required fix #6 only. It does not resolve
+guest migration, registry integrity, or any other required fix and does not
+lift FREEZE-001 or the feature-development hold.
+
+### Residual risks
+
+1. No repository-managed Supabase migration ledger exists; manifest intent is
+   certified through catalog evidence rather than applied-version rows.
+2. The gate proves selected critical semantic parity, not equivalence for every
+   possible SQL execution plan.
+3. Unsupported direct commands can bypass package scripts; the documented and
+   Vercel build path is gated.
+
+### Rollback
+
+Milestone 6.4 makes no runtime change and requires no production rollback.
+Emergency rollback of earlier HARDEN-004 repository controls would reopen
+SEC-02 redeployment risk and requires a new Founder-authorized checkpoint.
+
+### Founder Gate
+
+# **NO-GO**
+
+Milestone 6.4 is complete. Await Founder final certification before marking
+HARDEN-004 frozen. Do not begin a successor checkpoint.
