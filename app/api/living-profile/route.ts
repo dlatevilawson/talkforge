@@ -7,36 +7,9 @@ import {
   backfillLivingProfileFromCoachMemory,
   livingProfileNeedsBackfill,
 } from "@/lib/system1/migrate-from-coach-memory";
+import { mapLivingProfileRow } from "@/lib/system1/persistence";
 import type { LivingProfile } from "@/lib/system1/types";
 import type { CoachMemory } from "@/lib/coach/types";
-
-function mapLivingProfile(row: {
-  user_id: string;
-  display_name?: string | null;
-  preferred_nickname?: string | null;
-  purpose_statement?: string | null;
-  personal_principles?: LivingProfile["personalPrinciples"] | null;
-  seasons?: LivingProfile["seasons"] | null;
-  coaching_intensity?: LivingProfile["coachingIntensity"] | null;
-  preferred_coaching_style?: string | null;
-  mattering_conversation_ids?: string[] | null;
-  provenance?: LivingProfile["provenance"] | null;
-  updated_at?: string | null;
-}): LivingProfile {
-  return {
-    userId: row.user_id,
-    displayName: row.display_name ?? "",
-    preferredNickname: row.preferred_nickname ?? "",
-    purposeStatement: row.purpose_statement ?? "",
-    personalPrinciples: row.personal_principles ?? [],
-    seasons: row.seasons ?? [],
-    coachingIntensity: row.coaching_intensity ?? "steady",
-    preferredCoachingStyle: row.preferred_coaching_style ?? "",
-    matteringConversationIds: row.mattering_conversation_ids ?? [],
-    provenance: row.provenance ?? [],
-    updatedAt: row.updated_at ?? new Date().toISOString(),
-  };
-}
 
 function mapCoachMemoryLite(row: Record<string, unknown>): CoachMemory {
   return {
@@ -152,7 +125,7 @@ export async function GET() {
     }
 
     let profile = data
-      ? mapLivingProfile(data)
+      ? mapLivingProfileRow(data)
       : emptyLivingProfile(user.id, displayName);
 
     if (livingProfileNeedsBackfill(profile)) {
@@ -248,7 +221,7 @@ export async function PUT(req: Request) {
         ? user.user_metadata.display_name
         : "";
     const current = data
-      ? mapLivingProfile(data)
+      ? mapLivingProfileRow(data)
       : emptyLivingProfile(user.id, displayName);
 
     const next = applyMemberLivingProfileUpdate(current, body);
