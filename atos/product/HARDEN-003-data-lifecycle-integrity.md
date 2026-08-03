@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-003 |
-| **Version** | 0.1.0 |
+| **Version** | 0.2.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Member Data Inventory complete — Milestone 5.1 authorized** |
+| **Status** | **Milestone 5.1 complete — Founder approval gate** |
 | **Scope** | Member data lifecycle integrity only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) — DATA-01 |
 | **Prior certification** | [HARDEN-002](HARDEN-002-identity-integrity.md) — Frozen Historical |
@@ -138,9 +138,64 @@ reflections while preserving the login account and account profile.
 7. The callable surface is granted only to `authenticated`.
 8. Migration verification, typecheck, lint, and build pass.
 
+### Implementation
+
+`20260803_atomic_member_data_reset.sql` adds
+`public.reset_my_talkforge_data()`. The `SECURITY INVOKER` function:
+
+- derives its only target UUID from `auth.uid()`;
+- rejects a missing authenticated identity with SQLSTATE `28000`;
+- deletes reflections, session reports, practice sessions, CoachMemory, and
+  Living Profile rows for that UUID in one function invocation;
+- returns per-resource deletion counts so callers can verify the result;
+- is idempotent; and
+- revokes execution from `public` and `anon`, granting it only to
+  `authenticated`.
+
+The function does not accept a user identifier. Elevated staff read authority
+therefore cannot be used to select another member as the reset target.
+
+### Acceptance evidence
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Authenticated ownership and unauthenticated rejection | **PASS** | Isolated database verification set two identities, rejected a null identity, and compiled the migration function. |
+| Five resource classes deleted | **PASS** | Runtime SQL verification returned `1` Living Profile, `1` CoachMemory, `2` sessions, `2` reports, and `2` reflections for the caller. |
+| Account resources retained | **PASS** | Both test Auth-account and account-profile rows remained after reset. |
+| Cross-member isolation | **PASS** | Every row for the second identity remained unchanged while the privileged test connection invoked the caller-bound function. |
+| Atomic rollback | **PASS** | An injected CoachMemory delete failure restored all five resource classes; no partial deletion escaped. |
+| Idempotence | **PASS** | A second invocation returned zero for all five deletion counts. |
+| Least-privilege callable surface | **PASS** | Database catalog verification confirmed `anon` denied, `authenticated` granted, and `SECURITY INVOKER`. |
+| Typecheck | **PASS** | `npm run typecheck`. |
+| Lint | **PASS WITH PRE-EXISTING WARNING** | `npm run lint`; zero errors and one unrelated unused-import warning in `scripts/atos-check-m8.mjs`. |
+| Production build | **PASS** | `npm run build`; Next.js 16.2.10 compiled, typechecked, and generated all routes. |
+| Diff integrity | **PASS** | `git diff --check`. |
+
+Database behavior tests ran in isolated schemas inside explicitly rolled-back
+transactions. They did not alter production member rows or install the
+migration in production.
+
+### Residual risks
+
+1. Production schema drift could prevent migration deployment; production
+   application and verification remain required before Milestone 5.3
+   certification.
+2. Milestone 5.1 does not wire the UI to the function. The existing partial
+   client reset remains unchanged until Milestone 5.2.
+3. Browser-local coaching data remains until Milestone 5.2.
+4. A database owner can always bypass grants; the callable application surface
+   is nevertheless restricted to `authenticated`.
+
+### Rollback
+
+Revoke execute and drop `public.reset_my_talkforge_data()`. Milestone 5.1 does
+not mutate existing member data during migration, so rollback requires no data
+repair. The incomplete pre-existing client reset remains available until
+Milestone 5.2 replaces it.
+
 ### Gate
 
-# **IN PROGRESS**
+# **NO-GO**
 
-Do not begin Milestone 5.2 before Milestone 5.1 passes verification, records
-evidence here, and receives Founder approval.
+Milestone 5.1 stops at the Founder checkpoint. Do not begin Milestone 5.2
+without explicit Founder approval.
