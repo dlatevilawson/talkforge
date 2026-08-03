@@ -48,12 +48,15 @@ check("password policy enforces 8 chars only", () => {
 });
 
 check("role trigger does not trust user_metadata.role", () => {
-  const src = readFileSync(
-    resolve(root, "supabase/migrations/20260729_tip_secure_role_trigger.sql"),
-    "utf8"
-  );
-  assert.match(src, /raw_app_meta_data->>'role'/);
-  assert.doesNotMatch(src, /raw_user_meta_data->>'role'/);
+  for (const file of [
+    "supabase/migrations/20260729_tip_secure_role_trigger.sql",
+    "supabase/migrations/20260730_upgrade_legacy_profiles.sql",
+    "supabase/schema.sql",
+  ]) {
+    const src = readFileSync(resolve(root, file), "utf8");
+    assert.match(src, /raw_app_meta_data->>'role'/, file);
+    assert.doesNotMatch(src, /raw_user_meta_data->>'role'/, file);
+  }
 });
 
 check("security headers configured", () => {

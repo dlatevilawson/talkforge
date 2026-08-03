@@ -64,6 +64,20 @@ but it is not authorization input.
 6. Record the exact files and evidence in the active HARDEN checkpoint.
 7. Stop on any mismatch; do not repair drift by running `schema.sql`.
 
+## Automated gates
+
+- `npm run db:check` verifies manifest coverage/order, effective role security,
+  reference-function parity, active constraints, and retired alternate paths.
+- `npm run db:check:self-test` proves the gate rejects an insecure effective
+  role trigger.
+- `npm run auth:check` includes the deployment gate.
+- `npm run build` runs the deployment gate before compiling the application, so
+  Vercel and local production builds fail on deployment drift.
+
+The former Atlas and Living Profile SQL-print helpers are retired. They print
+the manifest paths and refuse partial `--apply`; they no longer emit alternate
+SQL.
+
 ## Reference snapshot boundary
 
 `schema.sql` reflects active table columns, constraints, security-sensitive

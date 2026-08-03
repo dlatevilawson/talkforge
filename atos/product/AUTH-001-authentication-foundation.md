@@ -97,8 +97,8 @@ Default email: `founder@talkforge.io`. Seeded via service role on first login at
 
 ## Ops checklist
 
-1. Apply `supabase/migrations/20260730_upgrade_legacy_profiles.sql` on existing production DBs (legacy text-id `profiles`)
-2. Or, greenfield only: `supabase/migrations/20260729_auth_foundation.sql` + `20260729_tip_secure_role_trigger.sql`
+1. Select exactly one ordered path from `supabase/migrations/manifest.json`
+2. Existing production uses `existingProduction`; greenfield uses `greenfield` and must apply foundation + TIP without admitting traffic between them
 3. Enable Email provider in Supabase Auth
 4. **URL Configuration (required for phone confirmation links):**
    - Site URL: `https://talkforge.io`

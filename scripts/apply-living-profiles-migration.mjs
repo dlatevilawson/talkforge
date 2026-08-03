@@ -1,28 +1,19 @@
-/**
- * Prints (and optionally reminds how to apply) the Living Profile migration.
- *
- * Usage:
- *   node scripts/apply-living-profiles-migration.mjs
- *
- * Apply in Supabase SQL editor, or via `supabase db push` / linked project.
- * This script does not invent a second profile store — it only surfaces the
- * canonical migration for living_profiles.
- */
+/** Retired one-off helper. Prints the authoritative migration paths only. */
 import { readFile } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const migrationPath = path.join(
+const manifestPath = path.resolve(
   __dirname,
-  "..",
-  "supabase",
-  "migrations",
-  "20260802_living_profiles.sql"
+  "../supabase/migrations/manifest.json"
 );
+const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
 
-const sql = await readFile(migrationPath, "utf8");
-console.log(sql);
 console.log(
-  "\n---\nApply this migration in the Supabase SQL editor (or supabase CLI) before relying on Living Profile persistence in production.\n"
+  "This one-off Living Profile SQL helper is retired. Use the ordered deployment path in supabase/migrations/manifest.json."
 );
+for (const [name, files] of Object.entries(manifest.deploymentPaths)) {
+  console.log(`\n${name}:`);
+  files.forEach((file, index) => console.log(`${index + 1}. ${file}`));
+}

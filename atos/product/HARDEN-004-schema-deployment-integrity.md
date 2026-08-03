@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-004 |
-| **Version** | 0.3.0 |
+| **Version** | 0.4.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Milestone 6.2 complete — Founder approval gate** |
+| **Status** | **Milestone 6.3 complete — Founder approval gate** |
 | **Scope** | Database deployment integrity only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) — SEC-02 / required fix #6 |
 | **Prior certification** | [HARDEN-003](HARDEN-003-data-lifecycle-integrity.md) — Frozen Historical |
@@ -207,3 +207,84 @@ recovery.
 
 Milestone 6.2 stops at the Founder checkpoint. Do not begin script,
 documentation, or automated drift-gate work without explicit Founder approval.
+
+---
+
+## Milestone 6.3 — Automated Drift Gates
+
+# **COMPLETED**
+
+### Objective
+
+Make deployment-source, migration-order, effective-trigger security, and
+reference-parity drift fail the repository's operational checks and production
+build while removing remaining active alternate-deployment guidance.
+
+### Implementation
+
+1. Added `scripts/check-supabase-deployment.mjs`, which verifies:
+   - all SQL migrations are covered by deterministic manifest paths;
+   - each path contains no duplicate migration and exactly one bootstrap;
+   - the effective `handle_new_user()` definition on every path uses app
+     metadata and does not trust user-metadata role;
+   - the non-deployable snapshot matches the certified secure trigger and reset
+     function;
+   - Living Profile version, CoachMemory learning-style, and unique waitlist
+     reference invariants remain present;
+   - standalone SQL is explicitly non-deployable; and
+   - retired one-off helpers cannot emit SQL outside the manifest.
+2. Added a negative self-test that injects an insecure effective trigger and
+   proves the gate rejects it.
+3. Added `npm run db:check` and `npm run db:check:self-test`.
+4. `npm run build` and `npm run auth:check` now run `db:check`, making the gate
+   part of Vercel/local production builds and auth verification.
+5. Retired the Atlas and Living Profile partial SQL emitters. They print only
+   manifest paths and explicitly refuse `--apply`.
+6. Marked `supabase/waitlist.sql` non-deployable.
+7. Updated active AUTH, TIP, and System 1 deployment guidance to select the
+   exact manifest path and reject foundation-only or `schema.sql` deployment.
+
+### Acceptance evidence
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Positive deployment gate | **PASS** | `npm run db:check` validates 9 migrations across 2 paths. |
+| Negative security test | **PASS** | `npm run db:check:self-test` rejects a synthetic insecure effective trigger. |
+| Build enforcement | **PASS** | `npm run build` visibly runs `db:check` before Next.js compilation. |
+| Auth enforcement | **PASS** | `npm run auth:check` runs `db:check` and all 13 TIP checks. |
+| Deployable trigger coverage | **PASS** | TIP migration, production-upgrade migration, and reference snapshot all reject user-metadata role trust. |
+| Alternate helper retirement | **PASS** | Both helpers print manifest paths only; Atlas `--apply` exits non-zero. |
+| Standalone SQL demotion | **PASS** | Deployment gate accepts the non-deployable waitlist reference header. |
+| Active documentation alignment | **PASS** | AUTH production/foundation, TIP readiness/deliverables, and System 1 point to the manifest contract. |
+| Migration SQL unchanged | **PASS** | Diff verification covers `supabase/migrations/*`. |
+| Reconciled snapshot unchanged | **PASS** | Diff verification covers `supabase/schema.sql`. |
+| Frozen checkpoints unchanged | **PASS** | Diff verification covers HARDEN-001 through HARDEN-003. |
+| Typecheck | **PASS** | `npm run typecheck`. |
+| Lint | **PASS WITH PRE-EXISTING WARNING** | `npm run lint`; zero errors and one unrelated unused-import warning in `scripts/atos-check-m8.mjs`. |
+| Production build | **PASS** | Gated Next.js 16.2.10 build compiled, typechecked, and generated all routes. |
+| Diff integrity | **PASS** | `git diff --check`. |
+
+### Residual risks
+
+1. Direct invocation of `next build` bypasses package scripts; supported local
+   and Vercel builds use `npm run build`.
+2. The repository has no Supabase CLI migration ledger. Production state still
+   requires read-only catalog verification in Milestone 6.4.
+3. Historical certification/remediation documents retain time-bound evidence
+   about former one-off commands; they are not active operator instructions.
+4. The gate validates repository intent and critical parity, not a complete
+   semantic equivalence proof for every SQL statement.
+
+### Rollback
+
+Revert the deployment checker, package-script integration, retired helper
+behavior, standalone SQL header, and active documentation updates. No database
+or application rollback is required. Rollback would remove the automated
+SEC-02 regression barrier.
+
+### Gate
+
+# **NO-GO**
+
+Milestone 6.3 stops at the Founder checkpoint. Do not begin production
+certification or freeze HARDEN-004 without explicit Founder approval.

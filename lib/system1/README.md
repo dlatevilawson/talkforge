@@ -19,7 +19,9 @@ Authorized by [BUILD-SYS1-001](../../atos/product/BUILD-SYS1-001.md).
 
 ## Persistence
 
-Table `living_profiles` in `supabase/schema.sql`. Storage: `getLivingProfile` / `saveLivingProfile` (soft-fail if unmigrated).
+Table `living_profiles` is deployed through the ordered path in
+`supabase/migrations/manifest.json`. `supabase/schema.sql` is review-only.
+Storage: `getLivingProfile` / `saveLivingProfile` (soft-fail if unmigrated).
 
 ## Next implementation slices
 

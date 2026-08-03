@@ -114,7 +114,7 @@ These **cannot** be completed from the anon key or Vercel alone. They require Su
 | | |
 |--|--|
 | **Where** | Supabase SQL editor |
-| **Files** | `20260729_auth_foundation.sql`, `20260729_tip_secure_role_trigger.sql` |
+| **Files** | Exact environment path from `supabase/migrations/manifest.json` |
 | **If omitted** | RLS/profile shape may be stale; role self-elevation fix not active |
 
 ### 4. Optional: `SUPABASE_SERVICE_ROLE_KEY` on Vercel
