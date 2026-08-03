@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-002 |
-| **Version** | 0.3.0 |
+| **Version** | 0.4.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Milestone 4.3 complete — Founder approval gate** |
+| **Status** | **Milestone 4.4 complete — Founder approval gate** |
 | **Scope** | Phase 4 identity integrity only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) |
 | **Prior certification** | [HARDEN-001](HARDEN-001-final-architecture-hardening.md) — Frozen Historical |
@@ -228,9 +228,74 @@ so members can confirm or dismiss them without data loss.
 
 ---
 
-## Milestones Not Started
+## Milestone 4.4 — CoachMemory Identity Cutover
 
-- Milestone 4.4 — CoachMemory identity cutover
+# **COMPLETED**
+
+### Objective
+
+Remove the final shadow-identity read path so coaching consumes identity only
+from Living Profile while preserving allowed last-session continuity.
+
+### Implementation
+
+1. Coach name, nickname, purpose, principles, seasons, coaching style, and
+   confirmed strengths now come exclusively from Living Profile.
+2. CoachMemory goals, challenges, preferences, fears, triggers, learning style,
+   wins, focus fields, and identity labels no longer enter coach context.
+3. Missing Living Profile identity produces neutral defaults rather than
+   falling back to legacy identity.
+4. CoachMemory retains only allowed continuity reads: session count, last
+   scenario, last summary, and last-session time.
+5. The server query now selects only continuity columns from `coach_memory`.
+
+### Acceptance criteria
+
+| Criterion | Result |
+|---|---|
+| Living Profile is the sole coach identity source | **Pass** |
+| Poisoned CoachMemory identity cannot enter coach context or prompt text | **Pass** |
+| Missing Living Profile does not revive legacy identity | **Pass** |
+| Unconfirmed imported provenance is not promoted as identity | **Pass** |
+| Confirmed Living Profile strength remains available | **Pass** |
+| Session count and last-session continuity remain available | **Pass** |
+| Server CoachMemory query contains continuity columns only | **Pass** |
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Priority revalidation | **Pass** — Founder certified 4.3 and authorized 4.4; no newer direction supersedes it |
+| Shadow identity injection | **Pass** — poisoned legacy values absent from context and formatted prompt |
+| Living Profile identity | **Pass** — declared name, purpose, principle, season, style, and confirmed strength present |
+| Null Living Profile | **Pass** — neutral identity defaults; continuity preserved |
+| Imported evidence boundary | **Pass** — unconfirmed legacy strength excluded |
+| Data-access boundary | **Pass** — CoachMemory query selects continuity fields only |
+| `npm run typecheck` | **Pass** |
+| `npm run lint` | **Pass with one pre-existing unused-variable warning** |
+| `npm run build` | **Pass** — 54 routes |
+| `git diff --check` | **Pass** |
+
+### Residual risks
+
+- Authenticated realtime and text coach endpoints were not exercised because
+  this environment has no authorized test-member credentials.
+- Members with no Living Profile identity receive intentionally neutral coach
+  context until they declare or confirm identity.
+
+### Rollback
+
+Deploy the certified 4.3 revision. No schema or data rollback is required.
+Rollback would reopen the CoachMemory shadow-identity path identified as
+DATA-03 and should be used only for emergency service recovery.
+
+---
+
+## Phase 4 Implementation Status
+
+All HARDEN-002 implementation milestones are complete. This checkpoint remains
+open pending Founder certification and must not be frozen or extended into
+Phase 5 without an explicit Founder decision.
 
 ---
 
@@ -238,6 +303,7 @@ so members can confirm or dismiss them without data loss.
 
 # **NO-GO**
 
-Milestone 4.3 stops at the Founder checkpoint. Do not begin Milestone 4.4
-without explicit Founder approval. Feature development and held identity merges
-remain blocked under EXEC-VERIFY-001 and FREEZE-001.
+Milestone 4.4 stops at the Founder checkpoint. Do not begin Phase 5 without
+explicit Founder approval and a separate checkpoint document. Feature
+development and held identity merges remain blocked under EXEC-VERIFY-001 and
+FREEZE-001.
