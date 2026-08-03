@@ -85,11 +85,12 @@ export function getPendingGuestUserId(): string | null {
   }
 }
 
-export function clearPendingGuestUserId(): void {
-  if (typeof window === "undefined") return;
+export function clearPendingGuestUserId(): boolean {
+  if (typeof window === "undefined") return true;
   try {
     window.localStorage.removeItem(PENDING_GUEST_ID_KEY);
+    return true;
   } catch {
-    // ignore
+    return false;
   }
 }

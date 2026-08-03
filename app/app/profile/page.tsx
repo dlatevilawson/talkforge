@@ -48,6 +48,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   const [displayName, setDisplayName] = useState("");
   const [nickname, setNickname] = useState("");
@@ -187,17 +188,22 @@ export default function ProfilePage() {
 
   async function handleReset() {
     const confirmed = window.confirm(
-      "Delete your TalkForge profile, sessions, and reflections from Supabase?"
+      "Permanently delete your Living Profile, coaching memory, sessions, reports, reflections, and TalkForge coaching data stored on this device? Your login account will remain. Data stored only on other devices cannot be cleared here."
     );
     if (!confirmed) return;
 
+    setResetting(true);
+    setError("");
     try {
       await clearAllTalkForgeData();
-      router.push("/login");
+      router.replace("/login");
+      router.refresh();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to clear profile data."
+        err instanceof Error ? err.message : "Failed to delete TalkForge data."
       );
+    } finally {
+      setResetting(false);
     }
   }
 
@@ -419,12 +425,19 @@ export default function ProfilePage() {
 
       {isAuthenticatedMember && (
         <div className="mt-8 max-w-xl">
+          <p className="mb-3 text-sm leading-6 text-zinc-400">
+            Permanently deletes your Living Profile, coaching memory, practice
+            history, reports, reflections, and coaching data stored on this
+            device. Your login account remains. Other devices must be cleared
+            separately.
+          </p>
           <button
             type="button"
-            onClick={handleReset}
-            className="rounded-full border border-red-400/30 px-5 py-3 text-sm text-red-200 transition hover:bg-red-500/10"
+            onClick={() => void handleReset()}
+            disabled={resetting}
+            className="rounded-full border border-red-400/30 px-5 py-3 text-sm text-red-200 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Clear cloud data
+            {resetting ? "Deleting TalkForge data…" : "Delete TalkForge data"}
           </button>
         </div>
       )}

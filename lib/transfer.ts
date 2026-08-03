@@ -193,3 +193,38 @@ export function reassignLocalPracticeData(
 
   return count;
 }
+
+/**
+ * Remove browser-local Forge artifacts owned by one member.
+ * Other members sharing the browser remain untouched.
+ */
+export function clearLocalPracticeData(userId: string): number {
+  if (!userId) return 0;
+
+  let count = 0;
+
+  const events = readJson<ForgeEvent[]>(EVENTS_KEY, []).filter((event) => {
+    if (event.userId !== userId) return true;
+    count += 1;
+    return false;
+  });
+  writeJson(EVENTS_KEY, events);
+
+  const links = readJson<SessionEventLink[]>(LINKS_KEY, []).filter((link) => {
+    if (link.userId !== userId) return true;
+    count += 1;
+    return false;
+  });
+  writeJson(LINKS_KEY, links);
+
+  const realities = readJson<RealityCapture[]>(REALITY_KEY, []).filter(
+    (item) => {
+      if (item.userId !== userId) return true;
+      count += 1;
+      return false;
+    }
+  );
+  writeJson(REALITY_KEY, realities);
+
+  return count;
+}

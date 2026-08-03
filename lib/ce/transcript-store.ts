@@ -112,6 +112,13 @@ export function listVoiceTranscripts(): VoiceTranscriptRecord[] {
   return readStore().records;
 }
 
+/** Remove device-local voice transcripts and the active-session pointer. */
+export function clearVoiceTranscriptData(): void {
+  if (typeof window === "undefined") return;
+  window.localStorage.removeItem(STORE_KEY);
+  window.localStorage.removeItem(ACTIVE_KEY);
+}
+
 /** CE-M3 handoff: coach-shaped history for a voice session. */
 export function getCoachHistoryForVoiceSession(
   voiceSessionId: string
