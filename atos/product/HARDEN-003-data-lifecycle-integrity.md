@@ -3,12 +3,14 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-003 |
-| **Version** | 0.3.0 |
+| **Version** | 1.0.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Milestone 5.2 complete — Founder approval gate** |
+| **Status** | **Frozen Historical — Phase 5 certified** |
 | **Scope** | Member data lifecycle integrity only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) — DATA-01 |
 | **Prior certification** | [HARDEN-002](HARDEN-002-identity-integrity.md) — Frozen Historical |
+| **Frozen by** | Founder-authorized Milestone 5.3 — 2026-08-03 |
+| **Successor rule** | Later architecture work requires a separate checkpoint document |
 
 ---
 
@@ -19,6 +21,10 @@ truthful without deleting the member's login account.
 
 This checkpoint does not reopen HARDEN-002, authorize feature development, or
 define a general account-deletion or regulatory-retention system.
+
+This document is now an immutable historical certification record. Corrections
+require an explicit Founder-authorized erratum or a separate re-certification
+document.
 
 ---
 
@@ -282,3 +288,141 @@ so it is suitable only for emergency application recovery.
 
 Milestone 5.2 stops at the Founder checkpoint. Do not begin Milestone 5.3
 without explicit Founder approval.
+
+---
+
+## Milestone 5.3 — Production Verification and Certification
+
+# **COMPLETED**
+
+### Objective
+
+Apply the certified lifecycle migrations, verify the complete reset against an
+isolated authenticated production member, record browser evidence, and freeze
+HARDEN-003. Milestone 5.3 makes no change to the certified deletion contract or
+application integration.
+
+### Production migration
+
+Preflight found that production contained `living_profiles`,
+`practice_sessions`, and `reflections`, but predated `coach_memory` and
+`session_reports`. This matches the production dependency recorded in frozen
+HARDEN-001.
+
+The following existing certified migrations were applied to the production
+Supabase project in one transaction:
+
+1. `20260730_coach_memory_history.sql`
+2. `20260731_coach_memory_phase1.sql`
+3. `20260803_atomic_member_data_reset.sql`
+
+Post-deployment catalog verification confirmed:
+
+- `coach_memory`, `session_reports`, and `reset_my_talkforge_data()` exist;
+- `anon` cannot execute the reset;
+- `authenticated` can execute the reset; and
+- the function remains `SECURITY INVOKER`.
+
+### Authenticated production verification
+
+An isolated production member was created through the Supabase Admin API. The
+member was seeded with exactly one row in each active resource class and a
+retained Auth/account pair:
+
+| Resource before reset | Count |
+|---|---:|
+| `auth.users` | 1 |
+| `public.profiles` | 1 |
+| `public.living_profiles` | 1 |
+| `public.coach_memory` | 1 |
+| `public.practice_sessions` | 1 |
+| `public.session_reports` | 1 |
+| `public.reflections` | 1 |
+
+The production browser walkthrough then:
+
+1. authenticated as the isolated member;
+2. displayed the seeded Living Profile and session history;
+3. displayed the exact deletion, retained-account, and other-device boundary;
+4. accepted the destructive confirmation;
+5. redirected to `/login` after successful reset and sign-out;
+6. re-authenticated with the same account; and
+7. displayed zero sessions, empty Living Profile identity/coaching fields, and
+   no prior session history while retaining the account display name.
+
+The password was masked in the recording. The temporary `.test` member was
+removed through the Admin API after evidence capture, and production
+verification confirmed that no temporary Auth or profile row remained.
+
+### Persistence evidence
+
+Immediately after the browser reset and before test-account cleanup, production
+returned:
+
+| Resource after reset | Count |
+|---|---:|
+| `auth.users` | 1 |
+| `public.profiles` | 1 |
+| `public.living_profiles` | 0 |
+| `public.coach_memory` | 0 |
+| `public.practice_sessions` | 0 |
+| `public.session_reports` | 0 |
+| `public.reflections` | 0 |
+
+This proves the active identity/coaching subtree was deleted and the login
+account contract was retained.
+
+### Acceptance evidence
+
+| Criterion | Result |
+|---|---|
+| Certified contract and integration unchanged | **PASS** |
+| Production prerequisites applied transactionally | **PASS** |
+| Production function privilege boundary | **PASS** |
+| Authenticated browser deletion | **PASS** |
+| Successful sign-out and login redirect | **PASS** |
+| Re-login with retained account | **PASS** |
+| Fresh coaching state after re-login | **PASS** |
+| Direct database deletion/retention counts | **PASS** |
+| Temporary production test data removed | **PASS** |
+| Walkthrough video captured and independently reviewed | **PASS** |
+
+### Residual risks
+
+1. Browser-only data on another device remains unreachable; the certified UI
+   states this explicitly.
+2. Vendor, analytics, operational-log, archive, and general account-deletion
+   lifecycles remain outside the frozen Member Data Inventory boundary.
+3. Browser storage APIs remain non-transactional; the application reports a
+   partial device-cleanup failure and permits an idempotent retry.
+
+### Rollback
+
+The reset function can be disabled immediately by revoking execute from
+`authenticated`. Application rollback may then revert Milestone 5.2. Do not
+drop `coach_memory` or `session_reports`: they are pre-existing certified
+application dependencies and may now contain production data.
+
+---
+
+## Phase 5 Certification Determination
+
+# **CERTIFIED**
+
+HARDEN-003 closes EXEC-VERIFY-001 DATA-01. The member reset is inventoried,
+authenticated, caller-bound, atomic on the server, integrated with classified
+browser cleanup, truthful about retention boundaries, and verified end to end
+in production.
+
+HARDEN-003 is frozen. Later evidence or lifecycle scope requires a separate
+checkpoint or explicit Founder-authorized re-certification.
+
+---
+
+## Final Disposition
+
+# **NO-GO**
+
+Phase 5 data lifecycle integrity is complete. This certification closes only
+DATA-01 and does not lift the governing EXEC-VERIFY-001 feature-development
+hold, FREEZE-001, or any unresolved required fix.
