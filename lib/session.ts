@@ -5,14 +5,12 @@ import {
   type MomentumLike,
 } from "@/lib/coach/report";
 import { proposeIdentityEvidenceFromReport } from "@/lib/system1/proposals";
-import {
-  attachPendingProposals,
-  emptyLivingProfile,
-} from "@/lib/system1/profile";
+import { attachPendingProposals } from "@/lib/system1/profile";
 import {
   countCompletedSessions,
   getCoachMemory,
   getLivingProfile,
+  LivingProfileConflictError,
   saveCoachMemory,
   saveLivingProfileProvenance,
   saveSession,
@@ -151,20 +149,36 @@ export async function completePracticeSession(
     // only (memberConfirmed: false). Never write identity fields from experiences.
     const proposals = proposeIdentityEvidenceFromReport(report);
     if (proposals.length > 0) {
-      const existingProfile =
-        (await getLivingProfile(session.userId)) ??
-        emptyLivingProfile(
-          session.userId,
-          options?.displayName ?? nextMemory.displayName
-        );
-      const nextProfile = attachPendingProposals(existingProfile, proposals);
-      await saveLivingProfileProvenance(nextProfile);
+      await appendSessionEvidence(session.userId, proposals);
     }
   } catch (err) {
     console.warn("[coach] failed to persist session report/memory", err);
   }
 
   return completed;
+}
+
+async function appendSessionEvidence(
+  userId: string,
+  proposals: ReturnType<typeof proposeIdentityEvidenceFromReport>
+): Promise<void> {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const current = await getLivingProfile(userId);
+    if (!current) return;
+
+    const next = attachPendingProposals(current, proposals);
+    if (next === current) return;
+
+    try {
+      await saveLivingProfileProvenance(next);
+      return;
+    } catch (error) {
+      if (error instanceof LivingProfileConflictError && attempt === 0) {
+        continue;
+      }
+      throw error;
+    }
+  }
 }
 
 export async function persistActiveSession(

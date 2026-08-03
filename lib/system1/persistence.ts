@@ -2,6 +2,7 @@ import type { LivingProfile } from "./types";
 
 export type LivingProfileRow = {
   user_id: string;
+  version?: number | null;
   display_name?: string | null;
   preferred_nickname?: string | null;
   purpose_statement?: string | null;
@@ -18,6 +19,7 @@ export type LivingProfileRow = {
 export function mapLivingProfileRow(row: LivingProfileRow): LivingProfile {
   return {
     userId: row.user_id,
+    version: row.version ?? 0,
     displayName: row.display_name ?? "",
     preferredNickname: row.preferred_nickname ?? "",
     purposeStatement: row.purpose_statement ?? "",

@@ -634,6 +634,7 @@ export async function saveCoachMemory(memory: CoachMemory): Promise<void> {
 
 function mapLivingProfile(row: {
   user_id: string;
+  version?: number | null;
   display_name?: string | null;
   preferred_nickname?: string | null;
   purpose_statement?: string | null;
@@ -647,6 +648,7 @@ function mapLivingProfile(row: {
 }): LivingProfile {
   return {
     userId: row.user_id,
+    version: row.version ?? 0,
     displayName: row.display_name ?? "",
     preferredNickname: row.preferred_nickname ?? "",
     purposeStatement: row.purpose_statement ?? "",
@@ -684,11 +686,26 @@ export async function getLivingProfile(
   return mapLivingProfile(data);
 }
 
+export class LivingProfileConflictError extends Error {
+  constructor() {
+    super("Living Profile changed before session evidence could be saved.");
+    this.name = "LivingProfileConflictError";
+  }
+}
+
 export async function saveLivingProfileProvenance(
-  profile: Pick<LivingProfile, "userId" | "provenance" | "updatedAt">
+  profile: Pick<
+    LivingProfile,
+    "userId" | "version" | "provenance" | "updatedAt"
+  >
 ): Promise<void> {
+  if (profile.version < 1) {
+    throw new LivingProfileConflictError();
+  }
+
   const supabase = requireSupabase();
   const payload = {
+    version: profile.version + 1,
     provenance: profile.provenance,
     updated_at: profile.updatedAt,
   };
@@ -697,6 +714,7 @@ export async function saveLivingProfileProvenance(
     .from("living_profiles")
     .update(payload)
     .eq("user_id", profile.userId)
+    .eq("version", profile.version)
     .select("user_id")
     .maybeSingle();
 
@@ -711,9 +729,7 @@ export async function saveLivingProfileProvenance(
     throw new Error(`Failed to save living profile: ${error.message}`);
   }
   if (!data) {
-    throw new Error(
-      "Cannot append session evidence before a Living Profile exists."
-    );
+    throw new LivingProfileConflictError();
   }
 }
 
