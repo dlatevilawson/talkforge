@@ -2,8 +2,8 @@
 --
 -- The only deployment source of truth is the ordered migration path declared
 -- in supabase/migrations/manifest.json. Do not run this file against any
--- database. It contains historical consolidation drift and cannot represent
--- one-time upgrade or data-repair migrations safely.
+-- database. It is a bounded review snapshot of active declarative objects and
+-- cannot represent bootstrap order, one-time upgrades, or data repairs safely.
 
 -- ---------------------------------------------------------------------------
 -- Profiles (identity + authorization metadata only)
@@ -102,7 +102,16 @@ create table if not exists public.coach_memory (
   recent_wins text[] not null default '{}',
   topics_working_on text[] not null default '{}',
   preferred_coaching_style text not null default '',
-  learning_style text not null default '',
+  learning_style text not null default ''
+    check (
+      learning_style = ''
+      or learning_style in (
+        'practice_first',
+        'reflect_first',
+        'example_first',
+        'challenge_first'
+      )
+    ),
   confidence_level integer,
   biggest_strength text not null default '',
   speaking_habits text[] not null default '{}',
@@ -133,8 +142,13 @@ create table if not exists public.living_profiles (
   preferred_coaching_style text not null default '',
   mattering_conversation_ids text[] not null default '{}',
   provenance jsonb not null default '[]'::jsonb,
+  version bigint not null default 1
+    constraint living_profiles_version_positive check (version >= 1),
   updated_at timestamptz not null default now()
 );
+
+comment on column public.living_profiles.version is
+  'Optimistic-concurrency token; compare current value and increment on each write.';
 
 create table if not exists public.reflections (
   session_id text primary key references public.practice_sessions (id) on delete cascade,
@@ -217,7 +231,8 @@ as $$
   )
 $$;
 
--- Create / sync profile after auth user is created (pending until email verified).
+-- TIP-001: never trust client-supplied role metadata on signup.
+-- Staff roles are assigned only through server-controlled app metadata.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -227,10 +242,20 @@ as $$
 declare
   fn text := coalesce(new.raw_user_meta_data->>'first_name', '');
   ln text := coalesce(new.raw_user_meta_data->>'last_name', '');
-  dn text := trim(both from (fn || ' ' || ln));
+  dn text := coalesce(nullif(trim(new.raw_user_meta_data->>'display_name'), ''), '');
+  must_change boolean := coalesce((new.raw_user_meta_data->>'must_change_password')::boolean, false);
+  elevated text := coalesce(new.raw_app_meta_data->>'role', '');
+  assigned_role text := 'user';
 begin
+  if elevated in ('founder', 'admin', 'system') then
+    assigned_role := elevated;
+  end if;
+
   if dn = '' then
-    dn := coalesce(new.raw_user_meta_data->>'display_name', split_part(new.email, '@', 1), 'Member');
+    dn := trim(both from (fn || ' ' || ln));
+  end if;
+  if dn = '' then
+    dn := coalesce(split_part(new.email, '@', 1), 'Member');
   end if;
 
   insert into public.profiles (
@@ -251,8 +276,8 @@ begin
     coalesce(new.email, ''),
     coalesce(new.email_confirmed_at is not null, false),
     case when new.email_confirmed_at is not null then 'active' else 'pending' end,
-    coalesce(new.raw_user_meta_data->>'role', 'user'),
-    coalesce((new.raw_user_meta_data->>'must_change_password')::boolean, false)
+    assigned_role,
+    must_change
   )
   on conflict (id) do update set
     email = excluded.email,
@@ -264,6 +289,7 @@ begin
       when excluded.email_verified then 'active'
       else profiles.account_status
     end,
+    -- Never downgrade or self-elevate via conflict path from user metadata.
     updated_at = now();
 
   return new;
@@ -300,6 +326,70 @@ drop trigger if exists on_auth_user_email_confirmed on auth.users;
 create trigger on_auth_user_email_confirmed
   after update of email_confirmed_at on auth.users
   for each row execute function public.handle_user_email_confirmed();
+
+-- Member-owned identity and coaching data reset (HARDEN-003).
+create or replace function public.reset_my_talkforge_data()
+returns table (
+  living_profiles_deleted bigint,
+  coach_memory_deleted bigint,
+  practice_sessions_deleted bigint,
+  session_reports_deleted bigint,
+  reflections_deleted bigint
+)
+language plpgsql
+volatile
+security invoker
+set search_path = ''
+as $function$
+declare
+  member_id uuid := auth.uid();
+  deleted_living_profiles bigint := 0;
+  deleted_coach_memory bigint := 0;
+  deleted_practice_sessions bigint := 0;
+  deleted_session_reports bigint := 0;
+  deleted_reflections bigint := 0;
+begin
+  if member_id is null then
+    raise exception 'Authentication is required to reset TalkForge data.'
+      using errcode = '28000';
+  end if;
+
+  delete from public.reflections
+  where user_id = member_id;
+  get diagnostics deleted_reflections = row_count;
+
+  delete from public.session_reports
+  where user_id = member_id;
+  get diagnostics deleted_session_reports = row_count;
+
+  delete from public.practice_sessions
+  where user_id = member_id;
+  get diagnostics deleted_practice_sessions = row_count;
+
+  delete from public.coach_memory
+  where user_id = member_id;
+  get diagnostics deleted_coach_memory = row_count;
+
+  delete from public.living_profiles
+  where user_id = member_id;
+  get diagnostics deleted_living_profiles = row_count;
+
+  return query
+  select
+    deleted_living_profiles,
+    deleted_coach_memory,
+    deleted_practice_sessions,
+    deleted_session_reports,
+    deleted_reflections;
+end
+$function$;
+
+revoke all on function public.reset_my_talkforge_data() from public;
+revoke all on function public.reset_my_talkforge_data() from anon;
+grant execute on function public.reset_my_talkforge_data() to authenticated;
+
+comment on function public.reset_my_talkforge_data() is
+  'Atomically deletes active TalkForge identity and coaching data owned by auth.uid(); retains the Auth account and public.profiles row.';
 
 -- ---------------------------------------------------------------------------
 -- RLS
@@ -415,28 +505,3 @@ create policy "waitlist_staff_select"
   on public.waitlist_members for select
   to authenticated
   using (public.is_founder_or_admin());
--- TalkForge founding members waitlist (LP-001)
--- Run in Supabase SQL editor before production waitlist goes live.
-
-create table if not exists public.waitlist_members (
-  id uuid primary key default gen_random_uuid(),
-  email text not null,
-  source text not null default 'landing',
-  created_at timestamptz not null default now(),
-  constraint waitlist_members_email_key unique (email)
-);
-
-create index if not exists waitlist_members_created_at_idx
-  on public.waitlist_members (created_at desc);
-
-alter table public.waitlist_members enable row level security;
-
--- Public can join; cannot read others' emails.
-drop policy if exists "waitlist_anon_insert" on public.waitlist_members;
-create policy "waitlist_anon_insert"
-  on public.waitlist_members for insert
-  to anon, authenticated
-  with check (true);
-
-drop policy if exists "waitlist_anon_select_none" on public.waitlist_members;
--- No select policy for anon = emails stay private.
