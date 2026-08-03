@@ -41,12 +41,6 @@ function firstName(displayName: string): string {
   return part || "there";
 }
 
-function preferredName(memory: CoachMemory): string {
-  const nick = memory.preferredNickname.trim();
-  if (nick) return nick;
-  return firstName(memory.displayName);
-}
-
 function uniqPush(list: string[], value: string, max = 8): string[] {
   const trimmed = value.trim();
   if (!trimmed) return list;
@@ -163,8 +157,8 @@ export function buildWelcomeHint(input: {
 
 /**
  * Build coach prompt context.
- * Identity fields prefer Living Profile (SSOT). CoachMemory supplies continuity
- * only (last session, learning style, emotional care, session history).
+ * Identity fields come exclusively from Living Profile (SSOT). CoachMemory
+ * supplies last-session continuity only.
  * Unconfirmed LP provenance is never treated as identity fact.
  */
 export function buildCoachPromptContext(
@@ -175,33 +169,30 @@ export function buildCoachPromptContext(
   const mem = memory ?? emptyCoachMemory("unknown");
   const lp = livingProfile;
 
-  const nickname =
-    lp?.preferredNickname.trim() || mem.preferredNickname.trim();
-  const display =
-    lp?.displayName.trim() || mem.displayName.trim();
-  const nameMem = { ...mem, preferredNickname: nickname, displayName: display };
-  const name = preferredName(nameMem);
+  const nickname = lp?.preferredNickname.trim() ?? "";
+  const display = lp?.displayName.trim() ?? "";
+  const name = nickname || firstName(display);
 
-  const communicationGoals = lp?.purposeStatement.trim()
-    ? [
-        lp.purposeStatement.trim(),
-        ...lp.personalPrinciples.map((p) => p.text).filter(Boolean),
-      ].slice(0, 3)
-    : mem.communicationGoals.slice(0, 3);
+  const communicationGoals = [
+    lp?.purposeStatement.trim() ?? "",
+    ...(lp?.personalPrinciples.map((p) => p.text.trim()) ?? []),
+  ]
+    .filter(Boolean)
+    .slice(0, 3);
 
-  const longTermChallenges = lp?.seasons.length
-    ? lp.seasons.map((s) => s.label).filter(Boolean).slice(0, 3)
-    : mem.longTermChallenges.slice(0, 3);
+  const longTermChallenges = (lp?.seasons ?? [])
+    .map((s) => s.label.trim())
+    .filter(Boolean)
+    .slice(0, 3);
 
-  const preferredCoachingStyle =
-    lp?.preferredCoachingStyle.trim() || mem.preferredCoachingStyle;
+  const preferredCoachingStyle = lp?.preferredCoachingStyle.trim() ?? "";
 
   // Confirmed / member-declared strength only — never pending evidence
   const confirmedStrength =
     lp?.provenance.find(
       (p) =>
         p.memberConfirmed &&
-        (p.fieldPath.includes("strength") || p.sourceKind === "member_declared") &&
+        p.fieldPath.includes("strength") &&
         p.claim.trim()
     )?.claim ?? "";
 
@@ -219,8 +210,8 @@ export function buildCoachPromptContext(
     isReturning,
     lastScenarioTitle: mem.lastScenarioTitle,
     lastSessionAt,
-    lastStruggle: lastReport?.biggestWeakness || mem.topicsWorkingOn[0],
-    recentWin: confirmedStrength || mem.recentWins[0],
+    lastStruggle: lastReport?.biggestWeakness,
+    recentWin: confirmedStrength,
     speakingHabit: "", // habits are evidence proposals — not identity facts in prompt as truth
     adaptiveInsight,
     longTermChallenge: longTermChallenges[0],
@@ -235,14 +226,14 @@ export function buildCoachPromptContext(
     lastScenarioTitle: mem.lastScenarioTitle,
     lastSessionSummary: mem.lastSessionSummary,
     lastSessionAt,
-    recentWins: mem.recentWins.slice(0, 3),
-    topicsWorkingOn: mem.topicsWorkingOn.slice(0, 3),
+    recentWins: [],
+    topicsWorkingOn: [],
     communicationGoals,
     longTermChallenges,
-    biggestFears: mem.biggestFears.slice(0, 3),
-    emotionalTriggers: mem.emotionalTriggers.slice(0, 3),
+    biggestFears: [],
+    emotionalTriggers: [],
     preferredCoachingStyle,
-    learningStyle: mem.learningStyle,
+    learningStyle: "",
     // Do not treat session-scored confidence as identity
     confidenceLevel: null,
     biggestStrength: confirmedStrength || "",
