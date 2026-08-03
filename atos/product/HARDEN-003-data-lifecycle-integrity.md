@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-003 |
-| **Version** | 0.2.0 |
+| **Version** | 0.3.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Milestone 5.1 complete — Founder approval gate** |
+| **Status** | **Milestone 5.2 complete — Founder approval gate** |
 | **Scope** | Member data lifecycle integrity only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) — DATA-01 |
 | **Prior certification** | [HARDEN-002](HARDEN-002-identity-integrity.md) — Frozen Historical |
@@ -198,4 +198,87 @@ Milestone 5.2 replaces it.
 # **NO-GO**
 
 Milestone 5.1 stops at the Founder checkpoint. Do not begin Milestone 5.2
+without explicit Founder approval.
+
+---
+
+## Milestone 5.2 — Application Integration
+
+# **COMPLETED**
+
+### Objective
+
+Replace the misleading partial client reset with the certified Milestone 5.1
+operation, complete the browser-data actions fixed by the Member Data
+Inventory, and communicate the retained-account and device boundary truthfully.
+
+### Implementation
+
+1. `clearAllTalkForgeData()` now requires an authenticated Supabase user and
+   invokes `reset_my_talkforge_data`; it no longer issues independent table
+   deletes.
+2. Browser cleanup starts only after the RPC succeeds:
+   - member-keyed Forge events, session links, and reality captures are removed
+     without affecting another member's records;
+   - device-local unkeyed voice transcripts and the active voice pointer are
+     cleared;
+   - current-user and pending-guest pointers are cleared; and
+   - the non-coaching beta-welcome preference is retained.
+3. Current-user pointer notification is suppressed during reset so profile
+   listeners cannot rebind it before sign-out.
+4. Supabase sign-out runs only after cloud deletion and browser cleanup
+   succeed. Partial browser-cleanup and sign-out failures report their actual
+   state instead of claiming complete success.
+5. The Profile UI now states exactly which TalkForge resources are deleted,
+   that the login account remains, and that browser-only data on other devices
+   cannot be reached.
+6. The destructive button is disabled while reset is in flight and successful
+   completion replaces the page with `/login`.
+
+### Acceptance evidence
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Certified operation used unchanged | **PASS** | Application contract check confirms the RPC precedes device cleanup and sign-out; Milestone 5.1 SQL and inventory are unchanged. |
+| No partial table-delete path | **PASS** | `clearAllTalkForgeData()` contains no direct `practice_sessions` or `reflections` delete. |
+| Server failure stops local deletion | **PASS** | RPC error is checked and thrown before any browser cleanup call. |
+| Member-keyed browser isolation | **PASS** | Executed browser-storage harness deleted three member A records while retaining all member B records. |
+| Unkeyed device data and identity pointers deleted | **PASS** | Harness removed transcript store, active voice pointer, current-user pointer, and pending-guest pointer. |
+| Retained browser preference | **PASS** | Harness preserved `tf_beta_welcomed`. |
+| Identity rebind race prevented | **PASS** | Harness confirmed reset pointer removal emits no pre-sign-out identity event. |
+| Truthful UX and duplicate prevention | **PASS** | Contract check confirms account-retention, other-device limitation, disabled state, and login replacement. |
+| Typecheck | **PASS** | `npm run typecheck`. |
+| Lint | **PASS WITH PRE-EXISTING WARNING** | `npm run lint`; zero errors and one unrelated unused-import warning in `scripts/atos-check-m8.mjs`. |
+| Production build | **PASS** | `npm run build`; Next.js 16.2.10 compiled, typechecked, and generated all routes. |
+| CI | **PASS** | Vercel deployment and preview checks. |
+| Diff integrity | **PASS** | `git diff --check`. |
+
+Authenticated browser execution was attempted locally. The environment had no
+configured authenticated Supabase session and correctly redirected
+`/app/profile` to login, so destructive UI execution was not performed.
+Production-authenticated and post-migration execution remains Milestone 5.3.
+
+### Residual risks
+
+1. Milestone 5.1 is not yet deployed to production, so the integrated RPC
+   cannot complete there until the migration is applied.
+2. Browser storage is device-local; another device must be cleared separately,
+   as the UI now states.
+3. Browser storage APIs are not transactional. If a device write fails after
+   server deletion, the member receives an explicit partial-cleanup error and
+   can retry the idempotent reset.
+4. Authenticated end-to-end deletion, account retention, and fresh-state login
+   require the controlled Milestone 5.3 production verification.
+
+### Rollback
+
+Revert the Milestone 5.2 application integration commit. No schema rollback is
+required. Rollback restores the incomplete client delete and misleading copy,
+so it is suitable only for emergency application recovery.
+
+### Gate
+
+# **NO-GO**
+
+Milestone 5.2 stops at the Founder checkpoint. Do not begin Milestone 5.3
 without explicit Founder approval.
