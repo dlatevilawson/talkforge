@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-004 |
-| **Version** | 0.1.0 |
+| **Version** | 0.2.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Milestone 6.1 in progress** |
+| **Status** | **Milestone 6.1 complete — Founder approval gate** |
 | **Scope** | Database deployment integrity only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) — SEC-02 / required fix #6 |
 | **Prior certification** | [HARDEN-003](HARDEN-003-data-lifecycle-integrity.md) — Frozen Historical |
@@ -72,9 +72,63 @@ regression risk, not evidence of an active production role-escalation defect.
    migration SQL is modified.
 9. Manifest verification, typecheck, lint, and production build pass.
 
+### Implementation
+
+1. `supabase/migrations/manifest.json` now defines two deterministic,
+   mutually-exclusive deployment paths:
+   - **greenfield**, beginning with the auth foundation immediately followed by
+     the mandatory TIP secure-role migration; and
+   - **existing production**, beginning with the legacy-upgrade migration that
+     embeds the secure trigger.
+2. The manifest identifies `supabase/migrations/` as the deployment SSOT,
+   classifies `supabase/schema.sql` as non-deployable, and records the required
+   and forbidden authorization metadata sources.
+3. `supabase/README.md` defines operator preflight, ordering, transaction,
+   verification, evidence, and stop-on-drift rules.
+4. The `schema.sql` header now blocks wholesale deployment and directs
+   operators to the manifest. Its internal reconciliation remains Milestone
+   6.2.
+5. `AGENTS.md` binds agents to the same deployment rule.
+
+### Acceptance evidence
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Complete migration inventory | **PASS** | Executed manifest verifier found all 9 SQL migrations covered by at least one path. |
+| Deterministic unique paths | **PASS** | Verifier found no duplicate file in either path. |
+| Exclusive bootstrap strategies | **PASS** | Greenfield contains foundation/TIP only; existing production contains legacy upgrade only. |
+| Mandatory greenfield security order | **PASS** | Foundation and TIP are manifest positions 1 and 2. |
+| Non-deployable snapshot | **PASS** | Manifest, Supabase README, schema header, and AGENTS rule agree. |
+| Machine-readable role invariant | **PASS** | Manifest forbids `raw_user_meta_data.role` and requires `raw_app_meta_data.role`. |
+| Live production posture | **PASS** | Read-only catalog verification confirms `handle_new_user()` uses app metadata, does not trust user-metadata role, and retains the elevated-role allowlist. |
+| Frozen checkpoints unchanged | **PASS** | Diff verification covers HARDEN-001 through HARDEN-003. |
+| Migration SQL unchanged | **PASS** | Diff verification covers every `supabase/migrations/*.sql` file. |
+| Typecheck | **PASS** | `npm run typecheck`. |
+| Lint | **PASS WITH PRE-EXISTING WARNING** | `npm run lint`; zero errors and one unrelated unused-import warning in `scripts/atos-check-m8.mjs`. |
+| Production build | **PASS** | `npm run build`; Next.js 16.2.10 compiled, typechecked, and generated all routes. |
+| Diff integrity | **PASS** | `git diff --check`. |
+
+### Residual risks
+
+1. `schema.sql` remains internally stale until Milestone 6.2; the new header
+   prevents it from being represented as deployable.
+2. Existing scripts and older documents may still point at stale paths until
+   Milestone 6.3.
+3. The manifest is not yet enforced automatically in repository checks;
+   Milestone 6.3 owns that gate.
+4. Production has no repository-managed migration ledger. Operators must
+   preflight existing production and record evidence until later checkpoint
+   scope explicitly changes that mechanism.
+
+### Rollback
+
+Revert the manifest, operator README, schema warning header, and AGENTS binding.
+No production or migration rollback is required because Milestone 6.1 changes
+deployment declarations only. Rollback would reopen SEC-02 redeployment risk.
+
 ### Gate
 
-# **IN PROGRESS**
+# **NO-GO**
 
-Stop after Milestone 6.1 verification and await Founder approval. Do not begin
-artifact reconciliation.
+Milestone 6.1 stops at the Founder checkpoint. Do not begin artifact
+reconciliation without explicit Founder approval.

@@ -27,7 +27,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | [HARDEN-001](atos/product/HARDEN-001-final-architecture-hardening.md) | Phases 1–3 certification — **Frozen Historical** |
 | [HARDEN-002](atos/product/HARDEN-002-identity-integrity.md) | Phase 4 identity integrity — **Frozen Historical** |
 | [HARDEN-003](atos/product/HARDEN-003-data-lifecycle-integrity.md) | Phase 5 data lifecycle integrity — **Frozen Historical** |
-| [HARDEN-004](atos/product/HARDEN-004-schema-deployment-integrity.md) | Phase 6 schema deployment integrity — **Milestone 6.1 in progress** |
+| [HARDEN-004](atos/product/HARDEN-004-schema-deployment-integrity.md) | Phase 6 schema deployment integrity — **Milestone 6.1 approval gate** |
 | [REMEDIATE-001](atos/product/REMEDIATE-001-architecture-remediation.md) | Remediation report |
 | [OWN-001](atos/product/OWN-001-identity-ownership-matrix.md) | Identity / evidence ownership matrix |
 | [FREEZE-001](atos/product/FREEZE-001-identity-pr-hold.md) | Identity PR hold |
