@@ -7,9 +7,9 @@ source of truth** for the TalkForge database. Their supported order is declared
 in [`migrations/manifest.json`](migrations/manifest.json).
 
 `schema.sql` is a non-deployable reference snapshot. Do not run it against a
-greenfield, staging, or production database. It contains historical
-consolidation drift and cannot represent one-time upgrade or data-repair
-migrations safely.
+greenfield, staging, or production database. Its active declarative objects are
+kept aligned for review, but it cannot represent bootstrap ordering, one-time
+upgrade logic, or data-repair migrations safely.
 
 Standalone SQL files outside `migrations/`, including `waitlist.sql`, are not a
 substitute deployment path.
@@ -64,6 +64,17 @@ but it is not authorization input.
 6. Record the exact files and evidence in the active HARDEN checkpoint.
 7. Stop on any mismatch; do not repair drift by running `schema.sql`.
 
-HARDEN-004 Milestone 6.1 declares this contract. Later HARDEN-004 milestones
-reconcile the reference snapshot, align scripts and documentation, add
-automated drift gates, and certify production.
+## Reference snapshot boundary
+
+`schema.sql` reflects active table columns, constraints, security-sensitive
+functions, RLS policies, and callable database functions. It intentionally does
+not reproduce:
+
+- mutually-exclusive greenfield and existing-production bootstrap logic;
+- legacy archive or temporary migration helpers;
+- one-time provenance or other data repairs; or
+- migration history and deployment evidence.
+
+HARDEN-004 Milestone 6.1 declares the deployment contract. Milestone 6.2
+reconciles this bounded reference snapshot. Later milestones align scripts and
+documentation, add automated drift gates, and certify production.
