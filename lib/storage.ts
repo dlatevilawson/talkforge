@@ -1,11 +1,14 @@
 import {
   bindAuthenticatedUserId,
   clearCurrentUserId,
+  clearPendingGuestUserId,
   getCurrentUserId,
   isGuestUserId,
 } from "./identity";
 import { getSupabaseClient } from "./supabase/client";
 import { buildGrowthSummary } from "@/lib/coach/growth";
+import { clearVoiceTranscriptData } from "@/lib/ce/transcript-store";
+import { clearLocalPracticeData } from "@/lib/transfer";
 import type {
   CoachMemory,
   GrowthSummary,
@@ -875,25 +878,39 @@ export async function clearAllTalkForgeData(): Promise<void> {
   const {
     data: { user: authUser },
   } = await supabase.auth.getUser();
-  const userId = authUser?.id ?? getCurrentUserId();
-  clearCurrentUserId();
-  if (!userId) return;
-
-  // Cascades to practice_sessions and reflections via schema FKs.
-  // Authenticated members typically cannot delete their own profile under RLS —
-  // clear practice rows they own instead.
-  const { error: sessionsError } = await supabase
-    .from("practice_sessions")
-    .delete()
-    .eq("user_id", userId);
-  if (sessionsError) {
-    throw new Error(`Failed to clear sessions: ${sessionsError.message}`);
+  if (!authUser) {
+    throw new Error("Sign in before deleting TalkForge data.");
   }
-  const { error: reflectionsError } = await supabase
-    .from("reflections")
-    .delete()
-    .eq("user_id", userId);
-  if (reflectionsError) {
-    throw new Error(`Failed to clear reflections: ${reflectionsError.message}`);
+
+  const { error: resetError } = await supabase.rpc(
+    "reset_my_talkforge_data"
+  );
+  if (resetError) {
+    throw new Error(`Failed to delete TalkForge data: ${resetError.message}`);
+  }
+
+  try {
+    clearLocalPracticeData(authUser.id);
+    clearVoiceTranscriptData();
+    if (!clearPendingGuestUserId()) {
+      throw new Error("Pending guest data could not be cleared.");
+    }
+    // The reset page navigates immediately after sign-out. Suppress the
+    // identity event so profile reload listeners cannot rebind this pointer
+    // during the small interval before the Auth session is destroyed.
+    clearCurrentUserId(false);
+  } catch (error) {
+    throw new Error(
+      error instanceof Error
+        ? `Cloud data was deleted, but this device could not be fully cleared: ${error.message}`
+        : "Cloud data was deleted, but this device could not be fully cleared."
+    );
+  }
+
+  const { error: signOutError } = await supabase.auth.signOut();
+  if (signOutError) {
+    throw new Error(
+      `TalkForge data was deleted, but sign out failed: ${signOutError.message}`
+    );
   }
 }
