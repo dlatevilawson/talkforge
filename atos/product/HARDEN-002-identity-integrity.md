@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-002 |
-| **Version** | 0.2.0 |
+| **Version** | 0.3.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Milestone 4.2 complete — Founder approval gate** |
+| **Status** | **Milestone 4.3 complete — Founder approval gate** |
 | **Scope** | Phase 4 identity integrity only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) |
 | **Prior certification** | [HARDEN-001](HARDEN-001-final-architecture-hardening.md) — Frozen Historical |
@@ -160,9 +160,76 @@ by the migration itself.
 
 ---
 
+## Milestone 4.3 — Explicit Provenance-Safe Legacy Migration
+
+# **COMPLETED**
+
+### Objective
+
+Remove mutation from Living Profile reads and ensure every legacy CoachMemory
+import is explicit, idempotent, traceable, and unconfirmed.
+
+### Implementation
+
+1. `GET /api/living-profile` is now strictly read-only.
+2. Legacy migration requires an authenticated `POST /api/living-profile`.
+3. Legacy nickname, goals, challenges, and coaching style become stable
+   `sourceKind: "imported"` provenance records with low confidence and
+   `memberConfirmed: false`.
+4. Explicit migration updates provenance only for existing profiles; it never
+   overwrites identity fields.
+5. Import-only rows produced by the former migration are repaired forward:
+   their values move to pending evidence, identity fields clear, and confirmed
+   import markers are demoted.
+
+### Acceptance criteria
+
+| Criterion | Result |
+|---|---|
+| Living Profile GET performs no write or CoachMemory query | **Pass** |
+| Migration requires an explicit authenticated POST | **Pass** |
+| Legacy values do not overwrite identity fields | **Pass** |
+| Imported provenance is low-confidence and unconfirmed | **Pass** |
+| Imported provenance cannot authorize identity writes | **Pass** |
+| Stable evidence IDs make repeated migration a no-op | **Pass** |
+| Prior import-only identity is converted to pending evidence | **Pass** |
+| Corrective migration is idempotent | **Pass** |
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Priority revalidation | **Pass** — Founder certified 4.2 and authorized 4.3; no newer direction supersedes it |
+| Read-only route invariant | **Pass** — GET contains no CoachMemory query or persistence operation |
+| Migration model exercise | **Pass** — identity preserved; four legacy classes imported unconfirmed; rerun adds zero |
+| Corrective migration preflight | **Pass** — legacy fixture repaired and transaction rolled back |
+| Corrective migration idempotency | **Pass** — fixture version unchanged on rerun |
+| Production application | **Pass** — corrective migration applied through authorized Management API |
+| Production idempotency rerun | **Pass** |
+| Production state | **Pass** — zero Living Profile rows, CoachMemory absent, zero confirmed imports |
+| `npm run typecheck` | **Pass** |
+| `npm run lint` | **Pass with one pre-existing unused-variable warning** |
+| `npm run build` | **Pass** — 54 routes |
+| `git diff --check` | **Pass** |
+
+### Residual risks
+
+- Authenticated POST migration was not browser-tested because this environment
+  has no authorized test-member credentials.
+- CoachMemory identity fallback in coach prompt construction remains until
+  Milestone 4.4.
+
+### Recovery and rollback
+
+Application rollback may deploy the certified 4.2 revision. The corrective
+data migration is forward-only: do not automatically re-promote imported values
+to confirmed identity. Imported claims remain preserved as pending provenance,
+so members can confirm or dismiss them without data loss.
+
+---
+
 ## Milestones Not Started
 
-- Milestone 4.3 — explicit provenance-safe legacy migration
 - Milestone 4.4 — CoachMemory identity cutover
 
 ---
@@ -171,6 +238,6 @@ by the migration itself.
 
 # **NO-GO**
 
-Milestone 4.2 stops at the Founder checkpoint. Do not begin Milestone 4.3
+Milestone 4.3 stops at the Founder checkpoint. Do not begin Milestone 4.4
 without explicit Founder approval. Feature development and held identity merges
 remain blocked under EXEC-VERIFY-001 and FREEZE-001.
