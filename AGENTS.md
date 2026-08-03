@@ -23,6 +23,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | [AUDIT-001.1](atos/product/AUDIT-001.1-architecture-reaudit.md) | Re-audit — **NO-GO** unconstrained · **CONDITIONAL GO** SYS1/SYS2 |
 | [AUDIT-001.2](atos/product/AUDIT-001.2-conditional-go-reaudit.md) | Conditional GO re-audit — **GO** prod migration/hardening · **NO-GO** features |
 | [REMEDIATE-002](atos/product/REMEDIATE-002-conditional-go.md) | Conditional GO implementation report |
+| [EXEC-VERIFY-001](atos/product/EXEC-VERIFY-001-final-architecture-certification.md) | Final architecture certification — **NO-GO** feature development |
 | [REMEDIATE-001](atos/product/REMEDIATE-001-architecture-remediation.md) | Remediation report |
 | [OWN-001](atos/product/OWN-001-identity-ownership-matrix.md) | Identity / evidence ownership matrix |
 | [FREEZE-001](atos/product/FREEZE-001-identity-pr-hold.md) | Identity PR hold |
@@ -51,6 +52,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Phase 3 code follows BUILD-SYS1 → SYS2 → CE → UX dependencies.
 - **Dual ship test:** Craft Law #001 + Design Principle #001 (both must pass).
 - **Remediation (Decision 053 + AUDIT-001.2):** LP UI and System 2 contracts are implemented. Only production migration verification / controlled hardening may proceed. **NO-GO** for feature expansion and held identity PR merges. Respect FREEZE-001 / OWN-001 / Forge Laws #014–#017.
+- **Certification (EXEC-VERIFY-001):** **NO-GO** for feature development. Do not lift FREEZE-001 or add product capability until required security, SSOT, readiness-route, data-lifecycle, and registry fixes are re-certified.
 - **Dependency chain:** Living Profile → Readiness → Adaptive Homepage → Coaching. No mission menus as home. Experiences never write identity.
 - Every major feature: Idea Vault → Blind Spot → Roadmap → Build.
 - Do **not** treat Idea Vault entries, agent drafts, or shipped features as Canonical without Founder admission.

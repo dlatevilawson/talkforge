@@ -29,6 +29,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | **Audit** | [AUDIT-001](AUDIT-001-architecture-readiness.md) · [AUDIT-001.1](AUDIT-001.1-architecture-reaudit.md) · [AUDIT-001.2](AUDIT-001.2-conditional-go-reaudit.md) | Architecture readiness | **GO production migration/hardening · NO-GO features** |
 | **Remediation** | [REMEDIATE-001](REMEDIATE-001-architecture-remediation.md) | Architecture remediation report | **Applied** |
 | **Conditional remediation** | [REMEDIATE-002](REMEDIATE-002-conditional-go.md) | LP SSOT + readiness contracts | **Applied; production migration pending** |
+| **Final certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) | End-to-end architecture certification | **NO-GO — hardening required** |
 | **Ownership** | [OWN-001](OWN-001-identity-ownership-matrix.md) | LP · PCM · CoachMemory ownership | **Authoritative** |
 | **PR freeze** | [FREEZE-001](FREEZE-001-identity-pr-hold.md) | Hold colliding identity PRs | **Binding** |
 | **SYS1** | [SYS1-001](SYS1-001-system-1-foundation.md) | Truth / Living Profile foundation | **In tree** |
@@ -36,7 +37,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | **POM** | [POM-001](POM-001-personal-operating-model.md) | Personal Operating Model | **In tree** |
 | **LP Law** | [LP-LAW-001](LP-LAW-001-living-profile.md) | Living Profile SSOT | **In tree** |
 
-**Agent rule:** Company OS Approved (Decision 051). **AUDIT-001.2:** only production migration verification and controlled hardening may proceed; no feature expansion or held identity PR merge. Canonical admission still requires Constitutional Law #001.
+**Agent rule:** Company OS Approved (Decision 051). **EXEC-VERIFY-001:** feature development is NO-GO. Only its required hardening fixes may proceed; no held identity PR merge. Canonical admission still requires Constitutional Law #001.
 
 ## Priority (RES-013)
 

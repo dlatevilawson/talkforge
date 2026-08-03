@@ -875,6 +875,50 @@ Authoritative — Conditional GO implementation accepted; production migration v
 
 ---
 
+# Decision 056
+
+Title:
+Accept EXEC-VERIFY-001 final architecture certification — NO-GO for feature development pending required hardening.
+
+Reason:
+
+Final bounded certification found that doctrine and contracts are stronger than the shipping enforcement. Critical evidence includes an unauthenticated cost-bearing Atlas route, readiness bypasses in global/direct routes, unverified production Living Profile migration, incomplete profile deletion, schema security drift, guest migration authorization risk, concurrency loss risk, legacy identity fallback, and a failing document registry check.
+
+Final Decision:
+
+Accept EXEC-VERIFY-001 as the controlling certification counsel. **NO-GO** for feature development, mission expansion, and identity PR merges. Permit only the required hardening fixes enumerated in EXEC-VERIFY-001. Do not lift FREEZE-001 until a focused re-certification confirms those fixes in production.
+
+Volumes:
+
+`atos/product/EXEC-VERIFY-001-final-architecture-certification.md`
+
+Status:
+Authoritative — Final certification NO-GO 2026-08-02
+
+---
+
+# Decision 057
+
+Title:
+Halt EXEC-HARDEN-001 at Phase 2 — production Living Profile migration cannot be verified from the current environment.
+
+Reason:
+
+Phase 1 secured the quota-bearing Atlas endpoint and passed targeted verification. Phase 2 requires authorized production Supabase migration access. The Supabase CLI, database URL, access token, and service-role credential are unavailable in this environment. Continuing to later phases would violate the strict hardening order.
+
+Final Decision:
+
+Record HARDEN-001 as halted after Phase 1. **NO-GO** remains. Resume only at Phase 2 when an authorized operator can apply and verify `20260802_living_profiles.sql`. Do not start later hardening phases or feature work before that verification.
+
+Volumes:
+
+`atos/product/HARDEN-001-final-architecture-hardening.md`
+
+Status:
+Authoritative — Hardening halted; production migration access required 2026-08-02
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
