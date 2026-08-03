@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-001 |
-| **Version** | 1.3.0 |
+| **Version** | 1.4.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Phase 3.2 complete — Founder approval gate** |
+| **Status** | **Phase 3 implementation complete — Founder approval gate** |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) |
 
 ---
@@ -166,14 +166,44 @@ invariant validation and the production build verify the bounded navigation
 change; authenticated browser evidence remains required for final Phase 3
 re-certification.
 
+### Milestone 3.3 — Legacy and Prepare route enforcement
+
+# **COMPLETED**
+
+Prepare, Training, and the six legacy mission entry points now return temporary
+redirects to `/app`, where Adaptive Home runs the approved readiness chain.
+Both historical root aliases and matching `/app/*` paths are covered. Existing
+page implementations remain intact and no unrelated route behavior changed.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Priority revalidation | **Pass** — no mainline or newer PR direction supersedes Phase 3 |
+| Redirect configuration | **Pass** — 16 scoped entries target `/app` with temporary redirects |
+| Production HTTP matrix | **Pass** — all 16 entries return `307` with `Location: /app` |
+| Query handling | **Pass** — incoming query values are preserved |
+| Control routes | **Pass** — `/voice` and `/dashboard` retain their prior destinations |
+| `npm run typecheck` | **Pass** |
+| `npm run lint` | **Pass with one pre-existing unused-variable warning** |
+| `npm run build` | **Pass** — 54 routes; `/app/practice` remains request-dynamic |
+| `git diff --check` | **Pass** |
+
+### Rollback
+
+Remove the 16 scoped redirect rules from `next.config.ts` and restore the eight
+historical alias destinations. The underlying page implementations were not
+deleted or modified, so rollback requires no data migration or component
+reconstruction. Redirects are temporary (`307`) and therefore are not
+permanently cached by clients.
+
 ---
 
 ## Remaining Hardening — Not Started
 
-Per EXEC-HARDEN-001 strict ordering, these phases and Phase 3 increments were
-intentionally not started:
+Per EXEC-HARDEN-001 strict ordering, these phases were intentionally not
+started:
 
-- Phase 3 — legacy/Prepare route enforcement
 - Phase 4 — identity integrity
 - Phase 5 — reset and lifecycle integrity
 - Phase 6 — authentication and ownership hardening
@@ -185,7 +215,6 @@ intentionally not started:
 
 # **NO-GO**
 
-Feature development remains blocked. Milestone 3.2 is complete and work stops
-at the Founder approval gate. Milestone 3.3 was not started. No further Phase 3
-increment may begin without approval. FREEZE-001 remains active until focused
-re-certification and explicit Founder release.
+Feature development remains blocked. Phase 3 implementation is complete and
+work stops at the Founder approval gate. Phase 4 was not started. FREEZE-001
+remains active until focused re-certification and explicit Founder release.
