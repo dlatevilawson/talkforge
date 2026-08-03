@@ -49,7 +49,10 @@ function mapCoachMemoryLite(row: Record<string, unknown>): CoachMemory {
 async function upsertLivingProfile(
   supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
   profile: LivingProfile
-): Promise<{ ok: boolean; missingTable?: boolean }> {
+): Promise<
+  | { ok: true; profile: LivingProfile }
+  | { ok: false; missingTable: true }
+> {
   const payload = {
     user_id: profile.userId,
     display_name: profile.displayName,
@@ -64,7 +67,11 @@ async function upsertLivingProfile(
     updated_at: profile.updatedAt,
   };
 
-  const { error } = await supabase.from("living_profiles").upsert(payload);
+  const { data, error } = await supabase
+    .from("living_profiles")
+    .upsert(payload)
+    .select("*")
+    .single();
   if (error) {
     if (
       error.message.includes("living_profiles") ||
@@ -74,7 +81,73 @@ async function upsertLivingProfile(
     }
     throw new Error(error.message);
   }
-  return { ok: true };
+  return { ok: true, profile: mapLivingProfileRow(data) };
+}
+
+type MemberSaveResult =
+  | { status: "saved"; profile: LivingProfile }
+  | { status: "conflict" }
+  | { status: "missing_schema" };
+
+async function saveMemberLivingProfile(
+  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>,
+  profile: LivingProfile,
+  expectedVersion: number
+): Promise<MemberSaveResult> {
+  const payload = {
+    display_name: profile.displayName,
+    preferred_nickname: profile.preferredNickname,
+    purpose_statement: profile.purposeStatement,
+    personal_principles: profile.personalPrinciples,
+    seasons: profile.seasons,
+    coaching_intensity: profile.coachingIntensity,
+    preferred_coaching_style: profile.preferredCoachingStyle,
+    mattering_conversation_ids: profile.matteringConversationIds,
+    provenance: profile.provenance,
+    updated_at: profile.updatedAt,
+  };
+
+  const query =
+    expectedVersion === 0
+      ? supabase
+          .from("living_profiles")
+          .insert({
+            user_id: profile.userId,
+            version: 1,
+            ...payload,
+          })
+          .select("*")
+          .single()
+      : supabase
+          .from("living_profiles")
+          .update({
+            ...payload,
+            version: expectedVersion + 1,
+          })
+          .eq("user_id", profile.userId)
+          .eq("version", expectedVersion)
+          .select("*")
+          .maybeSingle();
+
+  const { data, error } = await query;
+  if (error) {
+    if (
+      error.message.includes("living_profiles") ||
+      error.message.includes("version") ||
+      error.code === "PGRST204" ||
+      error.code === "PGRST205" ||
+      error.code === "42703"
+    ) {
+      return { status: "missing_schema" };
+    }
+    if (error.code === "23505") {
+      return { status: "conflict" };
+    }
+    throw new Error(error.message);
+  }
+
+  if (!data) return { status: "conflict" };
+  return { status: "saved", profile: mapLivingProfileRow(data) };
 }
 
 /**
@@ -144,8 +217,8 @@ export async function GET() {
       );
       if (!livingProfileNeedsBackfill(backfilled)) {
         const saved = await upsertLivingProfile(supabase, backfilled);
-        if (saved.ok) profile = backfilled;
-        else if (saved.missingTable) {
+        if (saved.ok) profile = saved.profile;
+        else {
           return NextResponse.json({
             profile: backfilled,
             tableReady: false,
@@ -191,7 +264,22 @@ export async function PUT(req: Request) {
       seasonLabels?: string[];
       preferredCoachingStyle?: string;
       coachingIntensity?: LivingProfile["coachingIntensity"];
+      expectedVersion?: number;
     };
+
+    if (
+      !Number.isInteger(body.expectedVersion) ||
+      (body.expectedVersion ?? -1) < 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Living Profile version is required. Reload your profile and try again.",
+        },
+        { status: 428 }
+      );
+    }
+    const expectedVersion = body.expectedVersion as number;
 
     const { data, error } = await supabase
       .from("living_profiles")
@@ -224,20 +312,46 @@ export async function PUT(req: Request) {
       ? mapLivingProfileRow(data)
       : emptyLivingProfile(user.id, displayName);
 
-    const next = applyMemberLivingProfileUpdate(current, body);
-    const saved = await upsertLivingProfile(supabase, next);
-    if (!saved.ok) {
+    if (current.version !== expectedVersion) {
       return NextResponse.json(
         {
           error:
-            "living_profiles table not migrated yet. Apply supabase/migrations/20260802_living_profiles.sql",
+            "Your Living Profile changed in another session. Reload before saving.",
+          conflict: true,
+          profile: current,
+        },
+        { status: 409 }
+      );
+    }
+
+    const next = applyMemberLivingProfileUpdate(current, body);
+    const saved = await saveMemberLivingProfile(
+      supabase,
+      next,
+      expectedVersion
+    );
+    if (saved.status === "missing_schema") {
+      return NextResponse.json(
+        {
+          error:
+            "Living Profile versioning is not migrated yet. Apply supabase/migrations/20260803_living_profile_versioning.sql",
           tableReady: false,
         },
         { status: 503 }
       );
     }
+    if (saved.status === "conflict") {
+      return NextResponse.json(
+        {
+          error:
+            "Your Living Profile changed while saving. Reload before trying again.",
+          conflict: true,
+        },
+        { status: 409 }
+      );
+    }
 
-    return NextResponse.json({ profile: next, tableReady: true });
+    return NextResponse.json({ profile: saved.profile, tableReady: true });
   } catch (err) {
     console.warn("[living-profile] PUT failed", err);
     return NextResponse.json(

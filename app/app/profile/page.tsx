@@ -138,8 +138,7 @@ export default function ProfilePage() {
     setSaved(false);
 
     try {
-      const updated = await updateDisplayName(displayName || "Member");
-      setUser(updated);
+      const nextDisplayName = displayName.trim() || "Member";
 
       const principleLines = principles
         .split(/[\n,]/)
@@ -154,24 +153,28 @@ export default function ProfilePage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          displayName: updated.displayName,
+          displayName: nextDisplayName,
           preferredNickname: nickname,
           purposeStatement: purpose,
           principleLines,
           seasonLabels,
           preferredCoachingStyle: coachingStyle,
+          expectedVersion: living?.version ?? 0,
         }),
       });
       const data = (await res.json()) as {
         profile?: LivingProfile;
         error?: string;
         tableReady?: boolean;
+        conflict?: boolean;
       };
       if (!res.ok) {
         throw new Error(data.error || "Failed to save Living Profile.");
       }
       if (data.tableReady === false) setTableReady(false);
       if (data.profile) setLiving(data.profile);
+      const updated = await updateDisplayName(nextDisplayName);
+      setUser(updated);
       setSaved(true);
     } catch (err) {
       setError(

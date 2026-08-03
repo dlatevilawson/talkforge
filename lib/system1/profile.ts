@@ -15,6 +15,7 @@ export function emptyLivingProfile(
 ): LivingProfile {
   return {
     userId,
+    version: 0,
     displayName,
     preferredNickname: "",
     purposeStatement: "",

@@ -184,6 +184,8 @@ export async function loadCoachPromptContextForUser(
     const livingProfile = livingRow
       ? {
           userId: String(livingRow.user_id),
+          version:
+            typeof livingRow.version === "number" ? livingRow.version : 0,
           displayName: String(livingRow.display_name ?? ""),
           preferredNickname: String(livingRow.preferred_nickname ?? ""),
           purposeStatement: String(livingRow.purpose_statement ?? ""),

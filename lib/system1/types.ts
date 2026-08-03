@@ -96,6 +96,8 @@ export type PersonalPrinciple = {
  */
 export type LivingProfile = {
   userId: string;
+  /** Optimistic-concurrency token. Zero means the row is not persisted yet. */
+  version: number;
   displayName: string;
   preferredNickname: string;
   /** Member-owned purpose / north star — never AI-decided */
