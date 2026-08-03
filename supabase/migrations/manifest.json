@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "deploymentSourceOfTruth": "supabase/migrations",
+  "referenceSnapshot": {
+    "path": "supabase/schema.sql",
+    "deployable": false
+  },
+  "deploymentPaths": {
+    "greenfield": [
+      "20260729_auth_foundation.sql",
+      "20260729_tip_secure_role_trigger.sql",
+      "20260730_coach_memory_history.sql",
+      "20260731_coach_memory_phase1.sql",
+      "20260802_living_profiles.sql",
+      "20260803_living_profile_versioning.sql",
+      "20260803_atomic_member_data_reset.sql"
+    ],
+    "existingProduction": [
+      "20260730_upgrade_legacy_profiles.sql",
+      "20260730_coach_memory_history.sql",
+      "20260731_coach_memory_phase1.sql",
+      "20260802_living_profiles.sql",
+      "20260803_living_profile_versioning.sql",
+      "20260803_legacy_identity_provenance_repair.sql",
+      "20260803_atomic_member_data_reset.sql"
+    ]
+  },
+  "securityInvariants": {
+    "greenfieldSecureRoleMigration": "20260729_tip_secure_role_trigger.sql",
+    "existingProductionSecureRoleMigration": "20260730_upgrade_legacy_profiles.sql",
+    "forbiddenRoleSource": "raw_user_meta_data.role",
+    "requiredRoleSource": "raw_app_meta_data.role"
+  }
+}

@@ -1,7 +1,9 @@
--- TalkForge Authentication Foundation
--- Run in the Supabase SQL editor after enabling Email auth.
--- Replaces guest-open RLS with authenticated, identity-scoped policies.
--- Passwords and secrets stay in auth.users — never in public tables.
+-- NON-DEPLOYABLE REFERENCE SNAPSHOT
+--
+-- The only deployment source of truth is the ordered migration path declared
+-- in supabase/migrations/manifest.json. Do not run this file against any
+-- database. It contains historical consolidation drift and cannot represent
+-- one-time upgrade or data-repair migrations safely.
 
 -- ---------------------------------------------------------------------------
 -- Profiles (identity + authorization metadata only)
