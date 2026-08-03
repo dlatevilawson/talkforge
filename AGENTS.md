@@ -27,6 +27,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | [HARDEN-001](atos/product/HARDEN-001-final-architecture-hardening.md) | Phases 1–3 certification — **Frozen Historical** |
 | [HARDEN-002](atos/product/HARDEN-002-identity-integrity.md) | Phase 4 identity integrity — **Frozen Historical** |
 | [HARDEN-003](atos/product/HARDEN-003-data-lifecycle-integrity.md) | Phase 5 data lifecycle integrity — **Frozen Historical** |
+| [HARDEN-004](atos/product/HARDEN-004-schema-deployment-integrity.md) | Phase 6 schema deployment integrity — **Milestone 6.1 approval gate** |
 | [REMEDIATE-001](atos/product/REMEDIATE-001-architecture-remediation.md) | Remediation report |
 | [OWN-001](atos/product/OWN-001-identity-ownership-matrix.md) | Identity / evidence ownership matrix |
 | [FREEZE-001](atos/product/FREEZE-001-identity-pr-hold.md) | Identity PR hold |
@@ -57,6 +58,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Remediation (Decision 053 + AUDIT-001.2):** LP UI and System 2 contracts are implemented. Only production migration verification / controlled hardening may proceed. **NO-GO** for feature expansion and held identity PR merges. Respect FREEZE-001 / OWN-001 / Forge Laws #014–#017.
 - **Certification (EXEC-VERIFY-001):** **NO-GO** for feature development. Do not lift FREEZE-001 or add product capability until required security, SSOT, readiness-route, data-lifecycle, and registry fixes are re-certified.
 - **Checkpoint immutability:** HARDEN-001, HARDEN-002, and HARDEN-003 are frozen historical certifications. Every later hardening phase requires a separate checkpoint document; do not append implementation evidence to a frozen checkpoint.
+- **Database deployment SSOT:** Only the ordered paths in `supabase/migrations/manifest.json` are deployable. `supabase/schema.sql` is a non-deployable reference snapshot.
 - **Dependency chain:** Living Profile → Readiness → Adaptive Homepage → Coaching. No mission menus as home. Experiences never write identity.
 - Every major feature: Idea Vault → Blind Spot → Roadmap → Build.
 - Do **not** treat Idea Vault entries, agent drafts, or shipped features as Canonical without Founder admission.
