@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-001 |
-| **Version** | 1.2.0 |
+| **Version** | 1.3.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Phase 3.1 complete — Founder approval gate** |
+| **Status** | **Phase 3.2 complete — Founder approval gate** |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) |
 
 ---
@@ -138,6 +138,34 @@ boundary, fail-closed behavior, and request-time rendering are verified;
 authenticated production journey evidence remains required for final Phase 3
 re-certification.
 
+### Milestone 3.2 — Remove global Practice entry
+
+# **COMPLETED**
+
+The primary application navigation no longer links directly to
+`/app/practice`. Home remains the global entry into the frozen chain, and the
+existing readiness-approved Adaptive Home recommendation remains unchanged.
+Home, Profile, Activity, Progress, Settings, and conditional Founder Portal
+navigation behavior is preserved.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Priority revalidation | **Pass** — no mainline or newer PR direction supersedes Phase 3 |
+| Navigation invariant | **Pass** — expected global links preserved; Practice absent |
+| Scope review | **Pass** — one application file changed; no route or Prepare behavior changed |
+| `npm run typecheck` | **Pass** |
+| `npm run lint` | **Pass with one pre-existing unused-variable warning** |
+| `npm run build` | **Pass** — 54 routes; `/app/practice` remains request-dynamic |
+| `git diff --check` | **Pass** |
+
+Authenticated browser inspection was not executed because this environment has
+no Supabase test configuration or authorized test-member credentials. Source
+invariant validation and the production build verify the bounded navigation
+change; authenticated browser evidence remains required for final Phase 3
+re-certification.
+
 ---
 
 ## Remaining Hardening — Not Started
@@ -145,7 +173,7 @@ re-certification.
 Per EXEC-HARDEN-001 strict ordering, these phases and Phase 3 increments were
 intentionally not started:
 
-- Phase 3 — global direct-entry cleanup and legacy/Prepare route enforcement
+- Phase 3 — legacy/Prepare route enforcement
 - Phase 4 — identity integrity
 - Phase 5 — reset and lifecycle integrity
 - Phase 6 — authentication and ownership hardening
@@ -157,7 +185,7 @@ intentionally not started:
 
 # **NO-GO**
 
-Feature development remains blocked. Milestone 3.1 is complete and work stops
-at the Founder approval gate. No further Phase 3 increment may begin without
-approval. FREEZE-001 remains active until focused re-certification and explicit
-Founder release.
+Feature development remains blocked. Milestone 3.2 is complete and work stops
+at the Founder approval gate. Milestone 3.3 was not started. No further Phase 3
+increment may begin without approval. FREEZE-001 remains active until focused
+re-certification and explicit Founder release.
