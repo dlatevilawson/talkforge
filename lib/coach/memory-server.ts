@@ -125,21 +125,21 @@ export async function loadCoachPromptContextForUser(
     const [
       { data: memoryRow },
       { data: reportRows },
-      { data: profile },
       { data: livingRow },
     ] = await Promise.all([
-      supabase.from("coach_memory").select("*").eq("user_id", userId).maybeSingle(),
+      supabase
+        .from("coach_memory")
+        .select(
+          "user_id, last_session_id, last_session_summary, last_scenario_title, last_session_at, sessions_completed, favorite_scenarios, past_exercises, updated_at"
+        )
+        .eq("user_id", userId)
+        .maybeSingle(),
       supabase
         .from("session_reports")
         .select("*")
         .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(12),
-      supabase
-        .from("profiles")
-        .select("display_name, first_name")
-        .eq("id", userId)
-        .maybeSingle(),
       supabase
         .from("living_profiles")
         .select("*")
@@ -150,12 +150,6 @@ export async function loadCoachPromptContextForUser(
     let memory = memoryRow
       ? mapMemory(memoryRow as Record<string, unknown>)
       : emptyCoachMemory(userId);
-
-    const display =
-      (typeof profile?.display_name === "string" && profile.display_name) ||
-      (typeof profile?.first_name === "string" && profile.first_name) ||
-      memory.displayName;
-    if (display) memory = { ...memory, displayName: display };
 
     // Continuity-only synthesis from sessions — never invent identity/confidence.
     if (!memoryRow && (!reportRows || reportRows.length === 0)) {
@@ -170,7 +164,6 @@ export async function loadCoachPromptContextForUser(
       if (sessions && sessions.length > 0) {
         memory = {
           ...memory,
-          displayName: display || memory.displayName,
           sessionsCompleted: sessions.length,
           lastSessionId: sessions[0].id,
           lastScenarioTitle: sessions[0].scenario_title ?? "",
