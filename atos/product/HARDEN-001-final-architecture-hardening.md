@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-001 |
-| **Version** | 1.1.0 |
+| **Version** | 1.2.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Phase 2 complete — production migration verified** |
+| **Status** | **Phase 3.1 complete — Founder approval gate** |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) |
 
 ---
@@ -91,11 +91,61 @@ destroy member identity.
 
 ---
 
-## Phases Not Started
+## Phase 3 — Dependency-Chain Route Enforcement
 
-Per EXEC-HARDEN-001 strict ordering, these phases were intentionally not started:
+### Milestone 3.1 — Practice route server gate
 
-- Phase 3 — dependency-chain route enforcement
+# **COMPLETED**
+
+`/app/practice` now waits for an incoming request and performs a secure
+server-side readiness check before rendering coaching:
+
+1. The request-boundary data access layer verifies the Supabase user.
+2. It reads the canonical `living_profiles` row under member RLS.
+3. It runs the same System 2 Adaptive Home model used by the member home.
+4. Coaching renders only when the profile gate passes and Adaptive Home
+   recommends `/app/practice`.
+5. Missing authentication, incomplete identity, query failure, or unavailable
+   configuration fails closed to `/app`.
+
+The Living Profile API and route guard share one row mapper; no second profile
+shape or readiness store was introduced.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Priority revalidation | **Pass** — no mainline or newer PR direction supersedes Phase 3 |
+| Incomplete/ready model exercise | **Pass** — incomplete profile denied; declared purpose allows `/app/practice` |
+| Request-time rendering | **Pass** — Next build reports `ƒ /app/practice` |
+| Prerender exclusion | **Pass** — no `/app/practice` prerender-manifest entry or cached redirect metadata |
+| Unconfigured runtime request | **Pass** — request-time `307` to guarded auth path; no prerender header |
+| `npm run typecheck` | **Pass** |
+| `npm run lint` | **Pass with one pre-existing unused-variable warning** |
+| `npm run build` | **Pass** — 54 routes |
+| `git diff --check` | **Pass** |
+
+### Boundary and residual verification
+
+This milestone does not alter global navigation, Dashboard entry points,
+Prepare, Training, or legacy mission routes. Those remain blocked from work
+until Founder approval of this checkpoint.
+
+The authenticated ready/incomplete production browser matrix was not executed:
+this environment has no authorized test-member credentials, and no production
+identity was created for route testing. The canonical model branches, server
+boundary, fail-closed behavior, and request-time rendering are verified;
+authenticated production journey evidence remains required for final Phase 3
+re-certification.
+
+---
+
+## Remaining Hardening — Not Started
+
+Per EXEC-HARDEN-001 strict ordering, these phases and Phase 3 increments were
+intentionally not started:
+
+- Phase 3 — global direct-entry cleanup and legacy/Prepare route enforcement
 - Phase 4 — identity integrity
 - Phase 5 — reset and lifecycle integrity
 - Phase 6 — authentication and ownership hardening
@@ -107,7 +157,7 @@ Per EXEC-HARDEN-001 strict ordering, these phases were intentionally not started
 
 # **NO-GO**
 
-Feature development remains blocked. Phases 1 and 2 are complete; Phase 3
-dependency-chain route enforcement is the next authorized hardening phase.
-FREEZE-001 remains active until focused re-certification and explicit Founder
-release.
+Feature development remains blocked. Milestone 3.1 is complete and work stops
+at the Founder approval gate. No further Phase 3 increment may begin without
+approval. FREEZE-001 remains active until focused re-certification and explicit
+Founder release.
