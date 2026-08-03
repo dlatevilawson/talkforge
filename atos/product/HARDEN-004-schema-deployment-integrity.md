@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-004 |
-| **Version** | 0.2.0 |
+| **Version** | 0.3.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Milestone 6.1 complete — Founder approval gate** |
+| **Status** | **Milestone 6.2 complete — Founder approval gate** |
 | **Scope** | Database deployment integrity only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) — SEC-02 / required fix #6 |
 | **Prior certification** | [HARDEN-003](HARDEN-003-data-lifecycle-integrity.md) — Frozen Historical |
@@ -132,3 +132,78 @@ deployment declarations only. Rollback would reopen SEC-02 redeployment risk.
 
 Milestone 6.1 stops at the Founder checkpoint. Do not begin artifact
 reconciliation without explicit Founder approval.
+
+---
+
+## Milestone 6.2 — Artifact Reconciliation
+
+# **COMPLETED**
+
+### Objective
+
+Reconcile security-sensitive and active declarative objects in the
+non-deployable `schema.sql` reference snapshot without changing migration SQL,
+production semantics, or application behavior.
+
+### Implementation
+
+1. Replaced the stale reference `handle_new_user()` body with the certified TIP
+   secure-role definition:
+   - browser-controlled user metadata remains limited to profile fields;
+   - elevated roles come only from app metadata and the explicit allowlist; and
+   - conflict updates cannot downgrade or self-elevate roles.
+2. Added the Living Profile optimistic-concurrency `version` column, positive
+   constraint, and column comment.
+3. Added the certified `reset_my_talkforge_data()` definition, `SECURITY
+   INVOKER` semantics, and `anon`/`authenticated` privilege boundary.
+4. Restored the CoachMemory `learning_style` check constraint.
+5. Removed the duplicated waitlist table/index/RLS/policy block while retaining
+   the single complete waitlist definition and staff-select policy.
+6. Documented the snapshot boundary: active declarative objects are represented
+   for review; bootstrap order, legacy archives/helpers, one-time data repairs,
+   and deployment evidence remain migration-only.
+
+### Acceptance evidence
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Secure trigger parity | **PASS** | Normalized function comparison matches `20260729_tip_secure_role_trigger.sql`; no user-metadata role read remains. |
+| Reset function parity | **PASS** | Normalized function comparison matches `20260803_atomic_member_data_reset.sql`. |
+| Living Profile version parity | **PASS** | Snapshot contains default `1`, named positive constraint, and concurrency comment. |
+| CoachMemory constraint parity | **PASS** | Invalid learning style raised a check violation in isolated execution. |
+| Duplicate waitlist removed | **PASS** | Exactly one `waitlist_members` table definition remains. |
+| Snapshot compilation | **PASS** | Transformed snapshot compiled in isolated schemas inside a rolled-back production transaction. |
+| Trigger security behavior | **PASS** | Isolated trigger test kept user-metadata `founder` at `user` and accepted app-metadata `founder`. |
+| Reset privilege behavior | **PASS** | Isolated catalog test denied `anon` and granted `authenticated`. |
+| Production unchanged | **PASS** | All database execution occurred in explicitly rolled-back isolated schemas. |
+| Migration SQL unchanged | **PASS** | Diff verification covers `supabase/migrations/*`. |
+| Frozen checkpoints unchanged | **PASS** | Diff verification covers HARDEN-001 through HARDEN-003. |
+| Typecheck | **PASS** | `npm run typecheck`. |
+| Lint | **PASS WITH PRE-EXISTING WARNING** | `npm run lint`; zero errors and one unrelated unused-import warning in `scripts/atos-check-m8.mjs`. |
+| Production build | **PASS** | `npm run build`; Next.js 16.2.10 compiled, typechecked, and generated all routes. |
+| Diff integrity | **PASS** | `git diff --check`. |
+
+### Residual risks
+
+1. `schema.sql` remains intentionally non-deployable and cannot encode
+   mutually-exclusive bootstraps or one-time data repairs.
+2. Reference parity is not yet an automated repository gate; Milestone 6.3 owns
+   that enforcement.
+3. Existing helper scripts and older documents may still imply alternate
+   deployment paths until Milestone 6.3.
+4. Legacy archive tables are intentionally migration-only and are not depicted
+   in the active reference snapshot.
+
+### Rollback
+
+Revert the Milestone 6.2 snapshot and boundary-document changes. No production,
+migration, or application rollback is required. Rollback would restore the
+known SEC-02 reference hazard and is suitable only for emergency repository
+recovery.
+
+### Gate
+
+# **NO-GO**
+
+Milestone 6.2 stops at the Founder checkpoint. Do not begin script,
+documentation, or automated drift-gate work without explicit Founder approval.
