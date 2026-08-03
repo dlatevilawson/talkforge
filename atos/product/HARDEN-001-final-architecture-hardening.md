@@ -3,16 +3,22 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-001 |
-| **Version** | 1.4.0 |
+| **Version** | 1.5.0 |
 | **Date** | 2026-08-03 |
-| **Status** | **Phase 3 implementation complete — Founder approval gate** |
+| **Status** | **Frozen Historical — Phase 3 certified with documented verification dependency** |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) |
+| **Frozen by** | Founder approval — 2026-08-03 |
+| **Successor rule** | Phase 4 and later work require separate checkpoint documents |
 
 ---
 
 ## Mission
 
 Eliminate certified blockers in strict order. This is a hardening record, not a feature plan.
+
+This document is now an immutable historical certification record. Do not append
+Phase 4 or later implementation evidence. Corrections require an explicit
+Founder-authorized erratum or a separate re-certification document.
 
 ---
 
@@ -199,10 +205,27 @@ permanently cached by clients.
 
 ---
 
-## Remaining Hardening — Not Started
+## Phase 3 Certification Determination
 
-Per EXEC-HARDEN-001 strict ordering, these phases were intentionally not
-started:
+# **CERTIFIED WITH DOCUMENTED VERIFICATION DEPENDENCY**
+
+Founder approval on 2026-08-03 closes Phase 3. Repository, build, model,
+request-boundary, redirect-configuration, and production HTTP evidence satisfy
+the approved implementation criteria.
+
+The authenticated ready/incomplete production-browser matrix remains
+unverified because the execution environment had neither Supabase test
+configuration nor authorized test-member credentials. This is a documented
+verification dependency, not authorization to reopen or extend HARDEN-001.
+Future production-browser evidence must be recorded in a separate
+re-certification document.
+
+---
+
+## Successor Checkpoints — Not Started
+
+The following work is outside this frozen record and must receive an independent
+checkpoint document, scope, evidence set, approval gate, and freeze:
 
 - Phase 4 — identity integrity
 - Phase 5 — reset and lifecycle integrity
@@ -211,10 +234,12 @@ started:
 
 ---
 
-## Final Recommendation
+## Final Disposition
 
 # **NO-GO**
 
-Feature development remains blocked. Phase 3 implementation is complete and
-work stops at the Founder approval gate. Phase 4 was not started. FREEZE-001
-remains active until focused re-certification and explicit Founder release.
+Phase 3 is officially complete and this certification is frozen. Feature
+development remains blocked because the later EXEC-VERIFY-001 hardening phases
+are outside this certification and remain incomplete. Phase 4 was not started.
+FREEZE-001 remains active until focused re-certification and explicit Founder
+release.
