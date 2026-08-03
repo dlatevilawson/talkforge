@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-001 |
-| **Version** | 1.0.0 |
-| **Date** | 2026-08-02 |
-| **Status** | **Halted at Phase 2 — production migration credentials unavailable** |
+| **Version** | 1.1.0 |
+| **Date** | 2026-08-03 |
+| **Status** | **Phase 2 complete — production migration verified** |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) |
 
 ---
@@ -44,31 +44,50 @@ Rate limiting is in-memory and therefore per-instance. It is sufficient to remov
 
 ## Phase 2 — Production Living Profile Migration
 
-# **FAILED — STOP**
+# **COMPLETED**
 
-The required production migration could not be applied or verified from this environment.
+Authorized production access became available on 2026-08-03. Prerequisite
+inspection found that production predates `public.coach_memory`; the original
+migration would therefore have failed during its optional legacy backfill.
+The migration now detects that optional source table before executing the
+declared-field import. It does not create a second continuity store.
 
 ### Evidence
 
 | Requirement | Result |
 |---|---|
-| Supabase CLI | **Unavailable** |
-| `SUPABASE_DB_URL` | **Absent** |
-| `SUPABASE_ACCESS_TOKEN` | **Absent** |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Absent** |
+| Supabase CLI | **Pass** — 2.111.0 |
+| Authorized project access | **Pass** — project `wudjmxqbsozreepgjvef`, `ACTIVE_HEALTHY` |
+| Production prerequisites | **Pass** — `profiles`, `set_updated_at()`, and `is_founder_or_admin()` present |
+| Optional backfill source | **Absent by inspection** — zero `coach_memory` rows eligible for import |
 | Migration artifact | **Present:** `supabase/migrations/20260802_living_profiles.sql` |
-| Migration output validation | **Pass:** `npm run db:living-profiles` emits table, RLS policy, and backfill SQL |
-| Production application / policy verification / backfill evidence | **Not performed** |
+| Migration output validation | **Pass:** `npm run db:living-profiles` emits table, RLS policy, and conditional backfill SQL |
+| Transactional preflight | **Pass** — complete migration executed and rolled back |
+| Production application | **Pass** — migration applied through the authorized Supabase Management API |
+| Idempotency rerun | **Pass** — production rerun completed without schema or data error |
+| Table controls | **Pass** — table present, RLS enabled, update trigger present |
+| Ownership policy | **Pass** — `living_profiles_own` assigned to `authenticated` |
+| Backfill result | **Pass** — zero rows imported because the inspected source table does not exist |
+| Authenticated member lifecycle | **Pass** — create, read, update, and reset under member RLS |
+| Cross-member write | **Pass** — rejected by RLS with PostgreSQL `42501` |
+| Test-data cleanup | **Pass** — temporary auth user removed; cascaded profile and LP data removed |
 
-### Required operator action
+### Recovery procedure
 
-Apply `supabase/migrations/20260802_living_profiles.sql` using an authorized production Supabase workflow, then provide:
+The migration is forward-recoverable and safe to rerun:
 
-1. Migration execution result.
-2. `living_profiles` table and `living_profiles_own` policy verification.
-3. Backfill row-count/result verification.
-4. Authenticated member create/read/update/reset proof.
-5. Tested rollback procedure or a documented, approved forward-recovery procedure.
+1. Stop application writes if a later verification check fails.
+2. Preserve existing `living_profiles` rows; do not drop the SSOT table after
+   member writes begin.
+3. Correct the failed prerequisite and rerun the idempotent migration. Table
+   creation, trigger replacement, policy replacement, and missing-row import
+   are repeat-safe.
+4. Re-run table, RLS, policy, trigger, row-count, and authenticated lifecycle
+   checks before restoring writes.
+
+Transactional rollback was tested before production application. Forward
+recovery is preferred after application because dropping the table would
+destroy member identity.
 
 ---
 
@@ -88,4 +107,7 @@ Per EXEC-HARDEN-001 strict ordering, these phases were intentionally not started
 
 # **NO-GO**
 
-Feature development remains blocked. Phase 1 removes the Atlas quota blocker, but the Living Profile SSOT cannot be certified until its production migration is applied and verified. Resume EXEC-HARDEN-001 at Phase 2 only after authorized migration access is available.
+Feature development remains blocked. Phases 1 and 2 are complete; Phase 3
+dependency-chain route enforcement is the next authorized hardening phase.
+FREEZE-001 remains active until focused re-certification and explicit Founder
+release.
