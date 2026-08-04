@@ -201,7 +201,20 @@ export default function ContinuityHome() {
                 {loading ? "Finding your next rep." : trainingTitle}
               </h1>
 
-              <p className="mt-6 max-w-xl text-base leading-7 text-zinc-400 sm:text-lg sm:leading-8">
+              <div className="-my-2 mx-auto w-full max-w-[14rem] lg:hidden">
+                <ExecutiveMachine
+                  ready={!loading && ready}
+                  intensity={intensity}
+                />
+                <p className="-mt-5 text-center text-[0.58rem] uppercase tracking-[0.24em] text-zinc-700">
+                  Executive Machine
+                </p>
+              </div>
+
+              <p className="mt-6 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-600">
+                Why this matters today
+              </p>
+              <p className="mt-2 max-w-xl text-base leading-7 text-zinc-400 sm:text-lg sm:leading-8">
                 {loading
                   ? "Forge is reading your focus and preparing one clear next step."
                   : whyToday}
@@ -269,7 +282,7 @@ export default function ContinuityHome() {
           )}
         </div>
 
-        <div className="relative order-first mx-auto mt-4 w-full max-w-[31rem] lg:order-none lg:mt-0 lg:max-w-none">
+        <div className="relative mx-auto mt-4 hidden w-full max-w-[31rem] lg:mt-0 lg:block lg:max-w-none">
           <ExecutiveMachine ready={!loading && ready} intensity={intensity} />
           <div className="absolute bottom-[9%] left-1/2 -translate-x-1/2 text-center lg:bottom-[6%]">
             <p className="text-[0.62rem] uppercase tracking-[0.24em] text-zinc-600">
