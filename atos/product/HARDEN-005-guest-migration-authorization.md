@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-005 |
-| **Version** | 0.4.0 |
+| **Version** | 0.5.0 |
 | **Date** | 2026-08-04 |
-| **Status** | **Milestone 7.3 complete — Founder approval gate** |
+| **Status** | **Milestone 7.4 complete — certification and freeze recommendation gate** |
 | **Scope** | Retirement of privileged guest migration authorization only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) — SEC-04 / required fix #7 |
 | **Prior certification** | [HARDEN-004](HARDEN-004-schema-deployment-integrity.md) — Frozen Historical |
@@ -326,3 +326,95 @@ regression barrier while leaving the Milestone 7.2 inert route in place.
 
 Milestone 7.3 stops at the Founder checkpoint. Do not begin production
 certification or freeze HARDEN-005 without explicit Founder approval.
+
+---
+
+## Milestone 7.4 — Production Certification
+
+# **COMPLETED**
+
+### Objective
+
+Verify that the Founder-certified Milestone 7.3 implementation is deployed in
+production, the authorization boundary remains enforced, local-device
+migration remains isolated, archived data remains untouched, and all prior
+HARDEN checkpoints remain immutable.
+
+### Production verification
+
+1. Merged the Founder-approved Milestone 7.3 revision to `main` as
+   `b390a0cb12f54f4248841e42cd64c429f568604c`.
+2. Vercel reported a successful production deployment for that exact revision.
+3. Sent five unauthenticated POST requests to
+   `https://talkforge-virid.vercel.app/api/auth/migrate-guest` using:
+   - no body;
+   - a UUID-shaped identifier;
+   - a victim-shaped `guest_*` identifier;
+   - a traversal-shaped identifier; and
+   - a 4,096-character identifier.
+4. Every request returned the same HTTP `410 Gone`, `Cache-Control: no-store`,
+   and non-enumerating retired response.
+5. Ran the positive authorization gate, its negative self-tests, the complete
+   auth gate, and the gated production build against the deployed revision.
+6. Ran a browser-storage harness with a failing `fetch` implementation. Three
+   pending-guest records were reassigned locally, three foreign-identity
+   records remained unchanged, the pending marker cleared, and zero network
+   calls occurred.
+7. Recorded archive counts before and after production endpoint verification.
+   Both reads returned:
+   - `public.legacy_guest_profiles`: 35;
+   - `public.legacy_guest_practice_sessions`: 25; and
+   - `public.legacy_guest_reflections`: 2.
+8. Verified no Supabase artifacts or HARDEN-001 through HARDEN-004 changed in
+   the certified deployment diff.
+
+### Acceptance evidence
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Exact production revision | **PASS** | Vercel deployment status for `b390a0cb12f54f4248841e42cd64c429f568604c` completed successfully. |
+| Retired endpoint live | **PASS** | Production returned identical HTTP 410/no-store responses for all five request shapes. |
+| Arbitrary identifier isolation | **PASS** | UUID, guest, traversal, long, and absent identifiers could not change response behavior or select a privileged operation. |
+| Positive authorization gate | **PASS** | `npm run guest-migration:check` scanned 144 application files. |
+| Negative authorization tests | **PASS** | `npm run guest-migration:check:self-test` rejected all three synthetic regression classes. |
+| Complete auth gate | **PASS** | `npm run auth:check` passed deployment integrity, guest authorization, and 13 TIP checks. |
+| Local-device isolation | **PASS** | Runtime harness reassigned three owned records, preserved three foreign records, made zero network calls, and cleared pending state. |
+| Archives untouched | **PASS** | Read-only before/after counts remained 35 profiles, 25 sessions, and 2 reflections. |
+| Frozen checkpoints immutable | **PASS** | Deployment diff contains no changes to HARDEN-001 through HARDEN-004; their SHA-256 hashes remain `da476825…`, `9c9e4733…`, `ce251f46…`, and `7ba77425…`. |
+| Production/schema artifacts unchanged | **PASS** | Certified deployment diff contains no Supabase change. |
+| Typecheck | **PASS** | `npm run typecheck`. |
+| Lint | **PASS WITH PRE-EXISTING WARNING** | `npm run lint`; zero errors and one unrelated unused-import warning in `scripts/atos-check-m8.mjs`. |
+| Gated production build | **PASS** | `npm run build` ran deployment and authorization gates before Next.js 16.2.10 compiled, typechecked, and generated all routes. |
+| Diff integrity | **PASS** | `git diff --check`. |
+
+### Certification determination
+
+# **GO — RECOMMEND CERTIFICATION AND FREEZE**
+
+All HARDEN-005 acceptance criteria pass. SEC-04 is closed by retiring the
+unnecessary privileged cloud reassignment path, preserving only isolated
+same-device browser migration, and enforcing that boundary in supported
+production builds.
+
+Residual constraints remain deliberate:
+
+1. Archived guest data has no recovery path and remains untouched.
+2. Any future archive recovery requires a separate Founder-approved checkpoint
+   with an explicit proof-of-possession design.
+3. Unsupported direct invocation of `next build` can bypass package-script
+   gates; supported Vercel and local production builds use `npm run build`.
+4. EXEC-VERIFY-001 remains the authority for unrelated unresolved findings;
+   HARDEN-005 certification does not authorize feature development.
+
+### Rollback
+
+No production rollback is recommended. The endpoint is inert, archives were
+not changed, and local-device migration remains functional. Reverting the
+Milestone 7.2 and 7.3 revisions would reintroduce SEC-04 and remove its
+automated regression barrier.
+
+### Founder gate
+
+HARDEN-005 is not frozen by this recommendation alone. Founder approval is
+required to certify and freeze this checkpoint as an immutable historical
+record.
