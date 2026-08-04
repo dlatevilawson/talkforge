@@ -29,6 +29,8 @@ Upon explicit Founder admission, it is intended to become the highest design-phi
 - the Human Dignity Standard;
 - Craft Law #001;
 - Design Principle #001;
+- System 1 and System 2 doctrine;
+- security, architecture, evidence, and release gates;
 - member autonomy, evidence, accessibility, and trust.
 
 CXA-001 defines executive authority over the member experience. THIP-001 defines enduring design philosophy. TDS-001 and MBL-001 translate that philosophy into visual and behavioral systems.
@@ -410,13 +412,13 @@ The member may decline without punishment.
 
 The member may pause without losing status.
 
-The member may leave without being intercepted.
+The member may leave without coercion. A necessary warning may protect the member from losing work or misunderstanding a consequence, but it must not pressure them to stay.
 
 The member may correct what TalkForge believes.
 
 The member may understand why something was recommended.
 
-The member may control what is remembered.
+The member may inspect, correct, and control the personal context used for coaching and personalization. Records that must exist for safety, security, legal, or operational integrity must be disclosed and governed rather than disguised as coaching memory.
 
 The member may choose a different path.
 
@@ -606,11 +608,15 @@ The test asks whether TalkForge:
 
 - removes unnecessary burden;
 - protects dignity;
-- creates psychological safety;
+- supports conditions for psychological safety;
 - preserves autonomy;
 - makes challenge understandable;
 - supports recovery;
 - connects effort to life.
+
+Designer intention is not evidence of human benefit.
+
+Approval requires evidence proportionate to the claim, risk, and permanence of the decision. Research may challenge the philosophy's current expression. When member evidence and designer preference conflict, member evidence wins unless it would violate dignity, safety, truth, or constitutional authority.
 
 If an experience increases fear merely to increase engagement, it fails.
 
@@ -623,6 +629,8 @@ If any answer is no, redesign the experience or remove it.
 ---
 
 # XV. Founder's Declaration
+
+The following is proposed declaration language for Founder review. It is not attributed to the Founder or Canonical unless explicitly admitted.
 
 We are not building software that people merely use.
 
@@ -642,9 +650,9 @@ Where failure protects dignity.
 
 Where progress means greater readiness for life.
 
-Every interaction should leave the member a little more prepared, a little more courageous, and a little more themselves.
+We intend every interaction to help the member become a little more prepared, a little more courageous, and a little more themselves.
 
-TalkForge succeeds when someone walks into a real conversation carrying words, confidence, and capability they did not have before.
+TalkForge succeeds to the extent that members carry useful preparation, confidence, and capability into real conversations.
 
 That is why every interface exists.
 
@@ -676,6 +684,7 @@ No philosophy should be used to conceal a limitation, deny necessary urgency, re
 |---|---|
 | Constitution and Founder decisions | Highest company authority |
 | Human Dignity Standard · Craft Law · Design Principle | Binding human and implementation constraints |
+| System 1 · System 2 · security · architecture · evidence · release gates | Binding product, technical, and production constraints |
 | CXA-001 | Executive authority over the member experience |
 | **THIP-001** | Highest design-philosophy authority upon Founder admission |
 | TDS-001 | Visual and interaction system |

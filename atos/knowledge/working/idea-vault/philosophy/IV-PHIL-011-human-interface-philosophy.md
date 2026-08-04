@@ -61,5 +61,5 @@ Components, media, and devices will change. TalkForge needs a durable design phi
 | Field | Value |
 |---|---|
 | Blind spot review | BS-010 |
-| Roadmap link | Proposed Phase 12 · governs future design and experience phases after admission |
+| Roadmap link | None yet · doctrine proposal requires Founder admission before roadmap integration |
 | Priority | Active philosophy drafting; implementation not authorized |
