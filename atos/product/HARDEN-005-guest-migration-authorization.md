@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-005 |
-| **Version** | 0.1.0 |
+| **Version** | 0.2.0 |
 | **Date** | 2026-08-04 |
-| **Status** | **Milestone 7.1 in progress** |
+| **Status** | **Milestone 7.1 complete — Founder approval gate** |
 | **Scope** | Retirement of privileged guest migration authorization only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) — SEC-04 / required fix #7 |
 | **Prior certification** | [HARDEN-004](HARDEN-004-schema-deployment-integrity.md) — Frozen Historical |
@@ -129,9 +129,46 @@ after the local operation completes.
 7. HARDEN-001 through HARDEN-004 remain unchanged.
 8. Typecheck, lint, production build, and diff integrity pass.
 
+### Acceptance evidence
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| IDOR threat documented | **PASS** | Finding names the client-selected source, authenticated destination, service-role bypass, and cross-tenant impact. |
+| Production active types | **PASS** | Read-only catalog verification returned UUID for profile, session-user, and reflection-user identifiers. |
+| Archive inventory | **PASS** | Read-only counts remain 35 guest profiles, 25 guest sessions, and 2 guest reflections. |
+| Trust boundary complete | **PASS** | Session, JSON, browser state, admin capability, and archive data are separately classified. |
+| Retirement selected | **PASS** | Contract prohibits cloud reassignment and introduces no proof or recovery mechanism. |
+| Local migration preserved | **PASS** | Contract retains same-device member-keyed browser reassignment only. |
+| Archive behavior fixed | **PASS** | Contract prohibits archive read, write, restore, delete, or member exposure. |
+| Stale-client behavior fixed | **PASS** | Contract requires deterministic non-enumerating HTTP `410 Gone`. |
+| Future recovery isolated | **PASS** | Contract requires a separate Founder-approved proof-of-possession checkpoint. |
+| Contract consistency | **PASS** | Executed check confirms all six binding decisions and production counts are explicit. |
+| Frozen checkpoints unchanged | **PASS** | Diff verification covers HARDEN-001 through HARDEN-004. |
+| Runtime/code unchanged | **PASS** | Diff verification covers app, lib, Supabase, scripts, and package artifacts. |
+| Typecheck | **PASS** | `npm run typecheck`. |
+| Lint | **PASS WITH PRE-EXISTING WARNING** | `npm run lint`; zero errors and one unrelated unused-import warning in `scripts/atos-check-m8.mjs`. |
+| Production build | **PASS** | Gated Next.js 16.2.10 build compiled, typechecked, and generated all routes. |
+| Diff integrity | **PASS** | `git diff --check`. |
+
+### Residual risks
+
+1. The vulnerable privileged endpoint remains active until Milestone 7.2; the
+   active production UUID schema currently prevents `guest_*` row matches.
+2. Archived guests have no self-service cloud recovery path. HARDEN-005
+   deliberately preserves that state.
+3. Same-device local migration depends on browser storage availability and
+   cannot recover data from another device.
+4. Stale clients continue to call the current endpoint until Milestone 7.2.
+
+### Rollback
+
+Revert the HARDEN-005 contract and AGENTS binding. No runtime or production
+rollback is required because Milestone 7.1 changes documentation and governance
+only. Rollback would leave SEC-04 without an approved closure contract.
+
 ### Gate
 
-# **IN PROGRESS**
+# **NO-GO**
 
-Stop after Milestone 7.1 verification and await Founder approval. Do not begin
-route or client retirement.
+Milestone 7.1 stops at the Founder checkpoint. Do not begin route or client
+retirement without explicit Founder approval.
