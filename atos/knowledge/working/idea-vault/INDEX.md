@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | **Document ID** | IV-INDEX |
-| **Version** | 1.2.0 |
+| **Version** | 1.3.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
-| **Updated** | 2026-08-02 |
-| **Entry count** | 60 |
+| **Updated** | 2026-08-04 |
+| **Entry count** | 61 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
@@ -82,7 +82,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-FEAT-008](features/IV-FEAT-008-personal-principles.md) | Personal Principles | Reviewing | Important | Medium | `features/IV-FEAT-008-personal-principles.md` |
 | [IV-FEAT-009](features/IV-FEAT-009-current-season.md) | Primary + Secondary Season | Inbox | Important | Medium | `features/IV-FEAT-009-current-season.md` |
 
-## UX Ideas (5)
+## UX Ideas (6)
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
@@ -91,6 +91,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-UX-003](ux-ideas/IV-UX-003-important-moments-timeline.md) | Important Moments & Timeline | Inbox | Useful | Medium | `ux-ideas/IV-UX-003-important-moments-timeline.md` |
 | [IV-UX-004](ux-ideas/IV-UX-004-saved-canvas.md) | Saved Canvas | Future | Useful | Low | `ux-ideas/IV-UX-004-saved-canvas.md` |
 | [IV-UX-005](ux-ideas/IV-UX-005-missions-progress.md) | Missions & Progress surfaces | Inbox | Important | Medium | `ux-ideas/IV-UX-005-missions-progress.md` |
+| [IV-UX-006](ux-ideas/IV-UX-006-talkforge-design-system.md) | TalkForge Design System | Reviewing | Critical | High | `ux-ideas/IV-UX-006-talkforge-design-system.md` |
 
 ## AI Ideas (5)
 
@@ -132,7 +133,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 
 ---
 
-## Critical ideas (41) — definitional weight
+## Critical ideas (42) — definitional weight
 
 | ID | Title | Status | Category |
 |---|---|---|---|
@@ -169,6 +170,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-FEAT-006](features/IV-FEAT-006-provenance-evidence.md) | Provenance & Evidence layer | Reviewing | Features |
 | [IV-UX-001](ux-ideas/IV-UX-001-homepage-one-mission.md) | Homepage = one mission above the fold | Reviewing | UX Ideas |
 | [IV-UX-002](ux-ideas/IV-UX-002-unified-living-profile-ui.md) | Unified Living Profile UI | Reviewing | UX Ideas |
+| [IV-UX-006](ux-ideas/IV-UX-006-talkforge-design-system.md) | TalkForge Design System | Reviewing | UX Ideas |
 | [IV-AI-001](ai-ideas/IV-AI-001-hypothesize-never-assume.md) | May hypothesize; never assume | Approved | AI Ideas |
 | [IV-AI-002](ai-ideas/IV-AI-002-mentor-pacing.md) | Mentor pacing — understand before coaching | In Development | AI Ideas |
 | [IV-RES-004](research-ideas/IV-RES-004-transfer-outside-app.md) | Transfer outside the app is the scoreboard | Researching | Research Ideas |

@@ -9,7 +9,7 @@
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
 # Change Log: 2026-07-19 — RES-011 TalkForge primary; Atlas in service
 
-version: 1.0.1
+version: 1.0.2
 updated_at: "2026-08-04"
 milestone: M9
 description: >
@@ -17,8 +17,8 @@ description: >
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
 
 counts:
-  total: 128
-  with_path: 125
+  total: 131
+  with_path: 128
   planned: 3
   authoritative: 41
 
@@ -1409,6 +1409,33 @@ documents:
     owner: Founder
     ai_steward: Atlas
     layer: product
+
+  - id: TDS-001
+    title: "TalkForge Design System v1.0"
+    path: atos/product/TDS-001-talkforge-design-system.md
+    state: draft
+    version: "1.0.0"
+    owner: Chief Experience Architect
+    ai_steward: Atlas
+    layer: product
+
+  - id: IV-UX-006
+    title: "TalkForge Design System"
+    path: atos/knowledge/working/idea-vault/ux-ideas/IV-UX-006-talkforge-design-system.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+
+  - id: BS-008
+    title: "Design system becomes aesthetic bureaucracy"
+    path: atos/knowledge/working/blind-spot-register/bs-008.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
 
   - id: HIST-README
     title: "Governance History"
