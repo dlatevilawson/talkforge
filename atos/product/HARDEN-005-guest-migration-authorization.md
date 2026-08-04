@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-005 |
-| **Version** | 0.3.0 |
+| **Version** | 0.4.0 |
 | **Date** | 2026-08-04 |
-| **Status** | **Milestone 7.2 complete — Founder approval gate** |
+| **Status** | **Milestone 7.3 complete — Founder approval gate** |
 | **Scope** | Retirement of privileged guest migration authorization only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) — SEC-04 / required fix #7 |
 | **Prior certification** | [HARDEN-004](HARDEN-004-schema-deployment-integrity.md) — Frozen Historical |
@@ -245,3 +245,84 @@ the client-local changes. No database rollback exists or is required.
 
 Milestone 7.2 stops at the Founder checkpoint. Do not begin automated
 authorization-gate work without explicit Founder approval.
+
+---
+
+## Milestone 7.3 — Authorization Gates
+
+# **COMPLETED**
+
+### Objective
+
+Make reintroduction of body-trusted, privileged, or network-based cloud guest
+migration fail supported authorization checks and production builds while
+verifying that arbitrary identifiers cannot affect behavior and local migration
+remains isolated.
+
+### Implementation
+
+1. Added `scripts/check-guest-migration-authorization.mjs`.
+2. The gate requires the retired route to:
+   - accept no request parameter;
+   - return HTTP 410 with `no-store`;
+   - retain the retired non-sensitive response; and
+   - contain no request-body parse, guest target, session read, admin client, or
+     database operation.
+3. The gate requires the local migrator to:
+   - call `reassignLocalPracticeData()` before clearing pending state;
+   - report no remote migration;
+   - contain no network, endpoint, admin, or database operation.
+4. The gate recursively scans application TypeScript for any file combining
+   `createAdminSupabaseClient` with guest identity handling.
+5. Negative self-tests inject three regression classes:
+   - body-selected admin deletion in the retired route;
+   - a client request to the retired endpoint; and
+   - a privileged-client/guest-identity combination elsewhere.
+6. Added `guest-migration:check` and
+   `guest-migration:check:self-test`.
+7. `auth:check` and `build` now run the authorization gate.
+
+### Acceptance evidence
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Positive authorization scan | **PASS** | Gate scanned 144 application files and accepted only the retired/local-only contract. |
+| Negative route regression | **PASS** | Self-test rejected synthetic body-selected admin deletion. |
+| Negative client regression | **PASS** | Self-test rejected a synthetic client call to the retired endpoint. |
+| Negative cross-file regression | **PASS** | Self-test rejected privileged-client + guest-identity source. |
+| Arbitrary identifier isolation | **PASS** | Empty, long, UUID-shaped, traversal-shaped, and victim guest identifiers produced the same non-enumerating 410 behavior. |
+| Local reassignment | **PASS** | Browser harness reassigned three records for the pending guest identity. |
+| Cross-identity isolation | **PASS** | Harness left all foreign guest records unchanged. |
+| No network dependency | **PASS** | Harness installed a failing `fetch` and completed with zero calls. |
+| Auth enforcement | **PASS** | `npm run auth:check` runs DB gate, guest gate, and 13 TIP checks. |
+| Build enforcement | **PASS** | `npm run build` visibly runs DB and guest authorization gates before Next.js. |
+| Certified application unchanged | **PASS** | Diff verification covers `app/**` and `lib/**`. |
+| Production/schema/migrations/archives unchanged | **PASS** | Diff verification covers Supabase artifacts; no production operation ran. |
+| Frozen checkpoints unchanged | **PASS** | Diff verification covers HARDEN-001 through HARDEN-004. |
+| Typecheck | **PASS** | `npm run typecheck`. |
+| Lint | **PASS WITH PRE-EXISTING WARNING** | `npm run lint`; zero errors and one unrelated unused-import warning in `scripts/atos-check-m8.mjs`. |
+| Production build | **PASS** | Gated Next.js 16.2.10 build compiled, typechecked, and generated all routes. |
+| Diff integrity | **PASS** | `git diff --check`. |
+
+### Residual risks
+
+1. Direct unsupported invocation of `next build` bypasses package scripts;
+   supported Vercel/local builds use `npm run build`.
+2. The gate is targeted static authorization analysis, not a general taint
+   analysis of all application data.
+3. Production behavior remains unverified until Milestone 7.3 is merged and
+   deployed for Milestone 7.4.
+4. Archives remain inaccessible and unchanged by design.
+
+### Rollback
+
+Revert the authorization checker and package-script integration. No runtime or
+database rollback is required. Rollback would remove the automated SEC-04
+regression barrier while leaving the Milestone 7.2 inert route in place.
+
+### Gate
+
+# **NO-GO**
+
+Milestone 7.3 stops at the Founder checkpoint. Do not begin production
+certification or freeze HARDEN-005 without explicit Founder approval.
