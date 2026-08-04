@@ -919,6 +919,67 @@ Authoritative — Hardening halted; production migration access required 2026-08
 
 ---
 
+# Decision 058
+
+Decision Alias:
+CXA-001
+
+Title:
+Admit the Chief Experience Architect Charter as governing doctrine for TalkForge experience architecture.
+
+Reason:
+
+Founder resolution establishes clear experience authority without unilateral veto power. Engineering owns technical implementation and feasibility; Atlas owns governance, mission alignment, and constitutional consistency; the Chief Experience Architect owns member experience standards and may require redesign; the Founder retains final production approval when responsibilities conflict.
+
+The resolution further clarifies that homepage hierarchy is adaptive priority rather than mandatory rendering, experience outcomes describe evidence-based training intentions rather than guaranteed transformation, and progress measurements require validated operational definitions before production display.
+
+CXA Principle 001 — Beauty Serves Understanding — ensures aesthetic decisions remain subordinate to comprehension, confidence, natural practice, and reduced cognitive load.
+
+Alternatives Considered:
+
+Grant the CXA unilateral production veto authority — rejected because it could allow one executive role to block the company.
+
+Treat homepage hierarchy as a rigid checklist — rejected because irrelevant content would increase cognitive load for members without applicable history or continuity.
+
+Remove future Machine expansion from the design language — rejected because scalable spatial architecture is valid vision even while implementation remains gated.
+
+Blind Spots:
+
+The physical-place metaphor could become decorative skeuomorphism; CXA-001 requires it to clarify the mental model rather than increase navigation or visual burden.
+
+Progress concepts could be mistaken for objective truth before their evidence models are validated; production display remains prohibited until each metric has an operational definition and limitations.
+
+Risks:
+
+Design authority could be interpreted as final production authority; the charter explicitly reserves final approval for the Founder.
+
+Future Gym language could be misread as feature authorization; the charter explicitly preserves all Idea Vault, blind-spot, roadmap, certification, and Founder approval gates.
+
+Final Decision:
+
+APPROVE and ADMIT `CXA-001` as Canonical governing doctrine for TalkForge user experience architecture.
+
+The CXA possesses design authority over member experience standards but not unilateral production veto authority. Homepage hierarchy is adaptive priority rather than mandatory rendering. Progress metrics require operational definitions before production use. Experience outcomes describe intended training objectives rather than guaranteed personal transformation. All future CXA proposals must demonstrate reduced cognitive load, strengthened trust, preserved member autonomy, and improved readiness for real-world communication.
+
+Future Machine expansion remains architectural vision only and does not authorize implementation during the current feature-development NO-GO.
+
+Future Review Date:
+
+After the first Founder-reviewed CXA proposal and before any progress metric enters production.
+
+Volumes:
+
+`atos/product/CXA-001-chief-experience-architect-charter.md`
+`atos/product/SYS2-001-system-2-experience.md`
+`atos/product/CRAFT-LAW-001.md`
+`atos/product/DES-001-cognitive-load.md`
+`atos/product/BUILD-UX-001.md`
+
+Status:
+Authoritative — ✅ Admitted 2026-08-04
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
