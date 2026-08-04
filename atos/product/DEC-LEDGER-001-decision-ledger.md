@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | **Document ID** | DEC-LEDGER-001 |
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Status** | **Active — EXEC-001 Step 3 Complete** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
-| **Updated** | 2026-08-02 |
+| **Updated** | 2026-08-04 |
 | **Live ledger** | [`atlas/decisions.md`](../../atlas/decisions.md) |
 | **Authority** | EXEC-001 Step 3 · CONST-001 · Constitutional Law #001 |
 | **Plane** | Operational Canonical record (decisions) — not Idea Vault |
@@ -88,6 +88,8 @@ Authoritative — {state}
 | 048 | EXEC-001 + Idea Vault Step 1 | Step 1 Frozen |
 | 049 | Constitution Step 2 | Step 2 Frozen (+ Law #001 / Admission Rule) |
 | 050 | Authorize Steps 3–18 continuum | See Decision 050 |
+| 052 | Admit Craft Law #001 + Design Principle #001 | Canonical |
+| 058 / CXA-001 | Admit Chief Experience Architect Charter | Canonical |
 
 Full history: `atlas/decisions.md`.
 
@@ -108,3 +110,4 @@ Full history: `atlas/decisions.md`.
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-08-02 | EXEC-001 Step 3 — Decision Ledger formalized |
+| 1.1.0 | 2026-08-04 | Indexed Decision 058 / CXA-001 constitutional admission |
