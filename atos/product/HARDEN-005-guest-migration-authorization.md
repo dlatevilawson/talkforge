@@ -3,12 +3,18 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-005 |
-| **Version** | 0.5.0 |
+| **Version** | 1.0.0 |
 | **Date** | 2026-08-04 |
-| **Status** | **Milestone 7.4 complete — certification and freeze recommendation gate** |
+| **Status** | **Frozen Historical — Phase 7 certified** |
 | **Scope** | Retirement of privileged guest migration authorization only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) — SEC-04 / required fix #7 |
 | **Prior certification** | [HARDEN-004](HARDEN-004-schema-deployment-integrity.md) — Frozen Historical |
+| **Frozen by** | Founder certification — 2026-08-04 |
+| **Successor rule** | Future guest-migration or archive-recovery work requires a Founder-approved superseding HARDEN initiative |
+
+This document is now an immutable historical certification record. No further
+modifications are permitted except through a future Founder-approved
+superseding HARDEN initiative.
 
 ---
 
@@ -389,12 +395,13 @@ HARDEN checkpoints remain immutable.
 
 ### Certification determination
 
-# **GO — RECOMMEND CERTIFICATION AND FREEZE**
+# **CERTIFIED AND FROZEN**
 
 All HARDEN-005 acceptance criteria pass. SEC-04 is closed by retiring the
 unnecessary privileged cloud reassignment path, preserving only isolated
 same-device browser migration, and enforcing that boundary in supported
-production builds.
+production builds. Founder certification on 2026-08-04 admits HARDEN-005 to the
+certified TalkForge production baseline.
 
 Residual constraints remain deliberate:
 
@@ -413,8 +420,9 @@ not changed, and local-device migration remains functional. Reverting the
 Milestone 7.2 and 7.3 revisions would reintroduce SEC-04 and remove its
 automated regression barrier.
 
-### Founder gate
+### Freeze rule
 
-HARDEN-005 is not frozen by this recommendation alone. Founder approval is
-required to certify and freeze this checkpoint as an immutable historical
-record.
+HARDEN-005 is frozen. Engineering shall make no further modifications to this
+checkpoint. Any future work affecting cloud guest migration, local-device
+migration authorization, or archive recovery must begin under a
+Founder-approved superseding HARDEN initiative.
