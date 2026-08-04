@@ -28,7 +28,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | [HARDEN-002](atos/product/HARDEN-002-identity-integrity.md) | Phase 4 identity integrity — **Frozen Historical** |
 | [HARDEN-003](atos/product/HARDEN-003-data-lifecycle-integrity.md) | Phase 5 data lifecycle integrity — **Frozen Historical** |
 | [HARDEN-004](atos/product/HARDEN-004-schema-deployment-integrity.md) | Phase 6 schema deployment integrity — **Frozen Historical** |
-| [HARDEN-005](atos/product/HARDEN-005-guest-migration-authorization.md) | Phase 7 guest migration authorization — **Certification and freeze recommendation gate** |
+| [HARDEN-005](atos/product/HARDEN-005-guest-migration-authorization.md) | Phase 7 guest migration authorization — **Frozen Historical** |
 | [REMEDIATE-001](atos/product/REMEDIATE-001-architecture-remediation.md) | Remediation report |
 | [OWN-001](atos/product/OWN-001-identity-ownership-matrix.md) | Identity / evidence ownership matrix |
 | [FREEZE-001](atos/product/FREEZE-001-identity-pr-hold.md) | Identity PR hold |
@@ -58,7 +58,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Dual ship test:** Craft Law #001 + Design Principle #001 (both must pass).
 - **Remediation (Decision 053 + AUDIT-001.2):** LP UI and System 2 contracts are implemented. Only production migration verification / controlled hardening may proceed. **NO-GO** for feature expansion and held identity PR merges. Respect FREEZE-001 / OWN-001 / Forge Laws #014–#017.
 - **Certification (EXEC-VERIFY-001):** **NO-GO** for feature development. Do not lift FREEZE-001 or add product capability until required security, SSOT, readiness-route, data-lifecycle, and registry fixes are re-certified.
-- **Checkpoint immutability:** HARDEN-001 through HARDEN-004 are frozen historical certifications. Every later hardening phase requires a separate checkpoint document; do not append implementation evidence to a frozen checkpoint.
+- **Checkpoint immutability:** HARDEN-001 through HARDEN-005 are frozen historical certifications. Every later hardening phase requires a separate Founder-approved checkpoint document; do not append implementation evidence to a frozen checkpoint.
 - **Database deployment SSOT:** Only the ordered paths in `supabase/migrations/manifest.json` are deployable. `supabase/schema.sql` is a non-deployable reference snapshot.
 - **Guest migration authorization:** HARDEN-005 retires privileged cloud guest reassignment while preserving same-device local migration. `npm run guest-migration:check` enforces this boundary. Archive recovery is prohibited without a separate Founder-approved proof-of-possession checkpoint.
 - **Dependency chain:** Living Profile → Readiness → Adaptive Homepage → Coaching. No mission menus as home. Experiences never write identity.
