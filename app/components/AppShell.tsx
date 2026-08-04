@@ -33,7 +33,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setMenuOpen(false);
     let cancelled = false;
     async function load() {
       try {
