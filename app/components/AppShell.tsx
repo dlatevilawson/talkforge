@@ -1,5 +1,6 @@
 "use client";
 
+import TalkForgeLogo from "@/app/components/landing/TalkForgeLogo";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -17,10 +18,9 @@ import {
 } from "@/lib/identity";
 
 const links = [
-  { href: "/app", label: "Home" },
-  { href: "/app/profile", label: "Profile" },
-  { href: "/app/dashboard", label: "Activity" },
   { href: "/app/progress", label: "Progress" },
+  { href: "/app/dashboard", label: "Training history" },
+  { href: "/app/profile", label: "Living Profile" },
   { href: "/app/settings", label: "Settings" },
 ] as const;
 
@@ -96,49 +96,86 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-[var(--tf-bg)] font-sans text-[var(--tf-fg)]">
-      <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Link href="/app" className="text-lg font-semibold tracking-wide">
-            TalkForge
+      <header className="relative z-50 bg-[#050505]/85 backdrop-blur-xl">
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6">
+          <Link
+            href="/app"
+            className="rounded-md transition-opacity hover:opacity-80"
+            aria-label="TalkForge home"
+          >
+            <TalkForgeLogo tone="light" />
           </Link>
 
-          <nav
-            aria-label="Primary"
-            className="flex flex-wrap items-center gap-1 sm:gap-2"
-          >
-            {nav.map((link) => {
-              const active =
-                pathname === link.href || pathname.startsWith(`${link.href}/`);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`rounded-full px-3 py-2 text-sm transition ${
-                    active
-                      ? "bg-white text-black"
-                      : "text-zinc-300 hover:bg-white/10 hover:text-white"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
+          <details key={pathname} className="group relative">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.025] py-1.5 pl-2 pr-3.5 text-sm text-zinc-400 transition hover:border-white/15 hover:bg-white/[0.05] hover:text-white [&::-webkit-details-marker]:hidden">
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-[#e7d6b1] text-[0.68rem] font-semibold uppercase text-[#19150f]">
+                {name.charAt(0) || "F"}
+              </span>
+              <span className="hidden max-w-28 truncate sm:block">{name}</span>
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                className="h-3.5 w-3.5 transition-transform group-open:rotate-180"
+                aria-hidden
+              >
+                <path
+                  d="m4 6 4 4 4-4"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </summary>
 
-          <div className="flex items-center gap-3">
-            <p className="text-sm text-zinc-400">{name}</p>
-            <button
-              type="button"
-              onClick={() => void logout()}
-              className="rounded-full border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/10"
+            <nav
+              aria-label="Account and gym"
+              className="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-white/10 bg-[#111214]/95 p-2 shadow-[0_24px_70px_rgba(0,0,0,.55)] backdrop-blur-2xl"
             >
-              Sign out
-            </button>
-          </div>
+              <Link
+                href="/app"
+                className={`block rounded-xl px-3.5 py-2.5 text-sm transition ${
+                  pathname === "/app"
+                    ? "bg-white/[0.08] text-white"
+                    : "text-zinc-400 hover:bg-white/[0.05] hover:text-white"
+                }`}
+              >
+                Home
+              </Link>
+              {nav.map((link) => {
+                const active =
+                  pathname === link.href ||
+                  pathname.startsWith(`${link.href}/`);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`block rounded-xl px-3.5 py-2.5 text-sm transition ${
+                      active
+                        ? "bg-white/[0.08] text-white"
+                        : "text-zinc-400 hover:bg-white/[0.05] hover:text-white"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+              <div className="my-2 h-px bg-white/[0.07]" />
+              <button
+                type="button"
+                onClick={() => void logout()}
+                className="block w-full rounded-xl px-3.5 py-2.5 text-left text-sm text-zinc-500 transition hover:bg-white/[0.05] hover:text-zinc-200"
+              >
+                Sign out
+              </button>
+            </nav>
+          </details>
         </div>
       </header>
 
-      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">{children}</div>
+      <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6">
+        {children}
+      </div>
     </div>
   );
 }
