@@ -9,7 +9,7 @@
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
 # Change Log: 2026-07-19 — RES-011 TalkForge primary; Atlas in service
 
-version: 1.0.4
+version: 1.0.5
 updated_at: "2026-08-04"
 milestone: M9
 description: >
@@ -17,8 +17,8 @@ description: >
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
 
 counts:
-  total: 133
-  with_path: 130
+  total: 136
+  with_path: 133
   planned: 3
   authoritative: 41
 
@@ -1449,6 +1449,33 @@ documents:
   - id: IV-UX-007
     title: "Phase 10 Product Experience Design"
     path: atos/knowledge/working/idea-vault/ux-ideas/IV-UX-007-phase-10-product-design.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+
+  - id: MBL-001
+    title: "Machine Behavior Language"
+    path: atos/product/MBL-001-machine-behavior-language.md
+    state: draft
+    version: "1.0.0"
+    owner: Chief Interaction Architect
+    ai_steward: Atlas
+    layer: product
+
+  - id: IV-UX-008
+    title: "Machine Behavior Language"
+    path: atos/knowledge/working/idea-vault/ux-ideas/IV-UX-008-machine-behavior-language.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+
+  - id: BS-009
+    title: "Behavioral language becomes theater"
+    path: atos/knowledge/working/blind-spot-register/bs-009.md
     state: draft
     version: "1.0.0"
     owner: Founder

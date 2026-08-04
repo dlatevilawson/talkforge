@@ -28,6 +28,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | **Design** | [DES-001](DES-001-cognitive-load.md) | Reduce unnecessary cognitive load | ✅ Canonical |
 | **Experience** | [CXA-001](CXA-001-chief-experience-architect-charter.md) | Chief Experience Architect · member experience doctrine | ✅ Canonical (Decision 058) |
 | **Design system** | [TDS-001](TDS-001-talkforge-design-system.md) | Communication Gym visual and interaction specification | **Proposed — Founder Review; implementation frozen** |
+| **Behavior system** | [MBL-001](MBL-001-machine-behavior-language.md) | Machine Behavior Language · motion, timing, sound, haptics, lighting, recovery | **Proposed — Founder Review; implementation not authorized** |
 | **Audit** | [AUDIT-001](AUDIT-001-architecture-readiness.md) · [AUDIT-001.1](AUDIT-001.1-architecture-reaudit.md) · [AUDIT-001.2](AUDIT-001.2-conditional-go-reaudit.md) | Architecture readiness | **GO production migration/hardening · NO-GO features** |
 | **Remediation** | [REMEDIATE-001](REMEDIATE-001-architecture-remediation.md) | Architecture remediation report | **Applied** |
 | **Conditional remediation** | [REMEDIATE-002](REMEDIATE-002-conditional-go.md) | LP SSOT + readiness contracts | **Applied; production migration pending** |
