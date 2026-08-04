@@ -16,8 +16,7 @@ export type GuestMigrationResult = {
 
 /**
  * After login, move any pending guest practice data onto the authenticated account.
- * - Always remaps localStorage Forge events / reality captures.
- * - Calls the migrate-guest API when a service role is available for cloud rows.
+ * Cloud reassignment is retired; browser state authorizes same-device records only.
  */
 export async function migrateGuestPracticeData(
   authUserId: string
@@ -32,35 +31,14 @@ export async function migrateGuestPracticeData(
   }
 
   const localReassigned = reassignLocalPracticeData(guestId, authUserId);
-
-  let remoteMigrated = false;
-  let message: string | undefined;
-
-  try {
-    const res = await fetch("/api/auth/migrate-guest", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ guestId }),
-    });
-    const data = (await res.json().catch(() => ({}))) as {
-      ok?: boolean;
-      migrated?: boolean;
-      message?: string;
-    };
-    remoteMigrated = Boolean(data.migrated);
-    if (!res.ok && data.message) {
-      message = data.message;
-    }
-  } catch {
-    message = "Cloud guest migration unavailable.";
-  }
-
-  clearPendingGuestUserId();
+  const pendingCleared = clearPendingGuestUserId();
 
   return {
     guestId,
     localReassigned,
-    remoteMigrated,
-    message,
+    remoteMigrated: false,
+    message: pendingCleared
+      ? undefined
+      : "Local practice data migrated, but the pending guest marker could not be cleared.",
   };
 }

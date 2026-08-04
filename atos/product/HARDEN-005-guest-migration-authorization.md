@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | HARDEN-005 |
-| **Version** | 0.2.0 |
+| **Version** | 0.3.0 |
 | **Date** | 2026-08-04 |
-| **Status** | **Milestone 7.1 complete — Founder approval gate** |
+| **Status** | **Milestone 7.2 complete — Founder approval gate** |
 | **Scope** | Retirement of privileged guest migration authorization only |
 | **Governing certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) — SEC-04 / required fix #7 |
 | **Prior certification** | [HARDEN-004](HARDEN-004-schema-deployment-integrity.md) — Frozen Historical |
@@ -172,3 +172,76 @@ only. Rollback would leave SEC-04 without an approved closure contract.
 
 Milestone 7.1 stops at the Founder checkpoint. Do not begin route or client
 retirement without explicit Founder approval.
+
+---
+
+## Milestone 7.2 — Application Retirement
+
+# **COMPLETED**
+
+### Objective
+
+Remove all privileged cloud guest-reassignment capability, retain a
+non-enumerating stale-client response, and preserve same-device member-keyed
+browser migration without reading or modifying archives.
+
+### Implementation
+
+1. `POST /api/auth/migrate-guest` is now inert:
+   - returns HTTP `410 Gone`;
+   - sets `Cache-Control: no-store`;
+   - returns the same non-sensitive response for every body;
+   - does not read a session or request body;
+   - imports no admin client; and
+   - performs no database call or mutation.
+2. `migrateGuestPracticeData()` no longer calls a server endpoint.
+3. Existing local Forge events, session-event links, and reality captures keyed
+   to the pending guest id are reassigned to the authenticated member on the
+   same device.
+4. Records belonging to another browser identity remain unchanged.
+5. The pending guest marker is cleared only after local reassignment completes.
+6. The return contract remains compatible with existing callers and reports
+   `remoteMigrated: false`.
+
+### Acceptance evidence
+
+| Criterion | Result | Evidence |
+|---|---|---|
+| Endpoint inert | **PASS** | Direct handler tests with empty and arbitrary guest bodies returned identical HTTP 410 responses. |
+| Non-enumerating response | **PASS** | Responses contain no supplied guest id or existence signal. |
+| Runtime route behavior | **PASS** | Next.js runtime returned `410 Gone`, `no-store`, and the retired response. |
+| Privileged capability removed | **PASS** | Source verification finds no session read, body parse, admin configuration/client, `.from()`, or guest target type. |
+| Client cloud call removed | **PASS** | Source verification finds no `fetch()` or `/api/auth/migrate-guest` reference in the client migrator. |
+| Same-device migration preserved | **PASS** | Executed browser-storage harness reassigned three guest-owned local records. |
+| Cross-identity local isolation | **PASS** | Harness retained all records belonging to the second browser identity. |
+| Pending marker lifecycle | **PASS** | Harness cleared the pending marker after successful local reassignment. |
+| No network dependency | **PASS** | Harness installed a failing `fetch`; migration completed with zero network calls. |
+| No archive/database changes | **PASS** | No Supabase, migration, script, or package artifact changed. |
+| Frozen checkpoints unchanged | **PASS** | Diff verification covers HARDEN-001 through HARDEN-004. |
+| Typecheck | **PASS** | `npm run typecheck` after build artifact generation completed. |
+| Lint | **PASS WITH PRE-EXISTING WARNING** | `npm run lint`; zero errors and one unrelated unused-import warning in `scripts/atos-check-m8.mjs`. |
+| Production build | **PASS** | Gated Next.js 16.2.10 build compiled, typechecked, and generated all routes. |
+| Diff integrity | **PASS** | `git diff --check`. |
+
+### Residual risks
+
+1. Production continues serving the prior implementation until this milestone
+   is merged and deployed.
+2. The inert route remains for stale-client compatibility; Milestone 7.3 must
+   prevent future reintroduction of admin/body-trusted behavior.
+3. Local migration depends on accessible browser storage and cannot recover
+   another device's data.
+4. Archived rows remain inaccessible by design.
+
+### Rollback
+
+Reverting the route would restore an unnecessary IDOR-capable service-role
+path. If emergency rollback is required, retain the inert route and revert only
+the client-local changes. No database rollback exists or is required.
+
+### Gate
+
+# **NO-GO**
+
+Milestone 7.2 stops at the Founder checkpoint. Do not begin automated
+authorization-gate work without explicit Founder approval.
