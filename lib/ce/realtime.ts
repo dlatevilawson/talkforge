@@ -1,5 +1,6 @@
 import { buildOpeningSpeechInstructions } from "@/lib/coach/philosophy";
 import { buildSessionUpdateForTranscription } from "./session-config";
+import { recordVoiceInitDiagnostic } from "./voice-init-debug";
 
 /**
  * CE-M1/M2 WebRTC helpers for OpenAI Realtime.
@@ -40,9 +41,33 @@ export async function connectRealtime(
   pc.ontrack = (event) => {
     remoteAudio.srcObject = event.streams[0] ?? null;
     options.onRemoteTrack?.();
-    void remoteAudio.play().catch(() => {
-      /* autoplay may require prior gesture — Start button provides it */
-    });
+    void remoteAudio
+      .play()
+      .then(
+        () => ({ outcome: "played", errorName: null }),
+        (error: unknown) => ({
+          outcome: "blocked",
+          errorName: error instanceof Error ? error.name : "UnknownError",
+        })
+      )
+      .then((playResult) => {
+        // #region agent log
+        recordVoiceInitDiagnostic({
+          hypothesisId: "D",
+          location: "lib/ce/realtime.ts:pc.ontrack",
+          message: "Remote audio track and autoplay outcome",
+          data: {
+            streamCount: event.streams.length,
+            audioTrackCount:
+              event.streams[0]?.getAudioTracks().length ?? 0,
+            autoplay: remoteAudio.autoplay,
+            paused: remoteAudio.paused,
+            ...playResult,
+          },
+          timestamp: Date.now(),
+        });
+        // #endregion
+      });
   };
 
   pc.onconnectionstatechange = () => {
@@ -81,6 +106,23 @@ export async function connectRealtime(
     },
   });
 
+  // #region agent log
+  recordVoiceInitDiagnostic({
+    hypothesisId: "C",
+    location: "lib/ce/realtime.ts:connectRealtime:sdpResponse",
+    message: "OpenAI SDP exchange response",
+    data: {
+      ok: sdpResponse.ok,
+      status: sdpResponse.status,
+      offerType: offer.type,
+      offerLength: offer.sdp?.length ?? 0,
+      signalingState: pc.signalingState,
+      iceGatheringState: pc.iceGatheringState,
+    },
+    timestamp: Date.now(),
+  });
+  // #endregion
+
   if (!sdpResponse.ok) {
     const errText = await sdpResponse.text();
     cleanupPartial(pc, localStream, remoteAudio);
@@ -92,7 +134,37 @@ export async function connectRealtime(
   const answerSdp = await sdpResponse.text();
   await pc.setRemoteDescription({ type: "answer", sdp: answerSdp });
 
-  await waitForDataChannelOpen(dc, 10_000);
+  let dataChannelOutcome = "open";
+  let dataChannelErrorName: string | null = null;
+  try {
+    await waitForDataChannelOpen(dc, 10_000);
+  } catch (error) {
+    dataChannelOutcome =
+      error instanceof Error &&
+      error.message === "Timed out waiting for Realtime data channel."
+        ? "timeout"
+        : "error";
+    dataChannelErrorName =
+      error instanceof Error ? error.name : "UnknownError";
+    throw error;
+  } finally {
+    // #region agent log
+    recordVoiceInitDiagnostic({
+      hypothesisId: "B",
+      location: "lib/ce/realtime.ts:connectRealtime:dataChannel",
+      message: "Realtime peer and data channel outcome",
+      data: {
+        outcome: dataChannelOutcome,
+        errorName: dataChannelErrorName,
+        dataChannelState: dc.readyState,
+        connectionState: pc.connectionState,
+        iceConnectionState: pc.iceConnectionState,
+        signalingState: pc.signalingState,
+      },
+      timestamp: Date.now(),
+    });
+    // #endregion
+  }
 
   // CE-M2: reinforce input transcription on the live session
   try {
@@ -119,6 +191,22 @@ async function acquireLocalAudioStream(): Promise<{
   stream: MediaStream;
   usedSilentMicFallback: boolean;
 }> {
+  // #region agent log
+  recordVoiceInitDiagnostic({
+    hypothesisId: "A",
+    location: "lib/ce/realtime.ts:acquireLocalAudioStream:entry",
+    message: "Before microphone permission and capture request",
+    data: {
+      secureContext: window.isSecureContext,
+      hasMediaDevices: Boolean(navigator.mediaDevices),
+      hasGetUserMedia: Boolean(navigator.mediaDevices?.getUserMedia),
+      visibilityState: document.visibilityState,
+    },
+    timestamp: Date.now(),
+  });
+  // #endregion
+
+  let mediaOutcome: Record<string, unknown> = { outcome: "not_started" };
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: {
@@ -126,6 +214,14 @@ async function acquireLocalAudioStream(): Promise<{
         noiseSuppression: true,
       },
     });
+    const audioTracks = stream.getAudioTracks();
+    mediaOutcome = {
+      outcome: "microphone",
+      trackCount: audioTracks.length,
+      trackReadyStates: audioTracks.map((track) => track.readyState),
+      tracksEnabled: audioTracks.map((track) => track.enabled),
+      tracksMuted: audioTracks.map((track) => track.muted),
+    };
     return { stream, usedSilentMicFallback: false };
   } catch (err) {
     const name = err instanceof DOMException ? err.name : "";
@@ -133,11 +229,26 @@ async function acquireLocalAudioStream(): Promise<{
       name === "NotFoundError" ||
       name === "DevicesNotFoundError" ||
       name === "NotReadableError";
+    mediaOutcome = {
+      outcome: retriable ? "silent_fallback" : "rejected",
+      errorName: name || (err instanceof Error ? err.name : "UnknownError"),
+      retriable,
+    };
     if (!retriable) throw err;
     return {
       stream: createSilentAudioStream(),
       usedSilentMicFallback: true,
     };
+  } finally {
+    // #region agent log
+    recordVoiceInitDiagnostic({
+      hypothesisId: "A",
+      location: "lib/ce/realtime.ts:acquireLocalAudioStream:outcome",
+      message: "Microphone permission and capture outcome",
+      data: mediaOutcome,
+      timestamp: Date.now(),
+    });
+    // #endregion
   }
 }
 
