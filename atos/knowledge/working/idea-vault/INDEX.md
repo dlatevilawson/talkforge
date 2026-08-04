@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | **Document ID** | IV-INDEX |
-| **Version** | 1.3.0 |
+| **Version** | 1.4.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
 | **Updated** | 2026-08-04 |
-| **Entry count** | 61 |
+| **Entry count** | 62 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
@@ -112,7 +112,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-RES-003](research-ideas/IV-RES-003-decision-fatigue-reduction.md) | Decision fatigue reduction as success metric | Researching | Important | Medium | `research-ideas/IV-RES-003-decision-fatigue-reduction.md` |
 | [IV-RES-004](research-ideas/IV-RES-004-transfer-outside-app.md) | Transfer outside the app is the scoreboard | Researching | Critical | Medium | `research-ideas/IV-RES-004-transfer-outside-app.md` |
 
-## Future Ideas (4)
+## Future Ideas (5)
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
@@ -120,6 +120,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-FUT-002](future-ideas/IV-FUT-002-voice-at-scale.md) | Voice conversations at full product scale | Future | Important | Medium | `future-ideas/IV-FUT-002-voice-at-scale.md` |
 | [IV-FUT-003](future-ideas/IV-FUT-003-multi-year-mentor.md) | Multi-year mentor relationship vision | Future | Critical | High | `future-ideas/IV-FUT-003-multi-year-mentor.md` |
 | [IV-FUT-004](future-ideas/IV-FUT-004-discovery-surface.md) | Discovery surface beyond homepage mission | Future | Useful | Low | `future-ideas/IV-FUT-004-discovery-surface.md` |
+| [IV-FUT-005](future-ideas/IV-FUT-005-emotional-architecture.md) | Phase 9 Emotional Architecture | Reviewing | Important | Medium | `future-ideas/IV-FUT-005-emotional-architecture.md` |
 
 ## Rejected Ideas (5)
 
