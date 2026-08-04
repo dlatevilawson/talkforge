@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import styles from "./ContinuityHome.module.css";
 import { buildAdaptiveHome } from "@/lib/system2";
 import type { AdaptiveHomeModel } from "@/lib/system2";
 import { emptyLivingProfile } from "@/lib/system1/profile";
@@ -9,8 +10,8 @@ import type { LivingProfile } from "@/lib/system1/types";
 import { getUser } from "@/lib/storage";
 
 /**
- * Adaptive Homepage stub — AUDIT-001 C3 remediation.
- * Single continuity CTA. No mission menu. Not an analytics dashboard.
+ * Adaptive Coach Homepage — AUDIT-001 C3 remediation.
+ * Single continuity CTA. No mission menu, analytics, or invented readiness.
  */
 export default function ContinuityHome() {
   const [home, setHome] = useState<AdaptiveHomeModel | null>(null);
@@ -57,65 +58,153 @@ export default function ContinuityHome() {
 
   const recommendation = home?.recommendation;
   const readiness = home?.readiness;
+  const isReady = Boolean(readiness?.profileGatePassed);
+  const focus = readiness?.objective;
+
+  const heading = loading
+    ? "Preparing today’s training."
+    : isReady
+      ? "Today, we’re training this."
+      : "Your training starts with context.";
+
+  const coachNote = loading
+    ? "Your Coach is reviewing what matters now."
+    : isReady
+      ? "One focused session, chosen from what you’ve said matters now."
+      : "Tell your Coach what matters so it can recommend one useful place to begin.";
 
   return (
-    <section className="rounded-3xl border border-white/10 bg-gradient-to-b from-zinc-900/80 to-black/40 p-6 sm:p-10">
-      <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
-        TalkForge
-      </p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
-        {loading ? "Welcome back" : "Continue becoming"}
-      </h1>
-      <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-400">
-        {loading
-          ? "Getting your space ready…"
-          : recommendation?.continuityLine ??
-            "Tell Forge what conversation matters — no topic menu."}
-      </p>
+    <section className={styles.home} aria-labelledby="coach-heading">
+      <div className={styles.ambient} aria-hidden="true" />
 
-      {readiness && !readiness.profileGatePassed && (
-        <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-500">
-          Living Profile → Readiness → Homepage → Coaching. We will not ask you
-          to pick a mission before the system knows enough about who you are
-          becoming.
-        </p>
-      )}
+      <div className={styles.copy}>
+        <div className={styles.coachLabel}>
+          <span className={styles.coachMark} aria-hidden="true">
+            <CoachGlyph />
+          </span>
+          <span>
+            <strong>Your Coach</strong>
+            <small>Today’s recommendation</small>
+          </span>
+        </div>
 
-      {readiness && readiness.ranked.length > 1 && (
-        <p className="mt-3 max-w-2xl text-xs leading-5 text-zinc-600">
-          Readiness narrowed {readiness.ranked.length} candidates to one next
-          step — not a mission menu.
-        </p>
-      )}
+        <h1 id="coach-heading" className={styles.heading}>
+          {heading}
+        </h1>
 
-      <div className="mt-8 flex flex-wrap gap-3">
-        {!readiness?.profileGatePassed ? (
-          <Link
-            href="/app/profile"
-            className="rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:bg-zinc-200"
-          >
-            Complete Living Profile
-          </Link>
-        ) : (
-          <Link
-            href={recommendation?.href ?? "/app/practice"}
-            className="rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:bg-zinc-200"
-          >
-            {recommendation?.title ?? "Practice with Forge"}
-          </Link>
-        )}
-        <Link
-          href="/app/profile"
-          className="rounded-full border border-white/15 px-5 py-3.5 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
-        >
-          Living Profile
-        </Link>
+        <div className={styles.recommendation} aria-live="polite">
+          <p className={styles.machineName}>Executive Machine</p>
+          <p className={styles.focus}>
+            {loading ? (
+              <span className={styles.loadingLine} aria-label="Loading recommendation" />
+            ) : isReady ? (
+              focus ?? "Practice the conversation that matters now."
+            ) : (
+              "Standing by for your direction."
+            )}
+          </p>
+        </div>
+
+        <div className={styles.reason}>
+          <span className={styles.reasonLine} aria-hidden="true" />
+          <p>{coachNote}</p>
+        </div>
+
+        <div className={styles.action}>
+          {loading ? (
+            <button type="button" className={styles.primaryAction} disabled>
+              Preparing your session
+              <ArrowGlyph />
+            </button>
+          ) : isReady ? (
+            <Link
+              href={recommendation?.href ?? "/app/practice"}
+              className={styles.primaryAction}
+            >
+              Begin today’s training
+              <ArrowGlyph />
+            </Link>
+          ) : (
+            <Link href="/app/profile" className={styles.primaryAction}>
+              Set your training focus
+              <ArrowGlyph />
+            </Link>
+          )}
+          <p className={styles.actionNote}>One focused practice. You set the pace.</p>
+        </div>
       </div>
 
-      <p className="mt-10 text-xs leading-5 text-zinc-600">
-        Activity and scores live under Dashboard — not here. Continuity is the
-        product (Forge Law #017).
-      </p>
+      <div className={styles.machineArea}>
+        <div className={`${styles.status} ${isReady ? styles.readyStatus : ""}`}>
+          <span className={styles.statusDot} aria-hidden="true" />
+          {loading ? "Coach preparing" : isReady ? "Ready to train" : "Awaiting context"}
+        </div>
+
+        <div
+          className={`${styles.machineStage} ${isReady ? styles.machineReady : ""}`}
+          role="img"
+          aria-label="Executive Machine, specialized equipment for focused communication practice"
+        >
+          <div className={styles.backlight} />
+          <div className={styles.machine}>
+            <div className={styles.machineCrown}>
+              <span>TF</span>
+              <i />
+            </div>
+            <div className={styles.machineShoulder}>
+              <span className={styles.shoulderLight} />
+            </div>
+            <div className={styles.machineFace}>
+              <div className={styles.aperture}>
+                <span />
+                <span />
+                <span />
+              </div>
+              <div className={styles.faceCopy}>
+                <small>EXECUTIVE</small>
+                <strong>01</strong>
+              </div>
+            </div>
+            <div className={styles.machineCore}>
+              <span className={styles.coreRail} />
+              <span className={styles.coreRail} />
+              <span className={styles.coreRail} />
+              <span className={styles.coreRail} />
+              <i className={styles.coreLight} />
+            </div>
+            <div className={styles.machineBase}>
+              <span />
+            </div>
+          </div>
+          <div className={styles.floor}>
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+
+        <div className={styles.machineCaption}>
+          <span>Equipment 01</span>
+          <p>Clarity under pressure</p>
+        </div>
+      </div>
     </section>
+  );
+}
+
+function CoachGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3.25 20 7.6v8.8l-8 4.35-8-4.35V7.6L12 3.25Z" />
+      <path d="m8.4 12 2.25 2.25 5-5" />
+    </svg>
+  );
+}
+
+function ArrowGlyph() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M4 10h11M11 6l4 4-4 4" />
+    </svg>
   );
 }

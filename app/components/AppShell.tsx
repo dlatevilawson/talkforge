@@ -94,6 +94,56 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     ? [...links, { href: "/founder", label: "Founder Portal" }]
     : links;
 
+  if (pathname === "/app") {
+    const initial = name.trim().charAt(0).toUpperCase() || "F";
+
+    return (
+      <div className="min-h-screen overflow-hidden bg-[#090b0d] font-sans text-[var(--tf-fg)]">
+        <header className="relative z-20">
+          <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-5 sm:h-24 sm:px-8 lg:px-12">
+            <Link
+              href="/app"
+              className="group flex items-center gap-3.5"
+              aria-label="TalkForge Communication Gym home"
+            >
+              <span className="grid size-8 place-items-center rounded-[10px] border border-white/10 bg-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] transition-colors group-hover:border-[#f0c97d]/30">
+                <span className="text-[9px] font-bold tracking-[0.12em] text-[#d8b875]">
+                  TF
+                </span>
+              </span>
+              <span className="flex flex-col">
+                <span className="text-sm font-semibold tracking-[-0.01em] text-[#f4f3ef]">
+                  TalkForge
+                </span>
+                <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-zinc-600">
+                  Communication Gym
+                </span>
+              </span>
+            </Link>
+
+            <Link
+              href="/app/profile"
+              className="group flex items-center gap-3 rounded-full py-1 pl-3 text-right"
+              aria-label={`Open ${name}’s Living Profile`}
+            >
+              <span className="hidden flex-col sm:flex">
+                <span className="text-xs font-medium text-zinc-300">{name}</span>
+                <span className="text-[10px] text-zinc-600">Living Profile</span>
+              </span>
+              <span className="grid size-9 place-items-center rounded-full border border-white/10 bg-white/[0.05] text-xs font-semibold text-zinc-300 transition group-hover:border-white/20 group-hover:bg-white/[0.08]">
+                {initial}
+              </span>
+            </Link>
+          </div>
+        </header>
+
+        <main className="mx-auto w-full max-w-[1440px] px-5 sm:px-8 lg:px-12">
+          {children}
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[var(--tf-bg)] font-sans text-[var(--tf-fg)]">
       <header className="border-b border-white/10 bg-black/40 backdrop-blur-xl">
