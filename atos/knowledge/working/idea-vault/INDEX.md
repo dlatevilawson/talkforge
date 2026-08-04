@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | **Document ID** | IV-INDEX |
-| **Version** | 1.6.0 |
+| **Version** | 1.7.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
 | **Updated** | 2026-08-04 |
-| **Entry count** | 64 |
+| **Entry count** | 65 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
@@ -25,7 +25,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 
 ---
 
-## Philosophy (10)
+## Philosophy (11)
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
@@ -39,6 +39,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-PHIL-008](philosophy/IV-PHIL-008-narrowing-stack.md) | Narrowing stack: Profile → Readiness → Homepage → Coach | Reviewing | Critical | High | `philosophy/IV-PHIL-008-narrowing-stack.md` |
 | [IV-PHIL-009](philosophy/IV-PHIL-009-design-principle-001-cognitive-load.md) | Design Principle #001 — reduce unnecessary cognitive load | Approved | Critical | High | `philosophy/IV-PHIL-009-design-principle-001-cognitive-load.md` |
 | [IV-PHIL-010](philosophy/IV-PHIL-010-three-emotional-outcomes.md) | Three emotional outcomes: understood, safe, ready | Approved | Critical | High | `philosophy/IV-PHIL-010-three-emotional-outcomes.md` |
+| [IV-PHIL-011](philosophy/IV-PHIL-011-human-interface-philosophy.md) | TalkForge Human Interface Philosophy | In Development | Critical | High | `philosophy/IV-PHIL-011-human-interface-philosophy.md` |
 
 ## Laws (12)
 
@@ -136,7 +137,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 
 ---
 
-## Critical ideas (44) — definitional weight
+## Critical ideas (45) — definitional weight
 
 | ID | Title | Status | Category |
 |---|---|---|---|
@@ -161,6 +162,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-LAW-012](laws/IV-LAW-012-craft-law-001.md) | Craft Law #001 — human, trustworthy, courageous | Approved | Laws |
 | [IV-PHIL-009](philosophy/IV-PHIL-009-design-principle-001-cognitive-load.md) | Design Principle #001 — reduce unnecessary cognitive load | Approved | Philosophy |
 | [IV-PHIL-010](philosophy/IV-PHIL-010-three-emotional-outcomes.md) | Three emotional outcomes: understood, safe, ready | Approved | Philosophy |
+| [IV-PHIL-011](philosophy/IV-PHIL-011-human-interface-philosophy.md) | TalkForge Human Interface Philosophy | In Development | Philosophy |
 | [IV-PROD-001](product-ideas/IV-PROD-001-system-1-foundation.md) | System 1 — Truth engine (Frozen) | Approved | Product Ideas |
 | [IV-PROD-002](product-ideas/IV-PROD-002-system-2-experience.md) | System 2 — Judgment engine (Frozen) | Approved | Product Ideas |
 | [IV-PROD-003](product-ideas/IV-PROD-003-personal-operating-model.md) | Personal Operating Model (POM) | Approved | Product Ideas |

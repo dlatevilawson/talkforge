@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | PRODUCT-README |
-| **Version** | 1.2.0 |
+| **Version** | 1.3.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -27,6 +27,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | **Craft** | [CRAFT-LAW-001](CRAFT-LAW-001.md) | Human / trustworthy / courageous | ✅ Canonical |
 | **Design** | [DES-001](DES-001-cognitive-load.md) | Reduce unnecessary cognitive load | ✅ Canonical |
 | **Experience** | [CXA-001](CXA-001-chief-experience-architect-charter.md) | Chief Experience Architect · member experience doctrine | ✅ Canonical (Decision 058) |
+| **Design philosophy** | [THIP-001](THIP-001-human-interface-philosophy.md) | Enduring TalkForge Human Interface Philosophy | **Proposed — Founder Review; not yet Canonical** |
 | **Design system** | [TDS-001](TDS-001-talkforge-design-system.md) | Communication Gym visual and interaction specification | **Proposed — Founder Review; implementation frozen** |
 | **Behavior system** | [MBL-001](MBL-001-machine-behavior-language.md) | Machine Behavior Language · motion, timing, sound, haptics, lighting, recovery | **Proposed — Founder Review; implementation not authorized** |
 | **Audit** | [AUDIT-001](AUDIT-001-architecture-readiness.md) · [AUDIT-001.1](AUDIT-001.1-architecture-reaudit.md) · [AUDIT-001.2](AUDIT-001.2-conditional-go-reaudit.md) | Architecture readiness | **GO production migration/hardening · NO-GO features** |
