@@ -1,5 +1,10 @@
 import { buildOpeningSpeechInstructions } from "@/lib/coach/philosophy";
 import { buildSessionUpdateForTranscription } from "./session-config";
+import {
+  hasRegisteredLocalAudioCleanup,
+  registerLocalAudioCleanup,
+  releaseLocalAudioStream,
+} from "./voice-lifecycle";
 import { recordVoiceInitDiagnostic } from "./voice-init-debug";
 
 /**
@@ -309,7 +314,8 @@ export function classifyMicCaptureError(error: unknown): MicFallbackReason {
 }
 
 export async function recoverMicrophone(
-  connection: RealtimeConnection
+  connection: RealtimeConnection,
+  isCurrent: () => boolean = () => true
 ): Promise<{
   recovered: boolean;
   reason: MicFallbackReason | null;
@@ -318,8 +324,25 @@ export async function recoverMicrophone(
   try {
     const candidate = await acquireLocalAudioStream();
     replacementStream = candidate.stream;
+    // #region agent log
+    recordVoiceInitDiagnostic({
+      hypothesisId: "H",
+      location: "lib/ce/realtime.ts:recoverMicrophone:candidate",
+      message: "Microphone recovery candidate acquired",
+      data: {
+        current: isCurrent(),
+        usedSilentMicFallback: candidate.usedSilentMicFallback,
+        reason: candidate.micFallbackReason,
+      },
+      timestamp: Date.now(),
+    });
+    // #endregion
+    if (!isCurrent()) {
+      releaseLocalAudioStream(replacementStream);
+      return { recovered: false, reason: connection.micFallbackReason };
+    }
     if (candidate.usedSilentMicFallback) {
-      replacementStream.getTracks().forEach((track) => track.stop());
+      releaseLocalAudioStream(replacementStream);
       connection.micFallbackReason = candidate.micFallbackReason;
       return {
         recovered: false,
@@ -340,17 +363,19 @@ export async function recoverMicrophone(
 
     replacementTrack.enabled = false;
     await sender.replaceTrack(replacementTrack);
-    for (const track of connection.localStream.getTracks()) {
-      track.stop();
+    if (!isCurrent()) {
+      releaseLocalAudioStream(replacementStream);
+      return { recovered: false, reason: connection.micFallbackReason };
     }
+    releaseLocalAudioStream(connection.localStream);
     connection.localStream = replacementStream;
     connection.usedSilentMicFallback = false;
     connection.micFallbackReason = null;
     return { recovered: true, reason: null };
   } catch (error) {
-    replacementStream?.getTracks().forEach((track) => track.stop());
+    if (replacementStream) releaseLocalAudioStream(replacementStream);
     const reason = classifyMicCaptureError(error);
-    connection.micFallbackReason = reason;
+    if (isCurrent()) connection.micFallbackReason = reason;
     return { recovered: false, reason };
   }
 }
@@ -368,12 +393,23 @@ function createSilentAudioStream(): MediaStream {
   oscillator.connect(gain);
   gain.connect(dest);
   oscillator.start();
-  // Keep ctx alive for track lifetime; stopped in disconnect via track.stop().
   const stream = dest.stream;
+  let cleaned = false;
+  const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
+    try {
+      oscillator.stop();
+    } catch {
+      /* already stopped */
+    }
+    oscillator.disconnect();
+    gain.disconnect();
+    void ctx.close().catch(() => undefined);
+  };
+  registerLocalAudioCleanup(stream, cleanup);
   stream.getAudioTracks().forEach((track) => {
-    track.addEventListener("ended", () => {
-      void ctx.close().catch(() => undefined);
-    });
+    track.addEventListener("ended", cleanup, { once: true });
   });
   return stream;
 }
@@ -421,9 +457,27 @@ export function disconnectRealtime(connection: RealtimeConnection | null): void 
   } catch {
     /* ignore */
   }
-  for (const track of connection.localStream.getTracks()) {
-    track.stop();
-  }
+  const hadSilentAudioCleanup = hasRegisteredLocalAudioCleanup(
+    connection.localStream
+  );
+  releaseLocalAudioStream(connection.localStream);
+  // #region agent log
+  recordVoiceInitDiagnostic({
+    hypothesisId: "F",
+    location: "lib/ce/realtime.ts:disconnectRealtime:localAudio",
+    message: "Local audio resources released",
+    data: {
+      hadSilentAudioCleanup,
+      cleanupStillRegistered: hasRegisteredLocalAudioCleanup(
+        connection.localStream
+      ),
+      trackStates: connection.localStream
+        .getTracks()
+        .map((track) => track.readyState),
+    },
+    timestamp: Date.now(),
+  });
+  // #endregion
   connection.remoteAudio.pause();
   connection.remoteAudio.srcObject = null;
 }
@@ -438,9 +492,7 @@ function cleanupPartial(
   } catch {
     /* ignore */
   }
-  for (const track of localStream.getTracks()) {
-    track.stop();
-  }
+  releaseLocalAudioStream(localStream);
   remoteAudio.srcObject = null;
 }
 

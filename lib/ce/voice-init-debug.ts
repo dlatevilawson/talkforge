@@ -1,5 +1,5 @@
 export type VoiceInitDebugPayload = {
-  hypothesisId: "A" | "B" | "C" | "D" | "E";
+  hypothesisId: "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
   location: string;
   message: string;
   data: Record<string, unknown>;

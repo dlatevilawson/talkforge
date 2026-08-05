@@ -25,6 +25,7 @@ import {
   saveVoiceTranscript,
   setActiveVoiceSessionId,
 } from "@/lib/ce/transcript-store";
+import { isCurrentVoiceLifecycle } from "@/lib/ce/voice-lifecycle";
 import { voiceTurnsToConversationTurns } from "@/lib/coach/report";
 import {
   completePracticeSession,
@@ -77,6 +78,8 @@ export default function VoiceArena({
   const createdAtRef = useRef<string>("");
   const practiceSessionRef = useRef<PracticeSession | null>(null);
   const welcomeHintRef = useRef<string>("");
+  const mountedRef = useRef(true);
+  const lifecycleGenerationRef = useRef(0);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState("");
@@ -98,7 +101,10 @@ export default function VoiceArena({
   const showDevDiagnostics = process.env.NODE_ENV === "development";
 
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
+      mountedRef.current = false;
+      lifecycleGenerationRef.current += 1;
       disconnectRealtime(connectionRef.current);
       connectionRef.current = null;
       setActiveVoiceSessionId(null);
@@ -195,6 +201,7 @@ export default function VoiceArena({
     if (phase === "minting" || phase === "connecting" || phase === "speaking") {
       return;
     }
+    lifecycleGenerationRef.current += 1;
 
     // #region agent log
     recordVoiceInitDiagnostic({
@@ -377,11 +384,39 @@ export default function VoiceArena({
     if (!connection || !connection.usedSilentMicFallback || micRecoveryPending) {
       return;
     }
+    const recoveryGeneration = lifecycleGenerationRef.current;
+    const isCurrentRecovery = () =>
+      isCurrentVoiceLifecycle(
+        mountedRef.current,
+        connectionRef.current,
+        connection,
+        lifecycleGenerationRef.current,
+        recoveryGeneration
+      );
 
     setMicRecoveryPending(true);
     setError("");
     pushEvent("Checking microphone…");
-    const result = await recoverMicrophone(connection);
+    const result = await recoverMicrophone(connection, isCurrentRecovery);
+    const current = isCurrentRecovery();
+    // #region agent log
+    recordVoiceInitDiagnostic({
+      hypothesisId: "G",
+      location: "app/components/VoiceArena.tsx:handleRecoverMicrophone:outcome",
+      message: "Microphone recovery completion lifecycle check",
+      data: {
+        current,
+        recovered: result.recovered,
+        reason: result.reason,
+        generationChanged:
+          lifecycleGenerationRef.current !== recoveryGeneration,
+        connectionChanged: connectionRef.current !== connection,
+        mounted: mountedRef.current,
+      },
+      timestamp: Date.now(),
+    });
+    // #endregion
+    if (!current) return;
     setMicRecoveryPending(false);
     setMicFallbackReason(result.reason);
     if (result.recovered) {
@@ -414,6 +449,7 @@ export default function VoiceArena({
     if (voiceSessionIdRef.current && turnsRef.current.length > 0) {
       persistTurns(turnsRef.current);
     }
+    lifecycleGenerationRef.current += 1;
     disconnectRealtime(connectionRef.current);
     connectionRef.current = null;
     setMicLive(false);
