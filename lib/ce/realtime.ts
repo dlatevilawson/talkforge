@@ -15,13 +15,24 @@ export type RealtimeConnection = {
   ephemeralKey: string;
   /** True when no physical mic — silent track used so Forge can still speak (CE-M1). */
   usedSilentMicFallback: boolean;
+  micFallbackReason: MicFallbackReason | null;
 };
+
+export type MicFallbackReason =
+  | "permission_denied"
+  | "device_unavailable"
+  | "device_busy"
+  | "unsupported"
+  | "unknown";
 
 export type ConnectRealtimeOptions = {
   ephemeralKey: string;
   onServerEvent?: (event: Record<string, unknown>) => void;
   onConnectionState?: (state: RTCPeerConnectionState) => void;
-  onMicMode?: (mode: "microphone" | "silent_fallback") => void;
+  onMicMode?: (
+    mode: "microphone" | "silent_fallback",
+    reason: MicFallbackReason | null
+  ) => void;
   onRemoteTrack?: () => void;
 };
 
@@ -74,9 +85,12 @@ export async function connectRealtime(
     options.onConnectionState?.(pc.connectionState);
   };
 
-  const { stream: localStream, usedSilentMicFallback } =
+  const { stream: localStream, usedSilentMicFallback, micFallbackReason } =
     await acquireLocalAudioStream();
-  options.onMicMode?.(usedSilentMicFallback ? "silent_fallback" : "microphone");
+  options.onMicMode?.(
+    usedSilentMicFallback ? "silent_fallback" : "microphone",
+    micFallbackReason
+  );
   for (const track of localStream.getTracks()) {
     pc.addTrack(track, localStream);
   }
@@ -180,6 +194,7 @@ export async function connectRealtime(
     remoteAudio,
     ephemeralKey: options.ephemeralKey,
     usedSilentMicFallback,
+    micFallbackReason,
   };
 }
 
@@ -190,6 +205,7 @@ export async function connectRealtime(
 async function acquireLocalAudioStream(): Promise<{
   stream: MediaStream;
   usedSilentMicFallback: boolean;
+  micFallbackReason: MicFallbackReason | null;
 }> {
   // #region agent log
   recordVoiceInitDiagnostic({
@@ -208,12 +224,7 @@ async function acquireLocalAudioStream(): Promise<{
 
   let mediaOutcome: Record<string, unknown> = { outcome: "not_started" };
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-      },
-    });
+    const stream = await requestMicrophoneStream();
     const audioTracks = stream.getAudioTracks();
     mediaOutcome = {
       outcome: "microphone",
@@ -222,22 +233,26 @@ async function acquireLocalAudioStream(): Promise<{
       tracksEnabled: audioTracks.map((track) => track.enabled),
       tracksMuted: audioTracks.map((track) => track.muted),
     };
-    return { stream, usedSilentMicFallback: false };
+    return {
+      stream,
+      usedSilentMicFallback: false,
+      micFallbackReason: null,
+    };
   } catch (err) {
     const name = err instanceof DOMException ? err.name : "";
-    const retriable =
-      name === "NotFoundError" ||
-      name === "DevicesNotFoundError" ||
-      name === "NotReadableError";
+    const micFallbackReason = classifyMicCaptureError(err);
+    const retriable = micFallbackReason !== "unknown";
     mediaOutcome = {
       outcome: retriable ? "silent_fallback" : "rejected",
       errorName: name || (err instanceof Error ? err.name : "UnknownError"),
       retriable,
+      reason: micFallbackReason,
     };
     if (!retriable) throw err;
     return {
       stream: createSilentAudioStream(),
       usedSilentMicFallback: true,
+      micFallbackReason,
     };
   } finally {
     // #region agent log
@@ -249,6 +264,94 @@ async function acquireLocalAudioStream(): Promise<{
       timestamp: Date.now(),
     });
     // #endregion
+  }
+}
+
+async function requestMicrophoneStream(): Promise<MediaStream> {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    throw new DOMException(
+      "Microphone capture is unavailable in this browser.",
+      "NotSupportedError"
+    );
+  }
+  return navigator.mediaDevices.getUserMedia({
+    audio: {
+      echoCancellation: true,
+      noiseSuppression: true,
+    },
+  });
+}
+
+export function classifyMicCaptureError(error: unknown): MicFallbackReason {
+  const name =
+    error instanceof DOMException
+      ? error.name
+      : error instanceof Error
+        ? error.name
+        : "";
+  if (name === "NotAllowedError" || name === "PermissionDeniedError") {
+    return "permission_denied";
+  }
+  if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+    return "device_unavailable";
+  }
+  if (name === "NotReadableError" || name === "TrackStartError") {
+    return "device_busy";
+  }
+  if (
+    name === "NotSupportedError" ||
+    name === "SecurityError" ||
+    name === "TypeError"
+  ) {
+    return "unsupported";
+  }
+  return "unknown";
+}
+
+export async function recoverMicrophone(
+  connection: RealtimeConnection
+): Promise<{
+  recovered: boolean;
+  reason: MicFallbackReason | null;
+}> {
+  let replacementStream: MediaStream | null = null;
+  try {
+    const candidate = await acquireLocalAudioStream();
+    replacementStream = candidate.stream;
+    if (candidate.usedSilentMicFallback) {
+      replacementStream.getTracks().forEach((track) => track.stop());
+      connection.micFallbackReason = candidate.micFallbackReason;
+      return {
+        recovered: false,
+        reason: candidate.micFallbackReason,
+      };
+    }
+
+    const replacementTrack = replacementStream.getAudioTracks()[0];
+    const sender = connection.pc
+      .getSenders()
+      .find((candidate) => candidate.track?.kind === "audio");
+    if (!replacementTrack || !sender) {
+      throw new DOMException(
+        "No microphone track is available for this session.",
+        "NotFoundError"
+      );
+    }
+
+    replacementTrack.enabled = false;
+    await sender.replaceTrack(replacementTrack);
+    for (const track of connection.localStream.getTracks()) {
+      track.stop();
+    }
+    connection.localStream = replacementStream;
+    connection.usedSilentMicFallback = false;
+    connection.micFallbackReason = null;
+    return { recovered: true, reason: null };
+  } catch (error) {
+    replacementStream?.getTracks().forEach((track) => track.stop());
+    const reason = classifyMicCaptureError(error);
+    connection.micFallbackReason = reason;
+    return { recovered: false, reason };
   }
 }
 
