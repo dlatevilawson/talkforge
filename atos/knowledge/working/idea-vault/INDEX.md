@@ -6,7 +6,7 @@
 | **Version** | 1.7.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
 | **Updated** | 2026-08-05 |
-| **Entry count** | 66 |
+| **Entry count** | 67 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
@@ -83,7 +83,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-FEAT-008](features/IV-FEAT-008-personal-principles.md) | Personal Principles | Reviewing | Important | Medium | `features/IV-FEAT-008-personal-principles.md` |
 | [IV-FEAT-009](features/IV-FEAT-009-current-season.md) | Primary + Secondary Season | Inbox | Important | Medium | `features/IV-FEAT-009-current-season.md` |
 
-## UX Ideas (9)
+## UX Ideas (10)
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
@@ -96,6 +96,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-UX-007](ux-ideas/IV-UX-007-phase-10-product-design.md) | Phase 10 Product Experience Design | In Development | Critical | High | `ux-ideas/IV-UX-007-phase-10-product-design.md` |
 | [IV-UX-008](ux-ideas/IV-UX-008-machine-behavior-language.md) | Machine Behavior Language | In Development | Critical | High | `ux-ideas/IV-UX-008-machine-behavior-language.md` |
 | [IV-UX-009](ux-ideas/IV-UX-009-optional-visual-training-focus.md) | Optional visual training focus (Machines picker) | In Development | Critical | High | `ux-ideas/IV-UX-009-optional-visual-training-focus.md` |
+| [IV-UX-010](ux-ideas/IV-UX-010-discover-first-ftue.md) | Discover-first first five minutes | In Development | Critical | High | `ux-ideas/IV-UX-010-discover-first-ftue.md` |
 
 ## AI Ideas (5)
 
@@ -123,7 +124,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-FUT-001](future-ideas/IV-FUT-001-persona-simulations.md) | Persona System & practice simulations | Future | Important | Medium | `future-ideas/IV-FUT-001-persona-simulations.md` |
 | [IV-FUT-002](future-ideas/IV-FUT-002-voice-at-scale.md) | Voice conversations at full product scale | Future | Important | Medium | `future-ideas/IV-FUT-002-voice-at-scale.md` |
 | [IV-FUT-003](future-ideas/IV-FUT-003-multi-year-mentor.md) | Multi-year mentor relationship vision | Future | Critical | High | `future-ideas/IV-FUT-003-multi-year-mentor.md` |
-| [IV-FUT-004](future-ideas/IV-FUT-004-discovery-surface.md) | Discovery surface beyond homepage mission | Future | Useful | Low | `future-ideas/IV-FUT-004-discovery-surface.md` |
+| [IV-FUT-004](future-ideas/IV-FUT-004-discovery-surface.md) | Discovery surface beyond homepage mission | In Development | Critical | High | `future-ideas/IV-FUT-004-discovery-surface.md` |
 | [IV-FUT-005](future-ideas/IV-FUT-005-emotional-architecture.md) | Phase 9 Emotional Architecture | Reviewing | Important | Medium | `future-ideas/IV-FUT-005-emotional-architecture.md` |
 
 ## Rejected Ideas (5)
@@ -180,6 +181,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-UX-007](ux-ideas/IV-UX-007-phase-10-product-design.md) | Phase 10 Product Experience Design | In Development | UX Ideas |
 | [IV-UX-008](ux-ideas/IV-UX-008-machine-behavior-language.md) | Machine Behavior Language | In Development | UX Ideas |
 | [IV-UX-009](ux-ideas/IV-UX-009-optional-visual-training-focus.md) | Optional visual training focus (Machines picker) | In Development | UX Ideas |
+| [IV-UX-010](ux-ideas/IV-UX-010-discover-first-ftue.md) | Discover-first first five minutes | In Development | UX Ideas |
 | [IV-AI-001](ai-ideas/IV-AI-001-hypothesize-never-assume.md) | May hypothesize; never assume | Approved | AI Ideas |
 | [IV-AI-002](ai-ideas/IV-AI-002-mentor-pacing.md) | Mentor pacing — understand before coaching | In Development | AI Ideas |
 | [IV-RES-004](research-ideas/IV-RES-004-transfer-outside-app.md) | Transfer outside the app is the scoreboard | Researching | Research Ideas |

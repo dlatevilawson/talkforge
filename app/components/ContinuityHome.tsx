@@ -192,7 +192,7 @@ function ContinuityHomeInner() {
                   href="/app/profile#goal"
                   className="text-[#c9a95f] underline-offset-4 hover:underline"
                 >
-                  {focus ? "Refine your training focus" : "Set your training focus"}
+                  Help Forge coach you better
                 </Link>
                 {" · "}
                 optional

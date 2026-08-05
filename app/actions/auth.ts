@@ -523,7 +523,7 @@ export async function completeOnboardingAction(
     return {
       ok: false,
       message:
-        "Could not save your Living Profile. Reload and try onboarding again.",
+        "Couldn’t finish welcome just now. Please try again in a moment.",
     };
   }
 
@@ -544,7 +544,13 @@ export async function completeOnboardingAction(
     };
   }
 
-  redirect("/app");
+  // IV-UX-010: Discover paths may continue into Forge or Home.
+  const requestedNext = String(formData.get("next") ?? "/app").trim();
+  const next =
+    requestedNext.startsWith("/app") && !requestedNext.startsWith("//")
+      ? requestedNext
+      : "/app";
+  redirect(next);
 }
 
 export async function resendVerificationAction(

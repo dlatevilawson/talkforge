@@ -5,10 +5,10 @@
 | **ID** | IV-FUT-004 |
 | **Title** | Discovery surface beyond homepage mission |
 | **Category** | Future Ideas |
-| **Status** | Future |
-| **Importance** | Useful |
+| **Status** | In Development |
+| **Importance** | Critical |
 | **Owner** | Founder |
-| **Last Updated** | 2026-08-01 |
+| **Last Updated** | 2026-08-05 |
 | **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
 
@@ -16,7 +16,7 @@
 
 ## Statement
 
-Broader discovery once one-mission homepage is solid.
+Broader discovery surface. Founder 2026-08-05: discovery is now **first** for new members (see IV-UX-010), not deferred until after Adaptive Homepage. Still must not become Continuity Home as an equal mission menu (IV-REJ-005).
 
 ---
 
@@ -30,9 +30,9 @@ Protect focus — after Adaptive Homepage earns trust.
 
 | Direction | Ideas |
 |---|---|
-| **Depends on** | IV-UX-001 · IV-FEAT-004 · IV-AI-001 |
+| **Depends on** | IV-UX-010 · IV-UX-008 · IV-FEAT-004 |
 | **Supports** | IV-FUT-001 |
-| **Related** | IV-UX-004 · IV-FEAT-002 |
+| **Related** | IV-UX-001 · IV-UX-004 · IV-FEAT-002 · IV-REJ-005 |
 
 ---
 

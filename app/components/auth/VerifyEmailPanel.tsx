@@ -91,7 +91,7 @@ export default function VerifyEmailPanel({
     <AuthShell
       eyebrow="Email verification"
       title="Verify your email"
-      description="Open your TalkForge email and tap Verify, or enter the 6-digit code below. After verification you’ll continue to onboarding."
+      description="Open your TalkForge email and tap Verify, or enter the 6-digit code below. After verification you’ll step into the Gym."
       footer={
         <Link href="/login" className="text-zinc-200 underline">
           Back to sign in
