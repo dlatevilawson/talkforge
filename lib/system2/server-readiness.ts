@@ -2,6 +2,7 @@ import "server-only";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { mapLivingProfileRow } from "@/lib/system1/persistence";
+import { emptyLivingProfile } from "@/lib/system1/profile";
 import { buildAdaptiveHome } from "./types";
 
 export type PracticeRouteAccess = {
@@ -44,7 +45,14 @@ export async function evaluatePracticeRouteAccess(): Promise<PracticeRouteAccess
       return { allowed: false, reason: "readiness_unavailable" };
     }
 
-    const home = buildAdaptiveHome(data ? mapLivingProfileRow(data) : null);
+    const displayName =
+      typeof user.user_metadata?.display_name === "string"
+        ? user.user_metadata.display_name
+        : "";
+    const profile = data
+      ? mapLivingProfileRow(data)
+      : emptyLivingProfile(user.id, displayName);
+    const home = buildAdaptiveHome(profile);
     const allowed =
       home.readiness.profileGatePassed &&
       home.recommendation?.href === "/app/practice";
