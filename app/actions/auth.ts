@@ -453,22 +453,16 @@ export async function completeOnboardingAction(
   const preferredLanguage = String(
     formData.get("preferredLanguage") ?? "en"
   ).slice(0, 16);
+  // IV-UX-009: training focus is optional — empty purpose is allowed.
   const purposeStatement = String(formData.get("purposeStatement") ?? "")
     .trim()
     .slice(0, 500);
+  const seasonLabel = String(formData.get("seasonLabel") ?? "")
+    .trim()
+    .slice(0, 120);
   const preferredNickname = String(formData.get("preferredNickname") ?? "")
     .trim()
     .slice(0, 64);
-
-  if (purposeStatement.length < 8) {
-    return {
-      ok: false,
-      message: "Tell your Coach what you’re training for (at least a short sentence).",
-      errors: {
-        purposeStatement: "Add a short training focus so Begin can unlock.",
-      },
-    };
-  }
 
   const supabase = await createServerSupabaseClient();
   const { data: userData } = await supabase.auth.getUser();
@@ -493,7 +487,10 @@ export async function completeOnboardingAction(
 
   const current = ensured.profile;
   const nextLiving = applyMemberLivingProfileUpdate(current, {
-    purposeStatement,
+    ...(purposeStatement
+      ? { purposeStatement }
+      : {}),
+    ...(seasonLabel ? { seasonLabels: [seasonLabel] } : {}),
     preferredNickname:
       preferredNickname ||
       current.preferredNickname ||

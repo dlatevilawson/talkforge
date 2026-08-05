@@ -12,7 +12,7 @@ import { getUser } from "@/lib/storage";
 function gateMessage(gate: string | null): string | null {
   if (!gate) return null;
   if (gate === "profile_incomplete") {
-    return "Your Coach needs a short training focus before you enter the Training Room.";
+    return "Your Living Profile is still preparing. Refresh in a moment, then Begin.";
   }
   if (gate === "readiness_unavailable") {
     return "Training isn’t available right now. Check your connection, then try again.";
@@ -90,14 +90,18 @@ function ContinuityHomeInner() {
   const heading = loading
     ? "Preparing today’s training."
     : isReady
-      ? "Today, we’re training this."
-      : "Your training starts with context.";
+      ? focus
+        ? "Today, we’re training this."
+        : "Ready when you are."
+      : "Your Coach is almost ready.";
 
   const coachNote = loading
     ? "Your Coach is reviewing what matters now."
     : isReady
-      ? "One focused session, chosen from what you’ve said matters now."
-      : "Tell your Coach what matters so it can recommend one useful place to begin.";
+      ? focus
+        ? "One focused session, chosen from what you’ve said matters now."
+        : "Begin now — or optionally choose a Machine focus first."
+      : "We’re finishing your Living Profile so training can open.";
 
   return (
     <section className={styles.home} aria-labelledby="coach-heading">
@@ -141,9 +145,9 @@ function ContinuityHomeInner() {
             {loading ? (
               <span className={styles.loadingLine} aria-label="Loading recommendation" />
             ) : isReady ? (
-              focus ?? "Practice the conversation that matters now."
+              focus ?? "Any conversation that matters now."
             ) : (
-              "Standing by for your direction."
+              "Standing by while your profile loads."
             )}
           </p>
         </div>
@@ -166,34 +170,50 @@ function ContinuityHomeInner() {
               <ArrowGlyph />
             </button>
           ) : isReady ? (
-            <button
-              type="button"
-              onClick={() => {
-                setEnteringTraining(true);
-                const trainingParams = new URLSearchParams({ start: "1" });
-                if (focus) trainingParams.set("title", focus);
-                window.location.assign(`/app/practice?${trainingParams.toString()}`);
-              }}
-              disabled={enteringTraining}
-              className={styles.primaryAction}
-            >
-              Begin today’s training
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  setEnteringTraining(true);
+                  const trainingParams = new URLSearchParams({ start: "1" });
+                  if (focus) trainingParams.set("title", focus);
+                  window.location.assign(
+                    `/app/practice?${trainingParams.toString()}`
+                  );
+                }}
+                disabled={enteringTraining}
+                className={styles.primaryAction}
+              >
+                Begin today’s training
+                <ArrowGlyph />
+              </button>
+              <p className={styles.actionNote}>
+                <Link
+                  href="/app/focus"
+                  className="text-[#c9a95f] underline-offset-4 hover:underline"
+                >
+                  {focus ? "Refine your training focus" : "Set your training focus"}
+                </Link>
+                {" · "}
+                optional
+              </p>
+            </>
+          ) : (
+            <button type="button" className={styles.primaryAction} disabled>
+              Preparing your profile
               <ArrowGlyph />
             </button>
-          ) : (
-            <Link href="/app/profile" className={styles.primaryAction}>
-              Set your training focus
-              <ArrowGlyph />
-            </Link>
           )}
-          <p className={styles.actionNote}>One focused practice. You set the pace.</p>
+          {isReady ? null : (
+            <p className={styles.actionNote}>One focused practice. You set the pace.</p>
+          )}
         </div>
       </div>
 
       <div className={styles.machineArea}>
         <div className={`${styles.status} ${isReady ? styles.readyStatus : ""}`}>
           <span className={styles.statusDot} aria-hidden="true" />
-          {loading ? "Coach preparing" : isReady ? "Ready to train" : "Awaiting context"}
+          {loading ? "Coach preparing" : isReady ? "Ready to train" : "Preparing profile"}
         </div>
 
         <div

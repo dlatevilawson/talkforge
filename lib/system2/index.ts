@@ -17,3 +17,9 @@ export {
   rankReadinessCandidates,
   recommendNextStep,
 } from "./types";
+
+export {
+  TRAINING_FOCUS_OPTIONS,
+  trainingFocusById,
+} from "./training-focus";
+export type { TrainingFocusOption } from "./training-focus";

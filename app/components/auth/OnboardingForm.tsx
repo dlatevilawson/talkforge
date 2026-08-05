@@ -1,25 +1,27 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
+import Link from "next/link";
 import {
   completeOnboardingAction,
   type AuthActionState,
 } from "@/app/actions/auth";
-import {
-  AuthAlert,
-  AuthShell,
-  AuthSubmit,
-} from "@/app/components/auth/AuthShell";
+import { AuthAlert } from "@/app/components/auth/AuthShell";
+import TrainingFocusPicker from "@/app/components/TrainingFocusPicker";
+import pickerStyles from "@/app/components/TrainingFocusPicker.module.css";
+import type { TrainingFocusOption } from "@/lib/system2/training-focus";
 
-function Submit() {
+function Submit({ label, pendingLabel }: { label: string; pendingLabel: string }) {
   const { pending } = useFormStatus();
   return (
-    <AuthSubmit
-      pending={pending}
-      label="Enter the Gym"
-      pendingLabel="Saving…"
-    />
+    <button
+      type="submit"
+      disabled={pending}
+      className={pickerStyles.primary}
+    >
+      {pending ? pendingLabel : label}
+    </button>
   );
 }
 
@@ -32,62 +34,94 @@ export default function OnboardingForm({
     completeOnboardingAction,
     {} as AuthActionState
   );
+  const [selected, setSelected] = useState<TrainingFocusOption | null>(null);
+  const firstName = displayName.split(" ")[0] || "";
 
   return (
-    <AuthShell
-      eyebrow="Onboarding"
-      title={`Welcome${displayName ? `, ${displayName.split(" ")[0]}` : ""}`}
-      description="Tell your Coach what matters now so training can begin with one clear focus."
-    >
-      <form action={action} className="space-y-4">
-        <label className="block text-sm text-zinc-300">
-          What are you training for right now?
-          <textarea
+    <div className="relative min-h-[100dvh] overflow-hidden bg-[var(--tf-bg)] text-[var(--tf-fg)]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(201,155,74,0.12),_transparent_55%),radial-gradient(ellipse_at_bottom,_rgba(59,130,246,0.06),_transparent_50%)]"
+      />
+      <main className="relative mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
+        <Link
+          href="/"
+          className="text-xs font-semibold uppercase tracking-[0.28em] text-[var(--tf-gold)]"
+        >
+          TalkForge
+        </Link>
+        <p className="mt-8 text-xs font-medium uppercase tracking-[0.28em] text-zinc-500">
+          Welcome{firstName ? `, ${firstName}` : ""}
+        </p>
+        <h1 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          Train for real life. In every situation.
+        </h1>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-400">
+          Pick a Machine if you want a focus — or skip and enter the Gym. You can
+          refine later from Home.
+        </p>
+
+        <form action={action} className="mt-10 space-y-8">
+          <TrainingFocusPicker
+            selectedId={selected?.id ?? null}
+            onSelect={setSelected}
+            eyebrow="Optional focus"
+            title="What do you want to train first?"
+            subtitle="One tap. No questionnaire. Skip anytime."
+          />
+
+          <input
+            type="hidden"
             name="purposeStatement"
-            required
-            rows={3}
-            maxLength={500}
-            placeholder="Example: Speak clearly under pressure in high-stakes conversations."
-            className="mt-2 w-full rounded-3xl border border-white/15 bg-white/5 px-5 py-3 text-white outline-none focus:border-white/40"
+            value={selected?.purposeStatement ?? ""}
           />
-        </label>
-        <label className="block text-sm text-zinc-300">
-          Preferred name for your Coach
           <input
+            type="hidden"
+            name="seasonLabel"
+            value={selected?.seasonLabel ?? ""}
+          />
+          <input
+            type="hidden"
             name="preferredNickname"
-            defaultValue={displayName.split(" ")[0] || ""}
-            maxLength={64}
-            className="mt-2 w-full rounded-full border border-white/15 bg-white/5 px-5 py-3 text-white outline-none focus:border-white/40"
+            value={firstName}
           />
-        </label>
-        <label className="block text-sm text-zinc-300">
-          Time zone
           <input
+            type="hidden"
             name="timeZone"
-            defaultValue={
+            value={
               typeof Intl !== "undefined"
                 ? Intl.DateTimeFormat().resolvedOptions().timeZone
                 : "UTC"
             }
-            className="mt-2 w-full rounded-full border border-white/15 bg-white/5 px-5 py-3 text-white outline-none focus:border-white/40"
           />
-        </label>
-        <label className="block text-sm text-zinc-300">
-          Preferred language
-          <select
-            name="preferredLanguage"
-            defaultValue="en"
-            className="mt-2 w-full rounded-full border border-white/15 bg-white/5 px-5 py-3 text-white outline-none focus:border-white/40"
-          >
-            <option value="en">English</option>
-            <option value="es">Spanish</option>
-            <option value="fr">French</option>
-            <option value="de">German</option>
-          </select>
-        </label>
-        <AuthAlert message={state.message} />
-        <Submit />
-      </form>
-    </AuthShell>
+          <input type="hidden" name="preferredLanguage" value="en" />
+
+          <AuthAlert message={state.message} />
+
+          <div className={pickerStyles.actions}>
+            <Submit
+              label={
+                selected
+                  ? `Start with ${selected.title.replace(" Machine", "")}`
+                  : "Skip — enter the Gym"
+              }
+              pendingLabel="Opening the Gym…"
+            />
+            {selected ? (
+              <button
+                type="button"
+                className={pickerStyles.secondary}
+                onClick={() => setSelected(null)}
+              >
+                Clear selection
+              </button>
+            ) : null}
+          </div>
+          <p className={pickerStyles.hint}>
+            Focus is optional. Your Coach is ready either way.
+          </p>
+        </form>
+      </main>
+    </div>
   );
 }
