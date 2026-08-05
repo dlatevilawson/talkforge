@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import PersistenceStatus from "@/app/components/PersistenceStatus";
+import TrainingFocusPicker from "@/app/components/TrainingFocusPicker";
+import pickerStyles from "@/app/components/TrainingFocusPicker.module.css";
 import { updateDisplayName } from "@/lib/auth";
 import { IDENTITY_CHANGED_EVENT } from "@/lib/identity";
 import {
@@ -13,6 +15,10 @@ import {
   listSessions,
 } from "@/lib/storage";
 import type { LivingProfile } from "@/lib/system1/types";
+import {
+  TRAINING_FOCUS_OPTIONS,
+  type TrainingFocusOption,
+} from "@/lib/system2/training-focus";
 import type { PracticeSession, ProgressSummary, TalkForgeUser } from "@/lib/types";
 
 function formatMemberSince(value: string | undefined): string {
@@ -33,9 +39,22 @@ function formatSessionWhen(value: string): string {
   });
 }
 
+function matchFocusOption(purpose: string): TrainingFocusOption | null {
+  const trimmed = purpose.trim();
+  if (!trimmed) return null;
+  return (
+    TRAINING_FOCUS_OPTIONS.find(
+      (option) =>
+        option.purposeStatement === trimmed ||
+        trimmed.includes(option.title) ||
+        trimmed.includes(option.blurb)
+    ) ?? null
+  );
+}
+
 /**
- * Living Profile surface — SSOT for who the member is becoming (OWN-001).
- * Account history remains secondary; identity fields read/write Living Profile only.
+ * Living Profile surface — SSOT for member-declared identity (OWN-001).
+ * Goal / training focus uses visual Machines cards (IV-UX-009).
  */
 export default function ProfilePage() {
   const router = useRouter();
@@ -56,6 +75,7 @@ export default function ProfilePage() {
   const [principles, setPrinciples] = useState("");
   const [seasons, setSeasons] = useState("");
   const [coachingStyle, setCoachingStyle] = useState("");
+  const [selectedFocusId, setSelectedFocusId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -102,7 +122,9 @@ export default function ProfilePage() {
         setLiving(profile);
         setDisplayName(profile?.displayName || current.displayName || "");
         setNickname(profile?.preferredNickname ?? "");
-        setPurpose(profile?.purposeStatement ?? "");
+        const nextPurpose = profile?.purposeStatement ?? "";
+        setPurpose(nextPurpose);
+        setSelectedFocusId(matchFocusOption(nextPurpose)?.id ?? null);
         setPrinciples(
           (profile?.personalPrinciples ?? []).map((p) => p.text).join(", ")
         );
@@ -132,6 +154,13 @@ export default function ProfilePage() {
     };
   }, []);
 
+  function applyFocus(option: TrainingFocusOption) {
+    setSelectedFocusId(option.id);
+    setPurpose(option.purposeStatement);
+    setSeasons(option.seasonLabel);
+    setSaved(false);
+  }
+
   async function handleSave(event: React.FormEvent) {
     event.preventDefault();
     setSaving(true);
@@ -140,15 +169,21 @@ export default function ProfilePage() {
 
     try {
       const nextDisplayName = displayName.trim() || "Member";
+      const selected = TRAINING_FOCUS_OPTIONS.find(
+        (option) => option.id === selectedFocusId
+      );
 
       const principleLines = principles
         .split(/[\n,]/)
         .map((s) => s.trim())
         .filter(Boolean);
-      const seasonLabels = seasons
-        .split(/[\n,]/)
-        .map((s) => s.trim())
-        .filter(Boolean);
+
+      const seasonLabels = selected
+        ? [selected.seasonLabel]
+        : seasons
+            .split(/[\n,]/)
+            .map((s) => s.trim())
+            .filter(Boolean);
 
       const res = await fetch("/api/living-profile", {
         method: "PUT",
@@ -156,7 +191,7 @@ export default function ProfilePage() {
         body: JSON.stringify({
           displayName: nextDisplayName,
           preferredNickname: nickname,
-          purposeStatement: purpose,
+          purposeStatement: selected?.purposeStatement ?? purpose,
           principleLines,
           seasonLabels,
           preferredCoachingStyle: coachingStyle,
@@ -176,15 +211,23 @@ export default function ProfilePage() {
             setDisplayName(data.profile.displayName);
             setNickname(data.profile.preferredNickname);
             setPurpose(data.profile.purposeStatement);
+            setSelectedFocusId(
+              matchFocusOption(data.profile.purposeStatement)?.id ?? null
+            );
           } else {
             const reload = await fetch("/api/living-profile", {
               cache: "no-store",
-            }).then((r) => r.json() as Promise<{ profile?: LivingProfile | null }>);
+            }).then(
+              (r) => r.json() as Promise<{ profile?: LivingProfile | null }>
+            );
             if (reload.profile) {
               setLiving(reload.profile);
               setDisplayName(reload.profile.displayName);
               setNickname(reload.profile.preferredNickname);
               setPurpose(reload.profile.purposeStatement);
+              setSelectedFocusId(
+                matchFocusOption(reload.profile.purposeStatement)?.id ?? null
+              );
             }
           }
           throw new Error(
@@ -194,7 +237,14 @@ export default function ProfilePage() {
         throw new Error(data.error || "Failed to save Living Profile.");
       }
       if (data.tableReady === false) setTableReady(false);
-      if (data.profile) setLiving(data.profile);
+      if (data.profile) {
+        setLiving(data.profile);
+        setPurpose(data.profile.purposeStatement);
+        setSelectedFocusId(
+          matchFocusOption(data.profile.purposeStatement)?.id ?? selectedFocusId
+        );
+        setSeasons((data.profile.seasons ?? []).map((s) => s.label).join(", "));
+      }
       const updated = await updateDisplayName(nextDisplayName);
       setUser(updated);
       setSaved(true);
@@ -239,14 +289,15 @@ export default function ProfilePage() {
       <div className="mb-6 max-w-xl">
         <PersistenceStatus />
       </div>
-      <section className="max-w-xl">
+      <section className="max-w-3xl">
         <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
           Living Profile
         </p>
-        <h1 className="mt-3 text-3xl font-semibold">Who you are becoming</h1>
+        <h1 className="mt-3 text-3xl font-semibold">What is your goal?</h1>
         <p className="mt-3 text-sm leading-6 text-zinc-400">
-          Single source of truth for identity. Readiness and coaching consume
-          this — they do not invent a second profile.
+          Tap a Machine to set your training focus — optional, visual, and
+          changeable anytime. Your Coach reads this; it never invents a second
+          profile.
         </p>
         {!tableReady && (
           <p className="mt-3 text-sm text-amber-200/90">
@@ -267,126 +318,130 @@ export default function ProfilePage() {
         <p className="mt-8 text-sm text-zinc-500">Loading Living Profile…</p>
       ) : isAuthenticatedMember ? (
         <>
-          <form
-            onSubmit={handleSave}
-            className="mt-8 max-w-xl space-y-5 rounded-3xl border border-white/10 bg-white/5 p-6"
-          >
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-zinc-300">
-              <p>
-                <span className="text-zinc-500">Email</span>
-                <br />
-                <span className="text-white">{user?.email || "—"}</span>
-              </p>
-              <p className="mt-3">
-                <span className="text-zinc-500">Member since</span>
-                <br />
-                <span className="text-white">
-                  {formatMemberSince(user?.createdAt)}
-                </span>
-              </p>
-              <p className="mt-3">
-                <span className="text-zinc-500">Sessions completed</span>
-                <br />
-                <span className="text-white">
-                  {progress?.sessionsCompleted ?? 0}
-                </span>
-              </p>
+          <form onSubmit={handleSave} className="mt-8 space-y-8">
+            <div id="goal" className="scroll-mt-24">
+              <TrainingFocusPicker
+                selectedId={selectedFocusId}
+                onSelect={applyFocus}
+                eyebrow="Optional"
+                title="Choose a training focus"
+                subtitle="One tap sets your goal. Skip the forms — you can still Begin from Home without a focus."
+              />
+              {selectedFocusId ? (
+                <p className="mt-3 text-sm text-[#c9a95f]">
+                  Selected:{" "}
+                  {
+                    TRAINING_FOCUS_OPTIONS.find((o) => o.id === selectedFocusId)
+                      ?.title
+                  }
+                </p>
+              ) : (
+                <p className={pickerStyles.hint}>
+                  No focus selected yet — that’s fine.
+                </p>
+              )}
             </div>
 
-            <label className="block" htmlFor="lp-display-name">
-              <span className="text-sm text-zinc-300">Display name</span>
-              <input
-                id="lp-display-name"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                disabled={saving}
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 disabled:opacity-60"
-              />
-            </label>
+            <div className="max-w-xl space-y-5 rounded-3xl border border-white/10 bg-white/5 p-6">
+              <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-zinc-300">
+                <p>
+                  <span className="text-zinc-500">Email</span>
+                  <br />
+                  <span className="text-white">{user?.email || "—"}</span>
+                </p>
+                <p className="mt-3">
+                  <span className="text-zinc-500">Member since</span>
+                  <br />
+                  <span className="text-white">
+                    {formatMemberSince(user?.createdAt)}
+                  </span>
+                </p>
+                <p className="mt-3">
+                  <span className="text-zinc-500">Sessions completed</span>
+                  <br />
+                  <span className="text-white">
+                    {progress?.sessionsCompleted ?? 0}
+                  </span>
+                </p>
+              </div>
 
-            <label className="block" htmlFor="lp-nickname">
-              <span className="text-sm text-zinc-300">Preferred nickname</span>
-              <input
-                id="lp-nickname"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-                disabled={saving}
-                placeholder="What should Forge call you?"
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 disabled:opacity-60"
-              />
-            </label>
+              <label className="block" htmlFor="lp-display-name">
+                <span className="text-sm text-zinc-300">Display name</span>
+                <input
+                  id="lp-display-name"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  disabled={saving}
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 disabled:opacity-60"
+                />
+              </label>
 
-            <label className="block" htmlFor="lp-purpose">
-              <span className="text-sm text-zinc-300">
-                Purpose / what matters now
-              </span>
-              <textarea
-                id="lp-purpose"
-                value={purpose}
-                onChange={(e) => setPurpose(e.target.value)}
-                disabled={saving}
-                rows={2}
-                placeholder="Member-declared only — Forge will not invent this"
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 disabled:opacity-60"
-              />
-            </label>
+              <label className="block" htmlFor="lp-nickname">
+                <span className="text-sm text-zinc-300">Preferred nickname</span>
+                <input
+                  id="lp-nickname"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  disabled={saving}
+                  placeholder="What should Forge call you?"
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 disabled:opacity-60"
+                />
+              </label>
 
-            <label className="block" htmlFor="lp-principles">
-              <span className="text-sm text-zinc-300">
-                Personal principles
-              </span>
-              <textarea
-                id="lp-principles"
-                value={principles}
-                onChange={(e) => setPrinciples(e.target.value)}
-                disabled={saving}
-                rows={2}
-                placeholder="Comma-separated — your compass, not Forge’s"
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 disabled:opacity-60"
-              />
-            </label>
+              <details className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <summary className="cursor-pointer text-sm text-zinc-300">
+                  More details (optional)
+                </summary>
+                <div className="mt-4 space-y-4">
+                  <label className="block" htmlFor="lp-principles">
+                    <span className="text-sm text-zinc-300">
+                      Personal principles
+                    </span>
+                    <textarea
+                      id="lp-principles"
+                      value={principles}
+                      onChange={(e) => setPrinciples(e.target.value)}
+                      disabled={saving}
+                      rows={2}
+                      placeholder="Comma-separated — your compass, not Forge’s"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 disabled:opacity-60"
+                    />
+                  </label>
 
-            <label className="block" htmlFor="lp-seasons">
-              <span className="text-sm text-zinc-300">
-                Life seasons / long-term challenges
-              </span>
-              <textarea
-                id="lp-seasons"
-                value={seasons}
-                onChange={(e) => setSeasons(e.target.value)}
-                disabled={saving}
-                rows={2}
-                placeholder="Comma-separated seasons you are in"
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 disabled:opacity-60"
-              />
-            </label>
+                  <label className="block" htmlFor="lp-coaching">
+                    <span className="text-sm text-zinc-300">
+                      Preferred coaching style
+                    </span>
+                    <input
+                      id="lp-coaching"
+                      value={coachingStyle}
+                      onChange={(e) => setCoachingStyle(e.target.value)}
+                      disabled={saving}
+                      placeholder="Warm and direct · gentle · challenge me"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 disabled:opacity-60"
+                    />
+                  </label>
+                </div>
+              </details>
 
-            <label className="block" htmlFor="lp-coaching">
-              <span className="text-sm text-zinc-300">
-                Preferred coaching style
-              </span>
-              <input
-                id="lp-coaching"
-                value={coachingStyle}
-                onChange={(e) => setCoachingStyle(e.target.value)}
-                disabled={saving}
-                placeholder="Warm and direct · gentle · challenge me"
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 disabled:opacity-60"
-              />
-            </label>
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200 disabled:opacity-60"
-            >
-              {saving ? "Saving..." : "Save Living Profile"}
-            </button>
-            {saved && (
-              <p className="text-sm text-emerald-300" role="status">
-                Living Profile saved with provenance.
-              </p>
-            )}
+              <div className={pickerStyles.actions}>
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className={pickerStyles.primary}
+                >
+                  {saving ? "Saving..." : "Save Living Profile"}
+                </button>
+                <Link href="/app" className={pickerStyles.secondary}>
+                  Back to training
+                </Link>
+              </div>
+              {saved && (
+                <p className="text-sm text-emerald-300" role="status">
+                  Living Profile saved with provenance.
+                </p>
+              )}
+            </div>
           </form>
 
           {pendingEvidence.length > 0 && (
@@ -396,7 +451,7 @@ export default function ProfilePage() {
               </h2>
               <p className="mt-2 text-xs leading-5 text-zinc-500">
                 Session observations waiting for confirmation. They do not
-                overwrite who you are becoming.
+                overwrite your goal.
               </p>
               <ul className="mt-3 space-y-2 text-sm text-zinc-400">
                 {pendingEvidence.slice(0, 5).map((p) => (
