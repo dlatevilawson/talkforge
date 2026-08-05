@@ -405,7 +405,40 @@ function createSilentAudioStream(): MediaStream {
     }
     oscillator.disconnect();
     gain.disconnect();
-    void ctx.close().catch(() => undefined);
+    const stateBeforeClose = ctx.state;
+    void ctx.close().then(
+      () => {
+        // #region agent log
+        recordVoiceInitDiagnostic({
+          hypothesisId: "F",
+          location: "lib/ce/realtime.ts:createSilentAudioStream:cleanup",
+          message: "Silent AudioContext cleanup completed",
+          data: {
+            outcome: "closed",
+            stateBeforeClose,
+            stateAfterClose: ctx.state,
+          },
+          timestamp: Date.now(),
+        });
+        // #endregion
+      },
+      (error: unknown) => {
+        // #region agent log
+        recordVoiceInitDiagnostic({
+          hypothesisId: "F",
+          location: "lib/ce/realtime.ts:createSilentAudioStream:cleanup",
+          message: "Silent AudioContext cleanup completed",
+          data: {
+            outcome: "failed",
+            stateBeforeClose,
+            stateAfterClose: ctx.state,
+            errorName: error instanceof Error ? error.name : "UnknownError",
+          },
+          timestamp: Date.now(),
+        });
+        // #endregion
+      }
+    );
   };
   registerLocalAudioCleanup(stream, cleanup);
   stream.getAudioTracks().forEach((track) => {
