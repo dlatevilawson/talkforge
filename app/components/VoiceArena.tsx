@@ -16,7 +16,6 @@ import {
   CE_TRACK_TITLES,
   type CeTrack,
 } from "@/lib/ce/session-config";
-import { recordVoiceInitDiagnostic } from "@/lib/ce/voice-init-debug";
 import {
   applyRealtimeTranscriptEvent,
   type TranscriptTurn,
@@ -221,21 +220,6 @@ export default function VoiceArena({
     }
     lifecycleGenerationRef.current += 1;
 
-    // #region agent log
-    recordVoiceInitDiagnostic({
-      hypothesisId: "E",
-      location: "app/components/VoiceArena.tsx:handleStart:entry",
-      message: "Voice session initialization entered",
-      data: {
-        phase,
-        track,
-        secureContext: window.isSecureContext,
-        online: navigator.onLine,
-      },
-      timestamp: Date.now(),
-    });
-    // #endregion
-
     setError("");
     setMicMode(null);
     setMicFallbackReason(null);
@@ -258,7 +242,6 @@ export default function VoiceArena({
     voiceSessionIdRef.current = newVoiceId;
     createdAtRef.current = new Date().toISOString();
 
-    let startStage = "realtime_session_fetch";
     try {
       disconnectRealtime(connectionRef.current);
       connectionRef.current = null;
@@ -275,7 +258,6 @@ export default function VoiceArena({
           successCriteria,
         }),
       });
-      startStage = "realtime_session_parse";
       const tokenData = (await tokenRes.json()) as {
         value?: string;
         session_id?: string | null;
@@ -287,22 +269,6 @@ export default function VoiceArena({
           lastScenarioTitle?: string;
         };
       };
-
-      // #region agent log
-      recordVoiceInitDiagnostic({
-        hypothesisId: "E",
-        location: "app/components/VoiceArena.tsx:handleStart:tokenResponse",
-        message: "Authenticated Realtime session API response",
-        data: {
-          ok: tokenRes.ok,
-          status: tokenRes.status,
-          hasEphemeralKey: Boolean(tokenData.value),
-          hasRealtimeSessionId: Boolean(tokenData.session_id),
-          hasError: Boolean(tokenData.error),
-        },
-        timestamp: Date.now(),
-      });
-      // #endregion
 
       if (!tokenRes.ok || !tokenData.value) {
         throw new Error(tokenData.error || "Could not start session.");
@@ -324,7 +290,6 @@ export default function VoiceArena({
       setPhase("connecting");
       pushEvent("Connecting…");
 
-      startStage = "realtime_connect";
       const connection = await connectRealtime({
         ephemeralKey: tokenData.value,
         onMicMode: (mode, reason) => {
@@ -370,7 +335,6 @@ export default function VoiceArena({
       }
 
       // Do not create permanent history until Realtime is connected.
-      startStage = "practice_session";
       const practice = await createPracticeSession({
         scenarioId: `voice_${track}`,
         scenarioTitle,
@@ -384,7 +348,6 @@ export default function VoiceArena({
       pushEvent(`Session saved · ${practice.id.slice(0, 8)}`);
 
       setPhase("speaking");
-      startStage = "opening_speech";
       requestOpeningSpeech(connection.dc, welcomeHintRef.current);
       pushEvent(
         tokenData.memory?.isReturning
@@ -392,19 +355,6 @@ export default function VoiceArena({
           : "Forge opening"
       );
     } catch (err) {
-      // #region agent log
-      recordVoiceInitDiagnostic({
-        hypothesisId: "E",
-        location: "app/components/VoiceArena.tsx:handleStart:catch",
-        message: "Voice session initialization failed",
-        data: {
-          stage: startStage,
-          errorName: err instanceof Error ? err.name : "UnknownError",
-          domExceptionName: err instanceof DOMException ? err.name : null,
-        },
-        timestamp: Date.now(),
-      });
-      // #endregion
       console.error(err);
       disconnectRealtime(connectionRef.current);
       connectionRef.current = null;
@@ -453,25 +403,7 @@ export default function VoiceArena({
     setError("");
     pushEvent("Checking microphone…");
     const result = await recoverMicrophone(connection, isCurrentRecovery);
-    const current = isCurrentRecovery();
-    // #region agent log
-    recordVoiceInitDiagnostic({
-      hypothesisId: "G",
-      location: "app/components/VoiceArena.tsx:handleRecoverMicrophone:outcome",
-      message: "Microphone recovery completion lifecycle check",
-      data: {
-        current,
-        recovered: result.recovered,
-        reason: result.reason,
-        generationChanged:
-          lifecycleGenerationRef.current !== recoveryGeneration,
-        connectionChanged: connectionRef.current !== connection,
-        mounted: mountedRef.current,
-      },
-      timestamp: Date.now(),
-    });
-    // #endregion
-    if (!current) return;
+    if (!isCurrentRecovery()) return;
     setMicRecoveryPending(false);
     setMicFallbackReason(result.reason);
     if (result.recovered) {

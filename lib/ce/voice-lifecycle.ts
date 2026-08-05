@@ -9,12 +9,6 @@ export function registerLocalAudioCleanup(
   localAudioCleanups.set(stream, cleanup);
 }
 
-export function hasRegisteredLocalAudioCleanup(
-  stream: ReleasableAudioStream
-): boolean {
-  return localAudioCleanups.has(stream);
-}
-
 export function releaseLocalAudioStream(stream: ReleasableAudioStream): void {
   for (const track of stream.getTracks()) {
     track.stop();

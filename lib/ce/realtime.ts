@@ -1,11 +1,9 @@
 import { buildOpeningSpeechInstructions } from "@/lib/coach/philosophy";
 import { buildSessionUpdateForTranscription } from "./session-config";
 import {
-  hasRegisteredLocalAudioCleanup,
   registerLocalAudioCleanup,
   releaseLocalAudioStream,
 } from "./voice-lifecycle";
-import { recordVoiceInitDiagnostic } from "./voice-init-debug";
 
 /**
  * CE-M1/M2 WebRTC helpers for OpenAI Realtime.
@@ -58,36 +56,10 @@ export async function connectRealtime(
   pc.ontrack = (event) => {
     remoteAudio.srcObject = event.streams[0] ?? null;
     options.onRemoteTrack?.();
-    void remoteAudio
-      .play()
-      .then(
-        () => ({ outcome: "played", errorName: null }),
-        (error: unknown) => ({
-          outcome: "blocked",
-          errorName: error instanceof Error ? error.name : "UnknownError",
-        })
-      )
-      .then((playResult) => {
-        options.onRemotePlayback?.(
-          playResult.outcome === "played" ? "playing" : "blocked"
-        );
-        // #region agent log
-        recordVoiceInitDiagnostic({
-          hypothesisId: "D",
-          location: "lib/ce/realtime.ts:pc.ontrack",
-          message: "Remote audio track and autoplay outcome",
-          data: {
-            streamCount: event.streams.length,
-            audioTrackCount:
-              event.streams[0]?.getAudioTracks().length ?? 0,
-            autoplay: remoteAudio.autoplay,
-            paused: remoteAudio.paused,
-            ...playResult,
-          },
-          timestamp: Date.now(),
-        });
-        // #endregion
-      });
+    void remoteAudio.play().then(
+      () => options.onRemotePlayback?.("playing"),
+      () => options.onRemotePlayback?.("blocked")
+    );
   };
 
   pc.onconnectionstatechange = () => {
@@ -129,23 +101,6 @@ export async function connectRealtime(
     },
   });
 
-  // #region agent log
-  recordVoiceInitDiagnostic({
-    hypothesisId: "C",
-    location: "lib/ce/realtime.ts:connectRealtime:sdpResponse",
-    message: "OpenAI SDP exchange response",
-    data: {
-      ok: sdpResponse.ok,
-      status: sdpResponse.status,
-      offerType: offer.type,
-      offerLength: offer.sdp?.length ?? 0,
-      signalingState: pc.signalingState,
-      iceGatheringState: pc.iceGatheringState,
-    },
-    timestamp: Date.now(),
-  });
-  // #endregion
-
   if (!sdpResponse.ok) {
     const errText = await sdpResponse.text();
     cleanupPartial(pc, localStream, remoteAudio);
@@ -157,37 +112,7 @@ export async function connectRealtime(
   const answerSdp = await sdpResponse.text();
   await pc.setRemoteDescription({ type: "answer", sdp: answerSdp });
 
-  let dataChannelOutcome = "open";
-  let dataChannelErrorName: string | null = null;
-  try {
-    await waitForDataChannelOpen(dc, 10_000);
-  } catch (error) {
-    dataChannelOutcome =
-      error instanceof Error &&
-      error.message === "Timed out waiting for Realtime data channel."
-        ? "timeout"
-        : "error";
-    dataChannelErrorName =
-      error instanceof Error ? error.name : "UnknownError";
-    throw error;
-  } finally {
-    // #region agent log
-    recordVoiceInitDiagnostic({
-      hypothesisId: "B",
-      location: "lib/ce/realtime.ts:connectRealtime:dataChannel",
-      message: "Realtime peer and data channel outcome",
-      data: {
-        outcome: dataChannelOutcome,
-        errorName: dataChannelErrorName,
-        dataChannelState: dc.readyState,
-        connectionState: pc.connectionState,
-        iceConnectionState: pc.iceConnectionState,
-        signalingState: pc.signalingState,
-      },
-      timestamp: Date.now(),
-    });
-    // #endregion
-  }
+  await waitForDataChannelOpen(dc, 10_000);
 
   // CE-M2: reinforce input transcription on the live session
   try {
@@ -228,63 +153,22 @@ async function acquireLocalAudioStream(): Promise<{
   usedSilentMicFallback: boolean;
   micFallbackReason: MicFallbackReason | null;
 }> {
-  // #region agent log
-  recordVoiceInitDiagnostic({
-    hypothesisId: "A",
-    location: "lib/ce/realtime.ts:acquireLocalAudioStream:entry",
-    message: "Before microphone permission and capture request",
-    data: {
-      secureContext: window.isSecureContext,
-      hasMediaDevices: Boolean(navigator.mediaDevices),
-      hasGetUserMedia: Boolean(navigator.mediaDevices?.getUserMedia),
-      visibilityState: document.visibilityState,
-    },
-    timestamp: Date.now(),
-  });
-  // #endregion
-
-  let mediaOutcome: Record<string, unknown> = { outcome: "not_started" };
   try {
     const stream = await requestMicrophoneStream();
-    const audioTracks = stream.getAudioTracks();
-    mediaOutcome = {
-      outcome: "microphone",
-      trackCount: audioTracks.length,
-      trackReadyStates: audioTracks.map((track) => track.readyState),
-      tracksEnabled: audioTracks.map((track) => track.enabled),
-      tracksMuted: audioTracks.map((track) => track.muted),
-    };
     return {
       stream,
       usedSilentMicFallback: false,
       micFallbackReason: null,
     };
   } catch (err) {
-    const name = err instanceof DOMException ? err.name : "";
     const micFallbackReason = classifyMicCaptureError(err);
     const retriable = micFallbackReason !== "unknown";
-    mediaOutcome = {
-      outcome: retriable ? "silent_fallback" : "rejected",
-      errorName: name || (err instanceof Error ? err.name : "UnknownError"),
-      retriable,
-      reason: micFallbackReason,
-    };
     if (!retriable) throw err;
     return {
       stream: createSilentAudioStream(),
       usedSilentMicFallback: true,
       micFallbackReason,
     };
-  } finally {
-    // #region agent log
-    recordVoiceInitDiagnostic({
-      hypothesisId: "A",
-      location: "lib/ce/realtime.ts:acquireLocalAudioStream:outcome",
-      message: "Microphone permission and capture outcome",
-      data: mediaOutcome,
-      timestamp: Date.now(),
-    });
-    // #endregion
   }
 }
 
@@ -340,19 +224,6 @@ export async function recoverMicrophone(
   try {
     const candidate = await acquireLocalAudioStream();
     replacementStream = candidate.stream;
-    // #region agent log
-    recordVoiceInitDiagnostic({
-      hypothesisId: "H",
-      location: "lib/ce/realtime.ts:recoverMicrophone:candidate",
-      message: "Microphone recovery candidate acquired",
-      data: {
-        current: isCurrent(),
-        usedSilentMicFallback: candidate.usedSilentMicFallback,
-        reason: candidate.micFallbackReason,
-      },
-      timestamp: Date.now(),
-    });
-    // #endregion
     if (!isCurrent()) {
       releaseLocalAudioStream(replacementStream);
       return { recovered: false, reason: connection.micFallbackReason };
@@ -421,40 +292,7 @@ function createSilentAudioStream(): MediaStream {
     }
     oscillator.disconnect();
     gain.disconnect();
-    const stateBeforeClose = ctx.state;
-    void ctx.close().then(
-      () => {
-        // #region agent log
-        recordVoiceInitDiagnostic({
-          hypothesisId: "F",
-          location: "lib/ce/realtime.ts:createSilentAudioStream:cleanup",
-          message: "Silent AudioContext cleanup completed",
-          data: {
-            outcome: "closed",
-            stateBeforeClose,
-            stateAfterClose: ctx.state,
-          },
-          timestamp: Date.now(),
-        });
-        // #endregion
-      },
-      (error: unknown) => {
-        // #region agent log
-        recordVoiceInitDiagnostic({
-          hypothesisId: "F",
-          location: "lib/ce/realtime.ts:createSilentAudioStream:cleanup",
-          message: "Silent AudioContext cleanup completed",
-          data: {
-            outcome: "failed",
-            stateBeforeClose,
-            stateAfterClose: ctx.state,
-            errorName: error instanceof Error ? error.name : "UnknownError",
-          },
-          timestamp: Date.now(),
-        });
-        // #endregion
-      }
-    );
+    void ctx.close().catch(() => undefined);
   };
   registerLocalAudioCleanup(stream, cleanup);
   stream.getAudioTracks().forEach((track) => {
@@ -506,27 +344,7 @@ export function disconnectRealtime(connection: RealtimeConnection | null): void 
   } catch {
     /* ignore */
   }
-  const hadSilentAudioCleanup = hasRegisteredLocalAudioCleanup(
-    connection.localStream
-  );
   releaseLocalAudioStream(connection.localStream);
-  // #region agent log
-  recordVoiceInitDiagnostic({
-    hypothesisId: "F",
-    location: "lib/ce/realtime.ts:disconnectRealtime:localAudio",
-    message: "Local audio resources released",
-    data: {
-      hadSilentAudioCleanup,
-      cleanupStillRegistered: hasRegisteredLocalAudioCleanup(
-        connection.localStream
-      ),
-      trackStates: connection.localStream
-        .getTracks()
-        .map((track) => track.readyState),
-    },
-    timestamp: Date.now(),
-  });
-  // #endregion
   connection.remoteAudio.pause();
   connection.remoteAudio.srcObject = null;
 }
