@@ -23,6 +23,8 @@ export {
 export type { IdentityEvidenceProposal } from "./proposals";
 export { proposeIdentityEvidenceFromReport } from "./proposals";
 export { attachPendingProposals, emptyLivingProfile } from "./profile";
+export type { EnsureLivingProfileResult } from "./ensure-living-profile";
+export { ensurePersistedLivingProfile } from "./ensure-living-profile";
 export type { MemberLivingProfileInput } from "./member-writes";
 export { applyMemberLivingProfileUpdate } from "./member-writes";
 export type { LegacyEvidenceMigrationResult } from "./migrate-from-coach-memory";

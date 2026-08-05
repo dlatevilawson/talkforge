@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import styles from "./ContinuityHome.module.css";
 import { buildAdaptiveHome } from "@/lib/system2";
 import type { AdaptiveHomeModel } from "@/lib/system2";
-import { emptyLivingProfile } from "@/lib/system1/profile";
 import type { LivingProfile } from "@/lib/system1/types";
 import { getUser } from "@/lib/storage";
 
@@ -33,13 +32,14 @@ export default function ContinuityHome() {
             const res = await fetch("/api/living-profile", { cache: "no-store" });
             if (res.ok) {
               const data = (await res.json()) as { profile?: LivingProfile | null };
-              profile = data.profile ?? null;
+              const loaded = data.profile ?? null;
+              // Only persisted Living Profiles unlock Begin. In-memory
+              // version-0 placeholders must not pass the client gate.
+              profile =
+                loaded && loaded.version >= 1 ? loaded : null;
             }
           } catch {
             // Soft-fail: continuity remains available without the LP table.
-          }
-          if (!profile) {
-            profile = emptyLivingProfile(user.id, user.displayName ?? "");
           }
         }
         if (!cancelled) {
