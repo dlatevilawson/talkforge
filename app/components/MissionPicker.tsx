@@ -35,12 +35,6 @@ export default function MissionPicker({
         >
           Go to Home
         </Link>
-        <Link
-          href="/app/practice"
-          className="rounded-full border border-white/15 px-5 py-3 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
-        >
-          Continue with Forge
-        </Link>
       </div>
       <p className="mt-6 text-xs text-zinc-600">
         Multi-mission picker quarantined (AUDIT-001 C3). Do not add tiles here.

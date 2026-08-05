@@ -427,11 +427,17 @@ export async function PUT(req: Request) {
       );
     }
     if (saved.status === "conflict") {
+      const { data: latest } = await supabase
+        .from("living_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
       return NextResponse.json(
         {
           error:
-            "Your Living Profile changed while saving. Reload before trying again.",
+            "Your Living Profile changed while saving. Fields were refreshed — review and save again.",
           conflict: true,
+          profile: latest ? mapLivingProfileRow(latest) : current,
         },
         { status: 409 }
       );

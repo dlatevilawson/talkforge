@@ -1,23 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import styles from "./ContinuityHome.module.css";
 import { buildAdaptiveHome } from "@/lib/system2";
 import type { AdaptiveHomeModel } from "@/lib/system2";
 import type { LivingProfile } from "@/lib/system1/types";
 import { getUser } from "@/lib/storage";
 
+function gateMessage(gate: string | null): string | null {
+  if (!gate) return null;
+  if (gate === "profile_incomplete") {
+    return "Your Coach needs a short training focus before you enter the Training Room.";
+  }
+  if (gate === "readiness_unavailable") {
+    return "Training isn’t available right now. Check your connection, then try again.";
+  }
+  if (gate === "unauthenticated") {
+    return "Please sign in again to continue training.";
+  }
+  return "Return to Home for your next step — coaching starts from readiness.";
+}
+
 /**
  * Adaptive Coach Homepage — AUDIT-001 C3 remediation.
  * Single continuity CTA. No mission menu, analytics, or invented readiness.
  */
-export default function ContinuityHome() {
+function ContinuityHomeInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const gate = searchParams.get("gate");
   const [home, setHome] = useState<AdaptiveHomeModel | null>(null);
   const [loading, setLoading] = useState(true);
   const [enteringTraining, setEnteringTraining] = useState(false);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
     router.prefetch("/app/practice?start=1");
@@ -37,9 +54,13 @@ export default function ContinuityHome() {
               // version-0 placeholders must not pass the client gate.
               profile =
                 loaded && loaded.version >= 1 ? loaded : null;
+            } else if (!cancelled) {
+              setLoadError("Couldn’t load your Living Profile. Retry in a moment.");
             }
           } catch {
-            // Soft-fail: continuity remains available without the LP table.
+            if (!cancelled) {
+              setLoadError("Couldn’t load your Living Profile. Retry in a moment.");
+            }
           }
         }
         if (!cancelled) {
@@ -48,6 +69,7 @@ export default function ContinuityHome() {
       } catch {
         if (!cancelled) {
           setHome(buildAdaptiveHome(null));
+          setLoadError("Couldn’t load your session. Refresh and try again.");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -63,6 +85,7 @@ export default function ContinuityHome() {
   const readiness = home?.readiness;
   const isReady = Boolean(readiness?.profileGatePassed);
   const focus = readiness?.objective;
+  const bounceNote = gateMessage(gate);
 
   const heading = loading
     ? "Preparing today’s training."
@@ -129,6 +152,12 @@ export default function ContinuityHome() {
           <span className={styles.reasonLine} aria-hidden="true" />
           <p>{coachNote}</p>
         </div>
+
+        {bounceNote || loadError ? (
+          <p className="mt-4 max-w-md text-sm text-amber-100/90" role="status">
+            {bounceNote || loadError}
+          </p>
+        ) : null}
 
         <div className={styles.action}>
           {loading ? (
@@ -216,6 +245,20 @@ export default function ContinuityHome() {
         </div>
       </div>
     </section>
+  );
+}
+
+export default function ContinuityHome() {
+  return (
+    <Suspense
+      fallback={
+        <section className={styles.home} aria-busy="true">
+          <p className={styles.heading}>Preparing today’s training.</p>
+        </section>
+      }
+    >
+      <ContinuityHomeInner />
+    </Suspense>
   );
 }
 

@@ -170,8 +170,23 @@ export default function ProfilePage() {
         conflict?: boolean;
       };
       if (!res.ok) {
-        if (data.conflict && data.profile) {
-          setLiving(data.profile);
+        if (data.conflict) {
+          if (data.profile) {
+            setLiving(data.profile);
+            setDisplayName(data.profile.displayName);
+            setNickname(data.profile.preferredNickname);
+            setPurpose(data.profile.purposeStatement);
+          } else {
+            const reload = await fetch("/api/living-profile", {
+              cache: "no-store",
+            }).then((r) => r.json() as Promise<{ profile?: LivingProfile | null }>);
+            if (reload.profile) {
+              setLiving(reload.profile);
+              setDisplayName(reload.profile.displayName);
+              setNickname(reload.profile.preferredNickname);
+              setPurpose(reload.profile.purposeStatement);
+            }
+          }
           throw new Error(
             "Your Living Profile changed in another session. Fields were refreshed — review and save again."
           );

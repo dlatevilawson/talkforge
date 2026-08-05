@@ -78,7 +78,7 @@ export default function ReflectPage() {
         coachSatisfaction: satisfaction,
         createdAt: new Date().toISOString(),
       });
-      router.push("/app/progress?from=reflection");
+      router.push("/app?from=reflection");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to save reflection."

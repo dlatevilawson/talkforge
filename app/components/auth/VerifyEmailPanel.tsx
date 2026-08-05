@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
   resendVerificationAction,
@@ -14,6 +15,7 @@ import {
   AuthShell,
   AuthSubmit,
 } from "@/app/components/auth/AuthShell";
+import { trackAuthEvent } from "@/lib/auth/analytics";
 
 function OtpSubmit() {
   const { pending } = useFormStatus();
@@ -50,9 +52,12 @@ function ResendSubmit() {
 
 export default function VerifyEmailPanel({
   email: initialEmail,
+  next = "/onboarding",
 }: {
   email?: string | null;
+  next?: string;
 }) {
+  const router = useRouter();
   const [email, setEmail] = useState(initialEmail || "");
   const [otpState, otpAction] = useActionState(
     verifyEmailOtpAction,
@@ -67,6 +72,21 @@ export default function VerifyEmailPanel({
     {} as AuthActionState
   );
 
+  useEffect(() => {
+    const dest = otpState.redirectTo || linkState.redirectTo;
+    if ((otpState.ok || linkState.ok) && dest) {
+      trackAuthEvent("auth_verification_success");
+      router.push(dest);
+      router.refresh();
+    }
+  }, [
+    otpState.ok,
+    otpState.redirectTo,
+    linkState.ok,
+    linkState.redirectTo,
+    router,
+  ]);
+
   return (
     <AuthShell
       eyebrow="Email verification"
@@ -80,6 +100,7 @@ export default function VerifyEmailPanel({
     >
       <div className="space-y-8">
         <form action={otpAction} className="space-y-4">
+          <input type="hidden" name="next" value={next} />
           <label htmlFor="email" className="block text-sm text-zinc-300">
             Email
             <input
@@ -116,7 +137,14 @@ export default function VerifyEmailPanel({
               </span>
             ) : null}
           </label>
-          <AuthAlert message={otpState.message} />
+          <AuthAlert
+            message={
+              otpState.ok
+                ? "Email verified. Continuing…"
+                : otpState.message
+            }
+            tone={otpState.ok ? "success" : "error"}
+          />
           <OtpSubmit />
         </form>
 
@@ -129,6 +157,7 @@ export default function VerifyEmailPanel({
             paste here.
           </p>
           <form action={linkAction} className="mt-4 space-y-4">
+            <input type="hidden" name="next" value={next} />
             <label
               htmlFor="confirmationLink"
               className="block text-sm text-zinc-300"
@@ -144,8 +173,11 @@ export default function VerifyEmailPanel({
             </label>
             <AuthAlert
               message={
-                linkState.message || linkState.errors?.confirmationLink
+                linkState.ok
+                  ? "Email verified. Continuing…"
+                  : linkState.message || linkState.errors?.confirmationLink
               }
+              tone={linkState.ok ? "success" : "error"}
             />
             <LinkSubmit />
           </form>

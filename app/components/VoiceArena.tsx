@@ -142,11 +142,14 @@ export default function VoiceArena({
     setActiveVoiceSessionId(id);
 
     const practice = practiceSessionRef.current;
-    if (practice) {
+    // Do not upsert after End — late writes were clearing completed_at.
+    if (practice && !practice.completedAt) {
       const conversation = voiceTurnsToConversationTurns(nextTurns);
       void persistActiveSession(practice, conversation)
         .then((updated) => {
-          practiceSessionRef.current = updated;
+          if (!practiceSessionRef.current?.completedAt) {
+            practiceSessionRef.current = updated;
+          }
         })
         .catch((err) => {
           console.warn("[voice] persist session failed", err);
@@ -470,8 +473,18 @@ export default function VoiceArena({
   }
 
   async function handleStop() {
-    if (voiceSessionIdRef.current && turnsRef.current.length > 0) {
-      persistTurns(turnsRef.current);
+    // Snapshot transcript locally only — do not race completePracticeSession
+    // with an in-flight persistActiveSession upsert.
+    const id = voiceSessionIdRef.current;
+    if (id && turnsRef.current.length > 0) {
+      saveVoiceTranscript({
+        voiceSessionId: id,
+        realtimeSessionId: realtimeSessionIdRef.current,
+        track,
+        eventTitle,
+        createdAt: createdAtRef.current,
+        turns: turnsRef.current,
+      });
     }
     lifecycleGenerationRef.current += 1;
     disconnectRealtime(connectionRef.current);
@@ -706,14 +719,21 @@ export default function VoiceArena({
               ) : null}
 
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                {savedSessionId && sessionPersisted ? (
+                {savedSessionId ? (
                   <Link
                     href={`/app/reflect/${savedSessionId}`}
                     className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
                   >
                     Reflect on this rep
                   </Link>
-                ) : null}
+                ) : (
+                  <Link
+                    href="/app"
+                    className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                  >
+                    Return home and begin again
+                  </Link>
+                )}
                 <Link
                   href="/app"
                   className="rounded-full border border-white/10 px-6 py-3.5 text-sm text-white/50 transition hover:bg-white/10"
@@ -826,6 +846,14 @@ export default function VoiceArena({
                       Restart
                     </button>
                   )}
+                {phase === "error" ? (
+                  <Link
+                    href="/app"
+                    className="rounded-full border border-white/20 px-6 py-3 text-sm text-white/80 transition hover:bg-white/10"
+                  >
+                    Back to home
+                  </Link>
+                ) : null}
                 <button
                   type="button"
                   disabled={
