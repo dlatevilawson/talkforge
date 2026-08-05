@@ -63,6 +63,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Checkpoint immutability:** HARDEN-001 through HARDEN-005 are frozen historical certifications. Every later hardening phase requires a separate Founder-approved checkpoint document; do not append implementation evidence to a frozen checkpoint.
 - **Database deployment SSOT:** Only the ordered paths in `supabase/migrations/manifest.json` are deployable. `supabase/schema.sql` is a non-deployable reference snapshot.
 - **Guest migration authorization:** HARDEN-005 retires privileged cloud guest reassignment while preserving same-device local migration. `npm run guest-migration:check` enforces this boundary. Archive recovery is prohibited without a separate Founder-approved proof-of-possession checkpoint.
+- **Practice readiness gate:** Begin must not unlock without a persisted Living Profile (`version >= 1`). Practice route and `GET /api/living-profile` must call `ensurePersistedLivingProfile`. Enforced by `npm run practice-readiness:check` (wired into `build` / `auth:check`). Live orphan scan: `npm run practice-readiness:check:live`.
 - **Dependency chain:** Living Profile → Readiness → Adaptive Homepage → Coaching. No mission menus as home. Experiences never write identity.
 - Every major feature: Idea Vault → Blind Spot → Roadmap → Build.
 - Do **not** treat Idea Vault entries, agent drafts, or shipped features as Canonical without Founder admission.
