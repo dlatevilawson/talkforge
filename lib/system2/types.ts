@@ -229,7 +229,7 @@ export function buildAdaptiveHome(
   return {
     readiness,
     recommendation: {
-      title: objective ? "Continue where you are becoming" : "Begin today’s training",
+      title: objective ? "Continue toward your goal" : "Begin today’s training",
       href: "/app/practice",
       continuityLine: objective
         ? `Keep working on: ${objective}. Or tell Forge if something new is on your mind.`

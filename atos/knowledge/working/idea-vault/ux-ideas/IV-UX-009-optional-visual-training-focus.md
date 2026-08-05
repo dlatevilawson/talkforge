@@ -49,6 +49,7 @@ Founder directive: onboard frictionless and exciting. Forced purpose text blocke
 ## Notes
 
 - Continuity Home remains one next step (Begin). Do not mount a 7-tile equal menu as `/app`.
+- Machines cards live on Living Profile (`/app/profile#goal`) and onboarding; `/app/focus` redirects there.
 - Picker writes Living Profile via member plane only (purpose / season). Experiences never write identity.
 - Skip must still reach Coach Forge when a persisted Living Profile exists.
 
