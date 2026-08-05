@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import styles from "./ContinuityHome.module.css";
 import { buildAdaptiveHome } from "@/lib/system2";
 import type { AdaptiveHomeModel } from "@/lib/system2";
-import { emptyLivingProfile } from "@/lib/system1/profile";
 import type { LivingProfile } from "@/lib/system1/types";
 import { getUser } from "@/lib/storage";
 
@@ -38,9 +37,9 @@ export default function ContinuityHome() {
           } catch {
             // Soft-fail: continuity remains available without the LP table.
           }
-          if (!profile) {
-            profile = emptyLivingProfile(user.id, user.displayName ?? "");
-          }
+          // Do not synthesize Living Profile from account displayName.
+          // That made Begin appear while /app/practice still redirected to /app
+          // because the server gate only accepts a real living_profiles row.
         }
         if (!cancelled) {
           setHome(buildAdaptiveHome(profile));
