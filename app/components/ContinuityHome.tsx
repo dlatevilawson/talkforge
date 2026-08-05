@@ -143,7 +143,7 @@ export default function ContinuityHome() {
                 setEnteringTraining(true);
                 const trainingParams = new URLSearchParams({ start: "1" });
                 if (focus) trainingParams.set("title", focus);
-                router.push(`/app/practice?${trainingParams.toString()}`);
+                window.location.assign(`/app/practice?${trainingParams.toString()}`);
               }}
               disabled={enteringTraining}
               className={styles.primaryAction}
