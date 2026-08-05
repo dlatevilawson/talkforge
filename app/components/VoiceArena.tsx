@@ -753,7 +753,7 @@ export default function VoiceArena({
                   <p className="text-sm text-red-300" role="alert">
                     {completionError}
                   </p>
-                  {practiceSessionRef.current ? (
+                  {savedSessionId ? (
                     <button
                       type="button"
                       onClick={() => {
