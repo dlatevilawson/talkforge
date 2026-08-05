@@ -13,7 +13,7 @@ type DebugPayload = {
 };
 
 const LOG_PATH = "/opt/cursor/logs/debug.log";
-const HYPOTHESES = new Set(["A", "B", "C", "D", "E"]);
+const HYPOTHESES = new Set(["A", "B", "C", "D", "E", "F", "G", "H"]);
 
 /**
  * Temporary authenticated DEBUG MODE sink for browser-only voice diagnostics.
