@@ -39,6 +39,7 @@ export type ConnectRealtimeOptions = {
     reason: MicFallbackReason | null
   ) => void;
   onRemoteTrack?: () => void;
+  onRemotePlayback?: (state: "playing" | "blocked") => void;
 };
 
 /**
@@ -67,6 +68,9 @@ export async function connectRealtime(
         })
       )
       .then((playResult) => {
+        options.onRemotePlayback?.(
+          playResult.outcome === "played" ? "playing" : "blocked"
+        );
         // #region agent log
         recordVoiceInitDiagnostic({
           hypothesisId: "D",
@@ -201,6 +205,18 @@ export async function connectRealtime(
     usedSilentMicFallback,
     micFallbackReason,
   };
+}
+
+/** Retry remote audio from an explicit member gesture after autoplay blocking. */
+export async function resumeRemoteAudio(
+  connection: RealtimeConnection
+): Promise<boolean> {
+  try {
+    await connection.remoteAudio.play();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**

@@ -2,6 +2,7 @@
 
 import ExecutiveMachine from "@/app/components/ExecutiveMachine";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { buildAdaptiveHome } from "@/lib/system2";
 import type { AdaptiveHomeModel } from "@/lib/system2";
@@ -64,14 +65,17 @@ function intensityLabel(
  * One readiness-led recommendation; supporting context never becomes a menu.
  */
 export default function ContinuityHome() {
+  const router = useRouter();
   const [home, setHome] = useState<AdaptiveHomeModel | null>(null);
   const [profile, setProfile] = useState<LivingProfile | null>(null);
   const [growth, setGrowth] = useState<GrowthSummary>(EMPTY_GROWTH);
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(true);
   const [deferred, setDeferred] = useState(false);
+  const [enteringTraining, setEnteringTraining] = useState(false);
 
   useEffect(() => {
+    router.prefetch("/app/practice?start=1");
     let cancelled = false;
 
     async function load() {
@@ -118,7 +122,7 @@ export default function ContinuityHome() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [router]);
 
   const recommendation = home?.recommendation;
   const readiness = home?.readiness;
@@ -153,6 +157,23 @@ export default function ContinuityHome() {
 
   return (
     <main className="tf-home -mx-4 -mt-8 overflow-hidden px-4 pb-16 sm:-mx-6 sm:px-6 lg:pb-24">
+      {enteringTraining ? (
+        <div
+          className="fixed inset-0 z-[100] grid place-items-center bg-[#07070a] text-center tf-training-entry"
+          role="status"
+          aria-live="polite"
+        >
+          <div>
+            <div className="mx-auto h-20 w-20 rounded-full border border-[#d7b56a]/25 bg-[radial-gradient(circle,#29241a,#090a0b_68%)] shadow-[0_0_70px_rgba(198,151,67,.18)]" />
+            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-[#c9a95f]">
+              Coach Forge
+            </p>
+            <p className="mt-3 text-lg text-zinc-300">
+              Joining your Training Room…
+            </p>
+          </div>
+        </div>
+      ) : null}
       <section
         className="relative mx-auto min-h-[calc(100svh-5rem)] max-w-7xl pt-8 sm:pt-12 lg:grid lg:grid-cols-[minmax(0,1.03fr)_minmax(22rem,.97fr)] lg:items-center lg:gap-8 lg:pt-5"
         aria-labelledby="today-training"
@@ -246,8 +267,17 @@ export default function ContinuityHome() {
               </dl>
 
               <div className="mt-7 flex max-w-lg flex-col gap-3 sm:flex-row">
-                <Link
-                  href={ctaHref}
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!ready) {
+                      router.push(ctaHref);
+                      return;
+                    }
+                    setEnteringTraining(true);
+                    router.push("/app/practice?start=1");
+                  }}
+                  disabled={loading || enteringTraining}
                   aria-disabled={loading}
                   className={`group inline-flex min-h-14 flex-1 items-center justify-center gap-3 rounded-full bg-[#f0e6cf] px-7 text-sm font-semibold text-[#17140f] shadow-[0_14px_38px_rgba(198,158,80,.14)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#fff8e9] hover:shadow-[0_18px_48px_rgba(198,158,80,.2)] ${
                     loading ? "pointer-events-none opacity-60" : ""
@@ -268,7 +298,7 @@ export default function ContinuityHome() {
                       strokeLinejoin="round"
                     />
                   </svg>
-                </Link>
+                </button>
                 <button
                   type="button"
                   onClick={() => setDeferred(true)}

@@ -7,6 +7,7 @@ import {
   disconnectRealtime,
   recoverMicrophone,
   requestOpeningSpeech,
+  resumeRemoteAudio,
   setMicrophoneEnabled,
   type MicFallbackReason,
   type RealtimeConnection,
@@ -39,6 +40,7 @@ type VoiceArenaProps = {
   track?: CeTrack;
   eventTitle?: string;
   successCriteria?: string;
+  autoStart?: boolean;
 };
 
 type Phase =
@@ -70,6 +72,7 @@ export default function VoiceArena({
   track = "hello",
   eventTitle,
   successCriteria,
+  autoStart = false,
 }: VoiceArenaProps) {
   const connectionRef = useRef<RealtimeConnection | null>(null);
   const turnsRef = useRef<TranscriptTurn[]>([]);
@@ -80,6 +83,8 @@ export default function VoiceArena({
   const welcomeHintRef = useRef<string>("");
   const mountedRef = useRef(true);
   const lifecycleGenerationRef = useRef(0);
+  const autoStartAttemptedRef = useRef(false);
+  const beginButtonRef = useRef<HTMLButtonElement>(null);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState("");
@@ -96,7 +101,11 @@ export default function VoiceArena({
   const [momentum, setMomentum] = useState<Momentum | null>(null);
   const [momentumLoading, setMomentumLoading] = useState(false);
   const [savedSessionId, setSavedSessionId] = useState<string | null>(null);
+  const [sessionPersisted, setSessionPersisted] = useState(false);
+  const [completionError, setCompletionError] = useState("");
+  const [completionRetryPending, setCompletionRetryPending] = useState(false);
   const [welcomeLine, setWelcomeLine] = useState("");
+  const [remoteAudioBlocked, setRemoteAudioBlocked] = useState(false);
 
   const showDevDiagnostics = process.env.NODE_ENV === "development";
 
@@ -179,6 +188,15 @@ export default function VoiceArena({
 
     if (type === "error") {
       pushEvent(`Server error: ${JSON.stringify(event).slice(0, 120)}`);
+      const serverError =
+        event.error && typeof event.error === "object"
+          ? (event.error as { message?: unknown }).message
+          : null;
+      setError(
+        typeof serverError === "string"
+          ? serverError
+          : "Coach Forge hit a connection problem. Restart when you’re ready."
+      );
     }
 
     const { turns: next, added } = applyRealtimeTranscriptEvent(
@@ -228,6 +246,10 @@ export default function VoiceArena({
     setEvents([]);
     setMomentum(null);
     setSavedSessionId(null);
+    setSessionPersisted(false);
+    setCompletionError("");
+    setCompletionRetryPending(false);
+    setRemoteAudioBlocked(false);
     practiceSessionRef.current = null;
     setPhase("minting");
     pushEvent("Minting session…");
@@ -236,27 +258,14 @@ export default function VoiceArena({
     voiceSessionIdRef.current = newVoiceId;
     createdAtRef.current = new Date().toISOString();
 
-    let startStage = "practice_session";
+    let startStage = "realtime_session_fetch";
     try {
       disconnectRealtime(connectionRef.current);
       connectionRef.current = null;
 
-      // Permanent practice_sessions row — voice history survives End.
       const scenarioTitle =
         eventTitle?.trim() || CE_TRACK_TITLES[track] || "Voice practice with Forge";
-      const practice = await createPracticeSession({
-        scenarioId: `voice_${track}`,
-        scenarioTitle,
-        missionPrompt:
-          successCriteria?.trim() ||
-          "Practice clear, warm, confident communication out loud with Forge.",
-        modality: "voice",
-      });
-      practiceSessionRef.current = practice;
-      setSavedSessionId(practice.id);
-      pushEvent(`Session saved · ${practice.id.slice(0, 8)}`);
 
-      startStage = "realtime_session_fetch";
       const tokenRes = await fetch("/api/realtime/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -333,8 +342,22 @@ export default function VoiceArena({
               : current
           );
         },
+        onRemotePlayback: (state) => {
+          setRemoteAudioBlocked(state === "blocked");
+          pushEvent(
+            state === "blocked"
+              ? "Forge audio needs a tap"
+              : "Forge audio playing"
+          );
+        },
         onConnectionState: (state) => {
           pushEvent(`Peer: ${state}`);
+          if (state === "failed") {
+            setError(
+              "The Training Room lost its connection. Restart when you’re ready."
+            );
+            setPhase("error");
+          }
         },
         onServerEvent: handleServerEvent,
       });
@@ -345,6 +368,20 @@ export default function VoiceArena({
         setMicrophoneEnabled(connection, false);
         setMicLive(false);
       }
+
+      // Do not create permanent history until Realtime is connected.
+      startStage = "practice_session";
+      const practice = await createPracticeSession({
+        scenarioId: `voice_${track}`,
+        scenarioTitle,
+        missionPrompt:
+          successCriteria?.trim() ||
+          "Practice clear, warm, confident communication out loud with Forge.",
+        modality: "voice",
+      });
+      practiceSessionRef.current = practice;
+      setSavedSessionId(practice.id);
+      pushEvent(`Session saved · ${practice.id.slice(0, 8)}`);
 
       setPhase("speaking");
       startStage = "opening_speech";
@@ -376,6 +413,24 @@ export default function VoiceArena({
         err instanceof Error ? err.message : "Could not start. Try again."
       );
       pushEvent("FAILED");
+    }
+  }
+
+  useEffect(() => {
+    if (!autoStart || autoStartAttemptedRef.current) return;
+    autoStartAttemptedRef.current = true;
+    beginButtonRef.current?.click();
+  }, [autoStart]);
+
+  async function handleResumeRemoteAudio() {
+    const connection = connectionRef.current;
+    if (!connection) return;
+    const resumed = await resumeRemoteAudio(connection);
+    setRemoteAudioBlocked(!resumed);
+    if (!resumed) {
+      setError(
+        "Coach Forge audio is still blocked. Check this site’s sound setting and try again."
+      );
     }
   }
 
@@ -445,6 +500,43 @@ export default function VoiceArena({
     setMicLive(false);
   }
 
+  async function persistCompletedVoiceSession(
+    snapshot: TranscriptTurn[],
+    wrap: Momentum
+  ) {
+    const practice = practiceSessionRef.current;
+    if (!practice) {
+      setCompletionError(
+        "This session could not be linked to your history. Return home and begin a new rep."
+      );
+      return;
+    }
+
+    setCompletionRetryPending(true);
+    setCompletionError("");
+    try {
+      const user = await getUser().catch(() => null);
+      const conversation = voiceTurnsToConversationTurns(snapshot);
+      const completed = await completePracticeSession(practice, conversation, {
+        modality: "voice",
+        momentum: wrap,
+        displayName: user?.displayName,
+      });
+      practiceSessionRef.current = completed;
+      setSavedSessionId(completed.id);
+      setSessionPersisted(true);
+      pushEvent("History saved · session report");
+    } catch (err) {
+      console.warn("[voice] complete session failed", err);
+      pushEvent("History save failed");
+      setCompletionError(
+        "Your wrap is ready, but the session did not save. Check your connection and try again."
+      );
+    } finally {
+      setCompletionRetryPending(false);
+    }
+  }
+
   async function handleStop() {
     if (voiceSessionIdRef.current && turnsRef.current.length > 0) {
       persistTurns(turnsRef.current);
@@ -452,6 +544,7 @@ export default function VoiceArena({
     lifecycleGenerationRef.current += 1;
     disconnectRealtime(connectionRef.current);
     connectionRef.current = null;
+    setActiveVoiceSessionId(null);
     setMicLive(false);
     pushEvent("Ended");
 
@@ -503,25 +596,7 @@ export default function VoiceArena({
       setMomentum(wrap);
     }
 
-    // Complete permanent history in Supabase
-    const practice = practiceSessionRef.current;
-    if (practice) {
-      try {
-        const user = await getUser().catch(() => null);
-        const conversation = voiceTurnsToConversationTurns(snapshot);
-        const completed = await completePracticeSession(practice, conversation, {
-          modality: "voice",
-          momentum: wrap,
-          displayName: user?.displayName,
-        });
-        practiceSessionRef.current = completed;
-        setSavedSessionId(completed.id);
-        pushEvent(`History saved · session # report`);
-      } catch (err) {
-        console.warn("[voice] complete session failed", err);
-        pushEvent("History save failed");
-      }
-    }
+    await persistCompletedVoiceSession(snapshot, wrap);
 
     setMomentumLoading(false);
   }
@@ -540,7 +615,7 @@ export default function VoiceArena({
 
   const presenceLabel =
     phase === "idle"
-      ? "Forge"
+      ? "Coach Forge"
       : phase === "minting" || phase === "connecting"
         ? "Connecting…"
         : phase === "speaking"
@@ -567,7 +642,7 @@ export default function VoiceArena({
       <div className="relative mx-auto flex min-h-[100dvh] max-w-3xl flex-col px-5 py-6 sm:px-8">
         <header className="flex items-center justify-between gap-3">
           <Link
-            href="/"
+            href="/app"
             className="text-sm text-white/45 transition hover:text-white/80"
           >
             TalkForge
@@ -591,7 +666,7 @@ export default function VoiceArena({
           {phase === "idle" ? (
             <>
               <p className="text-sm uppercase tracking-[0.28em] text-white/40">
-                Forge
+                Coach Forge
               </p>
               <h1 className="mt-5 max-w-xl text-4xl font-semibold tracking-tight sm:text-5xl">
                 {eventTitle?.trim() || "I’m ready when you are"}
@@ -611,6 +686,7 @@ export default function VoiceArena({
                 </p>
               )}
               <button
+                ref={beginButtonRef}
                 type="button"
                 onClick={handleStart}
                 className="mt-10 rounded-full bg-white px-10 py-4 text-sm font-semibold text-black transition hover:bg-white/90"
@@ -666,28 +742,48 @@ export default function VoiceArena({
                 </div>
               ) : null}
 
-              {savedSessionId ? (
+              {sessionPersisted ? (
                 <p className="mt-8 text-xs uppercase tracking-[0.18em] text-emerald-300/80">
                   Saved to your history
                 </p>
               ) : null}
 
+              {completionError ? (
+                <div className="mt-6 max-w-md">
+                  <p className="text-sm text-red-300" role="alert">
+                    {completionError}
+                  </p>
+                  {practiceSessionRef.current ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (momentum) {
+                          void persistCompletedVoiceSession(
+                            [...turnsRef.current],
+                            momentum
+                          );
+                        }
+                      }}
+                      disabled={completionRetryPending}
+                      className="mt-3 rounded-full border border-red-200/20 px-5 py-2.5 text-sm text-red-100 transition hover:bg-red-100/10 disabled:opacity-50"
+                    >
+                      {completionRetryPending ? "Saving…" : "Try saving again"}
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                <button
-                  type="button"
-                  onClick={handleStart}
-                  className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
-                >
-                  Practice again
-                </button>
+                {savedSessionId && sessionPersisted ? (
+                  <Link
+                    href={`/app/reflect/${savedSessionId}`}
+                    className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                  >
+                    Reflect on this rep
+                  </Link>
+                ) : null}
                 <Link
-                  href="/app/progress"
-                  className="rounded-full border border-white/20 px-6 py-3.5 text-sm text-white/80 transition hover:bg-white/10"
-                >
-                  See your growth
-                </Link>
-                <Link
-                  href="/app/dashboard"
+                  href="/app"
                   className="rounded-full border border-white/10 px-6 py-3.5 text-sm text-white/50 transition hover:bg-white/10"
                 >
                   Done for now
@@ -747,6 +843,16 @@ export default function VoiceArena({
                 </p>
               )}
 
+              {remoteAudioBlocked ? (
+                <button
+                  type="button"
+                  onClick={() => void handleResumeRemoteAudio()}
+                  className="mt-5 rounded-full border border-blue-200/25 px-5 py-2.5 text-sm text-blue-100 transition hover:bg-blue-100/10"
+                >
+                  Hear Coach Forge
+                </button>
+              ) : null}
+
               {micMode === "silent_fallback" && (
                 <div className="mt-6 max-w-md">
                   <p className="text-sm text-amber-200/80">
@@ -796,16 +902,31 @@ export default function VoiceArena({
                     phase === "connecting" ||
                     micMode !== "microphone"
                   }
-                  onMouseDown={handleSpeakDown}
-                  onMouseUp={handleSpeakUp}
-                  onMouseLeave={handleSpeakUp}
-                  onTouchStart={(e) => {
-                    e.preventDefault();
+                  onPointerDown={(event) => {
+                    event.currentTarget.setPointerCapture(event.pointerId);
                     handleSpeakDown();
                   }}
-                  onTouchEnd={(e) => {
-                    e.preventDefault();
+                  onPointerUp={(event) => {
+                    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+                      event.currentTarget.releasePointerCapture(event.pointerId);
+                    }
                     handleSpeakUp();
+                  }}
+                  onPointerCancel={handleSpeakUp}
+                  onKeyDown={(event) => {
+                    if (
+                      !event.repeat &&
+                      (event.key === " " || event.key === "Enter")
+                    ) {
+                      event.preventDefault();
+                      handleSpeakDown();
+                    }
+                  }}
+                  onKeyUp={(event) => {
+                    if (event.key === " " || event.key === "Enter") {
+                      event.preventDefault();
+                      handleSpeakUp();
+                    }
                   }}
                   className={`min-w-[10rem] rounded-full px-10 py-4 text-sm font-semibold transition disabled:opacity-35 ${
                     micLive

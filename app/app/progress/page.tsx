@@ -136,12 +136,18 @@ export default function ProgressPage() {
           Every practice session becomes permanent history. Forge uses it to
           coach you like someone who knows you — not a stranger every time.
         </p>
-        <div className="mt-6">
+        <div className="mt-6 flex flex-wrap gap-3">
           <Link
-            href="/app/practice"
+            href="/app"
             className="inline-flex rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:bg-zinc-200"
           >
-            Practice with Forge
+            Return to homepage
+          </Link>
+          <Link
+            href="/app/practice?start=1"
+            className="inline-flex rounded-full border border-white/15 px-5 py-3 text-sm font-medium text-zinc-300 transition hover:bg-white/10 hover:text-white"
+          >
+            Train again
           </Link>
         </div>
       </section>

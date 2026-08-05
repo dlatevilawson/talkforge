@@ -78,8 +78,7 @@ export default function ReflectPage() {
         coachSatisfaction: satisfaction,
         createdAt: new Date().toISOString(),
       });
-      // FLA-001: reality completes the learning loop after in-Forge reflection.
-      router.push(`/reality/${session.id}`);
+      router.push("/app/progress?from=reflection");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to save reflection."
@@ -113,7 +112,7 @@ export default function ReflectPage() {
             href="/app"
             className="mt-6 inline-flex rounded-full bg-white px-5 py-3 text-sm font-semibold text-black"
           >
-            Back to dashboard
+            Back to home
           </Link>
         </section>
       </>
@@ -124,7 +123,7 @@ export default function ReflectPage() {
     <>
       <section className="max-w-2xl">
         <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
-          Reflection Screen
+          Reflection
         </p>
         <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">
           Capture what you learned
@@ -216,7 +215,7 @@ export default function ReflectPage() {
             disabled={saving}
             className="rounded-full bg-blue-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-400 disabled:opacity-60"
           >
-            {saving ? "Saving to Supabase..." : "Save reflection"}
+            {saving ? "Saving reflection…" : "Continue to progress"}
           </button>
           <Link
             href="/app"
