@@ -144,7 +144,7 @@ export default function ProgressPage() {
             Return to homepage
           </Link>
           <Link
-            href="/app/practice?start=1"
+            href="/app"
             className="inline-flex rounded-full border border-white/15 px-5 py-3 text-sm font-medium text-zinc-300 transition hover:bg-white/10 hover:text-white"
           >
             Train again
@@ -277,7 +277,7 @@ export default function ProgressPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-xl font-semibold">Session history</h2>
               <Link
-                href="/app/practice"
+                href="/app"
                 className="rounded-full border border-white/15 px-4 py-2 text-sm text-zinc-200 hover:bg-white/10"
               >
                 Practice again

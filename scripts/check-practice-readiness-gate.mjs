@@ -61,8 +61,8 @@ function assertPracticePage(source) {
   );
   assert.match(
     source,
-    /redirect\s*\(\s*["']\/app["']\s*\)/,
-    "practice page must redirect incomplete members to /app"
+    /redirect\(`\/app\?gate=\$\{access\.reason\}`\)|redirect\s*\(\s*["']\/app/,
+    "practice page must redirect incomplete members to /app with gate reason"
   );
 }
 
@@ -110,6 +110,11 @@ function assertReadinessRequiresContext(source) {
     source,
     /!hasName\s*&&\s*!hasPurpose\s*&&\s*!hasPrinciple\s*&&\s*!hasSeason/,
     "name-only readiness unlock must stay retired"
+  );
+  assert.match(
+    source,
+    /href:\s*["']\/app\/profile["']/,
+    "incomplete readiness must recommend Living Profile, not practice"
   );
 }
 

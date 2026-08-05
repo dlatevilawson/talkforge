@@ -17,7 +17,7 @@ export default async function VoicePage({
   await connection();
   const access = await evaluatePracticeRouteAccess();
   if (!access.allowed) {
-    redirect("/app");
+    redirect(`/app?gate=${access.reason}`);
   }
 
   const params = await searchParams;

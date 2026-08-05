@@ -185,10 +185,12 @@ export async function persistActiveSession(
   session: PracticeSession,
   turns: ConversationTurn[]
 ): Promise<PracticeSession> {
+  // Never clear a completed session — in-flight turn upserts must not race End.
   const next: PracticeSession = {
     ...session,
     turns,
     averageScore: averageForgeScore(turns),
+    completedAt: session.completedAt,
   };
   await saveSession(next);
   return next;

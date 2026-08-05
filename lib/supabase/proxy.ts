@@ -110,13 +110,20 @@ export async function updateSession(request: NextRequest) {
   ) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/verify-email";
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user?.email) {
+      redirectUrl.searchParams.set("email", user.email);
+    }
+    redirectUrl.searchParams.set("next", "/onboarding");
     return NextResponse.redirect(redirectUrl);
   }
 
   if (pathname.startsWith("/founder")) {
     if (!canAccessFounderPortal(role)) {
       const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = "/app/dashboard";
+      redirectUrl.pathname = "/app";
       return NextResponse.redirect(redirectUrl);
     }
     return supabaseResponse;
@@ -134,7 +141,8 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(redirectUrl);
     }
 
-    if (profile && !profile.onboarding_complete) {
+    // Missing profile row must not skip onboarding (broken signup trigger).
+    if (!profile || !profile.onboarding_complete) {
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = "/onboarding";
       return NextResponse.redirect(redirectUrl);

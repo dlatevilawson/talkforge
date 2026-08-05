@@ -101,16 +101,16 @@ export default function DashboardPage() {
 
         <div className="mt-8 flex flex-wrap gap-3">
           <Link
-            href="/app/practice"
+            href="/app"
             className="rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-black transition hover:bg-zinc-200"
           >
-            {hasPractice ? "Practice with Forge" : "Begin with Forge"}
+            {hasPractice ? "Continue from Home" : "Go to Home"}
           </Link>
           <Link
-            href="/app/prepare"
+            href="/app/profile"
             className="rounded-full border border-white/15 px-5 py-3.5 text-sm font-medium text-zinc-200 transition hover:bg-white/10"
           >
-            Name what you’re preparing for
+            Living Profile
           </Link>
         </div>
 
@@ -164,10 +164,10 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <Link
-                    href="/app/practice"
+                    href="/app"
                     className="text-sm text-zinc-300 underline-offset-4 hover:underline"
                   >
-                    Practice again
+                    Continue from Home
                   </Link>
                 </div>
               </li>

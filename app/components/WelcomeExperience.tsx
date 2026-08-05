@@ -90,12 +90,9 @@ export default function WelcomeExperience() {
         window.localStorage.setItem(WELCOME_KEY, "1");
       }
 
-      const params = new URLSearchParams({
-        track: brought === "interview" ? "behavioral_tech" : "hello",
-        title: choice.title,
-        success: choice.success,
-      });
-      router.push(`/app/practice?${params.toString()}`);
+      // Coaching entry is Home → readiness → practice. Never deep-link Forge.
+      void choice;
+      router.push("/app");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Could not start. Please try again."

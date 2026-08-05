@@ -227,8 +227,8 @@ export function buildAdaptiveHome(
     return {
       readiness,
       recommendation: {
-        title: "Begin with Forge",
-        href: "/app/practice",
+        title: "Set your training focus",
+        href: "/app/profile",
         continuityLine: name
           ? `${name}, start by naming what matters on your Living Profile — then practice.`
           : "Start by naming what matters on your Living Profile — then practice.",

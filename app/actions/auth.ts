@@ -611,12 +611,32 @@ export async function verifyEmailOtpAction(
     };
   }
 
+  const next = safeNextPath(
+    String(formData.get("next") ?? ""),
+    "/onboarding"
+  );
+
   const supabase = await createServerSupabaseClient();
-  const { error } = await supabase.auth.verifyOtp({
-    email,
-    token,
-    type: "email",
-  });
+  // Signup confirmation codes use type "signup"; recovery/email OTP uses "email".
+  let error =
+    (
+      await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: "signup",
+      })
+    ).error ?? null;
+
+  if (error) {
+    error =
+      (
+        await supabase.auth.verifyOtp({
+          email,
+          token,
+          type: "email",
+        })
+      ).error ?? null;
+  }
 
   if (error) {
     logAuthEvent("auth_verification_failure", { reason: error.message });
@@ -630,7 +650,11 @@ export async function verifyEmailOtpAction(
   }
 
   logAuthEvent("auth_verification_success", { method: "otp" });
-  return { ok: true, redirectTo: "/onboarding" };
+  return {
+    ok: true,
+    message: "Email verified. Continuing…",
+    redirectTo: next,
+  };
 }
 
 /**
@@ -700,5 +724,13 @@ export async function verifyEmailLinkAction(
   if (type === "recovery") {
     return { ok: true, redirectTo: "/reset-password" };
   }
-  return { ok: true, redirectTo: "/onboarding" };
+  const next = safeNextPath(
+    String(formData.get("next") ?? ""),
+    "/onboarding"
+  );
+  return {
+    ok: true,
+    message: "Email verified. Continuing…",
+    redirectTo: next,
+  };
 }
