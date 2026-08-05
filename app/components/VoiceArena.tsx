@@ -846,6 +846,14 @@ export default function VoiceArena({
                       Restart
                     </button>
                   )}
+                {phase === "error" ? (
+                  <Link
+                    href="/app"
+                    className="rounded-full border border-white/20 px-6 py-3 text-sm text-white/80 transition hover:bg-white/10"
+                  >
+                    Back to home
+                  </Link>
+                ) : null}
                 <button
                   type="button"
                   disabled={
