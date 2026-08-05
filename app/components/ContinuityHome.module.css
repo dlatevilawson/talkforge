@@ -1,0 +1,729 @@
+.home {
+  --machine-ink: #16191d;
+  --machine-edge: #383d43;
+  --machine-light: #f0c97d;
+  isolation: isolate;
+  position: relative;
+  display: grid;
+  min-height: calc(100svh - 112px);
+  grid-template-columns: minmax(0, 0.92fr) minmax(430px, 1.08fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 7rem);
+  overflow: hidden;
+  padding: clamp(3rem, 6vw, 6.5rem) clamp(1.25rem, 3vw, 3rem);
+}
+
+.ambient {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background:
+    radial-gradient(circle at 76% 42%, rgb(200 156 78 / 11%), transparent 24%),
+    radial-gradient(circle at 77% 58%, rgb(102 127 144 / 10%), transparent 38%),
+    linear-gradient(105deg, transparent 42%, rgb(255 255 255 / 2%) 100%);
+  pointer-events: none;
+}
+
+.ambient::after {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgb(255 255 255 / 1.4%) 1px, transparent 1px);
+  background-size: 100% 7rem;
+  content: "";
+  mask-image: linear-gradient(90deg, transparent, black 62%, transparent);
+  opacity: 0.3;
+}
+
+.copy {
+  z-index: 2;
+  max-width: 41rem;
+  animation: copy-in 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.coachLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: clamp(2rem, 5vh, 4.5rem);
+}
+
+.coachLabel > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.coachLabel strong {
+  color: #f4f1ea;
+  font-size: 0.74rem;
+  font-weight: 590;
+  letter-spacing: 0.14em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.coachLabel small {
+  color: #747980;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
+.coachMark {
+  display: grid;
+  width: 2.15rem;
+  height: 2.15rem;
+  place-items: center;
+  border: 1px solid rgb(240 201 125 / 30%);
+  border-radius: 50%;
+  background: rgb(240 201 125 / 7%);
+  box-shadow: inset 0 0 0 4px rgb(0 0 0 / 18%);
+}
+
+.coachMark svg {
+  width: 1.05rem;
+  fill: none;
+  stroke: var(--machine-light);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.4;
+}
+
+.heading {
+  max-width: 12ch;
+  color: #f7f6f2;
+  font-size: clamp(3.25rem, 5.9vw, 6.1rem);
+  font-weight: 480;
+  letter-spacing: -0.065em;
+  line-height: 0.94;
+  text-wrap: balance;
+}
+
+.recommendation {
+  margin-top: clamp(2.2rem, 5vh, 4rem);
+}
+
+.machineName {
+  margin-bottom: 0.65rem;
+  color: var(--machine-light);
+  font-size: 0.7rem;
+  font-weight: 620;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.focus {
+  max-width: 31rem;
+  color: #c9c8c4;
+  font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+  font-weight: 410;
+  letter-spacing: -0.02em;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+
+.loadingLine {
+  display: block;
+  width: min(22rem, 80%);
+  height: 1.25rem;
+  overflow: hidden;
+  border-radius: 99px;
+  background: #1a1d20;
+}
+
+.loadingLine::after {
+  display: block;
+  width: 48%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 9%), transparent);
+  content: "";
+  animation: loading 1.7s ease-in-out infinite;
+}
+
+.reason {
+  display: grid;
+  max-width: 30rem;
+  grid-template-columns: 2.5rem 1fr;
+  align-items: start;
+  gap: 0.9rem;
+  margin-top: 1.8rem;
+}
+
+.reasonLine {
+  height: 1px;
+  margin-top: 0.7rem;
+  background: linear-gradient(90deg, var(--machine-light), transparent);
+  opacity: 0.65;
+}
+
+.reason p {
+  color: #747980;
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.action {
+  margin-top: clamp(2.25rem, 5vh, 4rem);
+}
+
+.primaryAction {
+  display: inline-flex;
+  min-height: 3.7rem;
+  align-items: center;
+  justify-content: center;
+  gap: 2.6rem;
+  padding: 0.9rem 1rem 0.9rem 1.45rem;
+  border: 1px solid #f7f6f2;
+  border-radius: 999px;
+  background: #f7f6f2;
+  box-shadow: 0 14px 42px rgb(0 0 0 / 35%);
+  color: #111315;
+  font-size: 0.86rem;
+  font-weight: 620;
+  letter-spacing: -0.01em;
+  transition:
+    box-shadow 260ms ease,
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 260ms ease;
+}
+
+.primaryAction svg {
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0.45rem;
+  border-radius: 50%;
+  background: #151719;
+  fill: none;
+  stroke: white;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.35;
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.primaryAction:hover {
+  background: white;
+  box-shadow: 0 18px 55px rgb(0 0 0 / 45%);
+  transform: translateY(-2px);
+}
+
+.primaryAction:hover svg {
+  transform: translateX(2px);
+}
+
+.primaryAction:disabled {
+  cursor: wait;
+  opacity: 0.58;
+  transform: none;
+}
+
+.actionNote {
+  margin-top: 0.9rem;
+  margin-left: 1.45rem;
+  color: #5d6268;
+  font-size: 0.7rem;
+  letter-spacing: 0.01em;
+}
+
+.machineArea {
+  position: relative;
+  display: flex;
+  min-height: 43rem;
+  align-items: center;
+  justify-content: center;
+  animation: machine-in 1100ms 100ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.status {
+  position: absolute;
+  z-index: 5;
+  top: 4%;
+  right: 3%;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: #747980;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.statusDot {
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 50%;
+  background: #8b7851;
+  box-shadow: 0 0 0 4px rgb(240 201 125 / 5%);
+}
+
+.readyStatus .statusDot {
+  background: var(--machine-light);
+}
+
+.machineStage {
+  position: relative;
+  display: grid;
+  width: min(100%, 37rem);
+  height: 38rem;
+  place-items: center;
+  perspective: 1000px;
+}
+
+.backlight {
+  position: absolute;
+  top: 8%;
+  width: 70%;
+  height: 68%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(240 201 125 / 16%) 0%, rgb(68 82 91 / 7%) 40%, transparent 72%);
+  filter: blur(12px);
+  opacity: 0.7;
+  transform: scale(0.94);
+  transition:
+    opacity 800ms ease,
+    transform 1000ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.machineReady .backlight {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.machine {
+  position: relative;
+  z-index: 2;
+  width: 17.5rem;
+  height: 31rem;
+  margin-top: -2rem;
+  filter: drop-shadow(0 40px 40px rgb(0 0 0 / 58%));
+  transform: rotateY(-4deg) rotateX(1deg);
+  transform-style: preserve-3d;
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.machineStage:hover .machine {
+  transform: rotateY(0) rotateX(0) translateY(-4px);
+}
+
+.machineCrown {
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  left: 4.15rem;
+  display: flex;
+  width: 9.2rem;
+  height: 3.4rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.1rem;
+  border: 1px solid #34383d;
+  border-bottom-color: #131519;
+  border-radius: 1rem 1rem 0.35rem 0.35rem;
+  background: linear-gradient(145deg, #282c30, #111316 72%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 7%),
+    0 12px 20px rgb(0 0 0 / 38%);
+}
+
+.machineCrown span {
+  color: #7b8085;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.machineCrown i {
+  width: 0.32rem;
+  height: 0.32rem;
+  border-radius: 50%;
+  background: var(--machine-light);
+  box-shadow: 0 0 10px rgb(240 201 125 / 55%);
+}
+
+.machineShoulder {
+  position: absolute;
+  z-index: 3;
+  top: 2.75rem;
+  left: 1.25rem;
+  width: 15rem;
+  height: 5rem;
+  border: 1px solid #34383d;
+  border-radius: 1.4rem 1.4rem 0.5rem 0.5rem;
+  background:
+    linear-gradient(100deg, rgb(255 255 255 / 5%), transparent 24%),
+    linear-gradient(160deg, #262a2e, #111316 72%);
+  clip-path: polygon(13% 0, 87% 0, 100% 40%, 94% 100%, 6% 100%, 0 40%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 8%),
+    0 18px 30px rgb(0 0 0 / 45%);
+}
+
+.shoulderLight {
+  position: absolute;
+  top: 1.5rem;
+  left: 3.1rem;
+  width: 8.8rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(240 201 125 / 60%), transparent);
+  box-shadow: 0 0 8px rgb(240 201 125 / 20%);
+}
+
+.machineFace {
+  position: absolute;
+  z-index: 5;
+  top: 6rem;
+  left: 2.25rem;
+  width: 13rem;
+  height: 10.5rem;
+  overflow: hidden;
+  border: 1px solid #3a3e43;
+  border-radius: 0.75rem;
+  background:
+    linear-gradient(130deg, rgb(255 255 255 / 6%), transparent 27%),
+    linear-gradient(160deg, #202429, #0e1012 76%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 8%),
+    inset 0 -24px 50px rgb(0 0 0 / 38%),
+    0 16px 30px rgb(0 0 0 / 40%);
+}
+
+.machineFace::after {
+  position: absolute;
+  inset: 0;
+  border: 5px solid rgb(0 0 0 / 12%);
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+}
+
+.aperture {
+  position: absolute;
+  top: 2rem;
+  left: 2rem;
+  display: flex;
+  width: 4.6rem;
+  height: 4.6rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.26rem;
+  border: 1px solid #34383e;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 45%, #252a2f 0 20%, #0b0d0f 62%),
+    #0b0d0f;
+  box-shadow:
+    inset 0 0 0 6px #13161a,
+    inset 0 0 18px black,
+    0 0 0 1px rgb(255 255 255 / 3%);
+}
+
+.aperture span {
+  width: 2px;
+  height: 1rem;
+  border-radius: 2px;
+  background: #6d5934;
+  box-shadow: 0 0 6px rgb(240 201 125 / 14%);
+  transition:
+    height 500ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 500ms ease;
+}
+
+.aperture span:nth-child(2) {
+  height: 1.75rem;
+}
+
+.machineReady .aperture span {
+  background: var(--machine-light);
+}
+
+.machineReady .aperture span:first-child,
+.machineReady .aperture span:last-child {
+  height: 1.35rem;
+}
+
+.faceCopy {
+  position: absolute;
+  right: 1.7rem;
+  bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+}
+
+.faceCopy small {
+  color: #676d73;
+  font-size: 0.48rem;
+  font-style: normal;
+  letter-spacing: 0.2em;
+}
+
+.faceCopy strong {
+  color: #b8bab8;
+  font-size: 1.75rem;
+  font-weight: 300;
+  letter-spacing: -0.08em;
+}
+
+.machineCore {
+  position: absolute;
+  z-index: 2;
+  top: 15.5rem;
+  left: 3rem;
+  display: flex;
+  width: 11.5rem;
+  height: 11.6rem;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.4rem 1.35rem;
+  border-right: 1px solid #2c3034;
+  border-left: 1px solid #363a3f;
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 4%), transparent 16%),
+    linear-gradient(#15181b, #0d0f11);
+  box-shadow: inset 0 0 36px rgb(0 0 0 / 48%);
+}
+
+.coreRail {
+  width: 1.2rem;
+  border: 1px solid #25292d;
+  border-radius: 0.2rem;
+  background: linear-gradient(90deg, #111315, #202429 55%, #101214);
+  box-shadow: inset 1px 0 rgb(255 255 255 / 3%);
+}
+
+.coreLight {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  width: 5.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #6d5934, transparent);
+  transform: translateX(-50%);
+  transition: background 600ms ease;
+}
+
+.machineReady .coreLight {
+  background: linear-gradient(90deg, transparent, var(--machine-light), transparent);
+  box-shadow: 0 0 9px rgb(240 201 125 / 20%);
+}
+
+.machineBase {
+  position: absolute;
+  z-index: 4;
+  bottom: 0;
+  left: 1.5rem;
+  display: grid;
+  width: 14.5rem;
+  height: 5rem;
+  place-items: center;
+  border: 1px solid #33373c;
+  border-top-color: #24282c;
+  border-radius: 0.55rem 0.55rem 1.25rem 1.25rem;
+  background:
+    linear-gradient(100deg, rgb(255 255 255 / 5%), transparent 20%),
+    linear-gradient(165deg, #202429, #0e1012 70%);
+  clip-path: polygon(6% 0, 94% 0, 100% 72%, 88% 100%, 12% 100%, 0 72%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 5%),
+    0 20px 32px rgb(0 0 0 / 55%);
+}
+
+.machineBase span {
+  width: 5rem;
+  height: 0.24rem;
+  border-radius: 99px;
+  background: #090a0b;
+  box-shadow: inset 0 1px rgb(255 255 255 / 4%);
+}
+
+.floor {
+  position: absolute;
+  z-index: 1;
+  bottom: 1.2rem;
+  left: 50%;
+  width: 31rem;
+  height: 9rem;
+  border: 1px solid rgb(255 255 255 / 7%);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgb(240 201 125 / 6%), transparent 58%);
+  box-shadow: 0 26px 45px rgb(0 0 0 / 65%);
+  transform: translateX(-50%) rotateX(68deg);
+}
+
+.floor span {
+  position: absolute;
+  inset: 17%;
+  border: 1px solid rgb(255 255 255 / 5%);
+  border-radius: inherit;
+}
+
+.floor span:nth-child(2) {
+  inset: 33%;
+}
+
+.floor span:nth-child(3) {
+  inset: 45%;
+  border-color: rgb(240 201 125 / 12%);
+}
+
+.machineCaption {
+  position: absolute;
+  right: 0;
+  bottom: 6%;
+  width: 8.5rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+}
+
+.machineCaption span {
+  color: #5d6268;
+  font-size: 0.57rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.machineCaption p {
+  margin-top: 0.4rem;
+  color: #989b9d;
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+@keyframes copy-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+@keyframes machine-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+}
+
+@keyframes loading {
+  from {
+    transform: translateX(-110%);
+  }
+
+  to {
+    transform: translateX(240%);
+  }
+}
+
+@media (max-width: 950px) {
+  .home {
+    min-height: auto;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding-top: 4rem;
+  }
+
+  .copy {
+    max-width: 44rem;
+  }
+
+  .heading {
+    max-width: 10ch;
+  }
+
+  .machineArea {
+    min-height: 39rem;
+  }
+
+  .status {
+    top: 5%;
+    right: 8%;
+  }
+
+  .machineCaption {
+    right: 7%;
+  }
+}
+
+@media (max-width: 600px) {
+  .home {
+    display: flex;
+    flex-direction: column;
+    padding: 2.5rem 0 3rem;
+  }
+
+  .ambient {
+    inset: -2rem -1rem;
+  }
+
+  .copy {
+    width: 100%;
+  }
+
+  .coachLabel {
+    margin-bottom: 2.5rem;
+  }
+
+  .heading {
+    max-width: 11ch;
+    font-size: clamp(3rem, 15vw, 4.25rem);
+  }
+
+  .recommendation {
+    margin-top: 2.25rem;
+  }
+
+  .focus {
+    max-width: 22rem;
+    font-size: 1.05rem;
+  }
+
+  .reason {
+    grid-template-columns: 1.8rem 1fr;
+  }
+
+  .action {
+    width: 100%;
+    margin-top: 2rem;
+  }
+
+  .primaryAction {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .machineArea {
+    width: 100%;
+    min-height: 32rem;
+    margin-top: 1.5rem;
+  }
+
+  .status {
+    top: 0;
+    right: 0;
+  }
+
+  .machineStage {
+    height: 31rem;
+    transform: scale(0.85);
+  }
+
+  .machineCaption {
+    right: 0;
+    bottom: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy,
+  .machineArea,
+  .loadingLine::after {
+    animation: none;
+  }
+
+  .machine,
+  .backlight,
+  .primaryAction,
+  .primaryAction svg {
+    transition: none;
+  }
+}

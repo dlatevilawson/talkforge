@@ -9,18 +9,18 @@
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
 # Change Log: 2026-07-19 — RES-011 TalkForge primary; Atlas in service
 
-version: 1.0.0
-updated_at: "2026-07-19"
+version: 1.0.6
+updated_at: "2026-08-04"
 milestone: M9
 description: >
   Canonical index of governed ATOS document IDs. Completeness means every known ID
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
 
 counts:
-  total: 127
-  with_path: 124
+  total: 139
+  with_path: 136
   planned: 3
-  authoritative: 40
+  authoritative: 41
 
 documents:
   - id: ATOS-NAV
@@ -1400,6 +1400,114 @@ documents:
     owner: Founder
     ai_steward: Atlas
     layer: registries
+
+  - id: CXA-001
+    title: "Chief Experience Architect Charter"
+    path: atos/product/CXA-001-chief-experience-architect-charter.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: product
+
+  - id: TDS-001
+    title: "TalkForge Design System v1.0"
+    path: atos/product/TDS-001-talkforge-design-system.md
+    state: draft
+    version: "1.0.0"
+    owner: Chief Experience Architect
+    ai_steward: Atlas
+    layer: product
+
+  - id: IV-UX-006
+    title: "TalkForge Design System"
+    path: atos/knowledge/working/idea-vault/ux-ideas/IV-UX-006-talkforge-design-system.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+
+  - id: BS-008
+    title: "Design system becomes aesthetic bureaucracy"
+    path: atos/knowledge/working/blind-spot-register/bs-008.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+
+  - id: IV-FUT-005
+    title: "Phase 9 Emotional Architecture"
+    path: atos/knowledge/working/idea-vault/future-ideas/IV-FUT-005-emotional-architecture.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+
+  - id: IV-UX-007
+    title: "Phase 10 Product Experience Design"
+    path: atos/knowledge/working/idea-vault/ux-ideas/IV-UX-007-phase-10-product-design.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+
+  - id: MBL-001
+    title: "Machine Behavior Language"
+    path: atos/product/MBL-001-machine-behavior-language.md
+    state: draft
+    version: "1.0.0"
+    owner: Chief Interaction Architect
+    ai_steward: Atlas
+    layer: product
+
+  - id: IV-UX-008
+    title: "Machine Behavior Language"
+    path: atos/knowledge/working/idea-vault/ux-ideas/IV-UX-008-machine-behavior-language.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+
+  - id: BS-009
+    title: "Behavioral language becomes theater"
+    path: atos/knowledge/working/blind-spot-register/bs-009.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+
+  - id: THIP-001
+    title: "TalkForge Human Interface Philosophy"
+    path: atos/product/THIP-001-human-interface-philosophy.md
+    state: draft
+    version: "1.0.0"
+    owner: Chief Experience Architect
+    ai_steward: Atlas
+    layer: product
+
+  - id: IV-PHIL-011
+    title: "TalkForge Human Interface Philosophy"
+    path: atos/knowledge/working/idea-vault/philosophy/IV-PHIL-011-human-interface-philosophy.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
+
+  - id: BS-010
+    title: "Interface philosophy becomes untouchable dogma"
+    path: atos/knowledge/working/blind-spot-register/bs-010.md
+    state: draft
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: knowledge
 
   - id: HIST-README
     title: "Governance History"

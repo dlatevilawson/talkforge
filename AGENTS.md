@@ -19,6 +19,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | [DEC-LEDGER-001](atos/product/DEC-LEDGER-001-decision-ledger.md) | Decision Ledger rules |
 | [CRAFT-LAW-001](atos/product/CRAFT-LAW-001.md) | Craft Law #001 — human / trustworthy / courageous |
 | [DES-001](atos/product/DES-001-cognitive-load.md) | Design Principle #001 — reduce cognitive load |
+| [CXA-001](atos/product/CXA-001-chief-experience-architect-charter.md) | Chief Experience Architect — Canonical member experience doctrine |
 | [AUDIT-001](atos/product/AUDIT-001-architecture-readiness.md) | Architecture Readiness Audit (baseline NO-GO) |
 | [AUDIT-001.1](atos/product/AUDIT-001.1-architecture-reaudit.md) | Re-audit — **NO-GO** unconstrained · **CONDITIONAL GO** SYS1/SYS2 |
 | [AUDIT-001.2](atos/product/AUDIT-001.2-conditional-go-reaudit.md) | Conditional GO re-audit — **GO** prod migration/hardening · **NO-GO** features |
@@ -56,6 +57,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Iterate:** Improve existing systems before introducing new ones.
 - Phase 3 code follows BUILD-SYS1 → SYS2 → CE → UX dependencies.
 - **Dual ship test:** Craft Law #001 + Design Principle #001 (both must pass).
+- **Experience authority (Decision 058 / CXA-001):** CXA owns member experience standards and may require redesign; Founder retains final production approval. Homepage hierarchy is adaptive priority. Outcomes are training intentions, never transformation guarantees. Undefined progress metrics must not ship.
 - **Remediation (Decision 053 + AUDIT-001.2):** LP UI and System 2 contracts are implemented. Only production migration verification / controlled hardening may proceed. **NO-GO** for feature expansion and held identity PR merges. Respect FREEZE-001 / OWN-001 / Forge Laws #014–#017.
 - **Certification (EXEC-VERIFY-001):** **NO-GO** for feature development. Do not lift FREEZE-001 or add product capability until required security, SSOT, readiness-route, data-lifecycle, and registry fixes are re-certified.
 - **Checkpoint immutability:** HARDEN-001 through HARDEN-005 are frozen historical certifications. Every later hardening phase requires a separate Founder-approved checkpoint document; do not append implementation evidence to a frozen checkpoint.

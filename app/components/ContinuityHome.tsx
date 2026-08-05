@@ -4,6 +4,7 @@ import ExecutiveMachine from "@/app/components/ExecutiveMachine";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import styles from "./ContinuityHome.module.css";
 import { buildAdaptiveHome } from "@/lib/system2";
 import type { AdaptiveHomeModel } from "@/lib/system2";
 import { emptyLivingProfile } from "@/lib/system1/profile";
@@ -61,8 +62,8 @@ function intensityLabel(
 }
 
 /**
- * Adaptive Homepage — the Coach.
- * One readiness-led recommendation; supporting context never becomes a menu.
+ * Adaptive Coach Homepage — AUDIT-001 C3 remediation.
+ * Single continuity CTA. No mission menu, analytics, or invented readiness.
  */
 export default function ContinuityHome() {
   const router = useRouter();
@@ -126,281 +127,153 @@ export default function ContinuityHome() {
 
   const recommendation = home?.recommendation;
   const readiness = home?.readiness;
-  const ready = Boolean(readiness?.profileGatePassed);
-  const intensity = intensityLabel(profile?.coachingIntensity);
-  const objective = readiness?.objective?.trim();
-  const greetingName =
-    profile?.preferredNickname.trim() ||
-    firstName(profile?.displayName ?? "") ||
-    displayName;
-  const trainingTitle = ready
-    ? objective
-      ? "Practice what matters now."
-      : "Strengthen your voice."
-    : "Build your training plan.";
-  const whyToday = ready
-    ? recommendation?.continuityLine ??
-      "A focused round keeps the conversation you care about within reach."
-    : "A few details about who you are becoming help Forge choose the right work.";
-  const ctaHref = ready
-    ? recommendation?.href ?? "/app/practice"
-    : "/app/profile";
-  const ctaLabel = ready ? "Begin Training" : "Set Up My Training";
-  const progressLine =
-    growth.sessionsCompleted > 0
-      ? `${growth.sessionsCompleted} focused ${
-          growth.sessionsCompleted === 1 ? "session" : "sessions"
-        } completed${
-          growth.streakDays > 1 ? ` · ${growth.streakDays}-day rhythm` : ""
-        }.`
-      : "Your first completed round begins your training history.";
+  const isReady = Boolean(readiness?.profileGatePassed);
+  const focus = readiness?.objective;
+
+  const heading = loading
+    ? "Preparing today’s training."
+    : isReady
+      ? "Today, we’re training this."
+      : "Your training starts with context.";
+
+  const coachNote = loading
+    ? "Your Coach is reviewing what matters now."
+    : isReady
+      ? "One focused session, chosen from what you’ve said matters now."
+      : "Tell your Coach what matters so it can recommend one useful place to begin.";
 
   return (
-    <main className="tf-home -mx-4 -mt-8 overflow-hidden px-4 pb-16 sm:-mx-6 sm:px-6 lg:pb-24">
-      {enteringTraining ? (
-        <div
-          className="fixed inset-0 z-[100] grid place-items-center bg-[#07070a] text-center tf-training-entry"
-          role="status"
-          aria-live="polite"
-        >
-          <div>
-            <div className="mx-auto h-20 w-20 rounded-full border border-[#d7b56a]/25 bg-[radial-gradient(circle,#29241a,#090a0b_68%)] shadow-[0_0_70px_rgba(198,151,67,.18)]" />
-            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-[#c9a95f]">
-              Coach Forge
-            </p>
-            <p className="mt-3 text-lg text-zinc-300">
-              Joining your Training Room…
-            </p>
-          </div>
-        </div>
-      ) : null}
-      <section
-        className="relative mx-auto min-h-[calc(100svh-5rem)] max-w-7xl pt-8 sm:pt-12 lg:grid lg:grid-cols-[minmax(0,1.03fr)_minmax(22rem,.97fr)] lg:items-center lg:gap-8 lg:pt-5"
-        aria-labelledby="today-training"
-      >
-        <div className="pointer-events-none absolute left-[-20%] top-[-8rem] h-[30rem] w-[30rem] rounded-full bg-[#d0a75b]/[0.055] blur-[120px]" />
+    <section className={styles.home} aria-labelledby="coach-heading">
+      <div className={styles.ambient} aria-hidden="true" />
 
-        <div className="relative z-10 tf-home-settle">
-          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[#c9a95f]">
-            {loading
-              ? "Preparing your gym"
-              : `${getGreeting()}${greetingName ? `, ${greetingName}` : ""}`}
+      <div className={styles.copy}>
+        <div className={styles.coachLabel}>
+          <span className={styles.coachMark} aria-hidden="true">
+            <CoachGlyph />
+          </span>
+          <span>
+            <strong>Your Coach</strong>
+            <small>Today’s recommendation</small>
+          </span>
+        </div>
+
+        <h1 id="coach-heading" className={styles.heading}>
+          {heading}
+        </h1>
+
+        <div className={styles.recommendation} aria-live="polite">
+          <p className={styles.machineName}>Executive Machine</p>
+          <p className={styles.focus}>
+            {loading ? (
+              <span className={styles.loadingLine} aria-label="Loading recommendation" />
+            ) : isReady ? (
+              focus ?? "Practice the conversation that matters now."
+            ) : (
+              "Standing by for your direction."
+            )}
           </p>
-
-          {deferred ? (
-            <div
-              className="mt-8 max-w-xl rounded-[1.75rem] border border-white/[0.09] bg-white/[0.035] p-6 sm:p-8"
-              role="status"
-            >
-              <p className="text-sm font-medium text-zinc-200">
-                No pressure. Your training will be here.
-              </p>
-              <p className="mt-2 text-sm leading-6 text-zinc-500">
-                A good practice starts when you can give it your attention.
-              </p>
-              <button
-                type="button"
-                onClick={() => setDeferred(false)}
-                className="mt-5 min-h-11 rounded-full border border-white/10 px-5 text-sm font-medium text-zinc-300 transition hover:border-white/20 hover:bg-white/[0.05] hover:text-white"
-              >
-                Show today’s training
-              </button>
-            </div>
-          ) : (
-            <>
-              <div className="mt-6 flex items-center gap-3">
-                <span className="h-px w-8 bg-[#c9a95f]/60" />
-                <p className="text-xs font-medium uppercase tracking-[0.2em] text-zinc-500">
-                  Today’s training
-                </p>
-              </div>
-
-              <h1
-                id="today-training"
-                className="mt-5 max-w-3xl text-[clamp(2.8rem,8.5vw,5.9rem)] font-medium leading-[0.94] tracking-[-0.055em] text-[#f5f2eb]"
-              >
-                {loading ? "Finding your next rep." : trainingTitle}
-              </h1>
-
-              <div className="-my-2 mx-auto w-full max-w-[14rem] lg:hidden">
-                <ExecutiveMachine
-                  ready={!loading && ready}
-                  intensity={intensity}
-                />
-                <p className="-mt-5 text-center text-[0.58rem] uppercase tracking-[0.24em] text-zinc-700">
-                  Executive Machine
-                </p>
-              </div>
-
-              <p className="mt-6 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-600">
-                Why this matters today
-              </p>
-              <p className="mt-2 max-w-xl text-base leading-7 text-zinc-400 sm:text-lg sm:leading-8">
-                {loading
-                  ? "Forge is reading your focus and preparing one clear next step."
-                  : whyToday}
-              </p>
-
-              <dl className="mt-7 grid max-w-lg grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.08]">
-                <div className="bg-[#090a0b]/95 px-4 py-4 sm:px-5">
-                  <dt className="text-[0.65rem] uppercase tracking-[0.2em] text-zinc-600">
-                    Duration
-                  </dt>
-                  <dd className="mt-1.5 text-sm font-medium text-zinc-100">
-                    {TRAINING_PRESET.duration}
-                  </dd>
-                  <dd className="mt-0.5 text-xs text-zinc-600">
-                    {TRAINING_PRESET.durationDetail}
-                  </dd>
-                </div>
-                <div className="bg-[#090a0b]/95 px-4 py-4 sm:px-5">
-                  <dt className="text-[0.65rem] uppercase tracking-[0.2em] text-zinc-600">
-                    Coaching
-                  </dt>
-                  <dd className="mt-1.5 text-sm font-medium text-zinc-100">
-                    {intensity}
-                  </dd>
-                  <dd className="mt-0.5 text-xs text-zinc-600">
-                    Matched to your profile
-                  </dd>
-                </div>
-              </dl>
-
-              <div className="mt-7 flex max-w-lg flex-col gap-3 sm:flex-row">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!ready) {
-                      router.push(ctaHref);
-                      return;
-                    }
-                    setEnteringTraining(true);
-                    const trainingParams = new URLSearchParams({ start: "1" });
-                    if (objective) trainingParams.set("title", objective);
-                    router.push(`/app/practice?${trainingParams.toString()}`);
-                  }}
-                  disabled={loading || enteringTraining}
-                  aria-disabled={loading}
-                  className={`group inline-flex min-h-14 flex-1 items-center justify-center gap-3 rounded-full bg-[#f0e6cf] px-7 text-sm font-semibold text-[#17140f] shadow-[0_14px_38px_rgba(198,158,80,.14)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#fff8e9] hover:shadow-[0_18px_48px_rgba(198,158,80,.2)] ${
-                    loading ? "pointer-events-none opacity-60" : ""
-                  }`}
-                >
-                  {ctaLabel}
-                  <svg
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                    aria-hidden
-                  >
-                    <path
-                      d="M4 10h11m-4-4 4 4-4 4"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDeferred(true)}
-                  disabled={loading}
-                  className="min-h-14 rounded-full px-6 text-sm font-medium text-zinc-500 transition hover:bg-white/[0.04] hover:text-zinc-200 disabled:opacity-50"
-                >
-                  Not today
-                </button>
-              </div>
-            </>
-          )}
         </div>
 
-        <div className="relative mx-auto mt-4 hidden w-full max-w-[31rem] lg:mt-0 lg:block lg:max-w-none">
-          <ExecutiveMachine ready={!loading && ready} intensity={intensity} />
-          <div className="absolute bottom-[9%] left-1/2 -translate-x-1/2 text-center lg:bottom-[6%]">
-            <p className="text-[0.62rem] uppercase tracking-[0.24em] text-zinc-600">
-              Executive Machine
-            </p>
-          </div>
+        <div className={styles.reason}>
+          <span className={styles.reasonLine} aria-hidden="true" />
+          <p>{coachNote}</p>
         </div>
-      </section>
 
-      <div className="mx-auto max-w-7xl border-t border-white/[0.07]">
-        <section className="grid gap-8 py-12 sm:py-16 lg:grid-cols-2 lg:gap-20">
-          <div>
-            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-zinc-600">
-              Current focus
-            </p>
-            <h2 className="mt-4 max-w-xl text-2xl font-medium leading-tight tracking-[-0.025em] text-zinc-100 sm:text-3xl">
-              {objective || "Give Forge the context to coach you well."}
-            </h2>
-            <p className="mt-4 max-w-xl text-sm leading-6 text-zinc-500">
-              {ready
-                ? "Your Living Profile keeps today’s work connected to who you are becoming."
-                : "Your recommendation becomes personal once your Living Profile has a starting point."}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-zinc-600">
-              Meaningful progress
-            </p>
-            <p className="mt-4 text-2xl font-medium tracking-[-0.025em] text-zinc-100 sm:text-3xl">
-              {progressLine}
-            </p>
-            <p className="mt-4 text-sm leading-6 text-zinc-500">
-              {growth.lastScenarioTitle
-                ? `Last practiced: ${growth.lastScenarioTitle}.`
-                : "Progress begins with practice, not a perfect score."}
-            </p>
+        <div className={styles.action}>
+          {loading ? (
+            <button type="button" className={styles.primaryAction} disabled>
+              Preparing your session
+              <ArrowGlyph />
+            </button>
+          ) : isReady ? (
             <Link
-              href="/app/progress"
-              className="mt-5 inline-flex min-h-11 items-center text-sm font-medium text-zinc-400 underline decoration-white/15 underline-offset-4 transition hover:text-white hover:decoration-white/40"
+              href={recommendation?.href ?? "/app/practice"}
+              className={styles.primaryAction}
             >
-              See your progress
+              Begin today’s training
+              <ArrowGlyph />
             </Link>
-          </div>
-        </section>
-
-        <section className="border-t border-white/[0.07] py-12 sm:py-16">
-          <div className="flex flex-col justify-between gap-8 sm:flex-row sm:items-end">
-            <div>
-              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-zinc-600">
-                Explore the gym
-              </p>
-              <h2 className="mt-3 text-2xl font-medium tracking-[-0.025em] text-zinc-100">
-                Your training, when you need it.
-              </h2>
-            </div>
-            <nav
-              aria-label="Explore the gym"
-              className="flex flex-col gap-2 sm:min-w-[22rem]"
-            >
-              {[
-                {
-                  href: ready ? "/app/practice" : "/app/profile",
-                  label: ready ? "Training Room" : "Set up training",
-                },
-                { href: "/app/progress", label: "Progress" },
-                { href: "/app/profile", label: "Living Profile" },
-              ].map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="group flex min-h-12 items-center justify-between border-b border-white/[0.07] text-sm text-zinc-400 transition hover:border-white/15 hover:text-white"
-                >
-                  {item.label}
-                  <span
-                    className="text-zinc-700 transition-transform group-hover:translate-x-0.5 group-hover:text-zinc-400"
-                    aria-hidden
-                  >
-                    →
-                  </span>
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </section>
+          ) : (
+            <Link href="/app/profile" className={styles.primaryAction}>
+              Set your training focus
+              <ArrowGlyph />
+            </Link>
+          )}
+          <p className={styles.actionNote}>One focused practice. You set the pace.</p>
+        </div>
       </div>
-    </main>
+
+      <div className={styles.machineArea}>
+        <div className={`${styles.status} ${isReady ? styles.readyStatus : ""}`}>
+          <span className={styles.statusDot} aria-hidden="true" />
+          {loading ? "Coach preparing" : isReady ? "Ready to train" : "Awaiting context"}
+        </div>
+
+        <div
+          className={`${styles.machineStage} ${isReady ? styles.machineReady : ""}`}
+          role="img"
+          aria-label="Executive Machine, specialized equipment for focused communication practice"
+        >
+          <div className={styles.backlight} />
+          <div className={styles.machine}>
+            <div className={styles.machineCrown}>
+              <span>TF</span>
+              <i />
+            </div>
+            <div className={styles.machineShoulder}>
+              <span className={styles.shoulderLight} />
+            </div>
+            <div className={styles.machineFace}>
+              <div className={styles.aperture}>
+                <span />
+                <span />
+                <span />
+              </div>
+              <div className={styles.faceCopy}>
+                <small>EXECUTIVE</small>
+                <strong>01</strong>
+              </div>
+            </div>
+            <div className={styles.machineCore}>
+              <span className={styles.coreRail} />
+              <span className={styles.coreRail} />
+              <span className={styles.coreRail} />
+              <span className={styles.coreRail} />
+              <i className={styles.coreLight} />
+            </div>
+            <div className={styles.machineBase}>
+              <span />
+            </div>
+          </div>
+          <div className={styles.floor}>
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
+
+        <div className={styles.machineCaption}>
+          <span>Equipment 01</span>
+          <p>Clarity under pressure</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CoachGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3.25 20 7.6v8.8l-8 4.35-8-4.35V7.6L12 3.25Z" />
+      <path d="m8.4 12 2.25 2.25 5-5" />
+    </svg>
+  );
+}
+
+function ArrowGlyph() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M4 10h11M11 6l4 4-4 4" />
+    </svg>
   );
 }
