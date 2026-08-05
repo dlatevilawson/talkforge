@@ -5,8 +5,8 @@
 | **Document ID** | IV-INDEX |
 | **Version** | 1.7.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
-| **Updated** | 2026-08-04 |
-| **Entry count** | 65 |
+| **Updated** | 2026-08-05 |
+| **Entry count** | 66 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
@@ -83,7 +83,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-FEAT-008](features/IV-FEAT-008-personal-principles.md) | Personal Principles | Reviewing | Important | Medium | `features/IV-FEAT-008-personal-principles.md` |
 | [IV-FEAT-009](features/IV-FEAT-009-current-season.md) | Primary + Secondary Season | Inbox | Important | Medium | `features/IV-FEAT-009-current-season.md` |
 
-## UX Ideas (8)
+## UX Ideas (9)
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
@@ -95,6 +95,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-UX-006](ux-ideas/IV-UX-006-talkforge-design-system.md) | TalkForge Design System | Reviewing | Critical | High | `ux-ideas/IV-UX-006-talkforge-design-system.md` |
 | [IV-UX-007](ux-ideas/IV-UX-007-phase-10-product-design.md) | Phase 10 Product Experience Design | In Development | Critical | High | `ux-ideas/IV-UX-007-phase-10-product-design.md` |
 | [IV-UX-008](ux-ideas/IV-UX-008-machine-behavior-language.md) | Machine Behavior Language | In Development | Critical | High | `ux-ideas/IV-UX-008-machine-behavior-language.md` |
+| [IV-UX-009](ux-ideas/IV-UX-009-optional-visual-training-focus.md) | Optional visual training focus (Machines picker) | In Development | Critical | High | `ux-ideas/IV-UX-009-optional-visual-training-focus.md` |
 
 ## AI Ideas (5)
 
@@ -178,6 +179,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-UX-006](ux-ideas/IV-UX-006-talkforge-design-system.md) | TalkForge Design System | Reviewing | UX Ideas |
 | [IV-UX-007](ux-ideas/IV-UX-007-phase-10-product-design.md) | Phase 10 Product Experience Design | In Development | UX Ideas |
 | [IV-UX-008](ux-ideas/IV-UX-008-machine-behavior-language.md) | Machine Behavior Language | In Development | UX Ideas |
+| [IV-UX-009](ux-ideas/IV-UX-009-optional-visual-training-focus.md) | Optional visual training focus (Machines picker) | In Development | UX Ideas |
 | [IV-AI-001](ai-ideas/IV-AI-001-hypothesize-never-assume.md) | May hypothesize; never assume | Approved | AI Ideas |
 | [IV-AI-002](ai-ideas/IV-AI-002-mentor-pacing.md) | Mentor pacing — understand before coaching | In Development | AI Ideas |
 | [IV-RES-004](research-ideas/IV-RES-004-transfer-outside-app.md) | Transfer outside the app is the scoreboard | Researching | Research Ideas |

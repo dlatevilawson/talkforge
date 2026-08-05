@@ -100,21 +100,27 @@ function assertEnsureHelper(source) {
   );
 }
 
-function assertReadinessRequiresContext(source) {
-  assert.match(
+function assertReadinessOptionalFocus(source) {
+  // IV-UX-009: focus is optional. Persisted Living Profile unlocks practice.
+  assert.doesNotMatch(
     source,
     /!hasPurpose\s*&&\s*!hasPrinciple\s*&&\s*!hasSeason/,
-    "readiness must not pass on account displayName alone"
+    "purpose/principle/season must not block readiness (focus is optional)"
+  );
+  assert.match(
+    source,
+    /profileGatePassed:\s*true/,
+    "persisted Living Profile must pass the practice gate"
+  );
+  assert.match(
+    source,
+    /href:\s*["']\/app\/practice["']/,
+    "ready home must recommend practice, not a questionnaire"
   );
   assert.doesNotMatch(
     source,
-    /!hasName\s*&&\s*!hasPurpose\s*&&\s*!hasPrinciple\s*&&\s*!hasSeason/,
-    "name-only readiness unlock must stay retired"
-  );
-  assert.match(
-    source,
-    /href:\s*["']\/app\/profile["']/,
-    "incomplete readiness must recommend Living Profile, not practice"
+    /title:\s*["']Set your training focus["']/,
+    "Set your training focus must not be the primary home CTA"
   );
 }
 
@@ -153,7 +159,7 @@ async function runCodeContracts() {
   assertHomeGate(home);
   assertPracticePage(practice);
   assertServerReadiness(readiness);
-  assertReadinessRequiresContext(model);
+  assertReadinessOptionalFocus(model);
   assertLivingProfileApi(livingApi);
   assertEnsureHelper(ensure);
   assertRealtimeReadiness(realtime);

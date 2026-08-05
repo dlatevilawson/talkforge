@@ -37,7 +37,7 @@ export type ReadinessResult = {
   /** Stable coaching objective — not a menu of missions */
   objective: string | null;
   rationale: string;
-  /** False until Living Profile has minimum declared context */
+  /** False until a persisted Living Profile exists (focus is optional — IV-UX-009) */
   profileGatePassed: boolean;
   /** Ranked candidates after narrow — recommendation uses top only */
   ranked: RankedCandidate[];
@@ -174,24 +174,10 @@ export function evaluateReadiness(
   }
 
   const hints = evidenceHints ?? pendingEvidenceFromProfile(profile);
-  const hasPurpose = Boolean(profile.purposeStatement.trim());
-  const hasPrinciple = profile.personalPrinciples.length > 0;
-  const hasSeason = profile.seasons.length > 0;
 
-  // Account displayName alone (signup bootstrap) is not readiness.
-  // Members must declare purpose, a principle, or a season first (BS-011).
-  if (!hasPurpose && !hasPrinciple && !hasSeason) {
-    return {
-      state: "profile_incomplete",
-      objective: null,
-      rationale:
-        "Member has not declared enough Living Profile context for readiness.",
-      profileGatePassed: false,
-      ranked: [],
-      updatedAt,
-    };
-  }
-
+  // IV-UX-009 / Founder: training focus is optional. A persisted Living Profile
+  // (loaded by callers) unlocks Begin. Purpose/principle/season enrich the
+  // recommendation when present — they do not block coaching entry.
   const ranked = rankReadinessCandidates(profile, hints);
   const top = narrowToObjective(ranked);
   const objective = top?.label ?? null;
@@ -203,7 +189,7 @@ export function evaluateReadiness(
       ? top?.isIdentity
         ? "Ranked from Living Profile identity — one continuity next step."
         : "Narrowed using labeled evidence only — not committed as identity."
-      : "Profile started; readiness still forming — one gentle entry, no menu.",
+      : "Living Profile ready; optional focus still open — one gentle entry, no menu.",
     profileGatePassed: true,
     ranked: ranked.slice(0, 5),
     updatedAt,
@@ -227,11 +213,11 @@ export function buildAdaptiveHome(
     return {
       readiness,
       recommendation: {
-        title: "Set your training focus",
-        href: "/app/profile",
+        title: "Preparing your Coach",
+        href: "/app",
         continuityLine: name
-          ? `${name}, start by naming what matters on your Living Profile — then practice.`
-          : "Start by naming what matters on your Living Profile — then practice.",
+          ? `${name}, your Living Profile is still loading — refresh in a moment.`
+          : "Your Living Profile is still loading — refresh in a moment.",
         source: "continuity_stub",
         rankedFrom: [],
       },
@@ -243,11 +229,13 @@ export function buildAdaptiveHome(
   return {
     readiness,
     recommendation: {
-      title: objective ? "Continue where you are becoming" : "Practice with Forge",
+      title: objective ? "Continue where you are becoming" : "Begin today’s training",
       href: "/app/practice",
       continuityLine: objective
         ? `Keep working on: ${objective}. Or tell Forge if something new is on your mind.`
-        : "Continue recent work, or tell Forge if something new is on your mind.",
+        : name
+          ? `${name}, start training now — or optionally choose a focus first.`
+          : "Start training now — or optionally choose a focus first.",
       source: "readiness",
       rankedFrom: readiness.ranked,
     },
