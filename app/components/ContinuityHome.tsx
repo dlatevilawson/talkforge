@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import styles from "./ContinuityHome.module.css";
 import { buildAdaptiveHome } from "@/lib/system2";
@@ -14,10 +15,13 @@ import { getUser } from "@/lib/storage";
  * Single continuity CTA. No mission menu, analytics, or invented readiness.
  */
 export default function ContinuityHome() {
+  const router = useRouter();
   const [home, setHome] = useState<AdaptiveHomeModel | null>(null);
   const [loading, setLoading] = useState(true);
+  const [enteringTraining, setEnteringTraining] = useState(false);
 
   useEffect(() => {
+    router.prefetch("/app/practice?start=1");
     let cancelled = false;
 
     async function load() {
@@ -32,7 +36,7 @@ export default function ContinuityHome() {
               profile = data.profile ?? null;
             }
           } catch {
-            // Soft-fail: continuity stub still works without LP table
+            // Soft-fail: continuity remains available without the LP table.
           }
           if (!profile) {
             profile = emptyLivingProfile(user.id, user.displayName ?? "");
@@ -54,9 +58,8 @@ export default function ContinuityHome() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [router]);
 
-  const recommendation = home?.recommendation;
   const readiness = home?.readiness;
   const isReady = Boolean(readiness?.profileGatePassed);
   const focus = readiness?.objective;
@@ -75,6 +78,23 @@ export default function ContinuityHome() {
 
   return (
     <section className={styles.home} aria-labelledby="coach-heading">
+      {enteringTraining ? (
+        <div
+          className="fixed inset-0 z-[100] grid place-items-center bg-[#07070a] text-center tf-training-entry"
+          role="status"
+          aria-live="polite"
+        >
+          <div>
+            <div className="mx-auto h-20 w-20 rounded-full border border-[#d7b56a]/25 bg-[radial-gradient(circle,#29241a,#090a0b_68%)] shadow-[0_0_70px_rgba(198,151,67,.18)]" />
+            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-[#c9a95f]">
+              Coach Forge
+            </p>
+            <p className="mt-3 text-lg text-zinc-300">
+              Joining your Training Room…
+            </p>
+          </div>
+        </div>
+      ) : null}
       <div className={styles.ambient} aria-hidden="true" />
 
       <div className={styles.copy}>
@@ -117,13 +137,20 @@ export default function ContinuityHome() {
               <ArrowGlyph />
             </button>
           ) : isReady ? (
-            <Link
-              href={recommendation?.href ?? "/app/practice"}
+            <button
+              type="button"
+              onClick={() => {
+                setEnteringTraining(true);
+                const trainingParams = new URLSearchParams({ start: "1" });
+                if (focus) trainingParams.set("title", focus);
+                router.push(`/app/practice?${trainingParams.toString()}`);
+              }}
+              disabled={enteringTraining}
               className={styles.primaryAction}
             >
               Begin today’s training
               <ArrowGlyph />
-            </Link>
+            </button>
           ) : (
             <Link href="/app/profile" className={styles.primaryAction}>
               Set your training focus

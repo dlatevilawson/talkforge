@@ -11,6 +11,7 @@ export default async function VoicePage({
     track?: string | string[];
     title?: string | string[];
     success?: string | string[];
+    start?: string | string[];
   }>;
 }) {
   await connection();
@@ -34,6 +35,7 @@ export default async function VoicePage({
       track={track}
       eventTitle={first(params.title)}
       successCriteria={first(params.success)}
+      autoStart={first(params.start) === "1"}
     />
   );
 }

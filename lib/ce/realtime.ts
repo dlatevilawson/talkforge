@@ -1,5 +1,9 @@
 import { buildOpeningSpeechInstructions } from "@/lib/coach/philosophy";
 import { buildSessionUpdateForTranscription } from "./session-config";
+import {
+  registerLocalAudioCleanup,
+  releaseLocalAudioStream,
+} from "./voice-lifecycle";
 
 /**
  * CE-M1/M2 WebRTC helpers for OpenAI Realtime.
@@ -14,14 +18,26 @@ export type RealtimeConnection = {
   ephemeralKey: string;
   /** True when no physical mic — silent track used so Forge can still speak (CE-M1). */
   usedSilentMicFallback: boolean;
+  micFallbackReason: MicFallbackReason | null;
 };
+
+export type MicFallbackReason =
+  | "permission_denied"
+  | "device_unavailable"
+  | "device_busy"
+  | "unsupported"
+  | "unknown";
 
 export type ConnectRealtimeOptions = {
   ephemeralKey: string;
   onServerEvent?: (event: Record<string, unknown>) => void;
   onConnectionState?: (state: RTCPeerConnectionState) => void;
-  onMicMode?: (mode: "microphone" | "silent_fallback") => void;
+  onMicMode?: (
+    mode: "microphone" | "silent_fallback",
+    reason: MicFallbackReason | null
+  ) => void;
   onRemoteTrack?: () => void;
+  onRemotePlayback?: (state: "playing" | "blocked") => void;
 };
 
 /**
@@ -40,18 +56,22 @@ export async function connectRealtime(
   pc.ontrack = (event) => {
     remoteAudio.srcObject = event.streams[0] ?? null;
     options.onRemoteTrack?.();
-    void remoteAudio.play().catch(() => {
-      /* autoplay may require prior gesture — Start button provides it */
-    });
+    void remoteAudio.play().then(
+      () => options.onRemotePlayback?.("playing"),
+      () => options.onRemotePlayback?.("blocked")
+    );
   };
 
   pc.onconnectionstatechange = () => {
     options.onConnectionState?.(pc.connectionState);
   };
 
-  const { stream: localStream, usedSilentMicFallback } =
+  const { stream: localStream, usedSilentMicFallback, micFallbackReason } =
     await acquireLocalAudioStream();
-  options.onMicMode?.(usedSilentMicFallback ? "silent_fallback" : "microphone");
+  options.onMicMode?.(
+    usedSilentMicFallback ? "silent_fallback" : "microphone",
+    micFallbackReason
+  );
   for (const track of localStream.getTracks()) {
     pc.addTrack(track, localStream);
   }
@@ -108,7 +128,20 @@ export async function connectRealtime(
     remoteAudio,
     ephemeralKey: options.ephemeralKey,
     usedSilentMicFallback,
+    micFallbackReason,
   };
+}
+
+/** Retry remote audio from an explicit member gesture after autoplay blocking. */
+export async function resumeRemoteAudio(
+  connection: RealtimeConnection
+): Promise<boolean> {
+  try {
+    await connection.remoteAudio.play();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -118,26 +151,119 @@ export async function connectRealtime(
 async function acquireLocalAudioStream(): Promise<{
   stream: MediaStream;
   usedSilentMicFallback: boolean;
+  micFallbackReason: MicFallbackReason | null;
 }> {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-      },
-    });
-    return { stream, usedSilentMicFallback: false };
+    const stream = await requestMicrophoneStream();
+    return {
+      stream,
+      usedSilentMicFallback: false,
+      micFallbackReason: null,
+    };
   } catch (err) {
-    const name = err instanceof DOMException ? err.name : "";
-    const retriable =
-      name === "NotFoundError" ||
-      name === "DevicesNotFoundError" ||
-      name === "NotReadableError";
+    const micFallbackReason = classifyMicCaptureError(err);
+    const retriable = micFallbackReason !== "unknown";
     if (!retriable) throw err;
     return {
       stream: createSilentAudioStream(),
       usedSilentMicFallback: true,
+      micFallbackReason,
     };
+  }
+}
+
+async function requestMicrophoneStream(): Promise<MediaStream> {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    throw new DOMException(
+      "Microphone capture is unavailable in this browser.",
+      "NotSupportedError"
+    );
+  }
+  return navigator.mediaDevices.getUserMedia({
+    audio: {
+      echoCancellation: true,
+      noiseSuppression: true,
+    },
+  });
+}
+
+export function classifyMicCaptureError(error: unknown): MicFallbackReason {
+  const name =
+    error instanceof DOMException
+      ? error.name
+      : error instanceof Error
+        ? error.name
+        : "";
+  if (name === "NotAllowedError" || name === "PermissionDeniedError") {
+    return "permission_denied";
+  }
+  if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+    return "device_unavailable";
+  }
+  if (name === "NotReadableError" || name === "TrackStartError") {
+    return "device_busy";
+  }
+  if (
+    name === "NotSupportedError" ||
+    name === "SecurityError" ||
+    name === "TypeError"
+  ) {
+    return "unsupported";
+  }
+  return "unknown";
+}
+
+export async function recoverMicrophone(
+  connection: RealtimeConnection,
+  isCurrent: () => boolean = () => true
+): Promise<{
+  recovered: boolean;
+  reason: MicFallbackReason | null;
+}> {
+  let replacementStream: MediaStream | null = null;
+  try {
+    const candidate = await acquireLocalAudioStream();
+    replacementStream = candidate.stream;
+    if (!isCurrent()) {
+      releaseLocalAudioStream(replacementStream);
+      return { recovered: false, reason: connection.micFallbackReason };
+    }
+    if (candidate.usedSilentMicFallback) {
+      releaseLocalAudioStream(replacementStream);
+      connection.micFallbackReason = candidate.micFallbackReason;
+      return {
+        recovered: false,
+        reason: candidate.micFallbackReason,
+      };
+    }
+
+    const replacementTrack = replacementStream.getAudioTracks()[0];
+    const sender = connection.pc
+      .getSenders()
+      .find((candidate) => candidate.track?.kind === "audio");
+    if (!replacementTrack || !sender) {
+      throw new DOMException(
+        "No microphone track is available for this session.",
+        "NotFoundError"
+      );
+    }
+
+    replacementTrack.enabled = false;
+    await sender.replaceTrack(replacementTrack);
+    if (!isCurrent()) {
+      releaseLocalAudioStream(replacementStream);
+      return { recovered: false, reason: connection.micFallbackReason };
+    }
+    releaseLocalAudioStream(connection.localStream);
+    connection.localStream = replacementStream;
+    connection.usedSilentMicFallback = false;
+    connection.micFallbackReason = null;
+    return { recovered: true, reason: null };
+  } catch (error) {
+    if (replacementStream) releaseLocalAudioStream(replacementStream);
+    const reason = classifyMicCaptureError(error);
+    if (isCurrent()) connection.micFallbackReason = reason;
+    return { recovered: false, reason };
   }
 }
 
@@ -154,12 +280,23 @@ function createSilentAudioStream(): MediaStream {
   oscillator.connect(gain);
   gain.connect(dest);
   oscillator.start();
-  // Keep ctx alive for track lifetime; stopped in disconnect via track.stop().
   const stream = dest.stream;
+  let cleaned = false;
+  const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
+    try {
+      oscillator.stop();
+    } catch {
+      /* already stopped */
+    }
+    oscillator.disconnect();
+    gain.disconnect();
+    void ctx.close().catch(() => undefined);
+  };
+  registerLocalAudioCleanup(stream, cleanup);
   stream.getAudioTracks().forEach((track) => {
-    track.addEventListener("ended", () => {
-      void ctx.close().catch(() => undefined);
-    });
+    track.addEventListener("ended", cleanup, { once: true });
   });
   return stream;
 }
@@ -207,9 +344,7 @@ export function disconnectRealtime(connection: RealtimeConnection | null): void 
   } catch {
     /* ignore */
   }
-  for (const track of connection.localStream.getTracks()) {
-    track.stop();
-  }
+  releaseLocalAudioStream(connection.localStream);
   connection.remoteAudio.pause();
   connection.remoteAudio.srcObject = null;
 }
@@ -224,9 +359,7 @@ function cleanupPartial(
   } catch {
     /* ignore */
   }
-  for (const track of localStream.getTracks()) {
-    track.stop();
-  }
+  releaseLocalAudioStream(localStream);
   remoteAudio.srcObject = null;
 }
 
