@@ -123,6 +123,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     ? [...links, { href: "/founder", label: "Founder Portal" }]
     : links;
 
+  if (pathname === "/app/practice") {
+    return (
+      <div className="min-h-screen bg-[#07070a] font-sans text-[var(--tf-fg)]">
+        {children}
+      </div>
+    );
+  }
+
   if (pathname === "/app") {
     const initial = name.trim().charAt(0).toUpperCase() || "F";
 

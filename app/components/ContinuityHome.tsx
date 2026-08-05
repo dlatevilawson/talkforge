@@ -1,6 +1,5 @@
 "use client";
 
-import ExecutiveMachine from "@/app/components/ExecutiveMachine";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -9,57 +8,7 @@ import { buildAdaptiveHome } from "@/lib/system2";
 import type { AdaptiveHomeModel } from "@/lib/system2";
 import { emptyLivingProfile } from "@/lib/system1/profile";
 import type { LivingProfile } from "@/lib/system1/types";
-import { getGrowthSummary, getUser } from "@/lib/storage";
-import type { GrowthSummary } from "@/lib/types";
-
-const TRAINING_PRESET = {
-  duration: "8–12 min",
-  durationDetail: "One focused round",
-} as const;
-
-const EMPTY_GROWTH: GrowthSummary = {
-  sessionsCompleted: 0,
-  averageScore: 0,
-  hoursPracticed: 0,
-  longestConversationSeconds: 0,
-  bestScore: 0,
-  streakDays: 0,
-  averageFillerWords: 0,
-  averageSpeakingPaceWpm: null,
-  skills: {
-    confidence: 0,
-    empathy: 0,
-    listening: 0,
-    clarity: 0,
-    storytelling: 0,
-    negotiation: 0,
-    leadership: 0,
-  },
-  trend30d: [],
-  adaptiveInsight: null,
-  lastSessionAt: null,
-  lastScenarioTitle: null,
-};
-
-function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
-  return "Good evening";
-}
-
-function firstName(value: string): string {
-  return value.trim().split(/\s+/)[0] ?? "";
-}
-
-function intensityLabel(
-  intensity: LivingProfile["coachingIntensity"] | undefined
-): string {
-  if (intensity === "gentle") return "Gentle";
-  if (intensity === "direct") return "Direct";
-  if (intensity === "challenging") return "Challenging";
-  return "Steady";
-}
+import { getUser } from "@/lib/storage";
 
 /**
  * Adaptive Coach Homepage — AUDIT-001 C3 remediation.
@@ -68,11 +17,7 @@ function intensityLabel(
 export default function ContinuityHome() {
   const router = useRouter();
   const [home, setHome] = useState<AdaptiveHomeModel | null>(null);
-  const [profile, setProfile] = useState<LivingProfile | null>(null);
-  const [growth, setGrowth] = useState<GrowthSummary>(EMPTY_GROWTH);
-  const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(true);
-  const [deferred, setDeferred] = useState(false);
   const [enteringTraining, setEnteringTraining] = useState(false);
 
   useEffect(() => {
@@ -82,33 +27,23 @@ export default function ContinuityHome() {
     async function load() {
       try {
         const user = await getUser();
-        let livingProfile: LivingProfile | null = null;
+        let profile: LivingProfile | null = null;
         if (user?.id) {
-          setDisplayName(
-            user.displayName && user.displayName !== "Guest"
-              ? firstName(user.displayName)
-              : ""
-          );
           try {
-            const [res, growthSummary] = await Promise.all([
-              fetch("/api/living-profile", { cache: "no-store" }),
-              getGrowthSummary(user.id),
-            ]);
+            const res = await fetch("/api/living-profile", { cache: "no-store" });
             if (res.ok) {
               const data = (await res.json()) as { profile?: LivingProfile | null };
-              livingProfile = data.profile ?? null;
+              profile = data.profile ?? null;
             }
-            if (!cancelled) setGrowth(growthSummary);
           } catch {
-            // Soft-fail: recommendation remains available without progress data.
+            // Soft-fail: continuity remains available without the LP table.
           }
-          if (!livingProfile) {
-            livingProfile = emptyLivingProfile(user.id, user.displayName ?? "");
+          if (!profile) {
+            profile = emptyLivingProfile(user.id, user.displayName ?? "");
           }
         }
         if (!cancelled) {
-          setProfile(livingProfile);
-          setHome(buildAdaptiveHome(livingProfile));
+          setHome(buildAdaptiveHome(profile));
         }
       } catch {
         if (!cancelled) {
@@ -125,7 +60,6 @@ export default function ContinuityHome() {
     };
   }, [router]);
 
-  const recommendation = home?.recommendation;
   const readiness = home?.readiness;
   const isReady = Boolean(readiness?.profileGatePassed);
   const focus = readiness?.objective;
@@ -144,6 +78,23 @@ export default function ContinuityHome() {
 
   return (
     <section className={styles.home} aria-labelledby="coach-heading">
+      {enteringTraining ? (
+        <div
+          className="fixed inset-0 z-[100] grid place-items-center bg-[#07070a] text-center tf-training-entry"
+          role="status"
+          aria-live="polite"
+        >
+          <div>
+            <div className="mx-auto h-20 w-20 rounded-full border border-[#d7b56a]/25 bg-[radial-gradient(circle,#29241a,#090a0b_68%)] shadow-[0_0_70px_rgba(198,151,67,.18)]" />
+            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.24em] text-[#c9a95f]">
+              Coach Forge
+            </p>
+            <p className="mt-3 text-lg text-zinc-300">
+              Joining your Training Room…
+            </p>
+          </div>
+        </div>
+      ) : null}
       <div className={styles.ambient} aria-hidden="true" />
 
       <div className={styles.copy}>
@@ -186,13 +137,20 @@ export default function ContinuityHome() {
               <ArrowGlyph />
             </button>
           ) : isReady ? (
-            <Link
-              href={recommendation?.href ?? "/app/practice"}
+            <button
+              type="button"
+              onClick={() => {
+                setEnteringTraining(true);
+                const trainingParams = new URLSearchParams({ start: "1" });
+                if (focus) trainingParams.set("title", focus);
+                router.push(`/app/practice?${trainingParams.toString()}`);
+              }}
+              disabled={enteringTraining}
               className={styles.primaryAction}
             >
               Begin today’s training
               <ArrowGlyph />
-            </Link>
+            </button>
           ) : (
             <Link href="/app/profile" className={styles.primaryAction}>
               Set your training focus
