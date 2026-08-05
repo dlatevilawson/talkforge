@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getSupabaseConfigStatus } from "@/lib/supabase/config";
 import { emptyLivingProfile } from "@/lib/system1/profile";
+import { ensurePersistedLivingProfile } from "@/lib/system1/ensure-living-profile";
 import { applyMemberLivingProfileUpdate } from "@/lib/system1/member-writes";
 import { attachLegacyCoachMemoryEvidence } from "@/lib/system1/migrate-from-coach-memory";
 import { mapLivingProfileRow } from "@/lib/system1/persistence";
@@ -175,39 +176,30 @@ export async function GET() {
       return NextResponse.json({ profile: null, tableReady: true });
     }
 
-    const displayName =
-      typeof user.user_metadata?.display_name === "string"
-        ? user.user_metadata.display_name
-        : "";
-
-    const { data, error } = await supabase
-      .from("living_profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (error) {
-      if (
-        error.message.includes("living_profiles") ||
-        error.code === "PGRST205"
-      ) {
+    try {
+      const ensured = await ensurePersistedLivingProfile(supabase, user);
+      if (!ensured.tableReady) {
+        const displayName =
+          typeof user.user_metadata?.display_name === "string"
+            ? user.user_metadata.display_name
+            : "";
         return NextResponse.json({
           profile: emptyLivingProfile(user.id, displayName),
           tableReady: false,
         });
       }
-      console.warn("[living-profile] query failed", error.message);
       return NextResponse.json({
-        profile: emptyLivingProfile(user.id, displayName),
+        profile: ensured.profile,
         tableReady: true,
+        created: ensured.created,
       });
+    } catch (error) {
+      console.warn(
+        "[living-profile] ensure failed",
+        error instanceof Error ? error.message : error
+      );
+      return NextResponse.json({ profile: null, tableReady: true });
     }
-
-    const profile = data
-      ? mapLivingProfileRow(data)
-      : emptyLivingProfile(user.id, displayName);
-
-    return NextResponse.json({ profile, tableReady: true });
   } catch (err) {
     console.warn("[living-profile] GET failed", err);
     return NextResponse.json({ profile: null, tableReady: false });

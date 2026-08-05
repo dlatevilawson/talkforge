@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { mapLivingProfileRow } from "@/lib/system1/persistence";
+import { ensurePersistedLivingProfile } from "@/lib/system1/ensure-living-profile";
 import { buildAdaptiveHome } from "./types";
 
 export type PracticeRouteAccess = {
@@ -31,20 +31,12 @@ export async function evaluatePracticeRouteAccess(): Promise<PracticeRouteAccess
       return { allowed: false, reason: "unauthenticated" };
     }
 
-    const { data, error } = await supabase
-      .from("living_profiles")
-      .select(
-        "user_id, display_name, preferred_nickname, purpose_statement, personal_principles, seasons, coaching_intensity, preferred_coaching_style, mattering_conversation_ids, provenance, updated_at"
-      )
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (error) {
-      console.warn("[readiness] Living Profile query failed", error.code);
+    const ensured = await ensurePersistedLivingProfile(supabase, user);
+    if (!ensured.tableReady) {
       return { allowed: false, reason: "readiness_unavailable" };
     }
 
-    const home = buildAdaptiveHome(data ? mapLivingProfileRow(data) : null);
+    const home = buildAdaptiveHome(ensured.profile);
     const allowed =
       home.readiness.profileGatePassed &&
       home.recommendation?.href === "/app/practice";

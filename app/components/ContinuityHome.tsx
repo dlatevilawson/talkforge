@@ -32,14 +32,15 @@ export default function ContinuityHome() {
             const res = await fetch("/api/living-profile", { cache: "no-store" });
             if (res.ok) {
               const data = (await res.json()) as { profile?: LivingProfile | null };
-              profile = data.profile ?? null;
+              const loaded = data.profile ?? null;
+              // Only persisted Living Profiles unlock Begin. In-memory
+              // version-0 placeholders must not pass the client gate.
+              profile =
+                loaded && loaded.version >= 1 ? loaded : null;
             }
           } catch {
             // Soft-fail: continuity remains available without the LP table.
           }
-          // Do not synthesize Living Profile from account displayName.
-          // That made Begin appear while /app/practice still redirected to /app
-          // because the server gate only accepts a real living_profiles row.
         }
         if (!cancelled) {
           setHome(buildAdaptiveHome(profile));
