@@ -275,7 +275,9 @@ export default function ContinuityHome() {
                       return;
                     }
                     setEnteringTraining(true);
-                    router.push("/app/practice?start=1");
+                    const trainingParams = new URLSearchParams({ start: "1" });
+                    if (objective) trainingParams.set("title", objective);
+                    router.push(`/app/practice?${trainingParams.toString()}`);
                   }}
                   disabled={loading || enteringTraining}
                   aria-disabled={loading}

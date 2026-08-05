@@ -141,8 +141,7 @@ export default function ReflectPage() {
           Average coaching score: {session.averageScore ?? "—"}
         </p>
         <p className="mt-1 text-sm text-zinc-500">
-          Turns coached:{" "}
-          {session.turns.filter((turn) => turn.role === "forge").length}
+          Conversation turns captured: {session.turns.length}
         </p>
       </section>
 
