@@ -18,8 +18,14 @@ const root = process.cwd();
 const homePath = resolve(root, "app/components/ContinuityHome.tsx");
 const practicePath = resolve(root, "app/app/practice/page.tsx");
 const readinessPath = resolve(root, "lib/system2/server-readiness.ts");
+const readinessModelPath = resolve(root, "lib/system2/types.ts");
 const livingApiPath = resolve(root, "app/api/living-profile/route.ts");
 const ensurePath = resolve(root, "lib/system1/ensure-living-profile.ts");
+const realtimePath = resolve(root, "app/api/realtime/session/route.ts");
+const signupLpMigrationPath = resolve(
+  root,
+  "supabase/migrations/20260805_living_profile_on_signup.sql"
+);
 
 const PROJECT_REF =
   process.env.SUPABASE_PROJECT_REF?.trim() || "wudjmxqbsozreepgjvef";
@@ -94,20 +100,59 @@ function assertEnsureHelper(source) {
   );
 }
 
+function assertReadinessRequiresContext(source) {
+  assert.match(
+    source,
+    /!hasPurpose\s*&&\s*!hasPrinciple\s*&&\s*!hasSeason/,
+    "readiness must not pass on account displayName alone"
+  );
+  assert.doesNotMatch(
+    source,
+    /!hasName\s*&&\s*!hasPurpose\s*&&\s*!hasPrinciple\s*&&\s*!hasSeason/,
+    "name-only readiness unlock must stay retired"
+  );
+}
+
+function assertRealtimeReadiness(source) {
+  assert.match(
+    source,
+    /evaluatePracticeRouteAccess/,
+    "realtime mint must share the practice readiness boundary"
+  );
+}
+
+function assertSignupCreatesLivingProfile(source) {
+  assert.match(source, /create or replace function public\.handle_new_user/);
+  assert.match(
+    source,
+    /insert into public\.living_profiles/,
+    "signup trigger must create living_profiles"
+  );
+  assert.match(source, /raw_app_meta_data->>'role'/);
+  assert.doesNotMatch(source, /raw_user_meta_data->>'role'/);
+}
+
 async function runCodeContracts() {
-  const [home, practice, readiness, livingApi, ensure] = await Promise.all([
-    readFile(homePath, "utf8"),
-    readFile(practicePath, "utf8"),
-    readFile(readinessPath, "utf8"),
-    readFile(livingApiPath, "utf8"),
-    readFile(ensurePath, "utf8"),
-  ]);
+  const [home, practice, readiness, model, livingApi, ensure, realtime, signupLp] =
+    await Promise.all([
+      readFile(homePath, "utf8"),
+      readFile(practicePath, "utf8"),
+      readFile(readinessPath, "utf8"),
+      readFile(readinessModelPath, "utf8"),
+      readFile(livingApiPath, "utf8"),
+      readFile(ensurePath, "utf8"),
+      readFile(realtimePath, "utf8"),
+      readFile(signupLpMigrationPath, "utf8"),
+    ]);
 
   assertHomeGate(home);
   assertPracticePage(practice);
   assertServerReadiness(readiness);
+  assertReadinessRequiresContext(model);
   assertLivingProfileApi(livingApi);
   assertEnsureHelper(ensure);
+  assertRealtimeReadiness(realtime);
+  assertSignupCreatesLivingProfile(signupLp);
 
   console.log("Practice readiness gate: PASS (code contracts)");
 }

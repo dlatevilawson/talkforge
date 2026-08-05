@@ -453,11 +453,81 @@ export async function completeOnboardingAction(
   const preferredLanguage = String(
     formData.get("preferredLanguage") ?? "en"
   ).slice(0, 16);
+  const purposeStatement = String(formData.get("purposeStatement") ?? "")
+    .trim()
+    .slice(0, 500);
+  const preferredNickname = String(formData.get("preferredNickname") ?? "")
+    .trim()
+    .slice(0, 64);
+
+  if (purposeStatement.length < 8) {
+    return {
+      ok: false,
+      message: "Tell your Coach what you’re training for (at least a short sentence).",
+      errors: {
+        purposeStatement: "Add a short training focus so Begin can unlock.",
+      },
+    };
+  }
 
   const supabase = await createServerSupabaseClient();
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) {
     return { ok: false, message: "Please sign in again." };
+  }
+
+  const { ensurePersistedLivingProfile } = await import(
+    "@/lib/system1/ensure-living-profile"
+  );
+  const { applyMemberLivingProfileUpdate } = await import(
+    "@/lib/system1/member-writes"
+  );
+
+  const ensured = await ensurePersistedLivingProfile(supabase, userData.user);
+  if (!ensured.tableReady || !ensured.profile) {
+    return {
+      ok: false,
+      message: "Living Profile is unavailable. Please try again in a moment.",
+    };
+  }
+
+  const current = ensured.profile;
+  const nextLiving = applyMemberLivingProfileUpdate(current, {
+    purposeStatement,
+    preferredNickname:
+      preferredNickname ||
+      current.preferredNickname ||
+      current.displayName.split(/\s+/)[0] ||
+      "",
+  });
+  const nextVersion = current.version >= 1 ? current.version + 1 : 1;
+
+  const { data: savedLiving, error: livingError } = await supabase
+    .from("living_profiles")
+    .update({
+      display_name: nextLiving.displayName,
+      preferred_nickname: nextLiving.preferredNickname,
+      purpose_statement: nextLiving.purposeStatement,
+      personal_principles: nextLiving.personalPrinciples,
+      seasons: nextLiving.seasons,
+      coaching_intensity: nextLiving.coachingIntensity,
+      preferred_coaching_style: nextLiving.preferredCoachingStyle,
+      mattering_conversation_ids: nextLiving.matteringConversationIds,
+      provenance: nextLiving.provenance,
+      updated_at: nextLiving.updatedAt,
+      version: nextVersion,
+    })
+    .eq("user_id", userData.user.id)
+    .eq("version", current.version)
+    .select("user_id")
+    .maybeSingle();
+
+  if (livingError || !savedLiving) {
+    return {
+      ok: false,
+      message:
+        "Could not save your Living Profile. Reload and try onboarding again.",
+    };
   }
 
   const { error } = await supabase
