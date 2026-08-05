@@ -37,9 +37,29 @@ export default function OnboardingForm({
     <AuthShell
       eyebrow="Onboarding"
       title={`Welcome${displayName ? `, ${displayName.split(" ")[0]}` : ""}`}
-      description="A few preferences so TalkForge can personalize your practice."
+      description="Tell your Coach what matters now so training can begin with one clear focus."
     >
       <form action={action} className="space-y-4">
+        <label className="block text-sm text-zinc-300">
+          What are you training for right now?
+          <textarea
+            name="purposeStatement"
+            required
+            rows={3}
+            maxLength={500}
+            placeholder="Example: Speak clearly under pressure in high-stakes conversations."
+            className="mt-2 w-full rounded-3xl border border-white/15 bg-white/5 px-5 py-3 text-white outline-none focus:border-white/40"
+          />
+        </label>
+        <label className="block text-sm text-zinc-300">
+          Preferred name for your Coach
+          <input
+            name="preferredNickname"
+            defaultValue={displayName.split(" ")[0] || ""}
+            maxLength={64}
+            className="mt-2 w-full rounded-full border border-white/15 bg-white/5 px-5 py-3 text-white outline-none focus:border-white/40"
+          />
+        </label>
         <label className="block text-sm text-zinc-300">
           Time zone
           <input

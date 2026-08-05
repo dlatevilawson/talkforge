@@ -174,14 +174,13 @@ export function evaluateReadiness(
   }
 
   const hints = evidenceHints ?? pendingEvidenceFromProfile(profile);
-  const hasName =
-    Boolean(profile.displayName.trim()) ||
-    Boolean(profile.preferredNickname.trim());
   const hasPurpose = Boolean(profile.purposeStatement.trim());
   const hasPrinciple = profile.personalPrinciples.length > 0;
   const hasSeason = profile.seasons.length > 0;
 
-  if (!hasName && !hasPurpose && !hasPrinciple && !hasSeason) {
+  // Account displayName alone (signup bootstrap) is not readiness.
+  // Members must declare purpose, a principle, or a season first (BS-011).
+  if (!hasPurpose && !hasPrinciple && !hasSeason) {
     return {
       state: "profile_incomplete",
       objective: null,

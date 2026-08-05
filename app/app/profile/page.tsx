@@ -170,6 +170,12 @@ export default function ProfilePage() {
         conflict?: boolean;
       };
       if (!res.ok) {
+        if (data.conflict && data.profile) {
+          setLiving(data.profile);
+          throw new Error(
+            "Your Living Profile changed in another session. Fields were refreshed — review and save again."
+          );
+        }
         throw new Error(data.error || "Failed to save Living Profile.");
       }
       if (data.tableReady === false) setTableReady(false);

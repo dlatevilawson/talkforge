@@ -5,6 +5,7 @@ import {
   buildClientSecretRequest,
   type CeTrack,
 } from "@/lib/ce/session-config";
+import { evaluatePracticeRouteAccess } from "@/lib/system2/server-readiness";
 
 export const runtime = "nodejs";
 
@@ -22,6 +23,18 @@ export async function POST(req: Request) {
   const gate = await requireApiUser();
   if (!gate.ok) {
     return NextResponse.json({ error: gate.error }, { status: gate.status });
+  }
+
+  // Same readiness boundary as /app/practice (BS-013).
+  const readiness = await evaluatePracticeRouteAccess();
+  if (!readiness.allowed) {
+    return NextResponse.json(
+      {
+        error: "Living Profile readiness required before starting Coach Forge.",
+        reason: readiness.reason,
+      },
+      { status: 403 }
+    );
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
