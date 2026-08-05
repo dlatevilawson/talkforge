@@ -5,8 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import {
   connectRealtime,
   disconnectRealtime,
+  recoverMicrophone,
   requestOpeningSpeech,
   setMicrophoneEnabled,
+  type MicFallbackReason,
   type RealtimeConnection,
 } from "@/lib/ce/realtime";
 import {
@@ -83,6 +85,9 @@ export default function VoiceArena({
   const [micMode, setMicMode] = useState<"microphone" | "silent_fallback" | null>(
     null
   );
+  const [micFallbackReason, setMicFallbackReason] =
+    useState<MicFallbackReason | null>(null);
+  const [micRecoveryPending, setMicRecoveryPending] = useState(false);
   const [turns, setTurns] = useState<TranscriptTurn[]>([]);
   const [micLive, setMicLive] = useState(false);
   const [momentum, setMomentum] = useState<Momentum | null>(null);
@@ -208,6 +213,8 @@ export default function VoiceArena({
 
     setError("");
     setMicMode(null);
+    setMicFallbackReason(null);
+    setMicRecoveryPending(false);
     setTurns([]);
     turnsRef.current = [];
     setMicLive(false);
@@ -304,8 +311,9 @@ export default function VoiceArena({
       startStage = "realtime_connect";
       const connection = await connectRealtime({
         ephemeralKey: tokenData.value,
-        onMicMode: (mode) => {
+        onMicMode: (mode, reason) => {
           setMicMode(mode);
+          setMicFallbackReason(reason);
           pushEvent(
             mode === "microphone" ? "Microphone ready" : "No mic — listen only"
           );
@@ -362,6 +370,27 @@ export default function VoiceArena({
       );
       pushEvent("FAILED");
     }
+  }
+
+  async function handleRecoverMicrophone() {
+    const connection = connectionRef.current;
+    if (!connection || !connection.usedSilentMicFallback || micRecoveryPending) {
+      return;
+    }
+
+    setMicRecoveryPending(true);
+    setError("");
+    pushEvent("Checking microphone…");
+    const result = await recoverMicrophone(connection);
+    setMicRecoveryPending(false);
+    setMicFallbackReason(result.reason);
+    if (result.recovered) {
+      setMicMode("microphone");
+      setMicLive(false);
+      pushEvent("Microphone ready");
+      return;
+    }
+    pushEvent("Microphone still unavailable");
   }
 
   function handleSpeakDown() {
@@ -683,11 +712,31 @@ export default function VoiceArena({
               )}
 
               {micMode === "silent_fallback" && (
-                <p className="mt-6 max-w-md text-sm text-amber-200/80">
-                  We couldn’t reach a microphone on this device yet — that isn’t
-                  a reflection on you. You can still listen; when a mic is
-                  available, hold to speak and we’ll practice together.
-                </p>
+                <div className="mt-6 max-w-md">
+                  <p className="text-sm text-amber-200/80">
+                    {micFallbackReason === "permission_denied"
+                      ? "Microphone access wasn’t granted. You can keep listening, then allow access in your browser and try again."
+                      : micFallbackReason === "device_busy"
+                        ? "Your microphone is being used elsewhere. You can keep listening, then close the other app and try again."
+                        : micFallbackReason === "unsupported"
+                          ? "This browser can’t reach a microphone here. You can keep listening or try a supported browser."
+                          : "No microphone is available on this device right now. You can keep listening, connect one, and try again."}
+                  </p>
+                  {micFallbackReason !== "unsupported" && (
+                    <button
+                      type="button"
+                      onClick={() => void handleRecoverMicrophone()}
+                      disabled={micRecoveryPending}
+                      className="mt-3 rounded-full border border-amber-200/25 px-5 py-2.5 text-sm text-amber-100 transition hover:bg-amber-100/10 disabled:opacity-50"
+                    >
+                      {micRecoveryPending
+                        ? "Checking microphone…"
+                        : micFallbackReason === "permission_denied"
+                          ? "Allow microphone"
+                          : "Try microphone again"}
+                    </button>
+                  )}
+                </div>
               )}
 
               <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
