@@ -351,11 +351,14 @@ export default function VoiceArena({
       pushEvent(`Session saved · ${practice.id.slice(0, 8)}`);
 
       setPhase("speaking");
-      requestOpeningSpeech(connection.dc, welcomeHintRef.current);
+      requestOpeningSpeech(connection.dc, welcomeHintRef.current, {
+        eventTitle: eventTitle?.trim() || undefined,
+        isReturning: Boolean(tokenData.memory?.isReturning),
+      });
       pushEvent(
         tokenData.memory?.isReturning
           ? "Forge opening · returning member"
-          : "Forge opening"
+          : "Forge opening · first session"
       );
     } catch (err) {
       console.error(err);
@@ -617,8 +620,9 @@ export default function VoiceArena({
                 {eventTitle?.trim() || "I’m ready when you are"}
               </h1>
               <p className="mt-5 max-w-md text-base leading-7 text-white/55">
-                You don’t have to perform here. I’ll listen first. Hold to speak
-                when you’re ready — we’ll figure it out together.
+                You don’t have to perform here. I’ll understand before I coach —
+                listen, ask what matters, then practice with you. Hold to speak
+                when you’re ready.
               </p>
               {welcomeLine ? (
                 <p className="mt-3 max-w-md text-sm leading-6 text-[#d7b56a]/85">

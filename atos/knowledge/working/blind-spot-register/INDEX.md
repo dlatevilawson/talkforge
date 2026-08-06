@@ -1,7 +1,7 @@
 # Blind Spot Register — Index
 
-| **Updated** | 2026-08-05 |
-| **Count** | 13 |
+| **Updated** | 2026-08-06 |
+| **Count** | 14 |
 
 | ID | Title | Status | Severity | Related |
 |---|---|---|---|---|
@@ -18,3 +18,4 @@
 | [BS-011](bs-011.md) | Account-name bootstrap unlocks training without context | Mitigating | High | LP-LAW-001 · DES-001 |
 | [BS-012](bs-012.md) | Living Profile creation is lazy, not atomic with signup | Mitigating | Medium | TIP-001 · OWN-001 |
 | [BS-013](bs-013.md) | Realtime mint bypasses readiness contract | Mitigating | Medium | CE-001 · BS-005 |
+| [BS-014](bs-014.md) | Coach excellence becomes theater without conversation evidence | Mitigating | High | IV-AI-006 · CFX-001 |

@@ -9,6 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test:voice-lifecycle": "node --experimental-strip-types --test lib/ce/voice-lifecycle.test.mjs",
+    "test:coach-philosophy": "node --experimental-strip-types --test lib/coach/philosophy.test.mjs",
     "practice-readiness:check": "node scripts/check-practice-readiness-gate.mjs",
     "practice-readiness:check:self-test": "node scripts/check-practice-readiness-gate.mjs --self-test",
     "practice-readiness:check:live": "node scripts/check-practice-readiness-gate.mjs --live",

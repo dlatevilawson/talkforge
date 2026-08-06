@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | **Document ID** | IV-INDEX |
-| **Version** | 1.7.0 |
+| **Version** | 1.9.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
 | **Updated** | 2026-08-06 |
-| **Entry count** | 67 |
+| **Entry count** | 69 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
@@ -98,7 +98,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-UX-008](ux-ideas/IV-UX-008-machine-behavior-language.md) | Machine Behavior Language | In Development | Critical | High | `ux-ideas/IV-UX-008-machine-behavior-language.md` |
 | [IV-UX-009](ux-ideas/IV-UX-009-optional-visual-training-focus.md) | Optional visual training focus (Machines picker) | In Development | Critical | High | `ux-ideas/IV-UX-009-optional-visual-training-focus.md` |
 
-## AI Ideas (5)
+## AI Ideas (7)
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
@@ -107,6 +107,8 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-AI-003](ai-ideas/IV-AI-003-coaching-style-selection.md) | Coaching style & teaching method selection | Reviewing | Important | Medium | `ai-ideas/IV-AI-003-coaching-style-selection.md` |
 | [IV-AI-004](ai-ideas/IV-AI-004-interruption-pause-resume.md) | Interruption handling + pause/resume | In Development | Important | Medium | `ai-ideas/IV-AI-004-interruption-pause-resume.md` |
 | [IV-AI-005](ai-ideas/IV-AI-005-mission-fields.md) | Mission fields: Objective · Modality · Why now · Evidence · Purpose · Intensity · CTA | Reviewing | Important | Medium | `ai-ideas/IV-AI-005-mission-fields.md` |
+| [IV-AI-006](ai-ideas/IV-AI-006-coach-forge-excellence.md) | Coach Forge Communication Excellence Assessment | In Development | Critical | High | `ai-ideas/IV-AI-006-coach-forge-excellence.md` |
+| [IV-AI-007](ai-ideas/IV-AI-007-coach-forge-first-principle.md) | Coach Forge First Principle — Understand before you coach | In Development | Critical | High | `ai-ideas/IV-AI-007-coach-forge-first-principle.md` |
 
 ## Research Ideas (4)
 
@@ -139,7 +141,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 
 ---
 
-## Critical ideas (45) — definitional weight
+## Critical ideas (47) — definitional weight
 
 | ID | Title | Status | Category |
 |---|---|---|---|
@@ -184,6 +186,8 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-UX-009](ux-ideas/IV-UX-009-optional-visual-training-focus.md) | Optional visual training focus (Machines picker) | In Development | UX Ideas |
 | [IV-AI-001](ai-ideas/IV-AI-001-hypothesize-never-assume.md) | May hypothesize; never assume | Approved | AI Ideas |
 | [IV-AI-002](ai-ideas/IV-AI-002-mentor-pacing.md) | Mentor pacing — understand before coaching | In Development | AI Ideas |
+| [IV-AI-006](ai-ideas/IV-AI-006-coach-forge-excellence.md) | Coach Forge Communication Excellence Assessment | In Development | AI Ideas |
+| [IV-AI-007](ai-ideas/IV-AI-007-coach-forge-first-principle.md) | Coach Forge First Principle — Understand before you coach | In Development | AI Ideas |
 | [IV-RES-004](research-ideas/IV-RES-004-transfer-outside-app.md) | Transfer outside the app is the scoreboard | Researching | Research Ideas |
 | [IV-FUT-003](future-ideas/IV-FUT-003-multi-year-mentor.md) | Multi-year mentor relationship vision | Future | Future Ideas |
 | [IV-REJ-001](rejected-ideas/IV-REJ-001-optimize-engagement.md) | Optimize for engagement / time-in-app | Rejected | Rejected Ideas |

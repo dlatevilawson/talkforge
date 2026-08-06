@@ -304,7 +304,8 @@ function createSilentAudioStream(): MediaStream {
 /** Ask Forge to open with mentor pacing — understand first, never a topic menu. */
 export function requestOpeningSpeech(
   dc: RTCDataChannel,
-  welcomeHint?: string
+  welcomeHint?: string,
+  options?: { eventTitle?: string; isReturning?: boolean }
 ): void {
   if (dc.readyState !== "open") {
     throw new Error("Data channel not open — cannot request opening speech.");
@@ -315,7 +316,11 @@ export function requestOpeningSpeech(
       type: "response.create",
       response: {
         output_modalities: ["audio"],
-        instructions: buildOpeningSpeechInstructions(welcomeHint),
+        instructions: buildOpeningSpeechInstructions({
+          welcomeHint,
+          eventTitle: options?.eventTitle,
+          isReturning: options?.isReturning,
+        }),
       },
     })
   );
