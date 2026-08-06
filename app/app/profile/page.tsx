@@ -331,10 +331,12 @@ export default function ProfilePage() {
         <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
           Living Profile
         </p>
-        <h1 className="mt-3 text-3xl font-semibold">What is your goal?</h1>
+        <h1 className="mt-3 text-3xl font-semibold">
+          What conversation are you preparing for?
+        </h1>
         <p className="mt-3 text-sm leading-6 text-zinc-400">
-          Tap a Machine to set your training focus — optional, visual, and
-          changeable anytime.
+          Choose the moment that matters — optional, changeable anytime. Your
+          Coach uses this to prepare you, not to judge you.
         </p>
         {!tableReady && (
           <p className="mt-3 text-sm text-amber-200/90">
@@ -359,8 +361,8 @@ export default function ProfilePage() {
                 selectedId={selectedFocusId}
                 onSelect={applyFocus}
                 eyebrow="Optional"
-                title="Choose a training focus"
-                subtitle="One tap sets your goal. Skip the forms — you can still Begin from Home without a focus."
+                title="What keeps you up at 2 AM?"
+                subtitle="One tap. No forms. You can still Begin from Home without picking."
               />
               {selectedFocusId ? (
                 <p className="mt-3 text-sm text-[#c9a95f]">

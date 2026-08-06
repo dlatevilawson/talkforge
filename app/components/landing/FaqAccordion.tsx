@@ -11,12 +11,12 @@ const ITEMS: FaqItem[] = [
   {
     question: "What is TalkForge?",
     answer:
-      "An AI Communication Gym — practice the conversations that matter with Forge.",
+      "A private place to rehearse the conversations that shape your career, relationships, and status — with Forge as your coach.",
   },
   {
     question: "Who is it for?",
     answer:
-      "Anyone facing a conversation that counts — and wants practice, not more advice.",
+      "Anyone who has a conversation coming that they can’t afford to mess up — and wants practice, not more advice.",
   },
   {
     question: "What do Founding Members get?",

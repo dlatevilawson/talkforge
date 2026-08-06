@@ -14,20 +14,16 @@ type Props = {
   eyebrow?: string;
 };
 
-function shortMachineName(title: string): string {
-  return title.replace(/\s+Machine$/i, "");
-}
-
 /**
- * Visual Machines focus picker (IV-UX-009).
+ * Focus picker — Marketing Brain titles (MKT-001 / IV-PROD-007).
  * Compact square tiles for mobile — never Continuity Home.
  */
 export default function TrainingFocusPicker({
   selectedId,
   onSelect,
   eyebrow = "Optional",
-  title = "Choose a training focus",
-  subtitle = "Tap one Machine to tell your Coach what to train — or skip and start practicing now.",
+  title = "What conversation are you preparing for?",
+  subtitle = "Pick the moment that keeps you up at night — or skip and begin with Forge.",
 }: Props) {
   return (
     <div className={styles.shell}>
@@ -58,12 +54,10 @@ export default function TrainingFocusPicker({
                     </svg>
                   </span>
                 </div>
-                <p className={styles.machineTitle}>
-                  {shortMachineName(option.title)}
-                </p>
+                <p className={styles.machineTitle}>{option.title}</p>
                 <p className={styles.blurb}>{option.blurb}</p>
                 <span className={styles.pill}>
-                  {selected ? "Selected" : "Train"}
+                  {selected ? "Selected" : "Prepare"}
                 </span>
               </button>
             </li>

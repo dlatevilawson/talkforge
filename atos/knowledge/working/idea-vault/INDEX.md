@@ -5,8 +5,8 @@
 | **Document ID** | IV-INDEX |
 | **Version** | 1.7.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
-| **Updated** | 2026-08-05 |
-| **Entry count** | 66 |
+| **Updated** | 2026-08-06 |
+| **Entry count** | 67 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
@@ -58,7 +58,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-LAW-011](laws/IV-LAW-011-constitutional-law-001.md) | Constitutional Law #001 — deliberate Canonical admission | Approved | Critical | High | `laws/IV-LAW-011-constitutional-law-001.md` |
 | [IV-LAW-012](laws/IV-LAW-012-craft-law-001.md) | Craft Law #001 — human, trustworthy, courageous | Approved | Critical | High | `laws/IV-LAW-012-craft-law-001.md` |
 
-## Product Ideas (6)
+## Product Ideas (7)
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
@@ -68,6 +68,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-PROD-004](product-ideas/IV-PROD-004-living-profile.md) | Living Profile | Approved | Critical | High | `product-ideas/IV-PROD-004-living-profile.md` |
 | [IV-PROD-005](product-ideas/IV-PROD-005-communication-engine.md) | Communication Engine (CE-001) | In Development | Critical | High | `product-ideas/IV-PROD-005-communication-engine.md` |
 | [IV-PROD-006](product-ideas/IV-PROD-006-generation-4-coaching.md) | Generation-4 coaching — remember who you’re becoming | Approved | Critical | Medium | `product-ideas/IV-PROD-006-generation-4-coaching.md` |
+| [IV-PROD-007](product-ideas/IV-PROD-007-marketing-brain.md) | Marketing Brain (direct-response front door) | In Development | Critical | High | `product-ideas/IV-PROD-007-marketing-brain.md` |
 
 ## Features (9)
 
@@ -170,6 +171,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-PROD-004](product-ideas/IV-PROD-004-living-profile.md) | Living Profile | Approved | Product Ideas |
 | [IV-PROD-005](product-ideas/IV-PROD-005-communication-engine.md) | Communication Engine (CE-001) | In Development | Product Ideas |
 | [IV-PROD-006](product-ideas/IV-PROD-006-generation-4-coaching.md) | Generation-4 coaching — remember who you’re becoming | Approved | Product Ideas |
+| [IV-PROD-007](product-ideas/IV-PROD-007-marketing-brain.md) | Marketing Brain (direct-response front door) | In Development | Product Ideas |
 | [IV-FEAT-001](features/IV-FEAT-001-readiness-engine.md) | Readiness Engine | Reviewing | Features |
 | [IV-FEAT-002](features/IV-FEAT-002-recommendation-engine.md) | Recommendation Engine | Reviewing | Features |
 | [IV-FEAT-004](features/IV-FEAT-004-adaptive-homepage.md) | Adaptive Homepage | Reviewing | Features |

@@ -56,7 +56,7 @@ export default function LandingPage() {
                   href="/signup"
                   className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full bg-[var(--tf-gold)] px-8 text-sm font-semibold text-[#121417] transition hover:bg-[var(--tf-gold-light)]"
                 >
-                  Start Training
+                  Prepare for today
                 </a>
                 <a
                   href="#waitlist"
@@ -101,18 +101,19 @@ export default function LandingPage() {
                 Experience
               </p>
               <h2 className="mt-5 font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
-                An AI Communication Gym.
+                Practice where no one can see you fail.
               </h2>
             </Reveal>
             <Reveal delayMs={100}>
               <div className="space-y-6 text-lg leading-8 text-[var(--lp-muted)]">
                 <p>
-                  Most people consume advice about communication. Almost nobody
-                  practices it.
+                  Most people collect advice about communication. Almost nobody
+                  rehearses the moment that matters.
                 </p>
                 <p className="text-[var(--lp-ink)]">
-                  Here, you rehearse the conversations that matter — then walk
-                  into the real ones more ready.
+                  Here, you practice the conversations that change your career,
+                  your relationships, and your status — then walk into the real
+                  ones already ready.
                 </p>
               </div>
             </Reveal>

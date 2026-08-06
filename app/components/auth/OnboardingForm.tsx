@@ -54,19 +54,19 @@ export default function OnboardingForm({
           Welcome{firstName ? `, ${firstName}` : ""}
         </p>
         <h1 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          Train for real life. In every situation.
+          Walk into today already ready.
         </h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-400">
-          Pick a Machine if you want a focus — or skip and enter the Gym. You can
-          refine later from Home.
+          Pick the conversation that matters — or skip and begin with Forge. You
+          can refine later.
         </p>
 
         <form action={action} className="mt-10 space-y-8">
           <TrainingFocusPicker
             selectedId={selected?.id ?? null}
             onSelect={setSelected}
-            eyebrow="Optional focus"
-            title="What do you want to train first?"
+            eyebrow="Optional"
+            title="What conversation are you preparing for?"
             subtitle="One tap. No questionnaire. Skip anytime."
           />
 
@@ -102,10 +102,10 @@ export default function OnboardingForm({
             <Submit
               label={
                 selected
-                  ? `Start with ${selected.title.replace(" Machine", "")}`
-                  : "Skip — enter the Gym"
+                  ? "Begin with this conversation"
+                  : "Skip — begin with Forge"
               }
-              pendingLabel="Opening the Gym…"
+              pendingLabel="Opening Forge…"
             />
             {selected ? (
               <button
