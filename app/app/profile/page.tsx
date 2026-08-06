@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import PersistenceStatus from "@/app/components/PersistenceStatus";
 import TrainingFocusPicker from "@/app/components/TrainingFocusPicker";
 import pickerStyles from "@/app/components/TrainingFocusPicker.module.css";
 import { updateDisplayName } from "@/lib/auth";
@@ -37,6 +36,52 @@ function formatSessionWhen(value: string): string {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+/** Compact card label + mark for mobile session grids. */
+function sessionCardVisual(session: PracticeSession): {
+  mark: string;
+  label: string;
+} {
+  const title = session.scenarioTitle.trim() || "Practice";
+  const lower = title.toLowerCase();
+  if (session.modality === "voice" || lower.includes("voice")) {
+    return { mark: "🎙️", label: shortSessionLabel(title, "Voice practice") };
+  }
+  if (lower.includes("executive") || lower.includes("update")) {
+    return { mark: "🎯", label: shortSessionLabel(title, "Executive") };
+  }
+  if (lower.includes("boundary") || lower.includes("saying no")) {
+    return { mark: "🛡️", label: shortSessionLabel(title, "Boundaries") };
+  }
+  if (lower.includes("empathy") || lower.includes("emotional")) {
+    return { mark: "🤝", label: shortSessionLabel(title, "Empathy") };
+  }
+  if (lower.includes("negotiat") || lower.includes("objection")) {
+    return { mark: "⚖️", label: shortSessionLabel(title, "Negotiation") };
+  }
+  if (lower.includes("interrupt")) {
+    return { mark: "🔁", label: shortSessionLabel(title, "Interruptions") };
+  }
+  if (lower.includes("conflict") || lower.includes("pressure")) {
+    return { mark: "🔥", label: shortSessionLabel(title, "Conflict") };
+  }
+  if (lower.includes("phone") || lower.includes("call")) {
+    return { mark: "📞", label: shortSessionLabel(title, "Phone") };
+  }
+  if (lower.includes("bring") || lower.includes("forge")) {
+    return { mark: "✨", label: shortSessionLabel(title, "With Forge") };
+  }
+  if (lower.includes("showed up") || lower.includes("practice")) {
+    return { mark: "💪", label: shortSessionLabel(title, "Practice") };
+  }
+  return { mark: "💬", label: shortSessionLabel(title, "Conversation") };
+}
+
+function shortSessionLabel(title: string, fallback: string): string {
+  const clean = title.replace(/\s+/g, " ").trim();
+  if (clean.length <= 28) return clean;
+  return fallback;
 }
 
 function matchFocusOption(purpose: string): TrainingFocusOption | null {
@@ -279,16 +324,9 @@ export default function ProfilePage() {
   }
 
   const isAuthenticatedMember = Boolean(user && !user.isGuest);
-  const pendingEvidence =
-    living?.provenance.filter(
-      (p) => !p.memberConfirmed && p.sourceKind !== "member_declared"
-    ) ?? [];
 
   return (
     <>
-      <div className="mb-6 max-w-xl">
-        <PersistenceStatus />
-      </div>
       <section className="max-w-3xl">
         <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
           Living Profile
@@ -296,14 +334,11 @@ export default function ProfilePage() {
         <h1 className="mt-3 text-3xl font-semibold">What is your goal?</h1>
         <p className="mt-3 text-sm leading-6 text-zinc-400">
           Tap a Machine to set your training focus — optional, visual, and
-          changeable anytime. Your Coach reads this; it never invents a second
-          profile.
+          changeable anytime.
         </p>
         {!tableReady && (
           <p className="mt-3 text-sm text-amber-200/90">
-            Production note: apply{" "}
-            <code className="text-xs">20260802_living_profiles.sql</code> so
-            saves persist. Until then, identity edits may not stick.
+            Saving isn’t available right now. Try again in a moment.
           </p>
         )}
       </section>
@@ -438,61 +473,58 @@ export default function ProfilePage() {
               </div>
               {saved && (
                 <p className="text-sm text-emerald-300" role="status">
-                  Living Profile saved with provenance.
+                  Saved.
                 </p>
               )}
             </div>
           </form>
 
-          {pendingEvidence.length > 0 && (
-            <section className="mt-8 max-w-xl rounded-2xl border border-dashed border-white/15 bg-black/20 p-5">
-              <h2 className="text-sm font-medium text-zinc-200">
-                Pending evidence (not identity)
+          <section className="mt-10 max-w-3xl">
+            <div className="flex items-end justify-between gap-3">
+              <h2 className="text-lg font-semibold tracking-tight">
+                Recent practice
               </h2>
-              <p className="mt-2 text-xs leading-5 text-zinc-500">
-                Session observations waiting for confirmation. They do not
-                overwrite your goal.
-              </p>
-              <ul className="mt-3 space-y-2 text-sm text-zinc-400">
-                {pendingEvidence.slice(0, 5).map((p) => (
-                  <li key={p.id}>
-                    <span className="text-zinc-500">{p.fieldPath}:</span>{" "}
-                    {p.claim}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          <section className="mt-10 max-w-xl">
-            <h2 className="text-lg font-semibold">Session history</h2>
-            <p className="mt-2 text-sm text-zinc-400">
-              Activity only — not a second identity store.{" "}
-              <Link href="/app/dashboard" className="text-zinc-300 underline">
-                Open Activity
+              <Link
+                href="/app/dashboard"
+                className="text-sm text-[#c9a95f] underline-offset-4 hover:underline"
+              >
+                See all
               </Link>
-            </p>
+            </div>
             {sessions.length === 0 ? (
               <p className="mt-4 text-sm text-zinc-500">
                 No completed sessions yet.
               </p>
             ) : (
-              <ul className="mt-4 space-y-3">
-                {sessions.map((session) => (
-                  <li
-                    key={session.id}
-                    className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm"
-                  >
-                    <p className="font-medium text-white">
-                      {session.scenarioTitle}
-                    </p>
-                    <p className="mt-1 text-zinc-400">
-                      {formatSessionWhen(
-                        session.completedAt ?? session.startedAt
-                      )}
-                    </p>
-                  </li>
-                ))}
+              <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {sessions.map((session) => {
+                  const visual = sessionCardVisual(session);
+                  return (
+                    <li key={session.id}>
+                      <Link
+                        href="/app/dashboard"
+                        className="flex aspect-square flex-col justify-between rounded-[1.35rem] border border-white/10 bg-gradient-to-b from-white/[0.07] to-white/[0.02] p-4 transition hover:border-white/20 hover:bg-white/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c9a95f]"
+                      >
+                        <span
+                          className="grid h-11 w-11 place-items-center rounded-2xl bg-white/[0.06] text-2xl leading-none"
+                          aria-hidden
+                        >
+                          {visual.mark}
+                        </span>
+                        <span>
+                          <span className="line-clamp-2 text-[0.95rem] font-semibold leading-snug tracking-tight text-white">
+                            {visual.label}
+                          </span>
+                          <span className="mt-1.5 block text-xs text-zinc-500">
+                            {formatSessionWhen(
+                              session.completedAt ?? session.startedAt
+                            )}
+                          </span>
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </section>
