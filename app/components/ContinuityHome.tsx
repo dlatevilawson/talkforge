@@ -7,6 +7,7 @@ import styles from "./ContinuityHome.module.css";
 import { buildAdaptiveHome } from "@/lib/system2";
 import type { AdaptiveHomeModel } from "@/lib/system2";
 import type { LivingProfile } from "@/lib/system1/types";
+import { reportFirstSessionReturnSignal } from "@/lib/first-session-feedback";
 import { getUser } from "@/lib/storage";
 
 type WorkOption = {
@@ -121,6 +122,8 @@ function ContinuityHomeInner() {
     }
 
     void load();
+    // Internal retention signal — never shown to members (IV-UX-010).
+    reportFirstSessionReturnSignal("home_visit");
     return () => {
       cancelled = true;
     };

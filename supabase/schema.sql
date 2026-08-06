@@ -167,12 +167,28 @@ create table if not exists public.first_session_experience_ratings (
     star_rating is null or (star_rating >= 1 and star_rating <= 5)
   ),
   follow_up text,
+  optional_comment text,
   dismissed boolean not null default false,
+  duration_seconds integer,
+  session_completed boolean not null default true,
+  started_another_session boolean not null default false,
+  returned_within_24h boolean not null default false,
+  returned_within_7d boolean not null default false,
   created_at timestamptz not null default now(),
+  signals_updated_at timestamptz,
   constraint first_session_experience_ratings_response_chk check (
-    (dismissed = true and star_rating is null and follow_up is null)
+    (
+      dismissed = true
+      and star_rating is null
+      and follow_up is null
+      and optional_comment is null
+    )
     or
-    (dismissed = false and star_rating is not null and follow_up is not null)
+    (
+      dismissed = false
+      and star_rating is not null
+      and follow_up is not null
+    )
   )
 );
 

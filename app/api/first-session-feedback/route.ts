@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
-import { isValidFollowUpForStars } from "@/lib/first-session-feedback";
+import {
+  isValidFollowUpForStars,
+  normalizeOptionalComment,
+} from "@/lib/first-session-feedback";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getSupabaseConfigStatus } from "@/lib/supabase/config";
 
 export const runtime = "nodejs";
+
+const MS_24H = 24 * 60 * 60 * 1000;
+const MS_7D = 7 * MS_24H;
+/** “Immediately” started another session — within 30 minutes of first-session check-in. */
+const MS_IMMEDIATE = 30 * 60 * 1000;
 
 /** Whether this member already completed or dismissed the first-session check-in. */
 export async function GET() {
@@ -26,7 +34,6 @@ export async function GET() {
       .maybeSingle();
 
     if (error) {
-      // Table may not be migrated yet — fail open so UX can use local once-flag.
       const missing =
         error.code === "42P01" ||
         /does not exist|schema cache/i.test(error.message);
@@ -48,8 +55,12 @@ export async function GET() {
 }
 
 /**
- * Persist once-only first-session experience rating (or soft dismiss).
- * Body: { sessionId, starRating?, followUp?, dismissed? }
+ * Persist once-only first-session check-in, soft dismiss, or internal signals.
+ *
+ * Body:
+ * - Rating: { sessionId, starRating, followUp, optionalComment? }
+ * - Dismiss: { sessionId, dismissed: true }
+ * - Signal: { action: "signal", kind: "home_visit" | "session_started" }
  */
 export async function POST(req: Request) {
   const gate = await requireApiUser();
@@ -64,16 +75,18 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: {
-    sessionId?: unknown;
-    starRating?: unknown;
-    followUp?: unknown;
-    dismissed?: unknown;
-  } = {};
+  let body: Record<string, unknown> = {};
   try {
-    body = (await req.json()) as typeof body;
+    body = (await req.json()) as Record<string, unknown>;
   } catch {
     return NextResponse.json({ error: "Invalid JSON." }, { status: 400 });
+  }
+
+  if (body.action === "signal") {
+    return handleSignal(
+      gate.userId,
+      body.kind === "session_started" ? "session_started" : "home_visit"
+    );
   }
 
   const sessionId =
@@ -94,6 +107,7 @@ export async function POST(req: Request) {
     typeof body.followUp === "string" && body.followUp.trim()
       ? body.followUp.trim()
       : null;
+  const optionalComment = normalizeOptionalComment(body.optionalComment);
 
   if (dismissed) {
     // Soft dismiss — still once-only.
@@ -113,10 +127,9 @@ export async function POST(req: Request) {
   try {
     const supabase = await createServerSupabaseClient();
 
-    // Ensure the session belongs to this member.
     const { data: session, error: sessionError } = await supabase
       .from("practice_sessions")
-      .select("id, user_id, completed_at")
+      .select("id, user_id, completed_at, started_at, duration_seconds")
       .eq("id", sessionId)
       .maybeSingle();
 
@@ -134,20 +147,28 @@ export async function POST(req: Request) {
       );
     }
 
+    const durationSeconds = resolveDurationSeconds(session);
+
     const row = dismissed
       ? {
           user_id: gate.userId,
           session_id: sessionId,
           star_rating: null,
           follow_up: null,
+          optional_comment: null,
           dismissed: true,
+          duration_seconds: durationSeconds,
+          session_completed: true,
         }
       : {
           user_id: gate.userId,
           session_id: sessionId,
           star_rating: starRating,
           follow_up: followUp,
+          optional_comment: optionalComment,
           dismissed: false,
+          duration_seconds: durationSeconds,
+          session_completed: true,
         };
 
     const { error: insertError } = await supabase
@@ -164,7 +185,6 @@ export async function POST(req: Request) {
           { status: 503 }
         );
       }
-      // Unique violation = already completed — treat as success (idempotent).
       if (insertError.code === "23505") {
         return NextResponse.json({ ok: true, alreadyCompleted: true });
       }
@@ -183,4 +203,107 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+}
+
+async function handleSignal(
+  userId: string,
+  kind: "home_visit" | "session_started"
+) {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data: row, error } = await supabase
+      .from("first_session_experience_ratings")
+      .select(
+        "id, created_at, started_another_session, returned_within_24h, returned_within_7d"
+      )
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error) {
+      const missing =
+        error.code === "42P01" ||
+        /does not exist|schema cache/i.test(error.message);
+      if (missing) {
+        return NextResponse.json({ ok: true, tableReady: false });
+      }
+      return NextResponse.json({ ok: true });
+    }
+
+    if (!row?.created_at) {
+      return NextResponse.json({ ok: true, noRow: true });
+    }
+
+    const createdAt = new Date(row.created_at).getTime();
+    if (Number.isNaN(createdAt)) {
+      return NextResponse.json({ ok: true });
+    }
+
+    const elapsed = Date.now() - createdAt;
+    const patch: Record<string, boolean | string> = {
+      signals_updated_at: new Date().toISOString(),
+    };
+
+    if (kind === "session_started") {
+      if (!row.started_another_session && elapsed <= MS_IMMEDIATE) {
+        patch.started_another_session = true;
+      }
+      // Starting another session also counts as a return.
+      if (!row.returned_within_24h && elapsed <= MS_24H) {
+        patch.returned_within_24h = true;
+      }
+      if (!row.returned_within_7d && elapsed <= MS_7D) {
+        patch.returned_within_7d = true;
+      }
+    } else {
+      // Home visit / app open after first session.
+      if (!row.returned_within_24h && elapsed <= MS_24H) {
+        patch.returned_within_24h = true;
+      }
+      if (!row.returned_within_7d && elapsed <= MS_7D) {
+        patch.returned_within_7d = true;
+      }
+    }
+
+    // Only write if a flag actually flips (plus always bump signals_updated_at when flags flip).
+    const flagChanged =
+      patch.started_another_session === true ||
+      patch.returned_within_24h === true ||
+      patch.returned_within_7d === true;
+
+    if (!flagChanged) {
+      return NextResponse.json({ ok: true, unchanged: true });
+    }
+
+    await supabase
+      .from("first_session_experience_ratings")
+      .update(patch)
+      .eq("user_id", userId);
+
+    return NextResponse.json({ ok: true, updated: true });
+  } catch (err) {
+    console.warn("[first-session-feedback] signal failed", err);
+    return NextResponse.json({ ok: true });
+  }
+}
+
+function resolveDurationSeconds(session: {
+  duration_seconds?: number | null;
+  started_at?: string | null;
+  completed_at?: string | null;
+}): number | null {
+  if (
+    typeof session.duration_seconds === "number" &&
+    Number.isFinite(session.duration_seconds) &&
+    session.duration_seconds >= 0
+  ) {
+    return Math.round(session.duration_seconds);
+  }
+  if (session.started_at && session.completed_at) {
+    const start = new Date(session.started_at).getTime();
+    const end = new Date(session.completed_at).getTime();
+    if (!Number.isNaN(start) && !Number.isNaN(end) && end >= start) {
+      return Math.round((end - start) / 1000);
+    }
+  }
+  return null;
 }

@@ -1,6 +1,7 @@
 -- IV-UX-010 — First Session Experience Rating
 -- Once-only emotional check-in after a member's first completed practice session.
 -- Rows cascade away when the linked practice session is deleted (member reset).
+-- Includes internal behavioral signals (not shown to members).
 
 create table if not exists public.first_session_experience_ratings (
   id uuid primary key default gen_random_uuid(),
@@ -10,12 +11,29 @@ create table if not exists public.first_session_experience_ratings (
     star_rating is null or (star_rating >= 1 and star_rating <= 5)
   ),
   follow_up text,
+  optional_comment text,
   dismissed boolean not null default false,
+  -- Internal metrics (never shown in member UI)
+  duration_seconds integer,
+  session_completed boolean not null default true,
+  started_another_session boolean not null default false,
+  returned_within_24h boolean not null default false,
+  returned_within_7d boolean not null default false,
   created_at timestamptz not null default now(),
+  signals_updated_at timestamptz,
   constraint first_session_experience_ratings_response_chk check (
-    (dismissed = true and star_rating is null and follow_up is null)
+    (
+      dismissed = true
+      and star_rating is null
+      and follow_up is null
+      and optional_comment is null
+    )
     or
-    (dismissed = false and star_rating is not null and follow_up is not null)
+    (
+      dismissed = false
+      and star_rating is not null
+      and follow_up is not null
+    )
   )
 );
 
@@ -36,4 +54,4 @@ create policy "first_session_experience_ratings_own"
   with check (user_id = auth.uid());
 
 comment on table public.first_session_experience_ratings is
-  'Once-only first-session experience check-in (IV-UX-010). One row per member.';
+  'Once-only first-session check-in (IV-UX-010). Mission question + optional comment; behavioral signals are internal-only.';

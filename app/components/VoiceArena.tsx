@@ -34,6 +34,7 @@ import {
 } from "@/lib/session";
 import {
   hasLocalFirstSessionRatingDone,
+  reportFirstSessionReturnSignal,
 } from "@/lib/first-session-feedback";
 import { getUser } from "@/lib/storage";
 import type { PracticeSession } from "@/lib/types";
@@ -340,6 +341,10 @@ export default function VoiceArena({
       const firstSession = !tokenData.memory?.isReturning;
       setIsFirstSession(firstSession);
       firstSessionRatingCheckedRef.current = false;
+      if (!firstSession) {
+        // Internal metric: started another session after first-session check-in.
+        reportFirstSessionReturnSignal("session_started");
+      }
       if (tokenData.memory?.isReturning && tokenData.memory.firstName) {
         setWelcomeLine(
           `Welcome back, ${tokenData.memory.firstName}${

@@ -2,8 +2,11 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import {
+  FIRST_SESSION_OPTIONAL_MAX,
+  FIRST_SESSION_OPTIONAL_PROMPT,
   FIRST_SESSION_RATING_SUBTITLE,
   FIRST_SESSION_RATING_TITLE,
+  FIRST_SESSION_THANKS_TITLE,
   FIRST_SESSION_THANK_YOU,
   followUpBandForStars,
   followUpOptionsForBand,
@@ -12,7 +15,7 @@ import {
 } from "@/lib/first-session-feedback";
 import styles from "./FirstSessionExperienceRating.module.css";
 
-type Step = "rate" | "thanks";
+type Step = "rate" | "comment" | "thanks";
 
 type Props = {
   sessionId: string;
@@ -26,8 +29,11 @@ export default function FirstSessionExperienceRating({
   onClose,
 }: Props) {
   const titleId = useId();
+  const commentId = useId();
   const [step, setStep] = useState<Step>("rate");
   const [stars, setStars] = useState(0);
+  const [followUp, setFollowUp] = useState<string | null>(null);
+  const [comment, setComment] = useState("");
   const [pending, setPending] = useState(false);
   const autoCloseRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -57,8 +63,14 @@ export default function FirstSessionExperienceRating({
     onClose();
   }
 
-  async function submitRating(followUp: string) {
+  function chooseFollowUp(optionId: string) {
     if (!stars || pending) return;
+    setFollowUp(optionId);
+    setStep("comment");
+  }
+
+  async function submitRating() {
+    if (!stars || !followUp || pending) return;
     setPending(true);
     try {
       await fetch("/api/first-session-feedback", {
@@ -68,6 +80,7 @@ export default function FirstSessionExperienceRating({
           sessionId,
           starRating: stars,
           followUp,
+          optionalComment: comment.trim() || undefined,
         }),
       });
     } catch {
@@ -108,8 +121,12 @@ export default function FirstSessionExperienceRating({
       className={styles.overlay}
       role="presentation"
       onClick={(event) => {
-        if (event.target === event.currentTarget && step === "rate") {
+        if (event.target !== event.currentTarget) return;
+        if (step === "rate") {
           void dismiss();
+        } else if (step === "comment") {
+          // Already answered stars + follow-up — skip optional note only.
+          void submitRating();
         }
       }}
     >
@@ -124,7 +141,7 @@ export default function FirstSessionExperienceRating({
         {step === "thanks" ? (
           <div className={styles.thanks}>
             <h2 id={titleId} className={styles.thanksTitle}>
-              Thank you.
+              {FIRST_SESSION_THANKS_TITLE}
             </h2>
             <p className={styles.thanksBody}>{FIRST_SESSION_THANK_YOU}</p>
             <button
@@ -138,6 +155,48 @@ export default function FirstSessionExperienceRating({
               Done
             </button>
           </div>
+        ) : step === "comment" ? (
+          <>
+            <h2 id={titleId} className={styles.title}>
+              {FIRST_SESSION_OPTIONAL_PROMPT}
+            </h2>
+            <p className={styles.subtitle}>
+              Optional — most people skip this. A sentence helps when something
+              felt off or especially good.
+            </p>
+            <label className={styles.srOnly} htmlFor={commentId}>
+              Optional comment
+            </label>
+            <textarea
+              id={commentId}
+              className={styles.comment}
+              value={comment}
+              maxLength={FIRST_SESSION_OPTIONAL_MAX}
+              rows={3}
+              placeholder="Share a thought…"
+              disabled={pending}
+              onChange={(event) => setComment(event.target.value)}
+            />
+            <button
+              type="button"
+              className={styles.continue}
+              disabled={pending}
+              onClick={() => void submitRating()}
+            >
+              {pending ? "Sending…" : "Continue"}
+            </button>
+            <button
+              type="button"
+              className={styles.skip}
+              disabled={pending}
+              onClick={() => {
+                setComment("");
+                void submitRating();
+              }}
+            >
+              Skip
+            </button>
+          </>
         ) : (
           <>
             <h2 id={titleId} className={styles.title}>
@@ -180,7 +239,7 @@ export default function FirstSessionExperienceRating({
                       role="listitem"
                       className={styles.option}
                       disabled={pending}
-                      onClick={() => void submitRating(option.id)}
+                      onClick={() => chooseFollowUp(option.id)}
                     >
                       {option.label}
                     </button>
@@ -195,7 +254,7 @@ export default function FirstSessionExperienceRating({
               disabled={pending}
               onClick={() => void dismiss()}
             >
-              Not now
+              Skip
             </button>
           </>
         )}

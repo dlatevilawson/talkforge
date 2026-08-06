@@ -16,7 +16,7 @@
 
 ## Statement
 
-After a member’s very first completed TalkForge practice session — once the wrap/reflection has finished and the session is saved — show a frictionless, once-only emotional check-in (five stars + one conditional follow-up). Not a survey. Completable in under 10 seconds. Ends the first experience on a thoughtful, polished note while capturing first-impression signal for Coach Forge.
+After a member’s very first completed practice session — once the wrap has finished and the session is saved — show a frictionless, once-only check-in. Mission question: **“Did this feel like practicing with a real communication coach?”** — not a generic app rating. Stars → one conditional follow-up → optional free-text → thank-you that reinforces building the world’s best communication coach. Always skippable. Internal-only behavioral signals (duration, completed, next session, return 24h/7d) sit beside the response.
 
 ---
 
@@ -49,7 +49,9 @@ First impressions determine whether members return. A premium, effortless check-
 ## Notes
 
 - Trigger only on first-ever completed session; store a once flag (server unique user_id + local cache).
-- Do not use Marketing Brain blacklist language in member UI (“assessment,” “AI,” etc.).
+- Member UI never says “experience rating” — ask the coach-mission question.
+- Skip is always available; optional comment is never required.
+- Behavioral signals are internal-only (never shown in the sheet).
 - Blind spot: BS-015 — must not feel like a survey or interrupt before wrap/save.
 
 ---

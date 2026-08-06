@@ -202,14 +202,74 @@
   outline: none;
 }
 
+.comment {
+  display: block;
+  width: 100%;
+  margin-top: 1.25rem;
+  min-height: 5.5rem;
+  resize: vertical;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.92);
+  font: inherit;
+  font-size: 0.98rem;
+  line-height: 1.45;
+  padding: 0.95rem 1.05rem;
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+.comment::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.comment:focus {
+  outline: none;
+  border-color: rgba(215, 181, 106, 0.45);
+  background: rgba(201, 169, 95, 0.08);
+}
+
+.comment:disabled {
+  opacity: 0.55;
+}
+
+.continue {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 1rem;
+  min-height: 3.1rem;
+  border: none;
+  border-radius: 999px;
+  background: #fff;
+  color: #0a0a0e;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 140ms ease, transform 140ms ease;
+}
+
+.continue:hover,
+.continue:focus-visible {
+  background: rgba(255, 255, 255, 0.92);
+  outline: none;
+}
+
+.continue:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
 .skip {
   appearance: none;
   display: block;
   width: 100%;
-  margin-top: 1rem;
+  margin-top: 0.85rem;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.38);
+  color: rgba(255, 255, 255, 0.34);
   font-size: 0.85rem;
   cursor: pointer;
   padding: 0.65rem;
@@ -219,6 +279,18 @@
 .skip:focus-visible {
   color: rgba(255, 255, 255, 0.65);
   outline: none;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 @keyframes fadeIn {

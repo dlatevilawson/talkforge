@@ -1,15 +1,24 @@
-/** First-session experience rating — IV-UX-010. Not a survey. */
+/** First-session check-in — IV-UX-010. Not a survey. Mission-aligned. */
 
 export const FIRST_SESSION_RATING_STORAGE_KEY = "tf_first_session_rating_done";
 
+/** Mission question — measures coach quality, not app liking. */
 export const FIRST_SESSION_RATING_TITLE =
-  "How was your first TalkForge experience?";
+  "Did this feel like practicing with a real communication coach?";
 
 export const FIRST_SESSION_RATING_SUBTITLE =
-  "Your feedback helps us build the world’s best communication coach.";
+  "One thoughtful answer helps Forge get better.";
+
+export const FIRST_SESSION_THANKS_TITLE =
+  "Thanks for helping us build the world’s best communication coach.";
 
 export const FIRST_SESSION_THANK_YOU =
-  "Every conversation helps us build a better communication coach.";
+  "Every conversation helps Forge become a better coach. Thanks for being one of our first members.";
+
+export const FIRST_SESSION_OPTIONAL_PROMPT =
+  "Anything you’d like us to know? (optional)";
+
+export const FIRST_SESSION_OPTIONAL_MAX = 500;
 
 export type FirstSessionFollowUpBand = "high" | "mid" | "low";
 
@@ -74,6 +83,12 @@ export function isValidFollowUpForStars(
   return followUpOptionsForBand(band).some((option) => option.id === followUpId);
 }
 
+export function normalizeOptionalComment(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim().slice(0, FIRST_SESSION_OPTIONAL_MAX);
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 export function markFirstSessionRatingDoneLocally(): void {
   if (typeof window === "undefined") return;
   try {
@@ -90,4 +105,19 @@ export function hasLocalFirstSessionRatingDone(): boolean {
   } catch {
     return false;
   }
+}
+
+/** Fire-and-forget: update internal return / next-session signals. */
+export function reportFirstSessionReturnSignal(
+  kind: "home_visit" | "session_started" = "home_visit"
+): void {
+  if (typeof window === "undefined") return;
+  void fetch("/api/first-session-feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "signal", kind }),
+    keepalive: true,
+  }).catch(() => {
+    // Internal metrics only — never block the member.
+  });
 }
