@@ -620,9 +620,9 @@ export default function VoiceArena({
                 {eventTitle?.trim() || "I’m ready when you are"}
               </h1>
               <p className="mt-5 max-w-md text-base leading-7 text-white/55">
-                You don’t have to perform here. I’ll listen first, ask what
-                matters, and practice with you — not at you. Hold to speak when
-                you’re ready.
+                You don’t have to perform here. I’ll understand before I coach —
+                listen, ask what matters, then practice with you. Hold to speak
+                when you’re ready.
               </p>
               {welcomeLine ? (
                 <p className="mt-3 max-w-md text-sm leading-6 text-[#d7b56a]/85">

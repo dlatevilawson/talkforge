@@ -190,7 +190,7 @@ function ContinuityHomeInner() {
                 aria-label="Loading recommendation"
               />
             ) : isReady ? (
-              "Pick a starting place. Forge will listen first — you can always change direction."
+              "Pick a starting place. Forge understands before it coaches — you can always change direction."
             ) : (
               "Standing by while your profile loads."
             )}

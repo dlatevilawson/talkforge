@@ -7,10 +7,10 @@
 | **Status** | Working Knowledge — Coach release gate (not Canonical until Founder admission) |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
-| **Related** | IV-AI-006 · IV-AI-002 · FLA-001 · CE-001 · AMD-001 · Craft Law #001 · DES-001 · Forge Laws #012–#013 |
+| **Related** | CFP-001 · IV-AI-007 · IV-AI-006 · IV-AI-002 · FLA-001 · CE-001 · AMD-001 · Craft Law #001 · DES-001 · Forge Laws #012–#013 |
 | **Updated** | 2026-08-06 |
 
-> **Authority:** Product evaluation standard for Coach Forge readiness. Does **not** amend Constitution. Member-facing surfaces must not present this as an “assessment” product feature (Marketing Brain).
+> **Authority:** Product evaluation standard for Coach Forge readiness. Does **not** amend Constitution. Member-facing surfaces must not present this as an “assessment” product feature (Marketing Brain). Operating philosophy: [CFP-001](CFP-001-coach-forge-philosophy.md) — Understand before you coach.
 
 ---
 

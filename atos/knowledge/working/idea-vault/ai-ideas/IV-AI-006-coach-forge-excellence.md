@@ -30,7 +30,7 @@ TalkForge promises communication mastery. If Forge itself sounds like a scripted
 
 | Direction | Ideas |
 |---|---|
-| **Depends on** | IV-AI-002 · IV-PHIL-003 · IV-LAW-002 · IV-LAW-001 · IV-PHIL-009 · IV-LAW-012 |
+| **Depends on** | IV-AI-007 · IV-AI-002 · IV-PHIL-003 · IV-LAW-002 · IV-LAW-001 · IV-PHIL-009 · IV-LAW-012 |
 | **Supports** | IV-PROD-005 · IV-PROD-006 · IV-FEAT-007 · IV-RES-004 |
 | **Related** | IV-AI-001 · IV-AI-003 · IV-AI-004 · IV-PHIL-010 · IV-PHIL-001 |
 
