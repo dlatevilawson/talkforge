@@ -76,6 +76,8 @@ Must tick at least three: curiosity gap · concrete transformation · high-statu
 
 | Section | Headline | Support |
 |---|---|---|
-| Belief | Never lose a life-changing opportunity simply because you choked on the right words. | This isn’t software. It’s your private arena to rehearse the conversations that shape your career and status. |
+| Belief (Manifesto) | The deepest security in life comes from knowing that when you speak, you will be heard. | We build the private arena where you rehearse the conversations that shape your career, status, and peace of mind. |
+| Core belief (footer) | Every human deserves to feel secure in their own voice and confident that when they speak, the room listens. | — |
 | Experience | Rehearse where no one can see you stumble. | Most people collect advice about communication. Almost nobody rehearses the moments that matter. / Practice your next interview, salary negotiation, or tough boundary in private — so you walk into the real room already knowing what to say. |
 | Mission | From anxious overthinking to unshakeable presence. | Journey steps follow |
+| Social / Ad | You don’t need a louder voice. You need a private place to practice holding your ground. | — |

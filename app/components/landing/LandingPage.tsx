@@ -80,12 +80,12 @@ export default function LandingPage() {
                 What We Believe
               </p>
               <blockquote className="mt-8 font-[family-name:var(--font-lp-display)] text-3xl font-medium leading-snug tracking-[-0.03em] text-[var(--lp-ink)] sm:text-4xl sm:leading-[1.25]">
-                Never lose a life-changing opportunity simply because you
-                choked on the right words.
+                The deepest security in life comes from knowing that when you
+                speak, you will be heard.
               </blockquote>
               <p className="mt-12 font-[family-name:var(--font-lp-display)] text-xl font-medium tracking-[-0.02em] text-[var(--lp-ink)] sm:text-2xl">
-                This isn&apos;t software. It&apos;s your private arena to
-                rehearse the conversations that shape your career and status.
+                We build the private arena where you rehearse the conversations
+                that shape your career, status, and peace of mind.
               </p>
             </Reveal>
           </div>
