@@ -576,7 +576,7 @@ export default function VoiceArena({
   return (
     <main className="relative min-h-[100dvh] overflow-hidden bg-[#07070a] text-white">
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_30%,rgba(59,130,246,0.18),transparent_55%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_30%,rgba(201,169,95,0.14),transparent_55%)]"
         aria-hidden
       />
       <div
@@ -621,7 +621,7 @@ export default function VoiceArena({
                 when you’re ready — we’ll figure it out together.
               </p>
               {welcomeLine ? (
-                <p className="mt-3 max-w-md text-sm leading-6 text-blue-200/80">
+                <p className="mt-3 max-w-md text-sm leading-6 text-[#d7b56a]/85">
                   {welcomeLine}
                 </p>
               ) : null}
@@ -641,7 +641,7 @@ export default function VoiceArena({
             </>
           ) : phase === "momentum" ? (
             <>
-              <div className="flex h-28 w-28 items-center justify-center rounded-full bg-blue-500/20 shadow-[0_0_50px_rgba(59,130,246,0.25)]">
+              <div className="flex h-28 w-28 items-center justify-center rounded-full border border-[#d7b56a]/25 bg-[radial-gradient(circle,#29241a,#090a0b_68%)] shadow-[0_0_50px_rgba(198,151,67,0.22)]">
                 <span className="text-sm font-medium text-white/90">
                   {presenceLabel}
                 </span>
@@ -676,8 +676,8 @@ export default function VoiceArena({
                       {momentum.improve}
                     </p>
                   </div>
-                  <div className="rounded-2xl border border-blue-400/30 bg-blue-500/10 px-5 py-4">
-                    <p className="text-xs uppercase tracking-[0.2em] text-blue-200/70">
+                  <div className="rounded-2xl border border-[#d7b56a]/30 bg-[#c9a95f]/10 px-5 py-4">
+                    <p className="text-xs uppercase tracking-[0.2em] text-[#d7b56a]/80">
                       Try next
                     </p>
                     <p className="mt-2 text-base leading-7 text-white">
@@ -747,9 +747,9 @@ export default function VoiceArena({
               <div
                 className={`relative flex h-40 w-40 items-center justify-center rounded-full transition duration-500 sm:h-48 sm:w-48 ${
                   phase === "speaking"
-                    ? "bg-blue-500/25 shadow-[0_0_80px_rgba(59,130,246,0.35)]"
+                    ? "bg-[#c9a95f]/22 shadow-[0_0_80px_rgba(198,151,67,0.32)]"
                     : micLive
-                      ? "bg-amber-400/20 shadow-[0_0_60px_rgba(251,191,36,0.25)]"
+                      ? "bg-[#d7b56a]/18 shadow-[0_0_60px_rgba(215,181,106,0.22)]"
                       : "bg-white/8"
                 }`}
                 aria-live="polite"
@@ -757,9 +757,9 @@ export default function VoiceArena({
                 <div
                   className={`absolute inset-3 rounded-full border ${
                     phase === "speaking"
-                      ? "animate-pulse border-blue-300/40"
+                      ? "animate-pulse border-[#d7b56a]/45"
                       : micLive
-                        ? "border-amber-200/40"
+                        ? "border-[#e0c07a]/40"
                         : "border-white/10"
                   }`}
                 />
@@ -799,7 +799,7 @@ export default function VoiceArena({
                 <button
                   type="button"
                   onClick={() => void handleResumeRemoteAudio()}
-                  className="mt-5 rounded-full border border-blue-200/25 px-5 py-2.5 text-sm text-blue-100 transition hover:bg-blue-100/10"
+                  className="mt-5 rounded-full border border-[#d7b56a]/30 px-5 py-2.5 text-sm text-[#e7d6b1] transition hover:bg-[#c9a95f]/10"
                 >
                   Hear Coach Forge
                 </button>
