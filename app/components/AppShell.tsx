@@ -9,6 +9,10 @@ import type { UserRole } from "@/lib/auth/constants";
 import { migrateGuestPracticeData } from "@/lib/auth/migrate-guest";
 import { trackAuthEvent } from "@/lib/auth/analytics";
 import {
+  isFirstSessionExplorePath,
+  reportFirstSessionReturnSignal,
+} from "@/lib/first-session-feedback";
+import {
   bindAuthenticatedUserId,
   clearCurrentUserId,
   clearPendingGuestUserId,
@@ -31,6 +35,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [showFounder, setShowFounder] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Internal curiosity signal after first session (Profile / Progress / Activity).
+  useEffect(() => {
+    if (!isFirstSessionExplorePath(pathname)) return;
+    reportFirstSessionReturnSignal("explored_feature");
+  }, [pathname]);
 
   useEffect(() => {
     let cancelled = false;

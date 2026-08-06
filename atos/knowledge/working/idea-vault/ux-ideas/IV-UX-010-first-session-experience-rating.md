@@ -16,7 +16,7 @@
 
 ## Statement
 
-After a member’s very first completed practice session — once the wrap has finished and the session is saved — show a frictionless, once-only check-in. Mission question: **“Did this feel like practicing with a real communication coach?”** — not a generic app rating. Stars → one conditional follow-up → optional free-text → thank-you that reinforces building the world’s best communication coach. Always skippable. Internal-only behavioral signals (duration, completed, next session, return 24h/7d) sit beside the response.
+After a member’s very first completed practice session — once the wrap has finished and the session is saved — show a frictionless, once-only check-in. Mission question: **“Did Forge feel like a world-class communication coach?”** — exceptional bar, not merely “real.” Stars → one conditional follow-up → optional “What would have made this session even better?” → thank-you that reinforces building the world’s best communication coach. Always skippable. Internal-only behavioral signals (duration, completed, next session, return 24h/7d, explored another feature) sit beside the response.
 
 ---
 
@@ -51,7 +51,7 @@ First impressions determine whether members return. A premium, effortless check-
 - Trigger only on first-ever completed session; store a once flag (server unique user_id + local cache).
 - Member UI never says “experience rating” — ask the coach-mission question.
 - Skip is always available; optional comment is never required.
-- Behavioral signals are internal-only (never shown in the sheet).
+- Behavioral signals are internal-only (never shown in the sheet), including curiosity: explored Profile/Machines, Activity, or Progress after first session.
 - Blind spot: BS-015 — must not feel like a survey or interrupt before wrap/save.
 
 ---

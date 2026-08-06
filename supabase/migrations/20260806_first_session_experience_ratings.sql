@@ -19,6 +19,7 @@ create table if not exists public.first_session_experience_ratings (
   started_another_session boolean not null default false,
   returned_within_24h boolean not null default false,
   returned_within_7d boolean not null default false,
+  explored_another_feature boolean not null default false,
   created_at timestamptz not null default now(),
   signals_updated_at timestamptz,
   constraint first_session_experience_ratings_response_chk check (

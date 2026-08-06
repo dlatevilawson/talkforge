@@ -163,8 +163,7 @@ export default function FirstSessionExperienceRating({
               {FIRST_SESSION_OPTIONAL_PROMPT}
             </h2>
             <p className={styles.subtitle}>
-              Optional — most people skip this. A sentence helps when something
-              felt off or especially good.
+              Optional — one clear idea is enough. Skip anytime.
             </p>
             <label className={styles.srOnly} htmlFor={commentId}>
               Optional comment

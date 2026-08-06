@@ -60,7 +60,7 @@ export async function GET() {
  * Body:
  * - Rating: { sessionId, starRating, followUp, optionalComment? }
  * - Dismiss: { sessionId, dismissed: true }
- * - Signal: { action: "signal", kind: "home_visit" | "session_started" }
+ * - Signal: { action: "signal", kind: "home_visit" | "session_started" | "explored_feature" }
  */
 export async function POST(req: Request) {
   const gate = await requireApiUser();
@@ -83,10 +83,13 @@ export async function POST(req: Request) {
   }
 
   if (body.action === "signal") {
-    return handleSignal(
-      gate.userId,
-      body.kind === "session_started" ? "session_started" : "home_visit"
-    );
+    const kind =
+      body.kind === "session_started"
+        ? "session_started"
+        : body.kind === "explored_feature"
+          ? "explored_feature"
+          : "home_visit";
+    return handleSignal(gate.userId, kind);
   }
 
   const sessionId =
@@ -207,14 +210,14 @@ export async function POST(req: Request) {
 
 async function handleSignal(
   userId: string,
-  kind: "home_visit" | "session_started"
+  kind: "home_visit" | "session_started" | "explored_feature"
 ) {
   try {
     const supabase = await createServerSupabaseClient();
     const { data: row, error } = await supabase
       .from("first_session_experience_ratings")
       .select(
-        "id, created_at, started_another_session, returned_within_24h, returned_within_7d"
+        "id, created_at, started_another_session, returned_within_24h, returned_within_7d, explored_another_feature"
       )
       .eq("user_id", userId)
       .maybeSingle();
@@ -247,7 +250,17 @@ async function handleSignal(
       if (!row.started_another_session && elapsed <= MS_IMMEDIATE) {
         patch.started_another_session = true;
       }
-      // Starting another session also counts as a return.
+      if (!row.returned_within_24h && elapsed <= MS_24H) {
+        patch.returned_within_24h = true;
+      }
+      if (!row.returned_within_7d && elapsed <= MS_7D) {
+        patch.returned_within_7d = true;
+      }
+    } else if (kind === "explored_feature") {
+      // Curiosity after first session — Profile/Machines, Activity, Progress, etc.
+      if (!row.explored_another_feature && elapsed <= MS_7D) {
+        patch.explored_another_feature = true;
+      }
       if (!row.returned_within_24h && elapsed <= MS_24H) {
         patch.returned_within_24h = true;
       }
@@ -264,11 +277,11 @@ async function handleSignal(
       }
     }
 
-    // Only write if a flag actually flips (plus always bump signals_updated_at when flags flip).
     const flagChanged =
       patch.started_another_session === true ||
       patch.returned_within_24h === true ||
-      patch.returned_within_7d === true;
+      patch.returned_within_7d === true ||
+      patch.explored_another_feature === true;
 
     if (!flagChanged) {
       return NextResponse.json({ ok: true, unchanged: true });

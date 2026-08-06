@@ -2,9 +2,9 @@
 
 export const FIRST_SESSION_RATING_STORAGE_KEY = "tf_first_session_rating_done";
 
-/** Mission question — measures coach quality, not app liking. */
+/** Mission question — exceptional / world-class bar, not merely “real.” */
 export const FIRST_SESSION_RATING_TITLE =
-  "Did this feel like practicing with a real communication coach?";
+  "Did Forge feel like a world-class communication coach?";
 
 export const FIRST_SESSION_RATING_SUBTITLE =
   "One thoughtful answer helps Forge get better.";
@@ -16,7 +16,27 @@ export const FIRST_SESSION_THANK_YOU =
   "Every conversation helps Forge become a better coach. Thanks for being one of our first members.";
 
 export const FIRST_SESSION_OPTIONAL_PROMPT =
-  "Anything you’d like us to know? (optional)";
+  "What would have made this session even better? (optional)";
+
+export type FirstSessionSignalKind =
+  | "home_visit"
+  | "session_started"
+  | "explored_feature";
+
+/** Paths that count as curiosity beyond Home / practice (internal metric). */
+export const FIRST_SESSION_EXPLORE_PATH_PREFIXES = [
+  "/app/profile",
+  "/app/progress",
+  "/app/dashboard",
+  "/app/focus",
+] as const;
+
+export function isFirstSessionExplorePath(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return FIRST_SESSION_EXPLORE_PATH_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+}
 
 export const FIRST_SESSION_OPTIONAL_MAX = 500;
 
@@ -107,9 +127,9 @@ export function hasLocalFirstSessionRatingDone(): boolean {
   }
 }
 
-/** Fire-and-forget: update internal return / next-session signals. */
+/** Fire-and-forget: update internal return / curiosity signals. */
 export function reportFirstSessionReturnSignal(
-  kind: "home_visit" | "session_started" = "home_visit"
+  kind: FirstSessionSignalKind = "home_visit"
 ): void {
   if (typeof window === "undefined") return;
   void fetch("/api/first-session-feedback", {
