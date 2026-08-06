@@ -32,7 +32,7 @@ export default function LandingNav() {
 
   const onFilm = !scrolled;
   const startHref = authed ? "/app" : "/signup";
-  const startLabel = authed ? "Open Gym" : "Start Training";
+  const startLabel = authed ? "Continue" : "Prepare for today";
 
   return (
     <header

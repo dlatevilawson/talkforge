@@ -43,26 +43,26 @@ function buildWorkOptions(focus: string | null): WorkOption[] {
   options.push(
     {
       id: "forge",
-      title: "Talk with Forge",
-      blurb: "Start open — tell Forge what’s on your mind.",
+      title: "Something on my mind",
+      blurb: "Walk in and tell Forge what’s at stake.",
       practiceTitle: "What brings you in today?",
     },
     {
       id: "confident",
-      title: "Sound more confident",
-      blurb: "Clarity and calm under pressure.",
+      title: "Stop replaying it at 2 AM",
+      blurb: "Leave the conversation knowing you said it right.",
       practiceTitle: "Sound more confident in important conversations.",
     },
     {
       id: "difficult",
-      title: "A difficult conversation",
-      blurb: "Stay steady when it gets tense.",
+      title: "The conversation I’ve been avoiding",
+      blurb: "Stay calm when it finally gets real.",
       practiceTitle: "Navigate a difficult conversation with composure.",
     },
     {
       id: "concise",
-      title: "Be clear and concise",
-      blurb: "High-impact updates in less time.",
+      title: "Command the room in one update",
+      blurb: "Sound like the person they already trust.",
       practiceTitle: "Deliver concise, high-impact updates.",
     }
   );
