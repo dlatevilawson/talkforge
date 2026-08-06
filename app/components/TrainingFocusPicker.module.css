@@ -9,7 +9,7 @@
 
 .header {
   max-width: 40rem;
-  margin-bottom: clamp(1.75rem, 4vw, 2.75rem);
+  margin-bottom: clamp(1.25rem, 3vw, 2rem);
 }
 
 .eyebrow {
@@ -22,9 +22,9 @@
 }
 
 .title {
-  margin: 0.85rem 0 0;
+  margin: 0.7rem 0 0;
   color: var(--tf-focus-ink);
-  font-size: clamp(1.85rem, 4vw, 2.75rem);
+  font-size: clamp(1.55rem, 3.4vw, 2.2rem);
   font-weight: 520;
   letter-spacing: -0.04em;
   line-height: 1.05;
@@ -32,17 +32,17 @@
 }
 
 .subtitle {
-  margin: 0.85rem 0 0;
+  margin: 0.7rem 0 0;
   max-width: 34rem;
   color: var(--tf-focus-mute);
-  font-size: 0.98rem;
-  line-height: 1.55;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.9rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -51,95 +51,103 @@
 .card {
   position: relative;
   display: flex;
-  min-height: 11.5rem;
+  aspect-ratio: 1 / 1;
+  width: 100%;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.55rem;
+  gap: 0.35rem;
   overflow: hidden;
   border: 1px solid var(--tf-focus-edge);
-  border-radius: 1.35rem;
+  border-radius: 1.15rem;
   background:
-    radial-gradient(circle at 70% 18%, var(--halo), transparent 42%),
-    linear-gradient(165deg, #171a1f 0%, var(--tf-focus-card) 55%, #0d0f12 100%);
+    radial-gradient(circle at 78% 12%, var(--halo), transparent 40%),
+    linear-gradient(165deg, #1a1d22 0%, var(--tf-focus-card) 58%, #0d0f12 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
   color: inherit;
-  padding: 1.15rem 1.15rem 1rem;
+  padding: 0.85rem;
   text-align: left;
   transition:
-    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 220ms ease,
-    box-shadow 280ms ease;
-  animation: card-in 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--i, 0) * 45ms);
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 200ms ease,
+    box-shadow 240ms ease;
+  animation: card-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
   cursor: pointer;
 }
 
 .card:hover,
 .card:focus-visible {
-  transform: translateY(-3px);
-  border-color: rgb(240 201 125 / 35%);
-  box-shadow: 0 18px 40px rgb(0 0 0 / 35%);
+  transform: translateY(-2px);
+  border-color: rgb(240 201 125 / 40%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 5%),
+    0 14px 28px rgb(0 0 0 / 35%);
   outline: none;
 }
 
 .cardSelected {
   border-color: rgb(240 201 125 / 55%);
   box-shadow:
-    0 0 0 1px rgb(240 201 125 / 25%),
-    0 18px 40px rgb(0 0 0 / 40%);
+    0 0 0 1px rgb(240 201 125 / 22%),
+    0 14px 28px rgb(0 0 0 / 38%);
+}
+
+.cardTop {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .number {
   margin: 0;
   color: var(--accent);
-  font-size: 0.72rem;
+  font-size: 0.62rem;
   font-weight: 650;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
 }
 
 .machineTitle {
-  margin: 0;
+  margin: 0.15rem 0 0;
   color: #f7f6f2;
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  font-size: clamp(0.92rem, 2.6vw, 1.05rem);
+  font-weight: 620;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
 }
 
 .blurb {
   margin: 0;
-  color: #9aa0a8;
-  font-size: 0.86rem;
-  line-height: 1.45;
   flex: 1;
-}
-
-.cardFooter {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 0.35rem;
+  color: #8f959e;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .pill {
+  margin-top: auto;
   border-radius: 999px;
-  background: rgb(255 255 255 / 6%);
-  color: #b8bec6;
-  font-size: 0.68rem;
-  font-weight: 550;
+  background: rgb(255 255 255 / 7%);
+  color: #c4c9d0;
+  font-size: 0.62rem;
+  font-weight: 560;
   letter-spacing: 0.04em;
-  padding: 0.28rem 0.65rem;
+  padding: 0.22rem 0.55rem;
 }
 
 .arrow {
   display: grid;
-  width: 1.7rem;
-  height: 1.7rem;
+  width: 1.35rem;
+  height: 1.35rem;
   place-items: center;
   border-radius: 999px;
-  background: rgb(255 255 255 / 90%);
+  background: rgb(255 255 255 / 92%);
   color: #111;
-  transition: transform 220ms ease;
+  transition: transform 200ms ease;
 }
 
 .card:hover .arrow,
@@ -148,8 +156,8 @@
 }
 
 .arrow svg {
-  width: 0.85rem;
-  height: 0.85rem;
+  width: 0.7rem;
+  height: 0.7rem;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.8;
@@ -243,7 +251,7 @@
 @keyframes card-in {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -251,19 +259,30 @@
   }
 }
 
-@media (max-width: 920px) {
+@media (max-width: 1100px) {
   .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 560px) {
+@media (max-width: 720px) {
   .grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
   }
 
   .card {
-    min-height: 0;
+    border-radius: 1rem;
+    padding: 0.75rem;
+  }
+
+  .blurb {
+    -webkit-line-clamp: 2;
+    font-size: 0.68rem;
+  }
+
+  .machineTitle {
+    font-size: 0.92rem;
   }
 }
 

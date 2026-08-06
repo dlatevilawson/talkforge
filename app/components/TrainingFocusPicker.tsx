@@ -14,9 +14,13 @@ type Props = {
   eyebrow?: string;
 };
 
+function shortMachineName(title: string): string {
+  return title.replace(/\s+Machine$/i, "");
+}
+
 /**
  * Visual Machines focus picker (IV-UX-009).
- * Selection surface only — never mounted as Continuity Home.
+ * Compact square tiles for mobile — never Continuity Home.
  */
 export default function TrainingFocusPicker({
   selectedId,
@@ -43,21 +47,24 @@ export default function TrainingFocusPicker({
                 className={`${styles.card} ${selected ? styles.cardSelected : ""}`}
                 data-accent={option.accent}
                 aria-pressed={selected}
+                aria-label={`${option.title}. ${option.blurb}`}
                 onClick={() => onSelect(option)}
               >
-                <p className={styles.number}>{option.number}</p>
-                <p className={styles.machineTitle}>{option.title}</p>
-                <p className={styles.blurb}>{option.blurb}</p>
-                <div className={styles.cardFooter}>
-                  <span className={styles.pill}>
-                    {selected ? "Selected" : "Train this"}
-                  </span>
+                <div className={styles.cardTop}>
+                  <p className={styles.number}>{option.number}</p>
                   <span className={styles.arrow} aria-hidden="true">
                     <svg viewBox="0 0 20 20">
                       <path d="M5 15 15 5M8 5h7v7" />
                     </svg>
                   </span>
                 </div>
+                <p className={styles.machineTitle}>
+                  {shortMachineName(option.title)}
+                </p>
+                <p className={styles.blurb}>{option.blurb}</p>
+                <span className={styles.pill}>
+                  {selected ? "Selected" : "Train"}
+                </span>
               </button>
             </li>
           );
