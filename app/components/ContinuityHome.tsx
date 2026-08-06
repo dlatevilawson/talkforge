@@ -2,12 +2,19 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import styles from "./ContinuityHome.module.css";
 import { buildAdaptiveHome } from "@/lib/system2";
 import type { AdaptiveHomeModel } from "@/lib/system2";
 import type { LivingProfile } from "@/lib/system1/types";
 import { getUser } from "@/lib/storage";
+
+type WorkOption = {
+  id: string;
+  title: string;
+  blurb: string;
+  practiceTitle: string;
+};
 
 function gateMessage(gate: string | null): string | null {
   if (!gate) return null;
@@ -23,9 +30,49 @@ function gateMessage(gate: string | null): string | null {
   return "Return to Home for your next step — coaching starts from readiness.";
 }
 
+function buildWorkOptions(focus: string | null): WorkOption[] {
+  const options: WorkOption[] = [];
+  if (focus?.trim()) {
+    options.push({
+      id: "continue",
+      title: "Continue today’s focus",
+      blurb: focus.trim(),
+      practiceTitle: focus.trim(),
+    });
+  }
+  options.push(
+    {
+      id: "forge",
+      title: "Talk with Forge",
+      blurb: "Start open — tell Forge what’s on your mind.",
+      practiceTitle: "What brings you in today?",
+    },
+    {
+      id: "confident",
+      title: "Sound more confident",
+      blurb: "Clarity and calm under pressure.",
+      practiceTitle: "Sound more confident in important conversations.",
+    },
+    {
+      id: "difficult",
+      title: "A difficult conversation",
+      blurb: "Stay steady when it gets tense.",
+      practiceTitle: "Navigate a difficult conversation with composure.",
+    },
+    {
+      id: "concise",
+      title: "Be clear and concise",
+      blurb: "High-impact updates in less time.",
+      practiceTitle: "Deliver concise, high-impact updates.",
+    }
+  );
+  // Keep the choice set short — curiosity without a catalog.
+  return options.slice(0, 4);
+}
+
 /**
- * Adaptive Coach Homepage — AUDIT-001 C3 remediation.
- * Single continuity CTA. No mission menu, analytics, or invented readiness.
+ * Adaptive Coach Homepage — one question, a few paths into practice.
+ * Not a seven-tile mission menu (IV-REJ-005).
  */
 function ContinuityHomeInner() {
   const router = useRouter();
@@ -50,10 +97,7 @@ function ContinuityHomeInner() {
             if (res.ok) {
               const data = (await res.json()) as { profile?: LivingProfile | null };
               const loaded = data.profile ?? null;
-              // Only persisted Living Profiles unlock Begin. In-memory
-              // version-0 placeholders must not pass the client gate.
-              profile =
-                loaded && loaded.version >= 1 ? loaded : null;
+              profile = loaded && loaded.version >= 1 ? loaded : null;
             } else if (!cancelled) {
               setLoadError("Couldn’t load your Living Profile. Retry in a moment.");
             }
@@ -86,22 +130,16 @@ function ContinuityHomeInner() {
   const isReady = Boolean(readiness?.profileGatePassed);
   const focus = readiness?.objective;
   const bounceNote = gateMessage(gate);
+  const workOptions = useMemo(() => buildWorkOptions(focus ?? null), [focus]);
 
-  const heading = loading
-    ? "Preparing today’s training."
-    : isReady
-      ? focus
-        ? "Today, we’re training this."
-        : "Ready when you are."
-      : "Your Coach is almost ready.";
-
-  const coachNote = loading
-    ? "Your Coach is reviewing what matters now."
-    : isReady
-      ? focus
-        ? "One focused session, chosen from what you’ve said matters now."
-        : "Begin now — or optionally choose a Machine focus first."
-      : "We’re finishing your Living Profile so training can open.";
+  function enterPractice(practiceTitle: string) {
+    setEnteringTraining(true);
+    const trainingParams = new URLSearchParams({ start: "1" });
+    if (practiceTitle.trim()) {
+      trainingParams.set("title", practiceTitle.trim());
+    }
+    window.location.assign(`/app/practice?${trainingParams.toString()}`);
+  }
 
   return (
     <section className={styles.home} aria-labelledby="coach-heading">
@@ -131,30 +169,32 @@ function ContinuityHomeInner() {
           </span>
           <span>
             <strong>Your Coach</strong>
-            <small>Today’s recommendation</small>
+            <small>Today’s session</small>
           </span>
         </div>
 
         <h1 id="coach-heading" className={styles.heading}>
-          {heading}
+          {loading
+            ? "Preparing today’s training."
+            : isReady
+              ? "What would you like to work on today?"
+              : "Your Coach is almost ready."}
         </h1>
 
         <div className={styles.recommendation} aria-live="polite">
-          <p className={styles.machineName}>Executive Machine</p>
+          <p className={styles.machineName}>Coach Forge</p>
           <p className={styles.focus}>
             {loading ? (
-              <span className={styles.loadingLine} aria-label="Loading recommendation" />
+              <span
+                className={styles.loadingLine}
+                aria-label="Loading recommendation"
+              />
             ) : isReady ? (
-              focus ?? "Any conversation that matters now."
+              "Pick one path to begin. You can always change direction with Forge."
             ) : (
               "Standing by while your profile loads."
             )}
           </p>
-        </div>
-
-        <div className={styles.reason}>
-          <span className={styles.reasonLine} aria-hidden="true" />
-          <p>{coachNote}</p>
         </div>
 
         {bounceNote || loadError ? (
@@ -171,41 +211,49 @@ function ContinuityHomeInner() {
             </button>
           ) : isReady ? (
             <>
-              <button
-                type="button"
-                onClick={() => {
-                  setEnteringTraining(true);
-                  const trainingParams = new URLSearchParams({ start: "1" });
-                  if (focus) trainingParams.set("title", focus);
-                  window.location.assign(
-                    `/app/practice?${trainingParams.toString()}`
-                  );
-                }}
-                disabled={enteringTraining}
-                className={styles.primaryAction}
-              >
-                Begin today’s training
-                <ArrowGlyph />
-              </button>
+              <div className={styles.options} role="list">
+                {workOptions.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    role="listitem"
+                    className={styles.option}
+                    disabled={enteringTraining}
+                    onClick={() => enterPractice(option.practiceTitle)}
+                  >
+                    <span className={styles.optionLabel}>
+                      <span className={styles.optionTitle}>{option.title}</span>
+                      <span className={styles.optionBlurb}>{option.blurb}</span>
+                    </span>
+                    <span className={styles.optionMark} aria-hidden="true">
+                      <svg viewBox="0 0 20 20">
+                        <path d="M5 15 15 5M8 5h7v7" />
+                      </svg>
+                    </span>
+                  </button>
+                ))}
+              </div>
               <p className={styles.actionNote}>
                 <Link
                   href="/app/profile#goal"
                   className="text-[#c9a95f] underline-offset-4 hover:underline"
                 >
-                  {focus ? "Refine your training focus" : "Set your training focus"}
+                  Help Forge coach you better
                 </Link>
                 {" · "}
                 optional
               </p>
             </>
           ) : (
-            <button type="button" className={styles.primaryAction} disabled>
-              Preparing your profile
-              <ArrowGlyph />
-            </button>
-          )}
-          {isReady ? null : (
-            <p className={styles.actionNote}>One focused practice. You set the pace.</p>
+            <>
+              <button type="button" className={styles.primaryAction} disabled>
+                Preparing your profile
+                <ArrowGlyph />
+              </button>
+              <p className={styles.actionNote}>
+                One focused practice. You set the pace.
+              </p>
+            </>
           )}
         </div>
       </div>
@@ -219,7 +267,7 @@ function ContinuityHomeInner() {
         <div
           className={`${styles.machineStage} ${isReady ? styles.machineReady : ""}`}
           role="img"
-          aria-label="Executive Machine, specialized equipment for focused communication practice"
+          aria-label="Coach Forge training equipment"
         >
           <div className={styles.backlight} />
           <div className={styles.machine}>
@@ -237,7 +285,7 @@ function ContinuityHomeInner() {
                 <span />
               </div>
               <div className={styles.faceCopy}>
-                <small>EXECUTIVE</small>
+                <small>FORGE</small>
                 <strong>01</strong>
               </div>
             </div>
@@ -261,7 +309,7 @@ function ContinuityHomeInner() {
 
         <div className={styles.machineCaption}>
           <span>Equipment 01</span>
-          <p>Clarity under pressure</p>
+          <p>Practice that shapes your life</p>
         </div>
       </div>
     </section>
