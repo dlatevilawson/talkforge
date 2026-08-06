@@ -27,20 +27,148 @@ const SKILL_LABELS: Record<SkillKey, string> = {
   leadership: "Leadership",
 };
 
-function SkillBar({ label, value }: { label: string; value: number }) {
-  const width = Math.max(4, Math.min(100, value || 0));
+/** Professional skill waveform — replaces stacked bars for a coach-room feel. */
+function SkillsWaveform({
+  skills,
+}: {
+  skills: Partial<Record<SkillKey, number>> | undefined;
+}) {
+  const keys = Object.keys(SKILL_LABELS) as SkillKey[];
+  const values = keys.map((key) =>
+    Math.max(0, Math.min(100, Number(skills?.[key] ?? 0)))
+  );
+  const avg =
+    values.reduce((sum, value) => sum + value, 0) / Math.max(values.length, 1);
+
+  // Build a smooth audio-style path from skill amplitudes.
+  const width = 640;
+  const height = 160;
+  const mid = height / 2;
+  const step = width / (values.length * 4);
+  const points: string[] = [];
+  for (let i = 0; i <= values.length * 4; i += 1) {
+    const skillIndex = Math.min(values.length - 1, Math.floor(i / 4));
+    const nextIndex = Math.min(values.length - 1, skillIndex + 1);
+    const t = (i % 4) / 4;
+    const amplitude =
+      (values[skillIndex] * (1 - t) + values[nextIndex] * t) / 100;
+    const envelope = 0.35 + 0.65 * Math.sin((i / (values.length * 4)) * Math.PI);
+    const y = mid - amplitude * envelope * (mid - 18);
+    const x = i * step;
+    points.push(`${i === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`);
+  }
+  // Mirror lower half for a full waveform silhouette.
+  for (let i = values.length * 4; i >= 0; i -= 1) {
+    const skillIndex = Math.min(values.length - 1, Math.floor(i / 4));
+    const nextIndex = Math.min(values.length - 1, skillIndex + 1);
+    const t = (i % 4) / 4;
+    const amplitude =
+      (values[skillIndex] * (1 - t) + values[nextIndex] * t) / 100;
+    const envelope = 0.35 + 0.65 * Math.sin((i / (values.length * 4)) * Math.PI);
+    const y = mid + amplitude * envelope * (mid - 18);
+    const x = i * step;
+    points.push(`L ${x.toFixed(1)} ${y.toFixed(1)}`);
+  }
+  points.push("Z");
+  const path = points.join(" ");
+  const strokePoints = keys
+    .map((_, index) => {
+      const x = ((index + 0.5) / keys.length) * width;
+      const amplitude = values[index] / 100;
+      const y = mid - amplitude * 0.85 * (mid - 18);
+      return `${index === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`;
+    })
+    .join(" ");
+
   return (
-    <div>
-      <div className="flex items-center justify-between gap-3 text-sm">
-        <span className="text-zinc-300">{label}</span>
-        <span className="tabular-nums text-zinc-500">{value || "—"}</span>
+    <div className="overflow-hidden rounded-[1.6rem] border border-white/10 bg-gradient-to-b from-[#16191e] to-[#0c0d10] p-4 sm:p-5">
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-[#c9a95f]">
+            Voice of your growth
+          </p>
+          <p className="mt-1 text-sm text-zinc-500">
+            Shape of your communication across practice.
+          </p>
+        </div>
+        <p className="text-right">
+          <span className="block text-[0.65rem] uppercase tracking-[0.16em] text-zinc-600">
+            Signal
+          </span>
+          <span className="text-lg font-semibold tabular-nums text-[#e7d6b1]">
+            {avg > 0 ? Math.round(avg) : "—"}
+          </span>
+        </p>
       </div>
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
-        <div
-          className="h-full rounded-full bg-gradient-to-r from-sky-500/80 to-emerald-400/80 transition-all duration-700"
-          style={{ width: `${width}%` }}
-        />
+
+      <div className="relative mt-4">
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="h-36 w-full sm:h-40"
+          role="img"
+          aria-label="Communication skills waveform"
+        >
+          <defs>
+            <linearGradient id="tf-wave-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#e0c07a" stopOpacity="0.45" />
+              <stop offset="55%" stopColor="#c9a95f" stopOpacity="0.16" />
+              <stop offset="100%" stopColor="#c9a95f" stopOpacity="0.02" />
+            </linearGradient>
+            <linearGradient id="tf-wave-stroke" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#8b9098" stopOpacity="0.35" />
+              <stop offset="50%" stopColor="#e0c07a" stopOpacity="0.95" />
+              <stop offset="100%" stopColor="#8b9098" stopOpacity="0.35" />
+            </linearGradient>
+          </defs>
+          <line
+            x1="0"
+            y1={mid}
+            x2={width}
+            y2={mid}
+            stroke="rgba(255,255,255,0.06)"
+            strokeWidth="1"
+          />
+          <path d={path} fill="url(#tf-wave-fill)" />
+          <path
+            d={strokePoints}
+            fill="none"
+            stroke="url(#tf-wave-stroke)"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {keys.map((key, index) => {
+            const x = ((index + 0.5) / keys.length) * width;
+            const amplitude = values[index] / 100;
+            const y = mid - amplitude * 0.85 * (mid - 18);
+            return (
+              <circle
+                key={key}
+                cx={x}
+                cy={y}
+                r={values[index] > 0 ? 3.2 : 2}
+                fill={values[index] > 0 ? "#f0c97d" : "rgba(255,255,255,0.2)"}
+              />
+            );
+          })}
+        </svg>
       </div>
+
+      <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+        {keys.map((key, index) => (
+          <li
+            key={key}
+            className="rounded-xl border border-white/[0.08] bg-black/25 px-3 py-2.5"
+          >
+            <p className="text-[0.68rem] uppercase tracking-[0.12em] text-zinc-500">
+              {SKILL_LABELS[key]}
+            </p>
+            <p className="mt-1 text-sm font-semibold tabular-nums text-zinc-200">
+              {values[index] || "—"}
+            </p>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -186,16 +314,10 @@ export default function ProgressPage() {
           <section className="mt-10">
             <h2 className="text-xl font-semibold">Communication skills</h2>
             <p className="mt-2 text-sm text-zinc-500">
-              Averaged from your permanent session reports.
+              Your practice signal — how you’re growing across sessions.
             </p>
-            <div className="mt-6 space-y-4">
-              {(Object.keys(SKILL_LABELS) as SkillKey[]).map((key) => (
-                <SkillBar
-                  key={key}
-                  label={SKILL_LABELS[key]}
-                  value={skills?.[key] ?? 0}
-                />
-              ))}
+            <div className="mt-6">
+              <SkillsWaveform skills={skills} />
             </div>
           </section>
 
