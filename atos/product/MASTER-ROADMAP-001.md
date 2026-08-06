@@ -63,7 +63,7 @@ Translate priorities into implementation phases with goal, dependencies, complex
 
 | Item | Goal | Dependencies | Complexity | Owner | Status |
 |---|---|---|---|---|---|
-| E1 User testing | Trust, clarity, engagement, confidence, learning, readiness, retention | Phases A–D MVP | Medium | Founder / Atlas | Not started |
+| E1 User testing | Trust, clarity, engagement, confidence, learning, readiness, retention + first-session rating (IV-UX-010) | Phases A–D MVP | Medium | Founder / Atlas | Partial |
 | E2 Iterate | Improve existing before new | E1 evidence | Ongoing | Eng | Rule active |
 
 ---

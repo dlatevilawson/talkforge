@@ -32,8 +32,12 @@ import {
   createPracticeSession,
   persistActiveSession,
 } from "@/lib/session";
+import {
+  hasLocalFirstSessionRatingDone,
+} from "@/lib/first-session-feedback";
 import { getUser } from "@/lib/storage";
 import type { PracticeSession } from "@/lib/types";
+import FirstSessionExperienceRating from "./FirstSessionExperienceRating";
 
 type VoiceArenaProps = {
   track?: CeTrack;
@@ -105,6 +109,10 @@ export default function VoiceArena({
   const [completionRetryPending, setCompletionRetryPending] = useState(false);
   const [welcomeLine, setWelcomeLine] = useState("");
   const [remoteAudioBlocked, setRemoteAudioBlocked] = useState(false);
+  /** Captured at mint — before complete bumps sessionsCompleted. */
+  const [isFirstSession, setIsFirstSession] = useState(false);
+  const [showFirstSessionRating, setShowFirstSessionRating] = useState(false);
+  const firstSessionRatingCheckedRef = useRef(false);
 
   const showDevDiagnostics = process.env.NODE_ENV === "development";
 
@@ -118,6 +126,56 @@ export default function VoiceArena({
       setActiveVoiceSessionId(null);
     };
   }, []);
+
+  // IV-UX-010: once-only first-session check-in after wrap + successful save.
+  useEffect(() => {
+    if (
+      phase !== "momentum" ||
+      !sessionPersisted ||
+      !isFirstSession ||
+      !savedSessionId ||
+      momentumLoading ||
+      !momentum ||
+      firstSessionRatingCheckedRef.current
+    ) {
+      return;
+    }
+
+    firstSessionRatingCheckedRef.current = true;
+
+    if (hasLocalFirstSessionRatingDone()) {
+      return;
+    }
+
+    let cancelled = false;
+    async function maybeOpenRating() {
+      try {
+        const res = await fetch("/api/first-session-feedback", {
+          cache: "no-store",
+        });
+        const data = (await res.json()) as { completed?: boolean };
+        if (!cancelled && !data.completed) {
+          setShowFirstSessionRating(true);
+        }
+      } catch {
+        if (!cancelled) {
+          setShowFirstSessionRating(true);
+        }
+      }
+    }
+
+    void maybeOpenRating();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    phase,
+    sessionPersisted,
+    isFirstSession,
+    savedSessionId,
+    momentumLoading,
+    momentum,
+  ]);
 
   function pushEvent(label: string) {
     setEvents((prev) =>
@@ -279,6 +337,9 @@ export default function VoiceArena({
 
       realtimeSessionIdRef.current = tokenData.session_id ?? null;
       welcomeHintRef.current = tokenData.memory?.welcomeHint?.trim() || "";
+      const firstSession = !tokenData.memory?.isReturning;
+      setIsFirstSession(firstSession);
+      firstSessionRatingCheckedRef.current = false;
       if (tokenData.memory?.isReturning && tokenData.memory.firstName) {
         setWelcomeLine(
           `Welcome back, ${tokenData.memory.firstName}${
@@ -551,12 +612,13 @@ export default function VoiceArena({
 
   const busy =
     phase === "minting" || phase === "connecting" || phase === "speaking";
-  const inSession =
+  /** End only after session exists — avoids unlinked history (mint/connect race). */
+  const canEndSession =
     phase === "speaking" ||
     phase === "listening" ||
-    phase === "connected" ||
-    phase === "connecting" ||
-    phase === "minting";
+    phase === "connected";
+  const inSession =
+    canEndSession || phase === "connecting" || phase === "minting";
 
   const lastForge = [...turns].reverse().find((t) => t.role === "forge");
   const lastFounder = [...turns].reverse().find((t) => t.role === "founder");
@@ -595,7 +657,7 @@ export default function VoiceArena({
           >
             TalkForge
           </Link>
-          {inSession ? (
+          {canEndSession ? (
             <button
               type="button"
               onClick={() => void handleStop()}
@@ -603,6 +665,8 @@ export default function VoiceArena({
             >
               End
             </button>
+          ) : inSession ? (
+            <span className="text-sm text-white/30">Connecting…</span>
           ) : phase === "momentum" ? (
             <span className="text-sm text-white/30">Session wrap</span>
           ) : (
@@ -722,29 +786,31 @@ export default function VoiceArena({
                 </div>
               ) : null}
 
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                {savedSessionId ? (
-                  <Link
-                    href={`/app/reflect/${savedSessionId}`}
-                    className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
-                  >
-                    Reflect on this rep
-                  </Link>
-                ) : (
+              {!showFirstSessionRating ? (
+                <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                  {savedSessionId ? (
+                    <Link
+                      href={`/app/reflect/${savedSessionId}`}
+                      className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                    >
+                      Reflect on this rep
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/app"
+                      className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                    >
+                      Return home and begin again
+                    </Link>
+                  )}
                   <Link
                     href="/app"
-                    className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                    className="rounded-full border border-white/10 px-6 py-3.5 text-sm text-white/50 transition hover:bg-white/10"
                   >
-                    Return home and begin again
+                    Done for now
                   </Link>
-                )}
-                <Link
-                  href="/app"
-                  className="rounded-full border border-white/10 px-6 py-3.5 text-sm text-white/50 transition hover:bg-white/10"
-                >
-                  Done for now
-                </Link>
-              </div>
+                </div>
+              ) : null}
             </>
           ) : (
             <>
@@ -940,6 +1006,14 @@ export default function VoiceArena({
           </footer>
         )}
       </div>
+
+      {savedSessionId ? (
+        <FirstSessionExperienceRating
+          sessionId={savedSessionId}
+          open={showFirstSessionRating}
+          onClose={() => setShowFirstSessionRating(false)}
+        />
+      ) : null}
     </main>
   );
 }
