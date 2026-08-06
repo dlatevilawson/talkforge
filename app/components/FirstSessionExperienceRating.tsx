@@ -69,8 +69,10 @@ export default function FirstSessionExperienceRating({
     setStep("comment");
   }
 
-  async function submitRating() {
+  async function submitRating(commentOverride?: string) {
     if (!stars || !followUp || pending) return;
+    const note =
+      typeof commentOverride === "string" ? commentOverride : comment;
     setPending(true);
     try {
       await fetch("/api/first-session-feedback", {
@@ -80,7 +82,7 @@ export default function FirstSessionExperienceRating({
           sessionId,
           starRating: stars,
           followUp,
-          optionalComment: comment.trim() || undefined,
+          optionalComment: note.trim() || undefined,
         }),
       });
     } catch {
@@ -189,10 +191,7 @@ export default function FirstSessionExperienceRating({
               type="button"
               className={styles.skip}
               disabled={pending}
-              onClick={() => {
-                setComment("");
-                void submitRating();
-              }}
+              onClick={() => void submitRating("")}
             >
               Skip
             </button>
