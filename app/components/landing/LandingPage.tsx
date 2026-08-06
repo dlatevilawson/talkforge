@@ -80,11 +80,12 @@ export default function LandingPage() {
                 What We Believe
               </p>
               <blockquote className="mt-8 font-[family-name:var(--font-lp-display)] text-3xl font-medium leading-snug tracking-[-0.03em] text-[var(--lp-ink)] sm:text-4xl sm:leading-[1.25]">
-                Nobody should ever feel voiceless because they don&apos;t know
-                how to express themselves.
+                Never lose a life-changing opportunity simply because you
+                choked on the right words.
               </blockquote>
               <p className="mt-12 font-[family-name:var(--font-lp-display)] text-xl font-medium tracking-[-0.02em] text-[var(--lp-ink)] sm:text-2xl">
-                A company, not a product.
+                This isn&apos;t software. It&apos;s your private arena to
+                rehearse the conversations that shape your career and status.
               </p>
             </Reveal>
           </div>

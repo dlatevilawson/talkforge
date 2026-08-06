@@ -69,3 +69,13 @@ Before shipping any ad, subject line, or UI string:
 > Would this make someone stop scrolling at 11:30 PM on a Tuesday?
 
 Must tick at least three: curiosity gap · concrete transformation · high-status identity · emotionally specific language · real-life conversation (not software).
+
+---
+
+## Homepage copy (approved combination — 2026-08-06)
+
+| Section | Headline | Support |
+|---|---|---|
+| Belief | Never lose a life-changing opportunity simply because you choked on the right words. | This isn’t software. It’s your private arena to rehearse the conversations that shape your career and status. |
+| Experience | Rehearse where no one can see you stumble. | Most people collect advice about communication. Almost nobody rehearses the moments that matter. / Practice your next interview, salary negotiation, or tough boundary in private — so you walk into the real room already knowing what to say. |
+| Mission | From anxious overthinking to unshakeable presence. | Journey steps follow |
