@@ -115,7 +115,7 @@ export function buildWelcomeHint(input: {
   const { name, isReturning } = input;
 
   if (!isReturning) {
-    return `Say hello to ${name === "there" ? "them" : name} warmly. One short sentence that they're safe here — no performance. Ask one simple curious question about why they're here. Then wait. Never ask a blank menu of practice topics.`;
+    return `First-time welcome (CFX §5). Say hello to ${name === "there" ? "them" : name} warmly. One short sentence that they're welcome and safe — no performance. Do not give a TalkForge product tour. Invite curiosity with one simple question about what brought them in. Learn who they are through conversation — never interrogate profile fields. Then wait. Never ask a blank menu of practice topics.`;
   }
 
   const when = relativeSessionPhrase(input.lastSessionAt);
@@ -264,7 +264,8 @@ Member relationship memory:
 - Nickname: ${ctx.nickname || "(none)"}
 - Opening style: ${ctx.welcomeHint}
 - Learning style: ${learning}
-- Remember: understand before coaching. No topic menus.
+- CFX §5: welcome · curiosity · natural discovery. No product tour. No interrogation.
+- Remember: understand before coaching. Member speaks more. No topic menus.
 `;
   }
 

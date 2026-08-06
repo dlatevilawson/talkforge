@@ -57,7 +57,7 @@ Translate priorities into implementation phases with goal, dependencies, complex
 | D3 Moments / Timeline | Continuity visible | A3 | Medium | Eng | Not started |
 | D4 Canvas | Parked | — | Low | Eng | Future |
 | D5 Discovery | Parked | D1 trust | Medium | Eng | Future |
-| D6 Coach interaction | Mentor pacing | IV-AI-002 | Medium | Eng | Partial |
+| D6 Coach interaction | Mentor pacing + excellence gate (CFX-001) | IV-AI-002 · IV-AI-006 | Medium | Eng | In Development |
 
 ## Phase E — Validate & Iterate (EXEC Steps 17–18)
 

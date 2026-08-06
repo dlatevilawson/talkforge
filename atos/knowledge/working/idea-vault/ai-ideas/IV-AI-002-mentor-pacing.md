@@ -8,7 +8,7 @@
 | **Status** | In Development |
 | **Importance** | Critical |
 | **Owner** | Founder |
-| **Last Updated** | 2026-08-01 |
+| **Last Updated** | 2026-08-06 |
 | **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
 
@@ -32,7 +32,7 @@ Shipped direction in Phase 1.5 relationship building.
 |---|---|
 | **Depends on** | IV-PHIL-003 · IV-LAW-002 · IV-LAW-001 |
 | **Supports** | IV-FEAT-007 · IV-PROD-006 |
-| **Related** | IV-AI-001 · IV-AI-003 |
+| **Related** | IV-AI-001 · IV-AI-003 · IV-AI-006 |
 
 ---
 
@@ -50,6 +50,6 @@ Shipped direction in Phase 1.5 relationship building.
 
 | Field | Value |
 |---|---|
-| Blind spot review | *(Step 5)* |
-| Roadmap link | *(Step 12)* |
-| Priority | *(Step 11 — distinct from Importance)* |
+| Blind spot review | BS-014 (excellence theater) |
+| Roadmap link | MASTER-ROADMAP-001 · D6 · CFX-001 |
+| Priority | Critical — paired with IV-AI-006 |
