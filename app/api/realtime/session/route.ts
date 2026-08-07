@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
+import { evaluatePracticeEntitlement } from "@/lib/billing/entitlements";
 import { loadCoachPromptContextForUser } from "@/lib/coach/memory-server";
 import {
   buildClientSecretRequest,
   type CeTrack,
 } from "@/lib/ce/session-config";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { evaluatePracticeRouteAccess } from "@/lib/system2/server-readiness";
 
 export const runtime = "nodejs";
@@ -18,6 +20,7 @@ type SessionBody = {
 /**
  * CE-M1: Mint an ephemeral OpenAI Realtime client secret.
  * Injects coach relationship memory so Forge welcomes returning members.
+ * Billing SSOT gates starting practice (BILL-001) — never mid-session.
  */
 export async function POST(req: Request) {
   const gate = await requireApiUser();
@@ -32,6 +35,32 @@ export async function POST(req: Request) {
       {
         error: "Living Profile readiness required before starting Coach Forge.",
         reason: readiness.reason,
+      },
+      { status: 403 }
+    );
+  }
+
+  // BILL-001 / BS-016 — server entitlement before mint (start only).
+  const supabase = await createServerSupabaseClient();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", gate.userId)
+    .maybeSingle();
+  const entitlement = await evaluatePracticeEntitlement(
+    gate.userId,
+    typeof profile?.role === "string" ? profile.role : null
+  );
+  if (!entitlement.canStartPractice) {
+    return NextResponse.json(
+      {
+        error:
+          entitlement.message ??
+          "You’ve completed your complimentary coaching sessions. Whenever you’re ready, Forge will be here.",
+        code: "PRACTICE_LIMIT_REACHED",
+        reason: entitlement.reason,
+        membershipPath: "/membership",
+        billingPath: "/app/billing",
       },
       { status: 403 }
     );

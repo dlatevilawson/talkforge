@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Status** | Authorized continuum — **Remediation Freeze** (AUDIT-001 / Decision 053) |
-| **Updated** | 2026-08-02 |
+| **Status** | Authorized continuum — Membership track (IV-PROD-008 / BILL-001) |
+| **Updated** | 2026-08-07 |
 
 | Step | Package | Status |
 |---|---|---|
@@ -13,5 +13,6 @@
 | 16 | [BUILD-UX-001](BUILD-UX-001.md) | Authorized — after SYS2 homepage |
 | 17 | [TEST-001](TEST-001-user-testing-protocol.md) | Protocol ready |
 | 18 | [ITERATE-001](ITERATE-001-improvement-rule.md) | Active rule |
+| F | [BILL-001](BILL-001-billing-membership.md) | In Development — Free/Pro Stripe membership |
 
 Master schedule: [MASTER-ROADMAP-001](MASTER-ROADMAP-001.md)

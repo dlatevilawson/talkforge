@@ -159,6 +159,42 @@ create table if not exists public.reflections (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.member_subscriptions (
+  user_id uuid primary key references public.profiles (id) on delete cascade,
+  stripe_customer_id text unique,
+  stripe_subscription_id text unique,
+  plan text not null default 'free'
+    check (plan in ('free', 'pro')),
+  status text not null default 'free'
+    check (
+      status in (
+        'free',
+        'active',
+        'trialing',
+        'past_due',
+        'canceled',
+        'unpaid',
+        'incomplete',
+        'incomplete_expired',
+        'paused',
+        'expired'
+      )
+    ),
+  current_period_end timestamptz,
+  cancel_at_period_end boolean not null default false,
+  canceled_at timestamptz,
+  trial_end timestamptz,
+  price_id text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists member_subscriptions_status_idx
+  on public.member_subscriptions (status);
+
+create index if not exists member_subscriptions_stripe_customer_idx
+  on public.member_subscriptions (stripe_customer_id);
+
 create table if not exists public.founder_notes (
   id text primary key,
   body text not null,
@@ -401,6 +437,7 @@ alter table public.reflections enable row level security;
 alter table public.session_reports enable row level security;
 alter table public.coach_memory enable row level security;
 alter table public.living_profiles enable row level security;
+alter table public.member_subscriptions enable row level security;
 alter table public.founder_notes enable row level security;
 alter table public.founder_briefs enable row level security;
 alter table public.waitlist_members enable row level security;
@@ -413,6 +450,11 @@ create trigger coach_memory_set_updated_at
 drop trigger if exists living_profiles_set_updated_at on public.living_profiles;
 create trigger living_profiles_set_updated_at
   before update on public.living_profiles
+  for each row execute function public.set_updated_at();
+
+drop trigger if exists member_subscriptions_set_updated_at on public.member_subscriptions;
+create trigger member_subscriptions_set_updated_at
+  before update on public.member_subscriptions
   for each row execute function public.set_updated_at();
 
 -- Drop legacy open policies if present
@@ -479,6 +521,12 @@ create policy "living_profiles_own"
   to authenticated
   using (user_id = auth.uid() or public.is_founder_or_admin())
   with check (user_id = auth.uid());
+
+drop policy if exists "member_subscriptions_select_own" on public.member_subscriptions;
+create policy "member_subscriptions_select_own"
+  on public.member_subscriptions for select
+  to authenticated
+  using (user_id = auth.uid() or public.is_founder_or_admin());
 
 drop policy if exists "founder_notes_staff" on public.founder_notes;
 create policy "founder_notes_staff"

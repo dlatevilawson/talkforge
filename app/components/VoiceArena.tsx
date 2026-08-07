@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import BecomeProMemberButton from "@/app/components/billing/BecomeProMemberButton";
 import {
   connectRealtime,
   disconnectRealtime,
@@ -26,6 +27,12 @@ import {
   setActiveVoiceSessionId,
 } from "@/lib/ce/transcript-store";
 import { isCurrentVoiceLifecycle } from "@/lib/ce/voice-lifecycle";
+import {
+  COMPLIMENTARY_COMPLETE_BODY,
+  COMPLIMENTARY_COMPLETE_HEADLINE,
+  MAYBE_LATER_CTA,
+  MEANINGFUL_PROGRESS_LINE,
+} from "@/lib/billing/member-copy";
 import { voiceTurnsToConversationTurns } from "@/lib/coach/report";
 import {
   completePracticeSession,
@@ -34,6 +41,8 @@ import {
 } from "@/lib/session";
 import { getUser } from "@/lib/storage";
 import type { PracticeSession } from "@/lib/types";
+
+type WrapStage = "coaching" | "membership";
 
 type VoiceArenaProps = {
   track?: CeTrack;
@@ -105,6 +114,8 @@ export default function VoiceArena({
   const [completionRetryPending, setCompletionRetryPending] = useState(false);
   const [welcomeLine, setWelcomeLine] = useState("");
   const [remoteAudioBlocked, setRemoteAudioBlocked] = useState(false);
+  const [complimentaryComplete, setComplimentaryComplete] = useState(false);
+  const [wrapStage, setWrapStage] = useState<WrapStage>("coaching");
 
   const showDevDiagnostics = process.env.NODE_ENV === "development";
 
@@ -237,6 +248,8 @@ export default function VoiceArena({
     setCompletionError("");
     setCompletionRetryPending(false);
     setRemoteAudioBlocked(false);
+    setComplimentaryComplete(false);
+    setWrapStage("coaching");
     practiceSessionRef.current = null;
     setPhase("minting");
     pushEvent("Minting session…");
@@ -546,6 +559,33 @@ export default function VoiceArena({
 
     await persistCompletedVoiceSession(snapshot, wrap);
 
+    // After the final complimentary session, check entitlement only once the
+    // wrap is ready — upgrade moment follows coaching, never a meter.
+    try {
+      const entRes = await fetch("/api/billing/entitlement", {
+        cache: "no-store",
+      });
+      if (entRes.ok) {
+        const entData = (await entRes.json()) as {
+          entitlement?: {
+            canStartPractice?: boolean;
+            reason?: string;
+          };
+        };
+        if (
+          entData.entitlement?.canStartPractice === false &&
+          entData.entitlement.reason === "free_limit_reached"
+        ) {
+          if (mountedRef.current) {
+            setComplimentaryComplete(true);
+            setWrapStage("coaching");
+          }
+        }
+      }
+    } catch {
+      // Soft check — never block session wrap.
+    }
+
     setMomentumLoading(false);
   }
 
@@ -645,106 +685,156 @@ export default function VoiceArena({
             </>
           ) : phase === "momentum" ? (
             <>
-              <div className="flex h-28 w-28 items-center justify-center rounded-full border border-[#d7b56a]/25 bg-[radial-gradient(circle,#29241a,#090a0b_68%)] shadow-[0_0_50px_rgba(198,151,67,0.22)]">
-                <span className="text-sm font-medium text-white/90">
-                  {presenceLabel}
-                </span>
-              </div>
-              <h1 className="mt-8 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
-                Leave with momentum
-              </h1>
-              <p className="mt-3 max-w-md text-base leading-7 text-white/50">
-                One strength. One improvement. One thing to try in the real
-                conversation.
-              </p>
-
-              {momentumLoading ? (
-                <p className="mt-10 text-sm text-white/45">
-                  Forge is wrapping up your session…
-                </p>
-              ) : momentum ? (
-                <div className="mt-10 w-full max-w-xl space-y-5 text-left">
-                  <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
-                    <p className="text-xs uppercase tracking-[0.2em] text-white/40">
-                      Strength
-                    </p>
-                    <p className="mt-2 text-base leading-7 text-white/90">
-                      {momentum.strength}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
-                    <p className="text-xs uppercase tracking-[0.2em] text-white/40">
-                      Improve
-                    </p>
-                    <p className="mt-2 text-base leading-7 text-white/90">
-                      {momentum.improve}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-[#d7b56a]/30 bg-[#c9a95f]/10 px-5 py-4">
-                    <p className="text-xs uppercase tracking-[0.2em] text-[#d7b56a]/80">
-                      Try next
-                    </p>
-                    <p className="mt-2 text-base leading-7 text-white">
-                      {momentum.nextAction}
-                    </p>
-                  </div>
-                </div>
-              ) : null}
-
-              {sessionPersisted ? (
-                <p className="mt-8 text-xs uppercase tracking-[0.18em] text-emerald-300/80">
-                  Saved to your history
-                </p>
-              ) : null}
-
-              {completionError ? (
-                <div className="mt-6 max-w-md">
-                  <p className="text-sm text-red-300" role="alert">
-                    {completionError}
+              {complimentaryComplete && wrapStage === "membership" ? (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#c9a95f]">
+                    Coach Forge
                   </p>
-                  {savedSessionId ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (momentum) {
-                          void persistCompletedVoiceSession(
-                            [...turnsRef.current],
-                            momentum
-                          );
-                        }
-                      }}
-                      disabled={completionRetryPending}
-                      className="mt-3 rounded-full border border-red-200/20 px-5 py-2.5 text-sm text-red-100 transition hover:bg-red-100/10 disabled:opacity-50"
+                  <h1 className="mt-6 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
+                    {COMPLIMENTARY_COMPLETE_HEADLINE}
+                  </h1>
+                  <div className="mt-5 max-w-md space-y-3 text-base leading-7 text-white/55">
+                    {COMPLIMENTARY_COMPLETE_BODY.map((line) => (
+                      <p key={line}>{line}</p>
+                    ))}
+                  </div>
+                  <div className="mt-10 flex w-full max-w-sm flex-col gap-3">
+                    <BecomeProMemberButton source="post_session_complimentary" />
+                    <Link
+                      href="/app"
+                      className="rounded-full border border-white/10 px-8 py-3.5 text-sm text-white/55 transition hover:bg-white/10"
                     >
-                      {completionRetryPending ? "Saving…" : "Try saving again"}
-                    </button>
+                      {MAYBE_LATER_CTA}
+                    </Link>
+                  </div>
+                  {savedSessionId ? (
+                    <Link
+                      href={`/app/reflect/${savedSessionId}`}
+                      className="mt-8 text-sm text-white/40 underline-offset-4 hover:underline"
+                    >
+                      Reflect on this session
+                    </Link>
                   ) : null}
-                </div>
-              ) : null}
+                </>
+              ) : (
+                <>
+                  <div className="flex h-28 w-28 items-center justify-center rounded-full border border-[#d7b56a]/25 bg-[radial-gradient(circle,#29241a,#090a0b_68%)] shadow-[0_0_50px_rgba(198,151,67,0.22)]">
+                    <span className="text-sm font-medium text-white/90">
+                      {presenceLabel}
+                    </span>
+                  </div>
+                  <h1 className="mt-8 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
+                    Leave with momentum
+                  </h1>
+                  <p className="mt-3 max-w-md text-base leading-7 text-white/50">
+                    One strength. One improvement. One thing to try in the real
+                    conversation.
+                  </p>
 
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-                {savedSessionId ? (
-                  <Link
-                    href={`/app/reflect/${savedSessionId}`}
-                    className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
-                  >
-                    Reflect on this rep
-                  </Link>
-                ) : (
-                  <Link
-                    href="/app"
-                    className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
-                  >
-                    Return home and begin again
-                  </Link>
-                )}
-                <Link
-                  href="/app"
-                  className="rounded-full border border-white/10 px-6 py-3.5 text-sm text-white/50 transition hover:bg-white/10"
-                >
-                  Done for now
-                </Link>
-              </div>
+                  {momentumLoading ? (
+                    <p className="mt-10 text-sm text-white/45">
+                      Forge is wrapping up your session…
+                    </p>
+                  ) : momentum ? (
+                    <div className="mt-10 w-full max-w-xl space-y-5 text-left">
+                      <div className="rounded-2xl border border-[#d7b56a]/30 bg-[#c9a95f]/10 px-5 py-4">
+                        <p className="text-xs uppercase tracking-[0.2em] text-[#d7b56a]/80">
+                          What improved today
+                        </p>
+                        <p className="mt-2 text-base leading-7 text-white">
+                          {momentum.strength}
+                        </p>
+                        {complimentaryComplete ? (
+                          <p className="mt-3 text-sm leading-6 text-[#e0c07a]/90">
+                            {MEANINGFUL_PROGRESS_LINE}
+                          </p>
+                        ) : null}
+                      </div>
+                      <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
+                        <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+                          Improve
+                        </p>
+                        <p className="mt-2 text-base leading-7 text-white/90">
+                          {momentum.improve}
+                        </p>
+                      </div>
+                      <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
+                        <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+                          Try next
+                        </p>
+                        <p className="mt-2 text-base leading-7 text-white/90">
+                          {momentum.nextAction}
+                        </p>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {sessionPersisted ? (
+                    <p className="mt-8 text-xs uppercase tracking-[0.18em] text-emerald-300/80">
+                      Saved to your history
+                    </p>
+                  ) : null}
+
+                  {completionError ? (
+                    <div className="mt-6 max-w-md">
+                      <p className="text-sm text-red-300" role="alert">
+                        {completionError}
+                      </p>
+                      {savedSessionId ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (momentum) {
+                              void persistCompletedVoiceSession(
+                                [...turnsRef.current],
+                                momentum
+                              );
+                            }
+                          }}
+                          disabled={completionRetryPending}
+                          className="mt-3 rounded-full border border-red-200/20 px-5 py-2.5 text-sm text-red-100 transition hover:bg-red-100/10 disabled:opacity-50"
+                        >
+                          {completionRetryPending
+                            ? "Saving…"
+                            : "Try saving again"}
+                        </button>
+                      ) : null}
+                    </div>
+                  ) : null}
+
+                  <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                    {complimentaryComplete && !momentumLoading ? (
+                      <button
+                        type="button"
+                        onClick={() => setWrapStage("membership")}
+                        className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                      >
+                        Continue
+                      </button>
+                    ) : savedSessionId ? (
+                      <Link
+                        href={`/app/reflect/${savedSessionId}`}
+                        className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                      >
+                        Reflect on this rep
+                      </Link>
+                    ) : (
+                      <Link
+                        href="/app"
+                        className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                      >
+                        Return home and begin again
+                      </Link>
+                    )}
+                    <Link
+                      href="/app"
+                      className="rounded-full border border-white/10 px-6 py-3.5 text-sm text-white/50 transition hover:bg-white/10"
+                    >
+                      Done for now
+                    </Link>
+                  </div>
+                </>
+              )}
             </>
           ) : (
             <>
