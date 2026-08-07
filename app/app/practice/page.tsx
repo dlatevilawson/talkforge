@@ -38,7 +38,7 @@ export default async function VoicePage({
       typeof profile?.role === "string" ? profile.role : null
     );
     if (!entitlement.canStartPractice) {
-      return <EndOfFreePractice message={entitlement.message} />;
+      return <EndOfFreePractice />;
     }
   }
 

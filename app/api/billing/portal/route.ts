@@ -24,7 +24,7 @@ export async function POST() {
     const membership = await loadMemberSubscription(gate.userId);
     if (!membership?.stripeCustomerId) {
       return NextResponse.json(
-        { error: "No billing customer yet. Upgrade to Pro first." },
+        { error: "No billing customer yet. Become a Pro Member first." },
         { status: 404 }
       );
     }

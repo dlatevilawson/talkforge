@@ -190,12 +190,12 @@ function statusLabel(status: BillingStatus, plan: BillingPlan): string {
     case "past_due":
       return "Payment needs attention";
     case "canceled":
-      return "Canceling at period end";
+      return "Access continues until period ends";
     case "unpaid":
-      return "Payment failed";
+      return "Payment needs attention";
     case "incomplete":
     case "incomplete_expired":
-      return "Checkout incomplete";
+      return "Membership checkout incomplete";
     case "paused":
       return "Paused";
     default:
@@ -212,11 +212,14 @@ function renewalLabel(sub: MemberSubscription | null): string | null {
     month: "long",
     day: "numeric",
   });
-  if (sub.cancelAtPeriodEnd) {
-    return `Access through ${formatted}`;
+  if (sub.cancelAtPeriodEnd || sub.status === "canceled") {
+    return `Full access through ${formatted}`;
   }
   if (sub.status === "past_due") {
     return `Please update payment · next attempt around ${formatted}`;
+  }
+  if (sub.status === "trialing") {
+    return `Trial access through ${formatted}`;
   }
   return `Renews ${formatted}`;
 }

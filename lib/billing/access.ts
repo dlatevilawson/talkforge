@@ -6,8 +6,9 @@ import type { BillingPlan, BillingStatus, MemberSubscription } from "@/lib/billi
 
 export const STAFF_ROLES = new Set(["founder", "admin", "system"]);
 
+/** Supporting lines after complimentary coaching is complete (member-facing). */
 export const END_OF_FREE_SUPPORTING =
-  "Communication improves through consistent practice. Continue training anytime with TalkForge Pro.";
+  "Communication isn’t mastered in a single conversation. It’s built through consistent, deliberate practice. Whenever you’re ready, Forge will be here.";
 
 export function hasProAccess(
   sub: MemberSubscription | null,

@@ -56,7 +56,7 @@ export async function POST(req: Request) {
       {
         error:
           entitlement.message ??
-          "Complimentary practice sessions are complete. Continue with TalkForge Pro anytime.",
+          "You’ve completed your complimentary coaching sessions. Whenever you’re ready, Forge will be here.",
         code: "PRACTICE_LIMIT_REACHED",
         reason: entitlement.reason,
         membershipPath: "/membership",

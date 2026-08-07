@@ -1,33 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { trackBillingEvent } from "@/lib/billing/analytics";
+import BecomeProMemberButton from "@/app/components/billing/BecomeProMemberButton";
+import {
+  COMPLIMENTARY_COMPLETE_BODY,
+  COMPLIMENTARY_COMPLETE_HEADLINE,
+  MAYBE_LATER_CTA,
+} from "@/lib/billing/member-copy";
 
 type Props = {
+  /** Optional supporting copy; defaults to mission-aligned body. */
   message?: string | null;
 };
 
 export default function EndOfFreePractice({ message }: Props) {
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState("");
-
-  async function upgrade() {
-    setPending(true);
-    setError("");
-    trackBillingEvent("billing_upgrade_started", { source: "end_of_free" });
-    try {
-      const res = await fetch("/api/billing/checkout", { method: "POST" });
-      const data = (await res.json()) as { url?: string; error?: string };
-      if (!res.ok || !data.url) {
-        throw new Error(data.error || "Could not start checkout.");
-      }
-      window.location.assign(data.url);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not start checkout.");
-      setPending(false);
-    }
-  }
+  const body = message?.trim()
+    ? [message.trim()]
+    : [...COMPLIMENTARY_COMPLETE_BODY];
 
   return (
     <main className="relative min-h-[100dvh] overflow-hidden bg-[#07070a] text-white">
@@ -40,35 +29,23 @@ export default function EndOfFreePractice({ message }: Props) {
           Coach Forge
         </p>
         <h1 className="mt-6 text-3xl font-semibold tracking-tight sm:text-4xl">
-          You’ve completed your complimentary practice sessions.
+          {COMPLIMENTARY_COMPLETE_HEADLINE}
         </h1>
-        <p className="mt-5 max-w-md text-base leading-7 text-white/55">
-          {message?.trim() ||
-            "Communication improves through consistent practice. Continue training anytime with TalkForge Pro."}
-        </p>
+        <div className="mt-5 max-w-md space-y-3 text-base leading-7 text-white/55">
+          {body.map((line) => (
+            <p key={line}>{line}</p>
+          ))}
+        </div>
 
         <div className="mt-10 flex w-full max-w-sm flex-col gap-3">
-          <button
-            type="button"
-            onClick={() => void upgrade()}
-            disabled={pending}
-            className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
-          >
-            {pending ? "Opening checkout…" : "Continue with Pro"}
-          </button>
+          <BecomeProMemberButton source="end_of_free" />
           <Link
             href="/app"
             className="rounded-full border border-white/10 px-8 py-3.5 text-sm text-white/55 transition hover:bg-white/10"
           >
-            Maybe Later
+            {MAYBE_LATER_CTA}
           </Link>
         </div>
-
-        {error ? (
-          <p className="mt-6 text-sm text-red-300" role="alert">
-            {error}
-          </p>
-        ) : null}
 
         <p className="mt-10 text-sm text-white/35">
           Your account stays open. Explore Progress, Living Profile, and Home

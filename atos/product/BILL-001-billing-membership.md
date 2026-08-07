@@ -22,6 +22,8 @@ No Team / Enterprise in v1.
 
 Earn subscriptions through value. Never interrupt a live session. Never lock the account. No dark patterns.
 
+**Member-facing language:** say complimentary coaching sessions / Become a Pro Member — never “session limit,” “usage limit,” or “quota.” The final complimentary session ends with a genuine coaching wrap before any membership prompt.
+
 ## Config (env)
 
 | Variable | Purpose |

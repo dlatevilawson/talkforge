@@ -3,8 +3,14 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import BecomeProMemberButton from "@/app/components/billing/BecomeProMemberButton";
 import type { MembershipView } from "@/lib/billing/types";
 import { trackBillingEvent } from "@/lib/billing/analytics";
+import {
+  BECOME_PRO_MEMBER_CTA,
+  CANCELLATION_BODY,
+  CANCELLATION_HEADLINE,
+} from "@/lib/billing/member-copy";
 
 function BillingInner() {
   const searchParams = useSearchParams();
@@ -13,7 +19,7 @@ function BillingInner() {
     checkout === "success"
       ? "Welcome to TalkForge Pro. Your membership is updating."
       : checkout === "canceled"
-        ? "Checkout canceled. You can upgrade whenever you’re ready."
+        ? "Checkout closed. You can become a Pro Member whenever you’re ready."
         : "";
   const [membership, setMembership] = useState<MembershipView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,12 +41,12 @@ function BillingInner() {
           membership?: MembershipView;
           error?: string;
         };
-        if (!res.ok) throw new Error(data.error || "Could not load billing.");
+        if (!res.ok) throw new Error(data.error || "Could not load membership.");
         if (!cancelled) setMembership(data.membership ?? null);
       } catch (err) {
         if (!cancelled) {
           setError(
-            err instanceof Error ? err.message : "Could not load billing."
+            err instanceof Error ? err.message : "Could not load membership."
           );
         }
       } finally {
@@ -53,23 +59,6 @@ function BillingInner() {
     };
   }, []);
 
-  async function upgrade() {
-    setPending(true);
-    setError("");
-    trackBillingEvent("billing_upgrade_started", { source: "billing_page" });
-    try {
-      const res = await fetch("/api/billing/checkout", { method: "POST" });
-      const data = (await res.json()) as { url?: string; error?: string };
-      if (!res.ok || !data.url) {
-        throw new Error(data.error || "Could not start checkout.");
-      }
-      window.location.assign(data.url);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not start checkout.");
-      setPending(false);
-    }
-  }
-
   async function openPortal() {
     setPending(true);
     setError("");
@@ -78,14 +67,20 @@ function BillingInner() {
       const res = await fetch("/api/billing/portal", { method: "POST" });
       const data = (await res.json()) as { url?: string; error?: string };
       if (!res.ok || !data.url) {
-        throw new Error(data.error || "Could not open portal.");
+        throw new Error(data.error || "Could not open billing portal.");
       }
       window.location.assign(data.url);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not open portal.");
+      setError(
+        err instanceof Error ? err.message : "Could not open billing portal."
+      );
       setPending(false);
     }
   }
+
+  const showCancellation =
+    membership &&
+    (membership.cancelAtPeriodEnd || membership.status === "canceled");
 
   return (
     <main className="mx-auto max-w-2xl px-5 py-10 text-zinc-100 sm:px-8">
@@ -94,8 +89,8 @@ function BillingInner() {
       </p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight">Billing</h1>
       <p className="mt-3 max-w-xl text-base leading-7 text-zinc-400">
-        Prepare with confidence. Upgrade when deliberate practice becomes part
-        of your routine — never under pressure.
+        Continue your communication journey when deliberate practice becomes
+        part of how you prepare — never under pressure.
       </p>
 
       {note ? (
@@ -105,7 +100,7 @@ function BillingInner() {
       ) : null}
 
       {loading ? (
-        <p className="mt-10 text-sm text-zinc-500">Loading your plan…</p>
+        <p className="mt-10 text-sm text-zinc-500">Loading your membership…</p>
       ) : membership ? (
         <div className="mt-10 space-y-8">
           <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
@@ -140,41 +135,58 @@ function BillingInner() {
                 payment method to keep your membership active.
               </p>
             ) : null}
+
+            {membership.status === "trialing" ? (
+              <p className="mt-5 text-sm leading-6 text-zinc-300">
+                You’re on a trial membership. Enjoy full Pro access while it
+                lasts — no pressure to decide early.
+              </p>
+            ) : null}
+
+            {showCancellation ? (
+              <div className="mt-6 space-y-3 border-t border-white/10 pt-5 text-sm leading-6 text-zinc-300">
+                <p className="font-medium text-zinc-100">
+                  {CANCELLATION_HEADLINE}
+                </p>
+                {CANCELLATION_BODY.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+              </div>
+            ) : null}
           </section>
 
           {membership.canUpgrade ? (
             <section className="rounded-3xl border border-[#d7b56a]/25 bg-[#c9a95f]/08 p-6">
-              <h2 className="text-lg font-semibold">Upgrade to Pro</h2>
+              <h2 className="text-lg font-semibold">{BECOME_PRO_MEMBER_CTA}</h2>
               <p className="mt-3 text-sm leading-6 text-zinc-300">
-                Unlimited practice sessions, longer voice coaching, conversation
-                memory, and progress tracking — so consistent preparation stays
-                available when the stakes are high.
+                Unlimited coaching sessions, unlimited voice practice,
+                personalized coaching memory, and deeper insights — so
+                consistent preparation stays available when the conversation
+                matters.
               </p>
               <p className="mt-4 text-sm text-[#e0c07a]">
                 {membership.proPriceLabel} · Cancel anytime
               </p>
               {!membership.stripeConfigured ? (
                 <p className="mt-4 text-sm text-zinc-500">
-                  Billing is being connected. Check back shortly, or continue
-                  exploring Free practice while it lasts.
+                  Membership checkout is being connected. Explore TalkForge
+                  anytime — Forge will be here when you’re ready.
                 </p>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => void upgrade()}
-                  disabled={pending}
-                  className="mt-6 rounded-full bg-white px-7 py-3 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
-                >
-                  {pending ? "Opening checkout…" : "Upgrade to Pro"}
-                </button>
+                <div className="mt-6 max-w-xs">
+                  <BecomeProMemberButton
+                    source="billing_page"
+                    className="rounded-full bg-white px-7 py-3 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
+                  />
+                </div>
               )}
             </section>
           ) : (
             <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-              <h2 className="text-lg font-semibold">Manage subscription</h2>
+              <h2 className="text-lg font-semibold">Manage membership</h2>
               <p className="mt-3 text-sm leading-6 text-zinc-400">
                 Update your payment method, download invoices, cancel or resume,
-                and view billing history in the secure Stripe customer portal.
+                and view billing history in the secure customer portal.
               </p>
               <button
                 type="button"
@@ -189,9 +201,8 @@ function BillingInner() {
 
           {membership.plan === "free" ? (
             <p className="text-sm text-zinc-500">
-              Free includes up to {membership.freeLimits.maxPracticeSessions}{" "}
-              complete practice sessions so you can experience a full coaching
-              cycle before deciding.
+              Free includes complimentary coaching sessions so you can
+              experience a full coaching cycle before deciding.
             </p>
           ) : null}
         </div>
@@ -221,7 +232,7 @@ export default function BillingPage() {
     <Suspense
       fallback={
         <main className="mx-auto max-w-2xl px-5 py-10 text-zinc-400">
-          Loading billing…
+          Loading membership…
         </main>
       }
     >

@@ -224,14 +224,15 @@ function ContinuityHomeInner() {
 
         {practiceLimitReached && !bounceNote && !loadError ? (
           <p className="mt-4 max-w-md text-sm leading-6 text-white/55" role="status">
-            You’ve used your complimentary practice sessions.{" "}
+            You’ve completed your complimentary coaching sessions.{" "}
             <Link
               href="/app/billing"
               className="text-[#c9a95f] underline-offset-4 hover:underline"
             >
-              Continue with Pro
+              Become a Pro Member
             </Link>{" "}
-            anytime — your account and progress stay open to explore.
+            whenever you’re ready — your account and progress stay open to
+            explore.
           </p>
         ) : null}
 
