@@ -68,7 +68,15 @@ export default async function PricingPage({
                 source="pricing_founding"
                 label="Become a Founding Member"
                 disabled
-                disabledHint="Membership checkout is almost ready. Check back shortly, or start free while we finish connecting Stripe."
+                disabledHint={
+                  offer.diagnostics.resolveError
+                    ? `Checkout isn’t ready yet: ${offer.diagnostics.resolveError}`
+                    : !offer.diagnostics.hasSecretKey
+                      ? "Add STRIPE_SECRET_KEY to Vercel Production, then redeploy."
+                      : !offer.diagnostics.hasPriceOrProductId
+                        ? "Add STRIPE_PRO_PRICE_ID (a price_… or prod_… ID) to Vercel Production, then redeploy."
+                        : "Membership checkout is almost ready. Confirm Stripe env vars are set for Production, then redeploy."
+                }
                 className="w-full rounded-full bg-[var(--lp-bg)] px-8 py-3.5 text-sm font-semibold text-[var(--lp-ink)] transition hover:opacity-90 disabled:opacity-50"
               />
             )}

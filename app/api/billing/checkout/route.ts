@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import {
-  getStripePriceProMonthly,
-  stripeBillingConfigured,
-} from "@/lib/billing/config";
+import { stripeBillingConfigured } from "@/lib/billing/config";
+import { resolveStripePriceId } from "@/lib/billing/offer";
 import { billingReturnUrls, getStripe } from "@/lib/billing/stripe";
 import { loadMemberSubscription } from "@/lib/billing/entitlements";
 import { ensureFreeMembershipRow } from "@/lib/billing/sync";
@@ -21,12 +19,27 @@ export async function POST() {
 
   if (!stripeBillingConfigured()) {
     return NextResponse.json(
-      { error: "Billing is not configured yet." },
+      {
+        error:
+          "Billing is not configured yet. Set STRIPE_SECRET_KEY and STRIPE_PRO_PRICE_ID in Vercel Production.",
+      },
       { status: 503 }
     );
   }
 
-  const priceId = getStripePriceProMonthly();
+  const resolved = await resolveStripePriceId();
+  if (!resolved.priceId) {
+    return NextResponse.json(
+      {
+        error:
+          resolved.error ||
+          "Could not resolve Stripe Price from STRIPE_PRO_PRICE_ID.",
+      },
+      { status: 503 }
+    );
+  }
+
+  const priceId = resolved.priceId;
   const urls = billingReturnUrls();
 
   try {
