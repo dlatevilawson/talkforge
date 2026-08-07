@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { getProPriceLabel } from "@/lib/billing/config";
+import { connection } from "next/server";
+import MembershipCheckoutButton from "@/app/components/billing/MembershipCheckoutButton";
+import { resolveMembershipOffer } from "@/lib/billing/offer";
 import { BECOME_PRO_MEMBER_CTA } from "@/lib/billing/member-copy";
 
 export const metadata: Metadata = {
@@ -9,8 +11,18 @@ export const metadata: Metadata = {
     "Join TalkForge — complimentary coaching to discover deliberate practice, Pro to continue your communication journey.",
 };
 
-export default function MembershipPage() {
-  const price = getProPriceLabel();
+export default async function MembershipPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ checkout?: string | string[] }>;
+}) {
+  await connection();
+  const params = await searchParams;
+  const checkoutRaw = Array.isArray(params.checkout)
+    ? params.checkout[0]
+    : params.checkout;
+  const autoStart = checkoutRaw === "1";
+  const offer = await resolveMembershipOffer();
 
   return (
     <main className="lp-root min-h-[100dvh] bg-[var(--lp-bg)] px-5 py-24 text-[var(--lp-ink)] sm:px-8">
@@ -60,14 +72,27 @@ export default function MembershipPage() {
               <li>Early access to future premium coaching features</li>
             </ul>
             <p className="mt-8 text-sm text-white/70">
-              {price} · Cancel anytime
+              {offer.priceLabel} · Cancel anytime
             </p>
-            <Link
-              href="/app/billing"
-              className="mt-6 inline-flex rounded-full bg-[var(--lp-bg)] px-6 py-3 text-sm font-semibold text-[var(--lp-ink)]"
-            >
-              {BECOME_PRO_MEMBER_CTA}
-            </Link>
+            <div className="mt-6 max-w-xs">
+              {offer.configured ? (
+                <MembershipCheckoutButton
+                  source="membership_page"
+                  label={BECOME_PRO_MEMBER_CTA}
+                  autoStart={autoStart}
+                  loginNext="/membership?checkout=1"
+                  className="w-full rounded-full bg-[var(--lp-bg)] px-6 py-3 text-sm font-semibold text-[var(--lp-ink)] transition hover:opacity-90 disabled:opacity-50"
+                />
+              ) : (
+                <MembershipCheckoutButton
+                  source="membership_page"
+                  label={BECOME_PRO_MEMBER_CTA}
+                  disabled
+                  disabledHint="Membership checkout is being connected."
+                  className="w-full rounded-full bg-[var(--lp-bg)] px-6 py-3 text-sm font-semibold text-[var(--lp-ink)] transition hover:opacity-90 disabled:opacity-50"
+                />
+              )}
+            </div>
           </section>
         </div>
 
@@ -127,12 +152,19 @@ export default function MembershipPage() {
                 optional — never pressured.
               </dd>
             </div>
+            <div>
+              <dt className="font-medium">How much does Pro cost?</dt>
+              <dd className="mt-2 text-[var(--lp-muted)]">{offer.priceLabel}</dd>
+            </div>
           </dl>
         </section>
 
         <p className="mt-14 text-sm text-[var(--lp-muted)]">
           No countdown timers. No pressure. Practice first — become a Pro Member
-          when you’re ready to keep going.
+          when you’re ready to keep going.{" "}
+          <Link href="/pricing" className="underline underline-offset-4">
+            Founding Members
+          </Link>
         </p>
       </div>
     </main>

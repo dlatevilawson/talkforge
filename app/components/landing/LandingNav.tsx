@@ -7,7 +7,7 @@ import TalkForgeLogo from "@/app/components/landing/TalkForgeLogo";
 const links = [
   { href: "/", label: "Home" },
   { href: "/#experience", label: "Features" },
-  { href: "/membership", label: "Membership" },
+  { href: "/pricing", label: "Pricing" },
   { href: "/about", label: "About" },
 ] as const;
 

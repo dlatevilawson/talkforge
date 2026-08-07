@@ -34,9 +34,11 @@ Earn subscriptions through value. Never interrupt a live session. Never lock the
 | `BILLING_FREE_MONTHLY_MAX_SESSIONS` | Monthly free sessions when enabled |
 | `STRIPE_SECRET_KEY` | Server Stripe key |
 | `STRIPE_WEBHOOK_SECRET` | Webhook signing secret |
-| `STRIPE_PRICE_PRO_MONTHLY` | Pro monthly Price ID |
+| `STRIPE_PRICE_PRO_MONTHLY` | Pro monthly Price ID (aliases: `STRIPE_PRICE_ID`, `STRIPE_PRO_PRICE_ID`) |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Publishable key (Checkout redirect only) |
-| `NEXT_PUBLIC_BILLING_PRO_PRICE_LABEL` | Display price e.g. `$29/month` |
+| `NEXT_PUBLIC_BILLING_PRO_PRICE_LABEL` | Optional display override; otherwise price is loaded live from Stripe |
+
+`/pricing` is the Founding Members offer (live Stripe price + Checkout). `/membership` is the full Membership FAQ.
 
 ### Webhook endpoint
 
@@ -57,8 +59,8 @@ Apply migration: `supabase/migrations/20260807_member_subscriptions.sql`.
 
 | Route | Role |
 |---|---|
-| `/membership` | Public Membership page (replaces Pricing nav) |
-| `/pricing` | Redirect → `/membership` |
+| `/pricing` | Founding Members offer — live Stripe price + Checkout CTA |
+| `/membership` | Full Membership FAQ + Pro checkout |
 | `/app/billing` | Current plan, upgrade, manage via Stripe Portal |
 | `/api/billing/*` | Checkout, portal, membership, entitlement, webhook |
 

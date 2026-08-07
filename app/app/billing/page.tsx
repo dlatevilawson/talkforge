@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import BecomeProMemberButton from "@/app/components/billing/BecomeProMemberButton";
+import MembershipCheckoutButton from "@/app/components/billing/MembershipCheckoutButton";
 import type { MembershipView } from "@/lib/billing/types";
 import { trackBillingEvent } from "@/lib/billing/analytics";
 import {
@@ -21,6 +22,7 @@ function BillingInner() {
       : checkout === "canceled"
         ? "Checkout closed. You can become a Pro Member whenever you’re ready."
         : "";
+  const autoStartCheckout = checkout === "1";
   const [membership, setMembership] = useState<MembershipView | null>(null);
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState(false);
@@ -174,10 +176,20 @@ function BillingInner() {
                 </p>
               ) : (
                 <div className="mt-6 max-w-xs">
-                  <BecomeProMemberButton
-                    source="billing_page"
-                    className="rounded-full bg-white px-7 py-3 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
-                  />
+                  {autoStartCheckout ? (
+                    <MembershipCheckoutButton
+                      source="billing_page"
+                      label={BECOME_PRO_MEMBER_CTA}
+                      autoStart
+                      loginNext="/app/billing?checkout=1"
+                      className="rounded-full bg-white px-7 py-3 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
+                    />
+                  ) : (
+                    <BecomeProMemberButton
+                      source="billing_page"
+                      className="rounded-full bg-white px-7 py-3 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
+                    />
+                  )}
                 </div>
               )}
             </section>

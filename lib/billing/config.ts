@@ -33,14 +33,28 @@ export function getProPriceLabel(): string {
   );
 }
 
+/**
+ * Pro monthly Price ID. Accepts common Vercel naming aliases so a created
+ * Stripe Price still wires when the env key isn’t exactly STRIPE_PRICE_PRO_MONTHLY.
+ */
 export function getStripePriceProMonthly(): string {
-  return process.env.STRIPE_PRICE_PRO_MONTHLY?.trim() || "";
+  const candidates = [
+    process.env.STRIPE_PRICE_PRO_MONTHLY,
+    process.env.STRIPE_PRICE_ID,
+    process.env.STRIPE_PRO_PRICE_ID,
+    process.env.STRIPE_PRICE_PRO,
+    process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY,
+  ];
+  for (const raw of candidates) {
+    const value = raw?.trim();
+    if (value) return value;
+  }
+  return "";
 }
 
 export function stripeBillingConfigured(): boolean {
   return Boolean(
-    process.env.STRIPE_SECRET_KEY?.trim() &&
-      process.env.STRIPE_PRICE_PRO_MONTHLY?.trim()
+    process.env.STRIPE_SECRET_KEY?.trim() && getStripePriceProMonthly()
   );
 }
 

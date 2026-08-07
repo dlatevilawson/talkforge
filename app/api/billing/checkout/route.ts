@@ -112,9 +112,10 @@ export async function POST() {
     });
   } catch (err) {
     console.error("[billing] checkout", err);
-    return NextResponse.json(
-      { error: "Could not start checkout." },
-      { status: 500 }
-    );
+    const message =
+      err instanceof Error && /No such price|Invalid API Key|price/i.test(err.message)
+        ? "Stripe price or key looks misconfigured. Check STRIPE_SECRET_KEY and STRIPE_PRICE_PRO_MONTHLY in Vercel."
+        : "Could not start checkout.";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
