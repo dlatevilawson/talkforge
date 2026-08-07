@@ -1,6 +1,9 @@
 import VoiceArena from "@/app/components/VoiceArena";
+import EndOfFreePractice from "@/app/components/billing/EndOfFreePractice";
 import type { CeTrack } from "@/lib/ce/session-config";
+import { evaluatePracticeEntitlement } from "@/lib/billing/entitlements";
 import { evaluatePracticeRouteAccess } from "@/lib/system2/server-readiness";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 
@@ -18,6 +21,25 @@ export default async function VoicePage({
   const access = await evaluatePracticeRouteAccess();
   if (!access.allowed) {
     redirect(`/app?gate=${access.reason}`);
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+    const entitlement = await evaluatePracticeEntitlement(
+      user.id,
+      typeof profile?.role === "string" ? profile.role : null
+    );
+    if (!entitlement.canStartPractice) {
+      return <EndOfFreePractice message={entitlement.message} />;
+    }
   }
 
   const params = await searchParams;

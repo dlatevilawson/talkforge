@@ -82,9 +82,11 @@ function ContinuityHomeInner() {
   const [loading, setLoading] = useState(true);
   const [enteringTraining, setEnteringTraining] = useState(false);
   const [loadError, setLoadError] = useState("");
+  const [practiceLimitReached, setPracticeLimitReached] = useState(false);
 
   useEffect(() => {
     router.prefetch("/app/practice?start=1");
+    router.prefetch("/app/billing");
     let cancelled = false;
 
     async function load() {
@@ -105,6 +107,23 @@ function ContinuityHomeInner() {
             if (!cancelled) {
               setLoadError("Couldn’t load your Living Profile. Retry in a moment.");
             }
+          }
+          try {
+            const entRes = await fetch("/api/billing/entitlement", {
+              cache: "no-store",
+            });
+            if (entRes.ok) {
+              const entData = (await entRes.json()) as {
+                entitlement?: { canStartPractice?: boolean };
+              };
+              if (!cancelled) {
+                setPracticeLimitReached(
+                  entData.entitlement?.canStartPractice === false
+                );
+              }
+            }
+          } catch {
+            // Billing soft-check must never block Home.
           }
         }
         if (!cancelled) {
@@ -203,6 +222,19 @@ function ContinuityHomeInner() {
           </p>
         ) : null}
 
+        {practiceLimitReached && !bounceNote && !loadError ? (
+          <p className="mt-4 max-w-md text-sm leading-6 text-white/55" role="status">
+            You’ve used your complimentary practice sessions.{" "}
+            <Link
+              href="/app/billing"
+              className="text-[#c9a95f] underline-offset-4 hover:underline"
+            >
+              Continue with Pro
+            </Link>{" "}
+            anytime — your account and progress stay open to explore.
+          </p>
+        ) : null}
+
         <div className={styles.action}>
           {loading ? (
             <button type="button" className={styles.primaryAction} disabled>
@@ -242,6 +274,17 @@ function ContinuityHomeInner() {
                 </Link>
                 {" · "}
                 optional
+                {practiceLimitReached ? (
+                  <>
+                    {" · "}
+                    <Link
+                      href="/membership"
+                      className="text-white/45 underline-offset-4 hover:underline"
+                    >
+                      Membership
+                    </Link>
+                  </>
+                ) : null}
               </p>
             </>
           ) : (

@@ -66,6 +66,13 @@ Translate priorities into implementation phases with goal, dependencies, complex
 | E1 User testing | Trust, clarity, engagement, confidence, learning, readiness, retention | Phases A–D MVP | Medium | Founder / Atlas | Not started |
 | E2 Iterate | Improve existing before new | E1 evidence | Ongoing | Eng | Rule active |
 
+## Phase F — Membership (IV-PROD-008 / BILL-001)
+
+| Item | Goal | Dependencies | Complexity | Owner | Status |
+|---|---|---|---|---|---|
+| F1 Free / Pro billing | Stripe Checkout + Portal + webhooks; server SSOT; configurable free limits; Membership + Billing surfaces; calm end-of-free | Living Profile · CE practice · BS-016 | High | Eng / Founder | In Development |
+| F2 Production Stripe cutover | Live keys, webhook endpoint, Price ID, migration applied, conversion analytics | F1 · prod hardening | Medium | Founder / Eng | Not started |
+
 ---
 
 ## Sequencing rule
