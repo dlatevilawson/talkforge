@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { trackBillingEvent } from "@/lib/billing/analytics";
 import { BECOME_PRO_MEMBER_CTA } from "@/lib/billing/member-copy";
 
@@ -26,7 +25,6 @@ export default function MembershipCheckoutButton({
   disabled = false,
   disabledHint,
 }: Props) {
-  const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
 
@@ -40,7 +38,8 @@ export default function MembershipCheckoutButton({
       const data = (await res.json()) as { url?: string; error?: string };
 
       if (res.status === 401) {
-        router.push(
+        // Full navigation — more reliable than client router after auth gate.
+        window.location.assign(
           `/login?next=${encodeURIComponent(loginNext)}`
         );
         return;
@@ -60,7 +59,6 @@ export default function MembershipCheckoutButton({
 
   useEffect(() => {
     if (!autoStart || disabled) return;
-    // Defer so post-login return doesn't setState synchronously in the effect body.
     const timer = window.setTimeout(() => {
       void startCheckout();
     }, 0);
@@ -80,7 +78,7 @@ export default function MembershipCheckoutButton({
           "w-full rounded-full bg-[var(--lp-ink)] px-8 py-3.5 text-sm font-semibold text-[var(--lp-bg)] transition hover:opacity-90 disabled:opacity-50"
         }
       >
-        {pending ? "Opening checkout…" : label}
+        {pending ? "Continuing…" : label}
       </button>
       {disabled && disabledHint ? (
         <p className="mt-3 text-sm text-[var(--lp-muted)]">{disabledHint}</p>
@@ -88,6 +86,12 @@ export default function MembershipCheckoutButton({
       {error ? (
         <p className="mt-3 text-sm text-red-600" role="alert">
           {error}
+        </p>
+      ) : null}
+      {!disabled ? (
+        <p className="mt-3 text-xs leading-5 opacity-60">
+          You’ll sign in (or create an account), then continue to secure Stripe
+          Checkout.
         </p>
       ) : null}
     </div>

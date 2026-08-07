@@ -18,6 +18,12 @@ function boolEnv(name: string, fallback: boolean): boolean {
   return fallback;
 }
 
+/** Strip quotes/whitespace that Vercel paste sometimes includes. */
+function cleanEnv(raw: string | undefined): string {
+  if (!raw) return "";
+  return raw.trim().replace(/^['"]|['"]$/g, "").trim();
+}
+
 export function getBillingFreeLimits() {
   return {
     maxPracticeSessions: intEnv("BILLING_FREE_MAX_SESSIONS", 3),
@@ -29,35 +35,44 @@ export function getBillingFreeLimits() {
 
 export function getProPriceLabel(): string {
   return (
-    process.env.NEXT_PUBLIC_BILLING_PRO_PRICE_LABEL?.trim() || "$29 / month"
+    cleanEnv(process.env.NEXT_PUBLIC_BILLING_PRO_PRICE_LABEL) || "$29 / month"
   );
 }
 
 /**
- * Pro monthly Price ID. Accepts common Vercel naming aliases so a created
- * Stripe Price still wires when the env key isn’t exactly STRIPE_PRICE_PRO_MONTHLY.
+ * Raw Stripe Price or Product ID from env.
+ * TalkForge Vercel currently uses STRIPE_PRO_PRICE_ID (may be price_ or prod_).
  */
-export function getStripePriceProMonthly(): string {
+export function getStripePriceOrProductId(): string {
   const candidates = [
+    process.env.STRIPE_PRO_PRICE_ID,
     process.env.STRIPE_PRICE_PRO_MONTHLY,
     process.env.STRIPE_PRICE_ID,
-    process.env.STRIPE_PRO_PRICE_ID,
     process.env.STRIPE_PRICE_PRO,
+    process.env.STRIPE_PRODUCT_ID,
+    process.env.STRIPE_PRO_PRODUCT_ID,
     process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY,
   ];
   for (const raw of candidates) {
-    const value = raw?.trim();
+    const value = cleanEnv(raw);
     if (value) return value;
   }
   return "";
 }
 
+/** @deprecated Prefer getStripePriceOrProductId — kept for call sites. */
+export function getStripePriceProMonthly(): string {
+  return getStripePriceOrProductId();
+}
+
+export function stripeSecretConfigured(): boolean {
+  return Boolean(cleanEnv(process.env.STRIPE_SECRET_KEY));
+}
+
 export function stripeBillingConfigured(): boolean {
-  return Boolean(
-    process.env.STRIPE_SECRET_KEY?.trim() && getStripePriceProMonthly()
-  );
+  return Boolean(stripeSecretConfigured() && getStripePriceOrProductId());
 }
 
 export function stripeWebhookConfigured(): boolean {
-  return Boolean(process.env.STRIPE_WEBHOOK_SECRET?.trim());
+  return Boolean(cleanEnv(process.env.STRIPE_WEBHOOK_SECRET));
 }

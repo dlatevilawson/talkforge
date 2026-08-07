@@ -34,9 +34,13 @@ Earn subscriptions through value. Never interrupt a live session. Never lock the
 | `BILLING_FREE_MONTHLY_MAX_SESSIONS` | Monthly free sessions when enabled |
 | `STRIPE_SECRET_KEY` | Server Stripe key |
 | `STRIPE_WEBHOOK_SECRET` | Webhook signing secret |
-| `STRIPE_PRICE_PRO_MONTHLY` | Pro monthly Price ID (aliases: `STRIPE_PRICE_ID`, `STRIPE_PRO_PRICE_ID`) |
+| `STRIPE_PRO_PRICE_ID` | Preferred — Stripe `price_…` **or** `prod_…` (Product IDs auto-resolve to an active monthly Price) |
+| `STRIPE_PRICE_PRO_MONTHLY` | Alias for Price ID |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Publishable key (Checkout redirect only) |
 | `NEXT_PUBLIC_BILLING_PRO_PRICE_LABEL` | Optional display override; otherwise price is loaded live from Stripe |
+
+**Vercel:** set these for **Production** (not only Preview), then **Redeploy**.  
+Debug: `GET /api/billing/offer` returns `{ configured, priceLabel, diagnostics }` (no secrets).
 
 `/pricing` is the Founding Members offer (live Stripe price + Checkout). `/membership` is the full Membership FAQ.
 
