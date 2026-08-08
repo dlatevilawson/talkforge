@@ -371,6 +371,18 @@ export function cancelForgeResponse(
   }
 }
 
+/** Drop any residual input audio before opening outbound after local confirm. */
+export function clearInputAudioBuffer(
+  connection: RealtimeConnection | null
+): void {
+  if (!connection || connection.dc.readyState !== "open") return;
+  try {
+    connection.dc.send(JSON.stringify({ type: "input_audio_buffer.clear" }));
+  } catch {
+    /* ignore */
+  }
+}
+
 /** Immediately duck Forge playback so yield feels conversational (not an error). */
 export function duckRemoteForgeAudio(
   connection: RealtimeConnection | null

@@ -9,6 +9,7 @@ import BecomeProMemberButton from "@/app/components/billing/BecomeProMemberButto
 import {
   applyOutputBudget,
   cancelForgeResponse,
+  clearInputAudioBuffer,
   connectRealtime,
   disconnectRealtime,
   duckRemoteForgeAudio,
@@ -209,6 +210,10 @@ export default function VoiceArena({
     }
 
     if (isProUserRef.current && connectionRef.current) {
+      if (transition.openOutboundMic) {
+        // Start clean — do not flush ambient that never should have been sent.
+        clearInputAudioBuffer(connectionRef.current);
+      }
       setOutboundMicrophoneEnabled(
         connectionRef.current,
         transition.openOutboundMic
@@ -244,6 +249,20 @@ export default function VoiceArena({
       // Stay in-session listening chrome — never error/restart.
       setPhase("listening");
       voiceRef.current.onBargeIn();
+    },
+    onConfirmedUserTurn: (level) => {
+      if (!isProUserRef.current) return;
+      // Listening → member turn only after local intentional-speech confirm.
+      const transition = applyTurn({
+        type: "USER_SPEECH_STARTED",
+        source: "local_energy",
+      });
+      if (transition.to === "user_speaking") {
+        setPhase("listening");
+        pushEvent(
+          `Intentional speech · open mic · level ${level.toFixed(2)}`
+        );
+      }
     },
   });
   const voiceRef = useRef(voice);

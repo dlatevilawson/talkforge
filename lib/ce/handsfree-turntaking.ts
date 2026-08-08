@@ -49,8 +49,9 @@ export function memberOwnsFloor(state: TurnState): boolean {
 }
 
 export function outboundMicOpenForState(state: TurnState): boolean {
-  // Mute outbound while Forge owns the floor so speaker echo cannot hit server VAD.
-  return state === "listening" || state === "user_speaking" || state === "interrupted";
+  // Only send mic audio while the member owns the floor.
+  // Listening stays outbound-muted so TV / ambient cannot trigger server VAD.
+  return state === "user_speaking" || state === "interrupted";
 }
 
 /** True only for assistant/Forge output events — never input mic events. */
@@ -133,8 +134,8 @@ export function shouldSurfaceRealtimeError(
 }
 
 /**
- * Echo-aware barge-in confirmation.
- * Distinguishes intentional speech from speaker bleed / ambient noise.
+ * Echo-aware barge-in confirmation (Forge speaking).
+ * Stricter than listening-turn open — speaker bleed is loud on iPhone.
  */
 export function isConfirmedBargeInLevel(input: {
   level: number;
@@ -143,19 +144,110 @@ export function isConfirmedBargeInLevel(input: {
   absoluteFloor?: number;
   echoMultiplier?: number;
   minSustainMs?: number;
+  modulation?: number;
+  speechBandRatio?: number;
 }): boolean {
-  const absoluteFloor = input.absoluteFloor ?? 0.22;
-  const echoMultiplier = input.echoMultiplier ?? 2.6;
-  const minSustainMs = input.minSustainMs ?? 220;
+  const absoluteFloor = input.absoluteFloor ?? 0.28;
+  const echoMultiplier = input.echoMultiplier ?? 3.2;
+  const minSustainMs = input.minSustainMs ?? 320;
   const threshold = Math.max(absoluteFloor, input.echoFloor * echoMultiplier);
-  return input.level >= threshold && input.sustainedMs >= minSustainMs;
+  if (input.level < threshold || input.sustainedMs < minSustainMs) return false;
+  return passesSpeechShape({
+    modulation: input.modulation,
+    speechBandRatio: input.speechBandRatio,
+    // Barge-in can be slightly looser on shape — distance-to-phone varies.
+    minModulation: 0.035,
+    minSpeechBandRatio: 0.28,
+  });
 }
 
-/** Ambient / cough / TV bleed — must not confirm barge-in. */
+/**
+ * Intentional speech while Listening (Forge quiet).
+ * Rejects steady ambient / TV / HVAC that would otherwise open a false turn.
+ */
+export function isIntentionalSpeechSignal(input: {
+  level: number;
+  ambientFloor: number;
+  sustainedMs: number;
+  modulation: number;
+  speechBandRatio: number;
+  absoluteFloor?: number;
+  ambientMultiplier?: number;
+  minSustainMs?: number;
+}): boolean {
+  const absoluteFloor = input.absoluteFloor ?? 0.2;
+  const ambientMultiplier = input.ambientMultiplier ?? 2.8;
+  const minSustainMs = input.minSustainMs ?? 380;
+  const threshold = Math.max(
+    absoluteFloor,
+    input.ambientFloor * ambientMultiplier
+  );
+  if (input.level < threshold || input.sustainedMs < minSustainMs) return false;
+  return passesSpeechShape({
+    modulation: input.modulation,
+    speechBandRatio: input.speechBandRatio,
+    minModulation: 0.045,
+    minSpeechBandRatio: 0.32,
+  });
+}
+
+function passesSpeechShape(input: {
+  modulation?: number;
+  speechBandRatio?: number;
+  minModulation: number;
+  minSpeechBandRatio: number;
+}): boolean {
+  const modulation = input.modulation ?? 1;
+  const speechBandRatio = input.speechBandRatio ?? 1;
+  // Real speech modulates and concentrates energy in voice bands.
+  // Steady hum / broadband TV noise usually fails one of these.
+  return (
+    modulation >= input.minModulation &&
+    speechBandRatio >= input.minSpeechBandRatio
+  );
+}
+
+/** Std-dev of recent levels — speech varies; steady noise is flatter. */
+export function levelModulation(levels: number[]): number {
+  if (levels.length < 4) return 0;
+  const mean = levels.reduce((a, b) => a + b, 0) / levels.length;
+  const variance =
+    levels.reduce((a, b) => a + (b - mean) * (b - mean), 0) / levels.length;
+  return Math.sqrt(variance);
+}
+
+/**
+ * Fraction of spectrum energy in approximate voice band.
+ * Assumes getByteFrequencyData bins with fftSize 256 @ ~48kHz (~187Hz/bin).
+ * Voice ~300Hz–3.4kHz → bins ~2–18.
+ */
+export function speechBandRatioFromSpectrum(
+  bins: ArrayLike<number>,
+  options?: { voiceStartBin?: number; voiceEndBin?: number }
+): number {
+  const start = options?.voiceStartBin ?? 2;
+  const end = Math.min(
+    options?.voiceEndBin ?? 18,
+    bins.length - 1
+  );
+  let voice = 0;
+  let total = 0;
+  for (let i = 0; i < bins.length; i += 1) {
+    const v = bins[i] ?? 0;
+    total += v;
+    if (i >= start && i <= end) voice += v;
+  }
+  if (total <= 1) return 0;
+  return voice / total;
+}
+
+/** Ambient / cough / TV bleed — must not confirm barge-in or open a turn. */
 export function looksLikeEnvironmentalAudio(input: {
   level: number;
   echoFloor: number;
   sustainedMs: number;
+  modulation?: number;
+  speechBandRatio?: number;
 }): boolean {
   return !isConfirmedBargeInLevel(input);
 }
@@ -184,13 +276,34 @@ export function reduceTurnState(
           ignoreServerSpeechAsBargeIn: true,
         };
       }
-      if (state === "listening" || state === "interrupted") {
+      // Listening: only locally confirmed intentional speech may open outbound.
+      // Server VAD must not start a turn (outbound should be muted anyway).
+      if (state === "listening") {
+        if (event.source !== "local_energy") {
+          return hold(
+            state,
+            event.type,
+            "ignore_server_vad_while_listening_await_local_confirm"
+          );
+        }
         const to: TurnState = "user_speaking";
         return {
           ...base,
           to,
           event: event.type,
-          reason: `member_turn_started_via_${event.source}`,
+          reason: "member_turn_opened_after_intentional_speech_confirm",
+          cancelForge: false,
+          openOutboundMic: true,
+          ignoreServerSpeechAsBargeIn: false,
+        };
+      }
+      if (state === "interrupted") {
+        const to: TurnState = "user_speaking";
+        return {
+          ...base,
+          to,
+          event: event.type,
+          reason: `member_turn_continued_via_${event.source}`,
           cancelForge: false,
           openOutboundMic: true,
           ignoreServerSpeechAsBargeIn: false,
