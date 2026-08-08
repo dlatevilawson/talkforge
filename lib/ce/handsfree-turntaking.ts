@@ -147,17 +147,17 @@ export function isConfirmedBargeInLevel(input: {
   modulation?: number;
   speechBandRatio?: number;
 }): boolean {
-  const absoluteFloor = input.absoluteFloor ?? 0.28;
-  const echoMultiplier = input.echoMultiplier ?? 3.2;
-  const minSustainMs = input.minSustainMs ?? 320;
+  const absoluteFloor = input.absoluteFloor ?? 0.32;
+  const echoMultiplier = input.echoMultiplier ?? 3.5;
+  const minSustainMs = input.minSustainMs ?? 400;
   const threshold = Math.max(absoluteFloor, input.echoFloor * echoMultiplier);
   if (input.level < threshold || input.sustainedMs < minSustainMs) return false;
   return passesSpeechShape({
     modulation: input.modulation,
     speechBandRatio: input.speechBandRatio,
     // Barge-in can be slightly looser on shape — distance-to-phone varies.
-    minModulation: 0.035,
-    minSpeechBandRatio: 0.28,
+    minModulation: 0.04,
+    minSpeechBandRatio: 0.32,
   });
 }
 
@@ -175,9 +175,9 @@ export function isIntentionalSpeechSignal(input: {
   ambientMultiplier?: number;
   minSustainMs?: number;
 }): boolean {
-  const absoluteFloor = input.absoluteFloor ?? 0.2;
-  const ambientMultiplier = input.ambientMultiplier ?? 2.8;
-  const minSustainMs = input.minSustainMs ?? 380;
+  const absoluteFloor = input.absoluteFloor ?? 0.24;
+  const ambientMultiplier = input.ambientMultiplier ?? 3.2;
+  const minSustainMs = input.minSustainMs ?? 480;
   const threshold = Math.max(
     absoluteFloor,
     input.ambientFloor * ambientMultiplier
@@ -186,8 +186,8 @@ export function isIntentionalSpeechSignal(input: {
   return passesSpeechShape({
     modulation: input.modulation,
     speechBandRatio: input.speechBandRatio,
-    minModulation: 0.045,
-    minSpeechBandRatio: 0.32,
+    minModulation: 0.055,
+    minSpeechBandRatio: 0.38,
   });
 }
 

@@ -205,7 +205,7 @@ export function useArenaVoice({
           }
 
           const rising =
-            nextLevel >= Math.max(0.28, echoFloorRef.current * 3.2);
+            nextLevel >= Math.max(0.32, echoFloorRef.current * 3.5);
           sustainMsRef.current = rising ? sustainMsRef.current + dt : 0;
 
           if (
@@ -238,8 +238,7 @@ export function useArenaVoice({
           }
 
           const rising =
-            nextLevel >=
-            Math.max(0.2, ambientFloorRef.current * 2.8);
+            nextLevel >= Math.max(0.24, ambientFloorRef.current * 3.2);
           sustainMsRef.current = rising ? sustainMsRef.current + dt : 0;
 
           const intentional = isIntentionalSpeechSignal({

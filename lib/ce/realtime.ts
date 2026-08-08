@@ -188,6 +188,26 @@ async function acquireLocalAudioStream(): Promise<{
   }
 }
 
+/**
+ * Browser DSP before audio enters WebRTC.
+ * Prefer mono + ideal 24kHz (OpenAI Realtime native rate) without exact
+ * constraints that break getUserMedia on iOS Safari.
+ */
+export const ARENA_AUDIO_CONSTRAINTS_ADVANCED: MediaTrackConstraints = {
+  echoCancellation: true,
+  noiseSuppression: true,
+  autoGainControl: true,
+  channelCount: 1,
+  sampleRate: { ideal: 24_000 },
+};
+
+export const ARENA_AUDIO_CONSTRAINTS_BASE: MediaTrackConstraints = {
+  echoCancellation: true,
+  noiseSuppression: true,
+  autoGainControl: true,
+  channelCount: { ideal: 1 },
+};
+
 async function requestMicrophoneStream(): Promise<MediaStream> {
   if (!navigator.mediaDevices?.getUserMedia) {
     throw new DOMException(
@@ -195,13 +215,24 @@ async function requestMicrophoneStream(): Promise<MediaStream> {
       "NotSupportedError"
     );
   }
-  return navigator.mediaDevices.getUserMedia({
-    audio: {
-      echoCancellation: true,
-      noiseSuppression: true,
-      autoGainControl: true,
-    },
-  });
+
+  try {
+    return await navigator.mediaDevices.getUserMedia({
+      audio: ARENA_AUDIO_CONSTRAINTS_ADVANCED,
+    });
+  } catch {
+    /* Advanced constraint unsupported — fall back without hard sampleRate. */
+  }
+
+  try {
+    return await navigator.mediaDevices.getUserMedia({
+      audio: ARENA_AUDIO_CONSTRAINTS_BASE,
+    });
+  } catch {
+    /* Last attempt: boolean audio before acquireLocalAudioStream silent path. */
+  }
+
+  return navigator.mediaDevices.getUserMedia({ audio: true });
 }
 
 export function classifyMicCaptureError(error: unknown): MicFallbackReason {
