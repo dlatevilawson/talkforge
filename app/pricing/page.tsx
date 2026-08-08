@@ -4,13 +4,12 @@ import MembershipCheckoutButton from "@/app/components/billing/MembershipCheckou
 import { resolveMembershipOffer } from "@/lib/billing/offer";
 
 export const metadata: Metadata = {
-  title: "Founding Members",
+  title: "Founding Pass",
   description:
-    "Join the first members of the TalkForge communication gym — Founding Member pricing for TalkForge Pro.",
+    "Join the first members of the TalkForge Private Rehearsal Arena — Claim your Founding Pass.",
 };
 
 function foundingPriceAmount(priceLabel: string): string {
-  // Prefer live Stripe label amount; fall back to founding offer.
   const match = priceLabel.match(/\$[\d.]+/);
   return match?.[0] ?? "$19.99";
 }
@@ -34,16 +33,13 @@ export default async function PricingPage({
   return (
     <main className="lp-root min-h-[100dvh] bg-[var(--lp-bg)] px-5 py-24 text-[var(--lp-ink)] sm:px-8">
       <div className="mx-auto max-w-2xl">
-        <p className="text-xs font-medium uppercase tracking-[0.28em] text-[var(--lp-muted)]">
-          Founding Members
-        </p>
-        <h1 className="mt-5 font-[family-name:var(--font-lp-display),serif] text-4xl font-semibold uppercase tracking-[-0.03em] sm:text-5xl">
-          Join the first members of the communication gym
+        <h1 className="font-[family-name:var(--font-lp-display),serif] text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
+          Join the First Members of the Private Rehearsal Arena
         </h1>
 
         <section className="mt-12 rounded-[1.75rem] border border-[var(--lp-ink)] bg-[var(--lp-ink)] px-7 py-8 text-[var(--lp-bg)]">
           <p className="text-sm uppercase tracking-[0.2em] text-white/55">
-            TalkForge Pro
+            TalkForge Founding Pass
           </p>
 
           <div className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -56,21 +52,14 @@ export default async function PricingPage({
             </span>
           </div>
           <p className="mt-3 text-sm font-medium tracking-wide text-[#e0c07a]">
-            Founding Member Price
+            Lifetime Early Member Rate
           </p>
-
-          <ul className="mt-8 space-y-3 text-sm leading-6 text-white/90">
-            <li>Unlimited coaching sessions</li>
-            <li>Unlimited voice practice</li>
-            <li>Personalized coaching memory</li>
-            <li>Founding Member recognition</li>
-          </ul>
 
           <div className="mt-8 max-w-sm">
             {offer.configured ? (
               <MembershipCheckoutButton
                 source="pricing_founding"
-                label="Become a Founding Member →"
+                label="Claim Your Founding Pass →"
                 autoStart={autoStart}
                 loginNext="/pricing?checkout=1"
                 className="w-full rounded-full bg-[var(--lp-bg)] px-8 py-3.5 text-sm font-semibold text-[var(--lp-ink)] transition hover:opacity-90 disabled:opacity-50"
@@ -78,7 +67,7 @@ export default async function PricingPage({
             ) : (
               <MembershipCheckoutButton
                 source="pricing_founding"
-                label="Become a Founding Member →"
+                label="Claim Your Founding Pass →"
                 disabled
                 disabledHint={
                   offer.diagnostics.resolveError
@@ -95,7 +84,7 @@ export default async function PricingPage({
           </div>
 
           <p className="mt-6 text-sm leading-6 text-white/55">
-            Founding Member pricing available to early members. Cancel anytime.
+            Rate locked for life. No commitments—cancel in one click anytime.
           </p>
         </section>
       </div>
