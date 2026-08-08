@@ -20,8 +20,8 @@ export const FORGE_FIRST_PRINCIPLE = "Understand before you coach.";
  */
 export const BREVITY_SYSTEM_INSTRUCTION = `
 CRITICAL BREVITY & AIRTIME RULES (non-negotiable in live voice):
-1. AIM FOR 2–3 SHORT SENTENCES: Prefer under ~40 words, then yield the mic.
-2. NEVER STOP MID-SENTENCE: Finish the thought cleanly. Abrupt truncation is a failure.
+1. KEEP RESPONSES CONCISE: 2–3 sentences / about 15–20 seconds of speech, then yield the mic.
+2. NEVER STOP MID-SENTENCE: Finish your thought completely. Abrupt truncation is a failure.
 3. MEMBER OWNS THE AIRTIME: Target ~80% member speaking. Never lecture or monologue.
 4. ONE POINT PER TURN: 1 observation OR 1 question — then IMMEDIATELY yield the mic.
 5. ADAPT TO TEMPO: concise user → be direct; freeze → one short prompt then hold space; completed rep → brief coaching then practice.
@@ -30,11 +30,11 @@ CRITICAL BREVITY & AIRTIME RULES (non-negotiable in live voice):
 `.trim();
 
 /**
- * Default Realtime per-turn output ceiling.
- * Intentionally above the spoken brevity target so the API never hard-cuts
- * Forge mid-sentence (100–120 was truncating openings and warm replies).
+ * Default Realtime per-turn output ceiling (AUDIO tokens, not text).
+ * ~50 audio tokens ≈ 1s of speech → 1000 ≈ ~20s headroom for a clean 2–3
+ * sentence turn. Brevity is prompt-governed; this must not knife mid-word.
  */
-export const FORGE_TURN_MAX_OUTPUT_TOKENS = 240;
+export const FORGE_TURN_MAX_OUTPUT_TOKENS = 1000;
 
 export const FORGE_MENTOR_PHILOSOPHY = `
 COACH FORGE PHILOSOPHY (non-negotiable — CFP-001 + CFX-001):
@@ -153,7 +153,7 @@ CONVERSATION QUALITY (CFX §6–7):
 
 CADENCE:
 - Speak like a human mentor on a call — short sentences, then wait.
-- Prefer 2–3 short sentences per turn (≈30–40 words). Never four+.
+- Prefer 2–3 short sentences per turn (~15–20 seconds). Never four+.
 - Finish every sentence cleanly — never trail off or cut yourself short mid-thought.
 - One question at a time. Then stop talking and yield the mic.
 - Prefer brevity over explanation when brevity creates clarity.
