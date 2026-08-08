@@ -132,15 +132,14 @@
   overflow: hidden;
 }
 
-.pill {
+/* Selected state only — no redundant Prepare pill on every card. */
+.selectedMark {
   margin-top: auto;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 7%);
-  color: #c4c9d0;
+  color: #e0c07a;
   font-size: 0.62rem;
-  font-weight: 560;
-  letter-spacing: 0.04em;
-  padding: 0.22rem 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .arrow {
