@@ -14,6 +14,8 @@ type Props = {
   className?: string;
   disabled?: boolean;
   disabledHint?: string;
+  /** Optional helper under the button. Pass null to hide. */
+  helperText?: string | null;
 };
 
 export default function MembershipCheckoutButton({
@@ -24,6 +26,7 @@ export default function MembershipCheckoutButton({
   className,
   disabled = false,
   disabledHint,
+  helperText = "You’ll sign in (or create an account), then continue to secure Stripe Checkout.",
 }: Props) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -88,11 +91,8 @@ export default function MembershipCheckoutButton({
           {error}
         </p>
       ) : null}
-      {!disabled ? (
-        <p className="mt-3 text-xs leading-5 opacity-60">
-          You’ll sign in (or create an account), then continue to secure Stripe
-          Checkout.
-        </p>
+      {!disabled && helperText ? (
+        <p className="mt-3 text-xs leading-5 opacity-60">{helperText}</p>
       ) : null}
     </div>
   );

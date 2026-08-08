@@ -3,24 +3,25 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import BecomeProMemberButton from "@/app/components/billing/BecomeProMemberButton";
 import MembershipCheckoutButton from "@/app/components/billing/MembershipCheckoutButton";
 import type { MembershipView } from "@/lib/billing/types";
 import { trackBillingEvent } from "@/lib/billing/analytics";
 import {
-  BECOME_PRO_MEMBER_CTA,
+  BILLING_PAGE_COPY,
   CANCELLATION_BODY,
   CANCELLATION_HEADLINE,
 } from "@/lib/billing/member-copy";
+
+const copy = BILLING_PAGE_COPY;
 
 function BillingInner() {
   const searchParams = useSearchParams();
   const checkout = searchParams.get("checkout");
   const note =
     checkout === "success"
-      ? "Welcome to TalkForge Pro. Your membership is updating."
+      ? copy.successBanner
       : checkout === "canceled"
-        ? "Checkout closed. You can become a Pro Member whenever you’re ready."
+        ? copy.canceledBanner
         : "";
   const autoStartCheckout = checkout === "1";
   const [membership, setMembership] = useState<MembershipView | null>(null);
@@ -89,10 +90,11 @@ function BillingInner() {
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#c9a95f]">
         Membership
       </p>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight">Billing</h1>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight">
+        {copy.header.title}
+      </h1>
       <p className="mt-3 max-w-xl text-base leading-7 text-zinc-400">
-        Continue your communication journey when deliberate practice becomes
-        part of how you prepare — never under pressure.
+        {copy.header.subtitle}
       </p>
 
       {note ? (
@@ -109,9 +111,18 @@ function BillingInner() {
             <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-white/40">
               Current plan
             </h2>
-            <p className="mt-4 text-2xl font-semibold">
-              {membership.plan === "pro" ? "TalkForge Pro" : "TalkForge Free"}
-            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <p className="text-2xl font-semibold">
+                {membership.plan === "pro"
+                  ? copy.currentPlan.proTitle
+                  : copy.currentPlan.title}
+              </p>
+              {membership.plan === "free" ? (
+                <span className="rounded-full border border-white/15 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-white/55">
+                  {copy.currentPlan.badge}
+                </span>
+              ) : null}
+            </div>
             <dl className="mt-5 grid gap-3 text-sm text-zinc-400 sm:grid-cols-2">
               <div>
                 <dt className="text-white/35">Status</dt>
@@ -159,15 +170,27 @@ function BillingInner() {
 
           {membership.canUpgrade ? (
             <section className="rounded-3xl border border-[#d7b56a]/25 bg-[#c9a95f]/08 p-6">
-              <h2 className="text-lg font-semibold">{BECOME_PRO_MEMBER_CTA}</h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-300">
-                Unlimited coaching sessions, unlimited voice practice,
-                personalized coaching memory, and deeper insights — so
-                consistent preparation stays available when the conversation
-                matters.
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e0c07a]">
+                {copy.proPlan.tagline}
               </p>
-              <p className="mt-4 text-sm text-[#e0c07a]">
-                {membership.proPriceLabel} · Cancel anytime
+              <h2 className="mt-3 text-lg font-semibold">{copy.proPlan.title}</h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-300">
+                {copy.proPlan.description}
+              </p>
+              <div className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="text-lg text-white/40 line-through decoration-white/35">
+                  {copy.proPlan.originalPrice}
+                </span>
+                <span className="text-2xl font-semibold text-zinc-100">
+                  {copy.proPlan.price}
+                  <span className="text-base font-medium text-zinc-400">
+                    {" "}
+                    {copy.proPlan.billingCycle}
+                  </span>
+                </span>
+              </div>
+              <p className="mt-2 text-sm text-[#e0c07a]">
+                {copy.proPlan.priceSubtext}
               </p>
               {!membership.stripeConfigured ? (
                 <p className="mt-4 text-sm text-zinc-500">
@@ -175,21 +198,15 @@ function BillingInner() {
                   anytime — Forge will be here when you’re ready.
                 </p>
               ) : (
-                <div className="mt-6 max-w-xs">
-                  {autoStartCheckout ? (
-                    <MembershipCheckoutButton
-                      source="billing_page"
-                      label={BECOME_PRO_MEMBER_CTA}
-                      autoStart
-                      loginNext="/app/billing?checkout=1"
-                      className="rounded-full bg-white px-7 py-3 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
-                    />
-                  ) : (
-                    <BecomeProMemberButton
-                      source="billing_page"
-                      className="rounded-full bg-white px-7 py-3 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
-                    />
-                  )}
+                <div className="mt-6 max-w-sm">
+                  <MembershipCheckoutButton
+                    source="billing_page"
+                    label={copy.proPlan.ctaButton}
+                    autoStart={autoStartCheckout}
+                    loginNext="/app/billing?checkout=1"
+                    helperText={copy.proPlan.footerSubtext}
+                    className="rounded-full bg-white px-7 py-3 text-sm font-semibold text-black transition hover:bg-white/90 disabled:opacity-50"
+                  />
                 </div>
               )}
             </section>
@@ -213,8 +230,8 @@ function BillingInner() {
 
           {membership.plan === "free" ? (
             <p className="text-sm text-zinc-500">
-              Free includes complimentary coaching sessions so you can
-              experience a full coaching cycle before deciding.
+              Explorer includes complimentary coaching sessions so you can
+              experience a full coaching cycle before claiming a Founding Pass.
             </p>
           ) : null}
         </div>
@@ -227,8 +244,8 @@ function BillingInner() {
       ) : null}
 
       <p className="mt-12 text-sm text-zinc-500">
-        <Link href="/membership" className="text-[#c9a95f] hover:underline">
-          Membership overview
+        <Link href="/pricing" className="text-[#c9a95f] hover:underline">
+          Founding Pass
         </Link>
         {" · "}
         <Link href="/app" className="text-zinc-400 hover:underline">
