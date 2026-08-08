@@ -102,7 +102,25 @@ export function buildClientSecretRequest(input?: {
   eventTitle?: string;
   successCriteria?: string;
   memory?: CoachPromptContext | null;
+  /** Pro/Founding: semantic hands-free VAD. Free: tighter server VAD for hold-to-talk. */
+  handsFree?: boolean;
 }) {
+  const turnDetection = input?.handsFree
+    ? {
+        type: "semantic_vad" as const,
+        create_response: true,
+        interrupt_response: true,
+        eagerness: "medium" as const,
+      }
+    : {
+        type: "server_vad" as const,
+        create_response: true,
+        interrupt_response: false,
+        threshold: 0.6,
+        prefix_padding_ms: 280,
+        silence_duration_ms: 520,
+      };
+
   return {
     session: {
       type: "realtime" as const,
@@ -114,6 +132,7 @@ export function buildClientSecretRequest(input?: {
             model: CE_TRANSCRIBE_MODEL,
             language: "en",
           },
+          turn_detection: turnDetection,
         },
         output: {
           voice: CE_REALTIME_VOICE,

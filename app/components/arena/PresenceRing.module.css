@@ -1,0 +1,191 @@
+.shell {
+  --gold: #d4af37;
+  --obsidian: #0d0d0e;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(17rem, 72vw);
+  height: min(17rem, 72vw);
+}
+
+.halo,
+.ripple,
+.rippleDelay {
+  position: absolute;
+  inset: 8%;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.halo {
+  background: radial-gradient(
+    circle,
+    rgba(212, 175, 55, 0.18) 0%,
+    rgba(212, 175, 55, 0.04) 42%,
+    transparent 70%
+  );
+  filter: blur(2px);
+}
+
+.ripple,
+.rippleDelay {
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+.ring {
+  position: relative;
+  z-index: 1;
+  width: 78%;
+  height: 78%;
+  overflow: visible;
+}
+
+.track {
+  opacity: 0.7;
+}
+
+.pulse {
+  transform-origin: 100px 100px;
+  stroke-dasharray: 540;
+  stroke-dashoffset: 120;
+}
+
+.label {
+  position: absolute;
+  bottom: -0.15rem;
+  z-index: 2;
+  margin: 0;
+  max-width: 14rem;
+  color: rgba(244, 243, 239, 0.78);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* IDLE / connecting — calm breath */
+.state_idle .halo,
+.state_connecting .halo {
+  animation: breath 3.6s ease-in-out infinite;
+}
+
+.state_idle .pulse,
+.state_connecting .pulse {
+  animation: ring-breathe 3.6s ease-in-out infinite;
+}
+
+.state_connecting .label {
+  color: rgba(212, 175, 55, 0.75);
+}
+
+/* LISTENING — mic ripples */
+.state_listening .halo {
+  transform: scale(calc(1 + var(--level, 0) * 0.12));
+  opacity: calc(0.55 + var(--level, 0) * 0.45);
+  transition: transform 80ms linear, opacity 80ms linear;
+}
+
+.state_listening .ripple {
+  animation: ripple-out 1.4s ease-out infinite;
+}
+
+.state_listening .rippleDelay {
+  animation: ripple-out 1.4s ease-out 0.45s infinite;
+}
+
+.state_listening .pulse {
+  stroke-width: calc(2.2 + var(--level, 0) * 2.2);
+  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.35));
+}
+
+/* FORGE SPEAKING — inward warm aura */
+.state_forge_speaking .halo {
+  animation: forge-aura 2.4s ease-in-out infinite;
+}
+
+.state_forge_speaking .pulse {
+  stroke-dashoffset: 40;
+  animation: forge-spin 5.5s linear infinite;
+  filter: drop-shadow(0 0 18px rgba(212, 175, 55, 0.45));
+}
+
+/* WRAP — quiet solid halo */
+.state_wrap .halo {
+  opacity: 0.85;
+  background: radial-gradient(
+    circle,
+    rgba(212, 175, 55, 0.28) 0%,
+    rgba(212, 175, 55, 0.08) 50%,
+    transparent 72%
+  );
+}
+
+.state_wrap .pulse {
+  stroke-dashoffset: 0;
+  filter: drop-shadow(0 0 14px rgba(212, 175, 55, 0.3));
+}
+
+@keyframes breath {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes ring-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.985);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.015);
+  }
+}
+
+@keyframes ripple-out {
+  0% {
+    opacity: 0.45;
+    transform: scale(calc(0.9 + var(--level, 0) * 0.08));
+  }
+  100% {
+    opacity: 0;
+    transform: scale(calc(1.28 + var(--level, 0) * 0.18));
+  }
+}
+
+@keyframes forge-aura {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1.02);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(0.94);
+  }
+}
+
+@keyframes forge-spin {
+  to {
+    stroke-dashoffset: -500;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .halo,
+  .pulse,
+  .ripple,
+  .rippleDelay {
+    animation: none !important;
+  }
+}

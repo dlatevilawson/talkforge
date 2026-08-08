@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import PresenceRing, {
+  type PresenceRingState,
+} from "@/app/components/arena/PresenceRing";
 import BecomeProMemberButton from "@/app/components/billing/BecomeProMemberButton";
 import {
   connectRealtime,
@@ -13,6 +16,7 @@ import {
   type MicFallbackReason,
   type RealtimeConnection,
 } from "@/lib/ce/realtime";
+import { useArenaVoice } from "@/lib/hooks/useArenaVoice";
 import {
   CE_TRACK_TITLES,
   type CeTrack,
@@ -105,7 +109,8 @@ export default function VoiceArena({
     useState<MicFallbackReason | null>(null);
   const [micRecoveryPending, setMicRecoveryPending] = useState(false);
   const [turns, setTurns] = useState<TranscriptTurn[]>([]);
-  const [micLive, setMicLive] = useState(false);
+  const [liveConnection, setLiveConnection] =
+    useState<RealtimeConnection | null>(null);
   const [momentum, setMomentum] = useState<Momentum | null>(null);
   const [momentumLoading, setMomentumLoading] = useState(false);
   const [savedSessionId, setSavedSessionId] = useState<string | null>(null);
@@ -116,8 +121,22 @@ export default function VoiceArena({
   const [remoteAudioBlocked, setRemoteAudioBlocked] = useState(false);
   const [complimentaryComplete, setComplimentaryComplete] = useState(false);
   const [wrapStage, setWrapStage] = useState<WrapStage>("coaching");
+  const [isProUser, setIsProUser] = useState(false);
+  const [repsRemaining, setRepsRemaining] = useState<number | null>(null);
 
   const showDevDiagnostics = process.env.NODE_ENV === "development";
+
+  const forgeSpeaking = phase === "speaking";
+  const canListen =
+    (phase === "listening" || phase === "connected") &&
+    micMode === "microphone";
+
+  const voice = useArenaVoice({
+    isProUser,
+    connection: liveConnection,
+    canListen,
+    forgeSpeaking,
+  });
 
   useEffect(() => {
     mountedRef.current = true;
@@ -126,7 +145,40 @@ export default function VoiceArena({
       lifecycleGenerationRef.current += 1;
       disconnectRealtime(connectionRef.current);
       connectionRef.current = null;
+      setLiveConnection(null);
       setActiveVoiceSessionId(null);
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetch("/api/billing/entitlement", { cache: "no-store" })
+      .then((r) => r.json())
+      .then(
+        (data: {
+          entitlement?: {
+            plan?: string;
+            reason?: string;
+            sessionsRemaining?: number | null;
+          };
+        }) => {
+          if (cancelled) return;
+          const ent = data.entitlement;
+          const pro =
+            ent?.plan === "pro" ||
+            ent?.reason === "pro" ||
+            ent?.reason === "staff";
+          setIsProUser(Boolean(pro));
+          setRepsRemaining(
+            typeof ent?.sessionsRemaining === "number"
+              ? ent.sessionsRemaining
+              : null
+          );
+        }
+      )
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
     };
   }, []);
 
@@ -240,7 +292,7 @@ export default function VoiceArena({
     setMicRecoveryPending(false);
     setTurns([]);
     turnsRef.current = [];
-    setMicLive(false);
+    setLiveConnection(null);
     setEvents([]);
     setMomentum(null);
     setSavedSessionId(null);
@@ -278,6 +330,12 @@ export default function VoiceArena({
         value?: string;
         session_id?: string | null;
         error?: string;
+        voiceMode?: "handsfree" | "hold";
+        entitlement?: {
+          plan?: string;
+          sessionsRemaining?: number | null;
+          sessionsLimit?: number | null;
+        };
         memory?: {
           firstName?: string;
           isReturning?: boolean;
@@ -288,6 +346,14 @@ export default function VoiceArena({
 
       if (!tokenRes.ok || !tokenData.value) {
         throw new Error(tokenData.error || "Could not start session.");
+      }
+
+      const proSession =
+        tokenData.voiceMode === "handsfree" ||
+        tokenData.entitlement?.plan === "pro";
+      setIsProUser(Boolean(proSession));
+      if (typeof tokenData.entitlement?.sessionsRemaining === "number") {
+        setRepsRemaining(tokenData.entitlement.sessionsRemaining);
       }
 
       realtimeSessionIdRef.current = tokenData.session_id ?? null;
@@ -344,10 +410,11 @@ export default function VoiceArena({
       });
 
       connectionRef.current = connection;
+      setLiveConnection(connection);
 
       if (!connection.usedSilentMicFallback) {
+        // Start muted; Free uses hold-to-talk, Pro hands-free opens on listening.
         setMicrophoneEnabled(connection, false);
-        setMicLive(false);
       }
 
       // Do not create permanent history until Realtime is connected.
@@ -377,6 +444,7 @@ export default function VoiceArena({
       console.error(err);
       disconnectRealtime(connectionRef.current);
       connectionRef.current = null;
+      setLiveConnection(null);
       setPhase("error");
       setError(
         err instanceof Error ? err.message : "Could not start. Try again."
@@ -427,7 +495,6 @@ export default function VoiceArena({
     setMicFallbackReason(result.reason);
     if (result.recovered) {
       setMicMode("microphone");
-      setMicLive(false);
       pushEvent("Microphone ready");
       return;
     }
@@ -435,20 +502,14 @@ export default function VoiceArena({
   }
 
   function handleSpeakDown() {
-    if (!connectionRef.current || connectionRef.current.usedSilentMicFallback) {
-      return;
+    voice.startHoldToTalk();
+    if (phase === "connected" || phase === "listening") {
+      setPhase("listening");
     }
-    setMicrophoneEnabled(connectionRef.current, true);
-    setMicLive(true);
-    setPhase("listening");
   }
 
   function handleSpeakUp() {
-    if (!connectionRef.current || connectionRef.current.usedSilentMicFallback) {
-      return;
-    }
-    setMicrophoneEnabled(connectionRef.current, false);
-    setMicLive(false);
+    voice.stopHoldToTalk();
   }
 
   async function persistCompletedVoiceSession(
@@ -505,8 +566,8 @@ export default function VoiceArena({
     lifecycleGenerationRef.current += 1;
     disconnectRealtime(connectionRef.current);
     connectionRef.current = null;
+    setLiveConnection(null);
     setActiveVoiceSessionId(null);
-    setMicLive(false);
     pushEvent("Ended");
 
     const snapshot = [...turnsRef.current];
@@ -599,70 +660,97 @@ export default function VoiceArena({
     phase === "minting";
 
   const lastForge = [...turns].reverse().find((t) => t.role === "forge");
-  const lastFounder = [...turns].reverse().find((t) => t.role === "founder");
+  const micLive = voice.micLive;
+
+  const ringState: PresenceRingState =
+    phase === "momentum"
+      ? "wrap"
+      : phase === "speaking"
+        ? "forge_speaking"
+        : phase === "listening" || micLive || voice.userSpeaking
+          ? "listening"
+          : phase === "minting" || phase === "connecting"
+            ? "connecting"
+            : "idle";
 
   const presenceLabel =
     phase === "idle"
-      ? "Coach Forge"
+      ? undefined
       : phase === "minting" || phase === "connecting"
-        ? "Connecting…"
+        ? "Connecting"
         : phase === "speaking"
-          ? "Forge is speaking"
-          : micLive
-            ? "Listening to you"
+          ? "Forge speaking"
+          : phase === "momentum"
+            ? "Rep Complete"
             : phase === "error"
-              ? "Something went wrong"
-              : phase === "momentum"
-                ? "Nice work"
-                : "Your turn";
+              ? "Connection lost"
+              : isProUser
+                ? voice.handsFreeMuted
+                  ? "Mic muted"
+                  : voice.userSpeaking
+                    ? "Listening"
+                    : "Speak naturally"
+                : micLive
+                  ? "Listening"
+                  : "Your turn";
+
+  const statusBadge = isProUser
+    ? "PRO HANDS-FREE"
+    : repsRemaining != null
+      ? `${repsRemaining} REP${repsRemaining === 1 ? "" : "S"} LEFT`
+      : "HOLD TO SPEAK";
 
   return (
-    <main className="relative min-h-[100dvh] overflow-hidden bg-[#07070a] text-white">
+    <main className="relative min-h-[100dvh] overflow-hidden bg-[#000000] text-white">
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_30%,rgba(201,169,95,0.14),transparent_55%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_28%,rgba(212,175,55,0.12),transparent_52%)]"
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_80%,rgba(255,255,255,0.04),transparent_45%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_85%,rgba(13,13,14,0.9),#000000_70%)]"
         aria-hidden
       />
 
-      <div className="relative mx-auto flex min-h-[100dvh] max-w-3xl flex-col px-5 py-6 sm:px-8">
-        <header className="flex items-center justify-between gap-3">
+      <div className="relative mx-auto flex min-h-[100dvh] max-w-3xl flex-col px-5 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))] sm:px-8">
+        <header className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
           <Link
             href="/app"
-            className="text-sm text-white/45 transition hover:text-white/80"
+            className="justify-self-start text-[10px] font-semibold uppercase tracking-[0.22em] text-[#D4AF37]/70 transition hover:text-[#D4AF37]"
           >
-            TalkForge
+            TalkForge Arena
           </Link>
+          <span className="justify-self-center rounded-full border border-[#D4AF37]/20 bg-[#D4AF37]/08 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#D4AF37]/90">
+            {statusBadge}
+          </span>
           {inSession ? (
             <button
               type="button"
               onClick={() => void handleStop()}
-              className="text-sm text-white/45 transition hover:text-white/80"
+              className="justify-self-end text-sm text-white/40 transition hover:text-white/75"
             >
-              End
+              End Session
             </button>
-          ) : phase === "momentum" ? (
-            <span className="text-sm text-white/30">Session wrap</span>
           ) : (
-            <span className="text-sm text-white/30">Practice floor</span>
+            <span className="justify-self-end text-sm text-white/25">
+              {phase === "momentum" ? "Session wrap" : ""}
+            </span>
           )}
         </header>
 
-        <section className="flex flex-1 flex-col items-center justify-center pb-8 pt-6 text-center">
+        <section className="flex flex-1 flex-col items-center pb-6 pt-10 text-center">
           {phase === "idle" ? (
             <>
-              <p className="text-sm uppercase tracking-[0.28em] text-white/40">
+              <PresenceRing state="idle" />
+              <p className="mt-8 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/70">
                 Coach Forge
               </p>
-              <h1 className="mt-5 max-w-xl text-4xl font-semibold tracking-tight sm:text-5xl">
+              <h1 className="mt-4 max-w-xl text-4xl font-semibold tracking-tight sm:text-5xl">
                 {eventTitle?.trim() || "I’m ready when you are"}
               </h1>
-              <p className="mt-5 max-w-md text-base leading-7 text-white/55">
-                You don’t have to perform here. I’ll understand before I coach —
-                listen, ask what matters, then practice with you. Hold to speak
-                when you’re ready.
+              <p className="mt-5 max-w-md text-base leading-7 text-white/50">
+                {isProUser
+                  ? "Hands-free coaching is ready. Begin when you want an uninterrupted room."
+                  : "You don’t have to perform here. Hold to speak when you’re ready — or unlock Hands-Free with Pro."}
               </p>
               {welcomeLine ? (
                 <p className="mt-3 max-w-md text-sm leading-6 text-[#d7b56a]/85">
@@ -718,12 +806,8 @@ export default function VoiceArena({
                 </>
               ) : (
                 <>
-                  <div className="flex h-28 w-28 items-center justify-center rounded-full border border-[#d7b56a]/25 bg-[radial-gradient(circle,#29241a,#090a0b_68%)] shadow-[0_0_50px_rgba(198,151,67,0.22)]">
-                    <span className="text-sm font-medium text-white/90">
-                      {presenceLabel}
-                    </span>
-                  </div>
-                  <h1 className="mt-8 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
+                  <PresenceRing state="wrap" label="Rep Complete" />
+                  <h1 className="mt-10 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
                     Leave with momentum
                   </h1>
                   <p className="mt-3 max-w-md text-base leading-7 text-white/50">
@@ -838,50 +922,17 @@ export default function VoiceArena({
             </>
           ) : (
             <>
-              <div
-                className={`relative flex h-40 w-40 items-center justify-center rounded-full transition duration-500 sm:h-48 sm:w-48 ${
-                  phase === "speaking"
-                    ? "bg-[#c9a95f]/22 shadow-[0_0_80px_rgba(198,151,67,0.32)]"
-                    : micLive
-                      ? "bg-[#d7b56a]/18 shadow-[0_0_60px_rgba(215,181,106,0.22)]"
-                      : "bg-white/8"
-                }`}
-                aria-live="polite"
-              >
-                <div
-                  className={`absolute inset-3 rounded-full border ${
-                    phase === "speaking"
-                      ? "animate-pulse border-[#d7b56a]/45"
-                      : micLive
-                        ? "border-[#e0c07a]/40"
-                        : "border-white/10"
-                  }`}
-                />
-                <span className="relative text-sm font-medium tracking-wide text-white/90">
-                  {presenceLabel}
-                </span>
-              </div>
+              <PresenceRing
+                state={ringState}
+                level={voice.level}
+                label={presenceLabel}
+              />
 
-              <div className="mt-10 w-full max-w-xl space-y-6">
-                {lastForge ? (
-                  <blockquote className="text-xl leading-8 text-white/90 sm:text-2xl sm:leading-9">
-                    {lastForge.text}
-                  </blockquote>
-                ) : phase === "minting" || phase === "connecting" ? (
-                  <p className="text-lg text-white/45">Joining Forge…</p>
-                ) : phase === "speaking" ? (
-                  <p className="text-lg text-white/45">Forge is speaking…</p>
-                ) : (
-                  <p className="text-lg text-white/45">Waiting for Forge…</p>
-                )}
-
-                {lastFounder && (
-                  <p className="text-base leading-7 text-white/50">
-                    <span className="text-white/35">You · </span>
-                    {lastFounder.text}
-                  </p>
-                )}
-              </div>
+              {lastForge && phase !== "speaking" ? (
+                <p className="mt-10 max-w-lg text-base leading-7 text-white/55 line-clamp-3">
+                  {lastForge.text}
+                </p>
+              ) : null}
 
               {error && (
                 <p className="mt-6 max-w-md text-sm text-red-300" role="alert">
@@ -893,7 +944,7 @@ export default function VoiceArena({
                 <button
                   type="button"
                   onClick={() => void handleResumeRemoteAudio()}
-                  className="mt-5 rounded-full border border-[#d7b56a]/30 px-5 py-2.5 text-sm text-[#e7d6b1] transition hover:bg-[#c9a95f]/10"
+                  className="mt-5 rounded-full border border-[#D4AF37]/30 px-5 py-2.5 text-sm text-[#e7d6b1] transition hover:bg-[#D4AF37]/10"
                 >
                   Hear Coach Forge
                 </button>
@@ -927,69 +978,107 @@ export default function VoiceArena({
                 </div>
               )}
 
-              <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
-                {(phase === "error" ||
-                  phase === "connected" ||
-                  phase === "listening") &&
-                  !busy && (
-                    <button
-                      type="button"
-                      onClick={handleStart}
-                      className="rounded-full border border-white/20 px-6 py-3 text-sm text-white/80 transition hover:bg-white/10"
-                    >
-                      Restart
-                    </button>
+              <div className="mt-auto w-full max-w-lg pt-12">
+                <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 px-4 py-4 backdrop-blur-lg sm:px-5">
+                  {isProUser ? (
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-sm text-[#D4AF37]/90">
+                        Hands-Free Active — Speak Naturally
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => voice.toggleHandsFreeMute()}
+                        disabled={
+                          !inSession ||
+                          phase === "minting" ||
+                          phase === "connecting" ||
+                          micMode !== "microphone"
+                        }
+                        className="rounded-full border border-white/12 px-4 py-2 text-xs font-medium uppercase tracking-[0.12em] text-white/70 transition hover:bg-white/5 disabled:opacity-35"
+                      >
+                        {voice.handsFreeMuted ? "Unmute Mic" : "Mute Mic"}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-3">
+                      <button
+                        type="button"
+                        disabled={
+                          !inSession ||
+                          phase === "minting" ||
+                          phase === "connecting" ||
+                          phase === "speaking" ||
+                          micMode !== "microphone"
+                        }
+                        onPointerDown={(event) => {
+                          event.currentTarget.setPointerCapture(event.pointerId);
+                          handleSpeakDown();
+                        }}
+                        onPointerUp={(event) => {
+                          if (
+                            event.currentTarget.hasPointerCapture(event.pointerId)
+                          ) {
+                            event.currentTarget.releasePointerCapture(
+                              event.pointerId
+                            );
+                          }
+                          handleSpeakUp();
+                        }}
+                        onPointerCancel={handleSpeakUp}
+                        onKeyDown={(event) => {
+                          if (
+                            !event.repeat &&
+                            (event.key === " " || event.key === "Enter")
+                          ) {
+                            event.preventDefault();
+                            handleSpeakDown();
+                          }
+                        }}
+                        onKeyUp={(event) => {
+                          if (event.key === " " || event.key === "Enter") {
+                            event.preventDefault();
+                            handleSpeakUp();
+                          }
+                        }}
+                        className={`min-w-[12rem] rounded-full px-10 py-3.5 text-sm font-semibold transition disabled:opacity-35 ${
+                          micLive
+                            ? "bg-[#D4AF37] text-black"
+                            : "bg-white text-black hover:bg-white/90"
+                        }`}
+                      >
+                        {micLive ? "Listening" : "Hold to speak"}
+                      </button>
+                      <Link
+                        href="/membership"
+                        className="text-xs text-[#D4AF37]/75 transition hover:text-[#D4AF37]"
+                      >
+                        Unlock Hands-Free Streaming with Pro →
+                      </Link>
+                    </div>
                   )}
-                {phase === "error" ? (
-                  <Link
-                    href="/app"
-                    className="rounded-full border border-white/20 px-6 py-3 text-sm text-white/80 transition hover:bg-white/10"
-                  >
-                    Back to home
-                  </Link>
-                ) : null}
-                <button
-                  type="button"
-                  disabled={
-                    !inSession ||
-                    phase === "minting" ||
-                    phase === "connecting" ||
-                    micMode !== "microphone"
-                  }
-                  onPointerDown={(event) => {
-                    event.currentTarget.setPointerCapture(event.pointerId);
-                    handleSpeakDown();
-                  }}
-                  onPointerUp={(event) => {
-                    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-                      event.currentTarget.releasePointerCapture(event.pointerId);
-                    }
-                    handleSpeakUp();
-                  }}
-                  onPointerCancel={handleSpeakUp}
-                  onKeyDown={(event) => {
-                    if (
-                      !event.repeat &&
-                      (event.key === " " || event.key === "Enter")
-                    ) {
-                      event.preventDefault();
-                      handleSpeakDown();
-                    }
-                  }}
-                  onKeyUp={(event) => {
-                    if (event.key === " " || event.key === "Enter") {
-                      event.preventDefault();
-                      handleSpeakUp();
-                    }
-                  }}
-                  className={`min-w-[10rem] rounded-full px-10 py-4 text-sm font-semibold transition disabled:opacity-35 ${
-                    micLive
-                      ? "bg-amber-300 text-black"
-                      : "bg-white text-black hover:bg-white/90"
-                  }`}
-                >
-                  {micLive ? "Listening…" : "Hold to speak"}
-                </button>
+
+                  {(phase === "error" ||
+                    ((phase === "connected" || phase === "listening") &&
+                      !busy)) && (
+                    <div className="mt-3 flex justify-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleStart}
+                        className="text-xs text-white/40 transition hover:text-white/70"
+                      >
+                        Restart
+                      </button>
+                      {phase === "error" ? (
+                        <Link
+                          href="/app"
+                          className="text-xs text-white/40 transition hover:text-white/70"
+                        >
+                          Back to home
+                        </Link>
+                      ) : null}
+                    </div>
+                  )}
+                </div>
               </div>
             </>
           )}

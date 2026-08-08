@@ -89,6 +89,10 @@ export async function POST(req: Request) {
 
   const track = normalizeTrack(body.track);
   const memory = await loadCoachPromptContextForUser(gate.userId);
+  const handsFree =
+    entitlement.plan === "pro" ||
+    entitlement.reason === "pro" ||
+    entitlement.reason === "staff";
   const payload = buildClientSecretRequest({
     track,
     eventTitle:
@@ -98,6 +102,7 @@ export async function POST(req: Request) {
         ? body.successCriteria
         : undefined,
     memory,
+    handsFree,
   });
 
   try {
@@ -138,6 +143,12 @@ export async function POST(req: Request) {
       model: data.session?.model ?? payload.session.model,
       track,
       milestone: "CE-M1",
+      voiceMode: handsFree ? "handsfree" : "hold",
+      entitlement: {
+        plan: entitlement.plan,
+        sessionsRemaining: entitlement.sessionsRemaining,
+        sessionsLimit: entitlement.sessionsLimit,
+      },
       memory: {
         firstName: memory.firstName,
         isReturning: memory.isReturning,
