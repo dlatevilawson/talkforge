@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   setMicrophoneEnabled,
+  setOutboundMicrophoneEnabled,
   type RealtimeConnection,
 } from "@/lib/ce/realtime";
 import {
@@ -10,6 +11,11 @@ import {
   reduceHandsFreeState,
   type HandsFreeState,
 } from "@/lib/ce/handsfree-fsm";
+import {
+  isConfirmedBargeInLevel,
+  outboundMicOpenForState,
+  type TurnState,
+} from "@/lib/ce/handsfree-turntaking";
 
 export type ArenaVoiceMode = "hold" | "handsfree";
 
@@ -18,28 +24,27 @@ type Options = {
   connection: RealtimeConnection | null;
   /** Session is live (past mint/connect). */
   sessionActive: boolean;
-  /** Forge currently producing audio. */
-  forgeSpeaking: boolean;
+  /** Authoritative Pro turn state from VoiceArena. */
+  turnState: TurnState;
   /**
-   * Pro barge-in: keep mic open during Forge speech so interrupt_response can fire.
-   * Free never barge-in.
+   * Fired only after echo-aware local confirmation while Forge is speaking.
+   * Parent is responsible for response.cancel.
    */
-  allowBargeIn: boolean;
+  onConfirmedBargeIn?: (level: number) => void;
 };
 
 /**
  * Dual-engine mic logic for Live Arena.
- * - Free: Hold-to-Talk (manual enable while pressing) — unchanged cost model.
- * - Pro: Hands-free — mic stays open (including during Forge speech for barge-in).
- *
- * Uses the existing Realtime MediaStream (no second getUserMedia).
+ * - Free: Hold-to-Talk (manual enable while pressing).
+ * - Pro: Hands-free — outbound mic muted while Forge speaks; local analyser
+ *   confirms true barge-in without treating speaker echo as member speech.
  */
 export function useArenaVoice({
   isProUser,
   connection,
   sessionActive,
-  forgeSpeaking,
-  allowBargeIn,
+  turnState,
+  onConfirmedBargeIn,
 }: Options) {
   const [micLive, setMicLive] = useState(false);
   const [userSpeaking, setUserSpeaking] = useState(false);
@@ -53,8 +58,18 @@ export function useArenaVoice({
   const audioCtxRef = useRef<AudioContext | null>(null);
   const silenceMsRef = useRef(0);
   const lastTickRef = useRef<number | null>(null);
+  const echoFloorRef = useRef(0.08);
+  const echoSamplesRef = useRef<number[]>([]);
+  const bargeSustainMsRef = useRef(0);
+  const bargeFiredRef = useRef(false);
+  const turnStateRef = useRef(turnState);
+  turnStateRef.current = turnState;
+  const onBargeInRef = useRef(onConfirmedBargeIn);
+  onBargeInRef.current = onConfirmedBargeIn;
 
   const mode: ArenaVoiceMode = isProUser ? "handsfree" : "hold";
+  const forgeOwnsFloor =
+    turnState === "forge_speaking" || turnState === "forge_thinking";
 
   useEffect(() => {
     if (!connection || connection.usedSilentMicFallback || !sessionActive) {
@@ -66,16 +81,29 @@ export function useArenaVoice({
       return;
     }
 
-    // Pro: mic open whenever unmuted (incl. Forge speaking → barge-in).
-    // Free: mic open only while holding and Forge is not speaking.
-    const wantOpen =
-      mode === "handsfree"
-        ? !handsFreeMuted
-        : !forgeSpeaking && holdingRef.current;
+    if (mode === "handsfree") {
+      // Local mic always on for analyser (unless member muted).
+      for (const track of connection.localStream.getAudioTracks()) {
+        track.enabled = !handsFreeMuted;
+      }
+      const wantOutbound =
+        !handsFreeMuted && outboundMicOpenForState(turnState);
+      setOutboundMicrophoneEnabled(connection, wantOutbound);
+      setMicLive(wantOutbound || forgeOwnsFloor);
+      if (!handsFreeMuted) {
+        startAnalyser(connection.localStream);
+      } else {
+        stopAnalyser();
+        setUserSpeaking(false);
+        setLevel(0);
+      }
+      return;
+    }
 
+    // Free hold-to-talk
+    const wantOpen = !forgeOwnsFloor && holdingRef.current;
     setMicrophoneEnabled(connection, wantOpen);
     setMicLive(wantOpen);
-
     if (wantOpen) {
       startAnalyser(connection.localStream);
     } else {
@@ -86,16 +114,29 @@ export function useArenaVoice({
   }, [
     connection,
     sessionActive,
-    forgeSpeaking,
+    turnState,
     mode,
     handsFreeMuted,
-    allowBargeIn,
+    forgeOwnsFloor,
   ]);
 
   useEffect(() => {
     if (mode !== "handsfree" || !sessionActive) return;
     setHandsFreeState((s) => reduceHandsFreeState(s, { type: "SESSION_READY" }));
   }, [mode, sessionActive]);
+
+  useEffect(() => {
+    // Reset barge-in latch whenever Forge starts a new turn.
+    if (forgeOwnsFloor) {
+      bargeFiredRef.current = false;
+      bargeSustainMsRef.current = 0;
+      echoSamplesRef.current = [];
+    } else {
+      echoFloorRef.current = 0.08;
+      echoSamplesRef.current = [];
+      bargeSustainMsRef.current = 0;
+    }
+  }, [forgeOwnsFloor, turnState]);
 
   useEffect(() => {
     return () => {
@@ -133,7 +174,45 @@ export function useArenaVoice({
         const nextLevel = Math.min(1, avg * 2.4);
         setLevel(nextLevel);
 
-        // Higher threshold + hysteresis — brief thinking pauses ≠ end of turn.
+        const currentTurn = turnStateRef.current;
+        const forgeSpeakingNow =
+          currentTurn === "forge_speaking" || currentTurn === "forge_thinking";
+
+        if (mode === "handsfree" && forgeSpeakingNow) {
+          // Learn speaker-echo floor from the first moments of Forge audio.
+          if (echoSamplesRef.current.length < 12) {
+            echoSamplesRef.current.push(nextLevel);
+            const samples = echoSamplesRef.current;
+            echoFloorRef.current =
+              samples.reduce((a, b) => a + b, 0) / samples.length;
+          }
+
+          const rising =
+            nextLevel >= Math.max(0.2, echoFloorRef.current * 2.4);
+          if (rising) {
+            bargeSustainMsRef.current += dt;
+          } else {
+            bargeSustainMsRef.current = 0;
+          }
+          if (
+            !bargeFiredRef.current &&
+            isConfirmedBargeInLevel({
+              level: nextLevel,
+              echoFloor: echoFloorRef.current,
+              sustainedMs: bargeSustainMsRef.current,
+            })
+          ) {
+            bargeFiredRef.current = true;
+            setUserSpeaking(true);
+            setHandsFreeState((s) =>
+              reduceHandsFreeState(s, { type: "BARGE_IN" })
+            );
+            onBargeInRef.current?.(nextLevel);
+          }
+          // Never mark casual echo as "user speaking" for UI during Forge turns.
+          return requestNext(tick);
+        }
+
         const speaking = nextLevel > 0.1;
         setUserSpeaking(speaking);
 
@@ -143,9 +222,8 @@ export function useArenaVoice({
             setHandsFreeState((s) =>
               reduceHandsFreeState(s, { type: "USER_SPEECH_STARTED" })
             );
-          } else if (!forgeSpeaking) {
+          } else {
             silenceMsRef.current += dt;
-            // ~2.4s of low energy before PAUSED (not mid-thought ~400–800ms).
             if (silenceMsRef.current > 2400) {
               setHandsFreeState((s) =>
                 reduceHandsFreeState(s, { type: "LONG_SILENCE" })
@@ -154,12 +232,16 @@ export function useArenaVoice({
           }
         }
 
-        rafRef.current = requestAnimationFrame(tick);
+        requestNext(tick);
       };
       rafRef.current = requestAnimationFrame(tick);
     } catch {
       /* analyser optional */
     }
+  }
+
+  function requestNext(tick: (now: number) => void) {
+    rafRef.current = requestAnimationFrame(tick);
   }
 
   function stopAnalyser() {
@@ -179,7 +261,7 @@ export function useArenaVoice({
     if (mode !== "hold" || !connection || connection.usedSilentMicFallback) {
       return;
     }
-    if (forgeSpeaking || !sessionActive) return;
+    if (forgeOwnsFloor || !sessionActive) return;
     holdingRef.current = true;
     setMicrophoneEnabled(connection, true);
     setMicLive(true);
@@ -233,6 +315,17 @@ export function useArenaVoice({
     setHandsFreeState((s) => reduceHandsFreeState(s, { type: "END" }));
   }
 
+  const labelFromTurn =
+    turnState === "forge_thinking"
+      ? "Thinking"
+      : turnState === "forge_speaking"
+        ? "Forge speaking"
+        : turnState === "user_speaking" || turnState === "interrupted"
+          ? "Listening"
+          : turnState === "listening"
+            ? "Speak naturally"
+            : handsFreeStateLabel(handsFreeState);
+
   return {
     mode,
     micLive,
@@ -240,7 +333,7 @@ export function useArenaVoice({
     level,
     handsFreeMuted,
     handsFreeState,
-    handsFreeLabel: handsFreeStateLabel(handsFreeState),
+    handsFreeLabel: labelFromTurn,
     startHoldToTalk,
     stopHoldToTalk,
     toggleHandsFreeMute,

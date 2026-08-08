@@ -15,6 +15,7 @@ import {
   requestOpeningSpeech,
   resumeRemoteAudio,
   setMicrophoneEnabled,
+  setOutboundMicrophoneEnabled,
   type MicFallbackReason,
   type RealtimeConnection,
 } from "@/lib/ce/realtime";
@@ -39,6 +40,13 @@ import {
   reportVoiceUsageEvent,
   startVoiceUsageTracking,
 } from "@/lib/ce/voice-usage-client";
+import {
+  isBenignRealtimeError,
+  isForgeOutputEventType,
+  logTurnTransition,
+  reduceTurnState,
+  type TurnState,
+} from "@/lib/ce/handsfree-turntaking";
 import {
   COMPLIMENTARY_COMPLETE_BODY,
   COMPLIMENTARY_COMPLETE_HEADLINE,
@@ -134,25 +142,75 @@ export default function VoiceArena({
   const usageIdRef = useRef<string | null>(null);
   const isProUserRef = useRef(false);
   const phaseRef = useRef<Phase>("idle");
-  /** After barge-in, ignore stale Forge audio events briefly so phase stays on the member. */
+  /** After confirmed barge-in, ignore stale Forge audio events briefly. */
   const ignoreForgeAudioUntilRef = useRef(0);
+  const turnStateRef = useRef<TurnState>("listening");
+  const activeResponseIdRef = useRef<string | null>(null);
+  const pendingBudgetRef = useRef<number | null>(null);
+  const [turnState, setTurnState] = useState<TurnState>("listening");
 
   const showDevDiagnostics = process.env.NODE_ENV === "development";
 
-  const forgeSpeaking = phase === "speaking";
   const sessionActive =
     micMode === "microphone" &&
     (phase === "speaking" ||
       phase === "listening" ||
       phase === "connected");
-  const allowBargeIn = isProUser && sessionActive;
+
+  function applyTurn(
+    event: Parameters<typeof reduceTurnState>[1],
+    extras?: { responseId?: string }
+  ) {
+    const transition = reduceTurnState(turnStateRef.current, event);
+    logTurnTransition(transition);
+    if (transition.from !== transition.to) {
+      turnStateRef.current = transition.to;
+      setTurnState(transition.to);
+      pushEvent(
+        `Turn ${transition.from}→${transition.to} · ${transition.reason}`
+      );
+    } else if (
+      transition.reason.startsWith("ignore_") ||
+      transition.cancelForge
+    ) {
+      pushEvent(`Turn hold · ${transition.reason}`);
+    }
+
+    if (transition.cancelForge) {
+      cancelForgeResponse(connectionRef.current);
+      activeResponseIdRef.current = null;
+      ignoreForgeAudioUntilRef.current = Date.now() + 900;
+    }
+
+    if (isProUserRef.current && connectionRef.current) {
+      setOutboundMicrophoneEnabled(
+        connectionRef.current,
+        transition.openOutboundMic
+      );
+    }
+
+    if (extras?.responseId && event.type === "FORGE_RESPONSE_CREATED") {
+      activeResponseIdRef.current = extras.responseId;
+    }
+    if (event.type === "FORGE_RESPONSE_DONE") {
+      activeResponseIdRef.current = null;
+    }
+
+    return transition;
+  }
 
   const voice = useArenaVoice({
     isProUser,
     connection: liveConnection,
     sessionActive,
-    forgeSpeaking,
-    allowBargeIn,
+    turnState,
+    onConfirmedBargeIn: (level) => {
+      if (!isProUserRef.current) return;
+      applyTurn({ type: "CONFIRMED_BARGE_IN", level });
+      trackUsage("barge_in");
+      setPhase("listening");
+      voiceRef.current.onBargeIn();
+    },
   });
   const voiceRef = useRef(voice);
   voiceRef.current = voice;
@@ -254,7 +312,14 @@ export default function VoiceArena({
     if (!usageId) return;
     void reportVoiceUsageEvent({ usageId, event, text }).then((advice) => {
       if (!advice?.maxOutputTokens) return;
-      // Invisible control only — never surface budgets/meters to the member.
+      // Defer session.update until Forge is not speaking — avoids mid-utterance churn.
+      if (
+        turnStateRef.current === "forge_speaking" ||
+        turnStateRef.current === "forge_thinking"
+      ) {
+        pendingBudgetRef.current = advice.maxOutputTokens;
+        return;
+      }
       applyOutputBudget(connectionRef.current, advice.maxOutputTokens);
     });
   }
@@ -262,32 +327,65 @@ export default function VoiceArena({
   function handleServerEvent(event: Record<string, unknown>) {
     const type = typeof event.type === "string" ? event.type : "event";
 
+    // Only Forge OUTPUT events own the speaking phase — never input mic/"audio" events.
     if (
-      type.includes("audio") ||
-      type === "response.created" ||
-      type === "response.output_item.added"
+      isForgeOutputEventType(type) &&
+      Date.now() >= ignoreForgeAudioUntilRef.current
     ) {
-      if (Date.now() >= ignoreForgeAudioUntilRef.current) {
-        setPhase((current) =>
-          current === "connecting" ||
-          current === "speaking" ||
-          current === "listening" ||
-          current === "connected"
-            ? "speaking"
-            : current
-        );
-      }
+      setPhase((current) =>
+        current === "connecting" ||
+        current === "speaking" ||
+        current === "listening" ||
+        current === "connected"
+          ? "speaking"
+          : current
+      );
     }
 
     if (type === "response.created") {
       if (Date.now() >= ignoreForgeAudioUntilRef.current) {
-        voiceRef.current.onForgeStarted();
-        trackUsage("assistant_turn");
-        pushEvent("Forge responding");
+        const responseId =
+          typeof event.response_id === "string"
+            ? event.response_id
+            : event.response &&
+                typeof event.response === "object" &&
+                typeof (event.response as { id?: unknown }).id === "string"
+              ? ((event.response as { id: string }).id)
+              : undefined;
+        // Guard duplicate/recursive create for the same active response id.
+        if (
+          responseId &&
+          activeResponseIdRef.current &&
+          activeResponseIdRef.current === responseId
+        ) {
+          pushEvent(`Turn hold · duplicate_response_created_${responseId}`);
+        } else {
+          applyTurn(
+            { type: "FORGE_RESPONSE_CREATED", responseId },
+            { responseId }
+          );
+          voiceRef.current.onForgeStarted();
+          trackUsage("assistant_turn");
+          pushEvent(
+            `Response start · ${responseId ?? "unknown"} · reason=server_or_opening`
+          );
+        }
+      }
+    }
+
+    if (
+      type === "response.output_audio.delta" ||
+      type === "response.audio.delta"
+    ) {
+      if (Date.now() >= ignoreForgeAudioUntilRef.current) {
+        applyTurn({ type: "FORGE_AUDIO_DELTA" });
       }
     }
 
     if (type === "response.done") {
+      const responseId =
+        typeof event.response_id === "string" ? event.response_id : undefined;
+      applyTurn({ type: "FORGE_RESPONSE_DONE", responseId });
       setPhase((current) =>
         current === "speaking"
           ? "listening"
@@ -296,45 +394,53 @@ export default function VoiceArena({
             : current
       );
       voiceRef.current.onForgeDone();
-      pushEvent("Forge response complete");
+      if (pendingBudgetRef.current != null) {
+        applyOutputBudget(connectionRef.current, pendingBudgetRef.current);
+        pendingBudgetRef.current = null;
+      }
+      pushEvent(
+        `Response done · ${responseId ?? "unknown"} · no auto-restart`
+      );
     }
 
     if (type === "input_audio_buffer.speech_started") {
-      const pro = isProUserRef.current;
-      const forgeWasSpeaking = phaseRef.current === "speaking";
-      if (pro && forgeWasSpeaking) {
-        // Pro barge-in: stop Forge immediately; member owns the floor.
-        ignoreForgeAudioUntilRef.current = Date.now() + 900;
-        cancelForgeResponse(connectionRef.current);
-        voiceRef.current.onBargeIn();
-        trackUsage("barge_in");
-        pushEvent("Barge-in — Forge yielded");
+      // CRITICAL: never response.cancel from bare server VAD — phone echo
+      // falsely fires this while Forge TTS plays over the speaker.
+      const transition = applyTurn({
+        type: "USER_SPEECH_STARTED",
+        source: "server_vad",
+      });
+      if (
+        transition.to === "user_speaking" ||
+        transition.to === "interrupted"
+      ) {
+        setPhase("listening");
+        pushEvent("Member speech detected");
+      } else {
+        pushEvent("Ignored speech_started · not confirmed barge-in");
       }
-      setPhase("listening");
-      pushEvent("Member speech detected");
     }
 
     if (type === "input_audio_buffer.speech_stopped") {
+      applyTurn({ type: "USER_SPEECH_STOPPED", source: "server_vad" });
       voiceRef.current.onUserSpeechStopped();
     }
 
     if (type === "error") {
       pushEvent(`Server error: ${JSON.stringify(event).slice(0, 120)}`);
-      const serverError =
-        event.error && typeof event.error === "object"
-          ? (event.error as { message?: unknown }).message
-          : null;
-      // Recovery: do not kill the session permanently — return to listening.
+      if (isBenignRealtimeError(event)) {
+        // response.cancel / interrupt noise — do not scare the member.
+        return;
+      }
       setError(
-        typeof serverError === "string"
-          ? "Coach Forge hit a brief connection hitch. Keep speaking when you’re ready."
-          : "Coach Forge hit a brief connection hitch. Keep speaking when you’re ready."
+        "Coach Forge hit a brief connection hitch. Keep speaking when you’re ready."
       );
       setPhase((current) =>
         current === "error" || current === "momentum" || current === "idle"
           ? current
           : "listening"
       );
+      applyTurn({ type: "FORGE_RESPONSE_DONE" });
       voiceRef.current.onForgeDone();
     }
 
@@ -387,6 +493,11 @@ export default function VoiceArena({
     if (priorUsage) {
       void completeVoiceUsageTracking({ usageId: priorUsage });
     }
+    turnStateRef.current = "listening";
+    setTurnState("listening");
+    activeResponseIdRef.current = null;
+    pendingBudgetRef.current = null;
+    ignoreForgeAudioUntilRef.current = 0;
     setPhase("minting");
     pushEvent("Minting session…");
 
@@ -776,13 +887,20 @@ export default function VoiceArena({
   const ringState: PresenceRingState =
     phase === "momentum"
       ? "wrap"
-      : phase === "speaking"
+      : isProUser &&
+          (turnState === "forge_speaking" || turnState === "forge_thinking")
         ? "forge_speaking"
-        : phase === "listening" || micLive || voice.userSpeaking
-          ? "listening"
-          : phase === "minting" || phase === "connecting"
-            ? "connecting"
-            : "idle";
+        : phase === "speaking"
+          ? "forge_speaking"
+          : phase === "listening" ||
+              micLive ||
+              voice.userSpeaking ||
+              turnState === "user_speaking" ||
+              turnState === "interrupted"
+            ? "listening"
+            : phase === "minting" || phase === "connecting"
+              ? "connecting"
+              : "idle";
 
   const presenceLabel =
     phase === "idle"
