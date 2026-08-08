@@ -22,6 +22,7 @@ import {
   type MicFallbackReason,
   type RealtimeConnection,
 } from "@/lib/ce/realtime";
+import { outputBudgetForTurn } from "@/lib/ce/voice-economics";
 import { useArenaVoice } from "@/lib/hooks/useArenaVoice";
 import {
   CE_REALTIME_MODEL,
@@ -704,7 +705,7 @@ export default function VoiceArena({
 
       connectionRef.current = connection;
       setLiveConnection(connection);
-      pushEvent(`Voice build · hold-mute-v1 · mode=${sessionVoiceMode}`);
+      pushEvent(`Voice build · hold-mute-v2-tokens · mode=${sessionVoiceMode}`);
 
       if (!connection.usedSilentMicFallback) {
         // Start muted; hold-to-talk opens only while the button is pressed.
@@ -736,15 +737,16 @@ export default function VoiceArena({
       });
 
       setPhase("speaking");
-      applyOutputBudget(connection, 100);
+      const openingBudget = outputBudgetForTurn("opening", false);
+      applyOutputBudget(connection, openingBudget);
       requestOpeningSpeech(connection.dc, welcomeHintRef.current, {
         eventTitle: eventTitle?.trim() || undefined,
         isReturning: Boolean(tokenData.memory?.isReturning),
       });
       pushEvent(
         tokenData.memory?.isReturning
-          ? "Forge opening · returning member"
-          : "Forge opening · first session"
+          ? `Forge opening · returning member · budget ${openingBudget}`
+          : `Forge opening · first session · budget ${openingBudget}`
       );
     } catch (err) {
       console.error(err);

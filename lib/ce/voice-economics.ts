@@ -4,7 +4,7 @@
  */
 
 /** Keep aligned with FORGE_TURN_MAX_OUTPUT_TOKENS in philosophy.ts */
-const NORMAL_TURN_MAX_OUTPUT_TOKENS = 120;
+const NORMAL_TURN_MAX_OUTPUT_TOKENS = 240;
 
 export type VoiceTurnKind =
   | "opening"
@@ -27,24 +27,30 @@ export const VOICE_SESSION_SOFT_BUDGET = {
   assistantTurnsSoft: 40,
 } as const;
 
+/**
+ * Per-turn max_output_tokens for Realtime.
+ * Budgets are headroom above spoken brevity targets — the model should finish
+ * clean sentences; instructions (not the API ceiling) enforce short turns.
+ */
 export function outputBudgetForTurn(
   kind: VoiceTurnKind,
   conciseMode: boolean
 ): number {
   if (conciseMode) {
-    if (kind === "opening" || kind === "closing") return 80;
-    if (kind === "complex") return 100;
-    return 60;
+    if (kind === "opening" || kind === "closing") return 160;
+    if (kind === "complex") return 180;
+    return 120;
   }
   switch (kind) {
     case "opening":
-      return 100;
+      // Welcome + continuity + one question needs room; 100 was cutting openings off.
+      return 280;
     case "quick_followup":
-      return 60;
+      return 140;
     case "complex":
-      return 200;
+      return 320;
     case "closing":
-      return 90;
+      return 180;
     case "normal":
     default:
       return NORMAL_TURN_MAX_OUTPUT_TOKENS;
