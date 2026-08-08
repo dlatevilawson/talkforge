@@ -105,7 +105,10 @@ export function isBenignRealtimeError(event: Record<string, unknown>): boolean {
 
 /**
  * Whether a Realtime `error` event should touch member-facing recovery UI.
- * Interruption / cancel / member-owned floor → never.
+ *
+ * Default: NO. Interruption / cancel / unknown peer / healthy peer → never.
+ * Only a truly failed/closed peer may surface recovery UI — and even then
+ * VoiceArena prefers the peer `failed` handler over hitch copy.
  */
 export function shouldSurfaceRealtimeError(
   event: Record<string, unknown>,
@@ -114,9 +117,19 @@ export function shouldSurfaceRealtimeError(
 ): boolean {
   if (isBenignRealtimeError(event)) return false;
   if (memberOwnsFloor(state)) return false;
-  // Healthy peer → treat as non-fatal API noise, not a hitch.
-  if (peerState === "connected" || peerState === "connecting") return false;
-  return true;
+  // Unknown / healthy / reconnecting peer → never hitch from API error events.
+  if (
+    !peerState ||
+    peerState === "connected" ||
+    peerState === "connecting" ||
+    peerState === "new" ||
+    peerState === "checking"
+  ) {
+    return false;
+  }
+  // Only failed/closed/disconnected peers could warrant recovery — still no
+  // hitch string; caller should use peer-failure UI instead.
+  return false;
 }
 
 /**

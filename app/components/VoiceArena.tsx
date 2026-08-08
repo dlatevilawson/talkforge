@@ -165,19 +165,6 @@ export default function VoiceArena({
     }
   }
 
-  /** Show hitch copy, then auto-clear after ~3s if the peer is still stable. */
-  function showTransientHitch() {
-    setError(HITCH_ERROR);
-    clearHitchTimer();
-    hitchClearTimerRef.current = setTimeout(() => {
-      hitchClearTimerRef.current = null;
-      const peer = connectionRef.current?.pc.connectionState;
-      if (peer === "connected" || peer === "connecting") {
-        setError((current) => (current === HITCH_ERROR ? "" : current));
-      }
-    }, 3000);
-  }
-
   const sessionActive =
     micMode === "microphone" &&
     (phase === "speaking" ||
@@ -475,25 +462,17 @@ export default function VoiceArena({
     }
 
     if (type === "error") {
+      // Realtime API errors (including response.cancel) are NOT connection
+      // failures. Never show hitch copy here — peer `failed` owns recovery UI.
       pushEvent(`Server error: ${JSON.stringify(event).slice(0, 120)}`);
       const peer = connectionRef.current?.pc.connectionState ?? null;
-      // Interruption / cancel / healthy-peer API noise ≠ connection failure.
       if (
         !shouldSurfaceRealtimeError(event, turnStateRef.current, peer)
       ) {
         return;
       }
-      showTransientHitch();
-      setPhase((current) =>
-        current === "error" || current === "momentum" || current === "idle"
-          ? current
-          : "listening"
-      );
-      // Do not force forge_done during member-owned floor (barge-in in progress).
-      if (!memberOwnsFloor(turnStateRef.current)) {
-        applyTurn({ type: "FORGE_RESPONSE_DONE" });
-        voiceRef.current.onForgeDone();
-      }
+      // Belt-and-suspenders: even if classifier changes, never hitch mid-session.
+      return;
     }
 
     const { turns: next, added } = applyRealtimeTranscriptEvent(
