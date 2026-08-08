@@ -1,8 +1,8 @@
 /**
- * Pro hands-free turn-taking policy (pure).
+ * Pro hands-free turn-taking / conversational floor ownership (pure).
  *
- * Prevents Forge TTS / speaker echo from being treated as member speech,
- * and prevents recursive response.create loops after Forge finishes.
+ * Model: who owns the floor — not how fast we cut silence.
+ * User interruption is a normal yield, never a connection failure.
  */
 
 export type TurnState =
@@ -11,6 +11,8 @@ export type TurnState =
   | "forge_thinking"
   | "forge_speaking"
   | "interrupted";
+
+export type FloorOwner = "forge" | "member" | "none";
 
 export type TurnEvent =
   | { type: "USER_SPEECH_STARTED"; source: "server_vad" | "local_energy" }
@@ -28,11 +30,23 @@ export type TurnTransition = {
   reason: string;
   /** Client may send response.cancel only when this is true. */
   cancelForge: boolean;
+  /** Duck/mute remote Forge playback immediately (yield feel). */
+  duckForgeAudio: boolean;
   /** Outbound mic audio may be sent to OpenAI. */
   openOutboundMic: boolean;
   /** Server speech_started alone must never cancel Forge. */
   ignoreServerSpeechAsBargeIn: boolean;
 };
+
+export function floorOwner(state: TurnState): FloorOwner {
+  if (state === "forge_speaking" || state === "forge_thinking") return "forge";
+  if (state === "user_speaking" || state === "interrupted") return "member";
+  return "none";
+}
+
+export function memberOwnsFloor(state: TurnState): boolean {
+  return floorOwner(state) === "member";
+}
 
 export function outboundMicOpenForState(state: TurnState): boolean {
   // Mute outbound while Forge owns the floor so speaker echo cannot hit server VAD.
@@ -58,7 +72,10 @@ export function isForgeOutputEventType(type: string): boolean {
   );
 }
 
-/** Cancellation / benign Realtime errors must not surface as connection hitches. */
+/**
+ * Cancellation / interrupt / overlap noise from Realtime.
+ * These are conversational mechanics — never connection failures.
+ */
 export function isBenignRealtimeError(event: Record<string, unknown>): boolean {
   const err =
     event.error && typeof event.error === "object"
@@ -75,30 +92,59 @@ export function isBenignRealtimeError(event: Record<string, unknown>): boolean {
     haystack.includes("interrupted") ||
     haystack.includes("response_cancel") ||
     haystack.includes("conversation_already_has_active_response") ||
-    haystack.includes("no active response")
+    haystack.includes("active response") ||
+    haystack.includes("no active response") ||
+    haystack.includes("already_has_active") ||
+    haystack.includes("item_id") ||
+    haystack.includes("buffer") ||
+    haystack.includes("input_audio") ||
+    haystack.includes("response.done") ||
+    haystack.includes("rate_limit")
   );
 }
 
 /**
+ * Whether a Realtime `error` event should touch member-facing recovery UI.
+ * Interruption / cancel / member-owned floor → never.
+ */
+export function shouldSurfaceRealtimeError(
+  event: Record<string, unknown>,
+  state: TurnState,
+  peerState?: string | null
+): boolean {
+  if (isBenignRealtimeError(event)) return false;
+  if (memberOwnsFloor(state)) return false;
+  // Healthy peer → treat as non-fatal API noise, not a hitch.
+  if (peerState === "connected" || peerState === "connecting") return false;
+  return true;
+}
+
+/**
  * Echo-aware barge-in confirmation.
- * Forge speaker bleed raises the mic floor; only a clear excess counts as the member.
+ * Distinguishes intentional speech from speaker bleed / ambient noise.
  */
 export function isConfirmedBargeInLevel(input: {
   level: number;
   echoFloor: number;
   sustainedMs: number;
-  /** Absolute floor so quiet rooms still require real speech. */
   absoluteFloor?: number;
-  /** Multiplier over echo floor. */
   echoMultiplier?: number;
-  /** Require sustained energy this long. */
   minSustainMs?: number;
 }): boolean {
-  const absoluteFloor = input.absoluteFloor ?? 0.2;
-  const echoMultiplier = input.echoMultiplier ?? 2.4;
-  const minSustainMs = input.minSustainMs ?? 180;
+  const absoluteFloor = input.absoluteFloor ?? 0.22;
+  const echoMultiplier = input.echoMultiplier ?? 2.6;
+  const minSustainMs = input.minSustainMs ?? 220;
   const threshold = Math.max(absoluteFloor, input.echoFloor * echoMultiplier);
   return input.level >= threshold && input.sustainedMs >= minSustainMs;
+}
+
+/** Ambient / cough / TV bleed — must not confirm barge-in. */
+export function looksLikeEnvironmentalAudio(input: {
+  level: number;
+  echoFloor: number;
+  sustainedMs: number;
+}): boolean {
+  return !isConfirmedBargeInLevel(input);
 }
 
 export function reduceTurnState(
@@ -108,6 +154,7 @@ export function reduceTurnState(
   const base = {
     from: state,
     ignoreServerSpeechAsBargeIn: true,
+    duckForgeAudio: false,
   };
 
   switch (event.type) {
@@ -141,7 +188,6 @@ export function reduceTurnState(
 
     case "USER_SPEECH_STOPPED": {
       if (state === "user_speaking" || state === "interrupted") {
-        // Server create_response handles the next Forge turn — we only mark thinking.
         const to: TurnState = "forge_thinking";
         return {
           ...base,
@@ -157,6 +203,14 @@ export function reduceTurnState(
     }
 
     case "FORGE_RESPONSE_CREATED": {
+      // Member still owns the floor after barge-in — ignore stale creates.
+      if (memberOwnsFloor(state)) {
+        return hold(
+          state,
+          event.type,
+          "ignore_forge_create_member_owns_floor"
+        );
+      }
       const to: TurnState = "forge_thinking";
       return {
         ...base,
@@ -170,6 +224,12 @@ export function reduceTurnState(
     }
 
     case "FORGE_AUDIO_DELTA": {
+      if (memberOwnsFloor(state)) {
+        return {
+          ...hold(state, event.type, "ignore_forge_audio_member_owns_floor"),
+          duckForgeAudio: true,
+        };
+      }
       const to: TurnState = "forge_speaking";
       return {
         ...base,
@@ -183,7 +243,14 @@ export function reduceTurnState(
     }
 
     case "FORGE_RESPONSE_DONE": {
-      // Critical: return to listening only — do NOT create another response.
+      // Cancelled/stale response finishing must not steal the floor back.
+      if (memberOwnsFloor(state)) {
+        return hold(
+          state,
+          event.type,
+          "cancelled_response_done_member_owns_floor"
+        );
+      }
       const to: TurnState = "listening";
       return {
         ...base,
@@ -205,8 +272,9 @@ export function reduceTurnState(
         ...base,
         to,
         event: event.type,
-        reason: `confirmed_user_barge_in_level_${event.level.toFixed(2)}`,
+        reason: `natural_yield_confirmed_barge_in_level_${event.level.toFixed(2)}`,
         cancelForge: true,
+        duckForgeAudio: true,
         openOutboundMic: true,
         ignoreServerSpeechAsBargeIn: false,
       };
@@ -235,6 +303,7 @@ function hold(
     event,
     reason,
     cancelForge: false,
+    duckForgeAudio: false,
     openOutboundMic: outboundMicOpenForState(state),
     ignoreServerSpeechAsBargeIn: true,
   };
@@ -242,14 +311,18 @@ function hold(
 
 export function logTurnTransition(transition: TurnTransition): void {
   if (transition.from === transition.to && !transition.cancelForge) {
-    // Still log ignored barge-in attempts — these are the failure mode we ship against.
     if (
       transition.reason.startsWith("ignore_") ||
-      transition.reason.includes("barge_in")
+      transition.reason.includes("barge_in") ||
+      transition.reason.includes("member_owns_floor")
     ) {
       console.info("[handsfree]", transition);
     }
     return;
   }
-  console.info("[handsfree]", transition);
+  console.info("[handsfree]", {
+    ...transition,
+    floorFrom: floorOwner(transition.from),
+    floorTo: floorOwner(transition.to),
+  });
 }

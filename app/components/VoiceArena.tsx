@@ -11,11 +11,13 @@ import {
   cancelForgeResponse,
   connectRealtime,
   disconnectRealtime,
+  duckRemoteForgeAudio,
   recoverMicrophone,
   requestOpeningSpeech,
   resumeRemoteAudio,
   setMicrophoneEnabled,
   setOutboundMicrophoneEnabled,
+  unduckRemoteForgeAudio,
   type MicFallbackReason,
   type RealtimeConnection,
 } from "@/lib/ce/realtime";
@@ -41,10 +43,11 @@ import {
   startVoiceUsageTracking,
 } from "@/lib/ce/voice-usage-client";
 import {
-  isBenignRealtimeError,
   isForgeOutputEventType,
   logTurnTransition,
+  memberOwnsFloor,
   reduceTurnState,
+  shouldSurfaceRealtimeError,
   type TurnState,
 } from "@/lib/ce/handsfree-turntaking";
 import {
@@ -201,9 +204,21 @@ export default function VoiceArena({
     }
 
     if (transition.cancelForge) {
+      // Natural yield — cancel + duck. Never surface as hitch/error.
+      clearHitchTimer();
+      setError((current) => (current === HITCH_ERROR ? "" : current));
+      duckRemoteForgeAudio(connectionRef.current);
       cancelForgeResponse(connectionRef.current);
       activeResponseIdRef.current = null;
-      ignoreForgeAudioUntilRef.current = Date.now() + 900;
+      ignoreForgeAudioUntilRef.current = Date.now() + 1200;
+      pushEvent("Natural yield · Forge gave the floor");
+    } else if (transition.duckForgeAudio) {
+      duckRemoteForgeAudio(connectionRef.current);
+    } else if (
+      transition.to === "forge_speaking" ||
+      transition.to === "forge_thinking"
+    ) {
+      unduckRemoteForgeAudio(connectionRef.current);
     }
 
     if (isProUserRef.current && connectionRef.current) {
@@ -213,10 +228,17 @@ export default function VoiceArena({
       );
     }
 
-    if (extras?.responseId && event.type === "FORGE_RESPONSE_CREATED") {
+    if (
+      extras?.responseId &&
+      event.type === "FORGE_RESPONSE_CREATED" &&
+      transition.to === "forge_thinking"
+    ) {
       activeResponseIdRef.current = extras.responseId;
     }
-    if (event.type === "FORGE_RESPONSE_DONE") {
+    if (
+      event.type === "FORGE_RESPONSE_DONE" &&
+      !memberOwnsFloor(transition.to)
+    ) {
       activeResponseIdRef.current = null;
     }
 
@@ -232,6 +254,7 @@ export default function VoiceArena({
       if (!isProUserRef.current) return;
       applyTurn({ type: "CONFIRMED_BARGE_IN", level });
       trackUsage("barge_in");
+      // Stay in-session listening chrome — never error/restart.
       setPhase("listening");
       voiceRef.current.onBargeIn();
     },
@@ -453,8 +476,11 @@ export default function VoiceArena({
 
     if (type === "error") {
       pushEvent(`Server error: ${JSON.stringify(event).slice(0, 120)}`);
-      if (isBenignRealtimeError(event)) {
-        // response.cancel / interrupt noise — do not scare the member.
+      const peer = connectionRef.current?.pc.connectionState ?? null;
+      // Interruption / cancel / healthy-peer API noise ≠ connection failure.
+      if (
+        !shouldSurfaceRealtimeError(event, turnStateRef.current, peer)
+      ) {
         return;
       }
       showTransientHitch();
@@ -463,8 +489,11 @@ export default function VoiceArena({
           ? current
           : "listening"
       );
-      applyTurn({ type: "FORGE_RESPONSE_DONE" });
-      voiceRef.current.onForgeDone();
+      // Do not force forge_done during member-owned floor (barge-in in progress).
+      if (!memberOwnsFloor(turnStateRef.current)) {
+        applyTurn({ type: "FORGE_RESPONSE_DONE" });
+        voiceRef.current.onForgeDone();
+      }
     }
 
     const { turns: next, added } = applyRealtimeTranscriptEvent(
@@ -1322,9 +1351,8 @@ export default function VoiceArena({
                     </div>
                   )}
 
-                  {(phase === "error" ||
-                    ((phase === "connected" || phase === "listening") &&
-                      !busy)) && (
+                  {/* Restart only when the realtime session truly cannot recover. */}
+                  {phase === "error" ? (
                     <div className="mt-3 flex justify-center gap-3">
                       <button
                         type="button"
@@ -1333,16 +1361,14 @@ export default function VoiceArena({
                       >
                         Restart
                       </button>
-                      {phase === "error" ? (
-                        <Link
-                          href="/app"
-                          className="text-xs text-white/40 transition hover:text-white/70"
-                        >
-                          Back to home
-                        </Link>
-                      ) : null}
+                      <Link
+                        href="/app"
+                        className="text-xs text-white/40 transition hover:text-white/70"
+                      >
+                        Back to home
+                      </Link>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </>

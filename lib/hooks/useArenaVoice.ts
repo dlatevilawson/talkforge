@@ -188,7 +188,7 @@ export function useArenaVoice({
           }
 
           const rising =
-            nextLevel >= Math.max(0.2, echoFloorRef.current * 2.4);
+            nextLevel >= Math.max(0.22, echoFloorRef.current * 2.6);
           if (rising) {
             bargeSustainMsRef.current += dt;
           } else {

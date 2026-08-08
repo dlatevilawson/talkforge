@@ -364,8 +364,33 @@ export function cancelForgeResponse(
     connection.dc.send(JSON.stringify({ type: "response.cancel" }));
     console.info("[handsfree]", {
       action: "response.cancel",
-      reason: "confirmed_user_barge_in",
+      reason: "natural_yield_confirmed_barge_in",
     });
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Immediately duck Forge playback so yield feels conversational (not an error). */
+export function duckRemoteForgeAudio(
+  connection: RealtimeConnection | null
+): void {
+  if (!connection) return;
+  try {
+    connection.remoteAudio.muted = true;
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Unduck Forge playback when Forge legitimately owns the floor again. */
+export function unduckRemoteForgeAudio(
+  connection: RealtimeConnection | null
+): void {
+  if (!connection) return;
+  try {
+    connection.remoteAudio.muted = false;
+    void connection.remoteAudio.play().catch(() => undefined);
   } catch {
     /* ignore */
   }
