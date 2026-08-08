@@ -147,9 +147,33 @@ export default function VoiceArena({
   const turnStateRef = useRef<TurnState>("listening");
   const activeResponseIdRef = useRef<string | null>(null);
   const pendingBudgetRef = useRef<number | null>(null);
+  const hitchClearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [turnState, setTurnState] = useState<TurnState>("listening");
 
+  const HITCH_ERROR =
+    "Coach Forge hit a brief connection hitch. Keep speaking when you’re ready.";
+
   const showDevDiagnostics = process.env.NODE_ENV === "development";
+
+  function clearHitchTimer() {
+    if (hitchClearTimerRef.current != null) {
+      clearTimeout(hitchClearTimerRef.current);
+      hitchClearTimerRef.current = null;
+    }
+  }
+
+  /** Show hitch copy, then auto-clear after ~3s if the peer is still stable. */
+  function showTransientHitch() {
+    setError(HITCH_ERROR);
+    clearHitchTimer();
+    hitchClearTimerRef.current = setTimeout(() => {
+      hitchClearTimerRef.current = null;
+      const peer = connectionRef.current?.pc.connectionState;
+      if (peer === "connected" || peer === "connecting") {
+        setError((current) => (current === HITCH_ERROR ? "" : current));
+      }
+    }, 3000);
+  }
 
   const sessionActive =
     micMode === "microphone" &&
@@ -222,6 +246,7 @@ export default function VoiceArena({
     return () => {
       mountedRef.current = false;
       lifecycleGenerationRef.current += 1;
+      clearHitchTimer();
       const usageId = usageIdRef.current;
       usageIdRef.current = null;
       if (usageId) {
@@ -432,9 +457,7 @@ export default function VoiceArena({
         // response.cancel / interrupt noise — do not scare the member.
         return;
       }
-      setError(
-        "Coach Forge hit a brief connection hitch. Keep speaking when you’re ready."
-      );
+      showTransientHitch();
       setPhase((current) =>
         current === "error" || current === "momentum" || current === "idle"
           ? current
@@ -471,6 +494,7 @@ export default function VoiceArena({
     }
     lifecycleGenerationRef.current += 1;
 
+    clearHitchTimer();
     setError("");
     setMicMode(null);
     setMicFallbackReason(null);
@@ -596,10 +620,24 @@ export default function VoiceArena({
         onConnectionState: (state) => {
           pushEvent(`Peer: ${state}`);
           if (state === "failed") {
+            clearHitchTimer();
             setError(
               "The Training Room lost its connection. Restart when you’re ready."
             );
             setPhase("error");
+            return;
+          }
+          // Stable peer again — drop transient hitch copy after a short settle.
+          if (state === "connected") {
+            clearHitchTimer();
+            hitchClearTimerRef.current = setTimeout(() => {
+              hitchClearTimerRef.current = null;
+              if (connectionRef.current?.pc.connectionState === "connected") {
+                setError((current) =>
+                  current === HITCH_ERROR ? "" : current
+                );
+              }
+            }, 3000);
           }
         },
         onServerEvent: handleServerEvent,

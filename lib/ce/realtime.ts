@@ -199,6 +199,7 @@ async function requestMicrophoneStream(): Promise<MediaStream> {
     audio: {
       echoCancellation: true,
       noiseSuppression: true,
+      autoGainControl: true,
     },
   });
 }
