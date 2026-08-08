@@ -10,7 +10,10 @@ import {
   getProgressSummary,
   getUser,
 } from "@/lib/storage";
-import { formatPracticeHours } from "@/lib/system2/practice-history-display";
+import {
+  formatDuration,
+  formatPracticeHours,
+} from "@/lib/system2/practice-history-display";
 import type { GrowthSummary, ProgressSummary } from "@/lib/types";
 
 function sessionsThisWeek(
@@ -25,21 +28,37 @@ function sessionsThisWeek(
   }, 0);
 }
 
+/** Avg filler words → executive Hesitation Index (never a bare “0”). */
+function hesitationIndex(avg?: number | null): string {
+  if (avg == null || !Number.isFinite(avg) || avg <= 0) return "Clean";
+  if (avg < 2) return "Low";
+  if (avg < 5) return "Moderate";
+  return "Elevated";
+}
+
 function StatCard({
   label,
   value,
   trend,
+  accent = false,
 }: {
   label: string;
   value: string;
   trend: string;
+  accent?: boolean;
 }) {
   return (
     <div className="rounded-2xl border border-neutral-800 bg-neutral-900/50 p-4 sm:p-5">
       <p className="text-[0.68rem] font-medium uppercase tracking-[0.14em] text-neutral-500">
         {label}
       </p>
-      <p className="mt-2 text-2xl font-semibold tracking-tight text-white tabular-nums">
+      <p
+        className={`mt-2 text-2xl font-semibold tracking-tight tabular-nums ${
+          accent
+            ? "text-[#e0c07a] [text-shadow:0_0_24px_rgba(224,192,122,0.35)]"
+            : "text-white"
+        }`}
+      >
         {value}
       </p>
       <p className="mt-1.5 text-xs text-neutral-500">{trend}</p>
@@ -179,7 +198,7 @@ export default function ProgressPage() {
         </div>
       ) : (
         <>
-          <section className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+          <section className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
             <StatCard
               label="Practice Reps"
               value={String(completedSessions)}
@@ -196,6 +215,7 @@ export default function ProgressPage() {
             />
             <StatCard
               label="Peak Presence Score"
+              accent
               value={
                 growth?.bestScore || progress.averageScore
                   ? String(growth?.bestScore || progress.averageScore)
@@ -210,20 +230,32 @@ export default function ProgressPage() {
               }`}
               trend="Active Practice"
             />
+            <StatCard
+              label="Hesitation Index"
+              value={hesitationIndex(growth?.averageFillerWords)}
+              trend="Filler & pause load"
+            />
+            <StatCard
+              label="Max Hold Time"
+              value={
+                formatDuration(growth?.longestConversationSeconds) ?? "—"
+              }
+              trend="Longest continuous rep"
+            />
           </section>
 
           <section className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-5 backdrop-blur-md sm:p-6">
             <div className="mb-4 flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-xs font-semibold uppercase tracking-widest text-[#c9a95f]">
-                  Voice of Your Growth
+                  Presence Trajectory
                 </h2>
                 <p className="mt-1 text-lg font-medium text-white">
-                  30-Day Signal Trajectory
+                  30-Day Composite Performance Trajectory
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-2xl font-bold tabular-nums text-[#e0c07a]">
+                <span className="text-2xl font-bold tabular-nums text-[#e0c07a] [text-shadow:0_0_24px_rgba(224,192,122,0.35)]">
                   {composite && composite > 0 ? composite : "—"}
                 </span>
                 <span className="block text-xs text-neutral-400">
@@ -239,7 +271,8 @@ export default function ProgressPage() {
               Core Communication Vectors
             </h3>
             <p className="mb-6 text-xs text-neutral-400">
-              Behavioral signal scores derived from your live audio reps.
+              Behavioral signal metrics derived from your live audio practice
+              reps.
             </p>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <SkillProgressRow
