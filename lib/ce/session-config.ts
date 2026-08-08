@@ -85,12 +85,20 @@ export function buildSystemInstructions(input?: {
     "- Sound like a world-class coach — never a questionnaire or scripted bot.",
   ].join("\n");
 
+  const acousticRule = [
+    "ACOUSTIC RULES (hands-free):",
+    "- Respond only to clear articulated member speech — not continuous ambient hum, fans, keyboard clicks, or room noise.",
+    "- Coughs, throat clears, and brief non-words are not turns. Wait for real language.",
+    "- Members pause while thinking. Prefer waiting over jumping in.",
+  ].join("\n");
+
   return [
     "You are Forge, the practice mentor inside TalkForge — a communication gym.",
     "Primary role: mentor who understands first. Secondary: brief realistic practice partner when invited.",
     "First principle: Understand before you coach.",
     BREVITY_SYSTEM_INSTRUCTION,
     input?.conciseMode ? CONCISE_MODE_INSTRUCTION : "",
+    acousticRule,
     FORGE_MENTOR_PHILOSOPHY,
     "Human Dignity Standard (AMD-001): every turn should leave them more respected and more capable.",
     "Never diagnose identity (do not label them anxious, weak, or 'not a communicator').",
@@ -120,15 +128,15 @@ export function buildClientSecretRequest(input?: {
   conciseMode?: boolean;
   turnKind?: VoiceTurnKind;
 }) {
-  // Pro: keep semantic_vad + low eagerness (natural hands-free / thinking pauses).
-  // Do NOT switch Pro to raw server_vad — ambient TV speech still fools energy gates;
-  // outbound stays muted until local intentional-speech confirm.
-  // Free: server_vad with raised threshold for hold-to-talk.
+  // Pro: semantic_vad + low eagerness. interrupt_response OFF — client yields
+  // only on talk-over confirmed against remote playback (HTMLAudioElement echo
+  // is not cancelled by getUserMedia AEC on iPhone speakerphone).
+  // Free: server_vad hold-to-talk.
   const turnDetection = input?.handsFree
     ? {
         type: "semantic_vad" as const,
         create_response: true,
-        interrupt_response: true,
+        interrupt_response: false,
         eagerness: "low" as const,
       }
     : {

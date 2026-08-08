@@ -47,6 +47,7 @@ import {
   isForgeOutputEventType,
   logTurnTransition,
   memberOwnsFloor,
+  outboundMicOpenForState,
   reduceTurnState,
   shouldSurfaceRealtimeError,
   type TurnState,
@@ -198,14 +199,15 @@ export default function VoiceArena({
     }
 
     if (isProUserRef.current && connectionRef.current) {
-      if (transition.openOutboundMic) {
+      // Belt-and-suspenders: never open outbound unless the destination state
+      // actually grants member floor (Listening stays muted).
+      const wantOutbound =
+        transition.openOutboundMic && outboundMicOpenForState(transition.to);
+      if (wantOutbound) {
         // Start clean — do not flush ambient that never should have been sent.
         clearInputAudioBuffer(connectionRef.current);
       }
-      setOutboundMicrophoneEnabled(
-        connectionRef.current,
-        transition.openOutboundMic
-      );
+      setOutboundMicrophoneEnabled(connectionRef.current, wantOutbound);
     }
 
     if (
@@ -644,7 +646,7 @@ export default function VoiceArena({
 
       connectionRef.current = connection;
       setLiveConnection(connection);
-      pushEvent("Voice build · floor-v3");
+      pushEvent("Voice build · floor-v4-echo-ref");
 
       if (!connection.usedSilentMicFallback) {
         // Start muted; Free uses hold-to-talk, Pro hands-free opens on listening.

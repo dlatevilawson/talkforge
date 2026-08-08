@@ -384,23 +384,31 @@ export function reduceTurnState(
         event: event.type,
         reason: "forge_finished_wait_for_new_member_utterance",
         cancelForge: false,
-        openOutboundMic: true,
+        // Listening stays outbound-muted until local intentional speech.
+        // Opening here let ambient hit server VAD → false create_response loops.
+        openOutboundMic: false,
         ignoreServerSpeechAsBargeIn: true,
       };
     }
 
     case "CONFIRMED_BARGE_IN": {
+      // forge_speaking: talk-over vs remote playback reference.
+      // forge_thinking: intentional speech may cancel a pending response
+      // (no remote audio yet — caller must use intentional-speech gate, not echo).
       if (state !== "forge_speaking" && state !== "forge_thinking") {
-        return hold(state, event.type, "barge_in_ignored_forge_not_speaking");
+        return hold(state, event.type, "barge_in_ignored_forge_not_owning_floor");
       }
       const to: TurnState = "interrupted";
       return {
         ...base,
         to,
         event: event.type,
-        reason: `natural_yield_confirmed_barge_in_level_${event.level.toFixed(2)}`,
+        reason:
+          state === "forge_thinking"
+            ? `pending_response_yield_intentional_speech_level_${event.level.toFixed(2)}`
+            : `natural_yield_talkover_barge_in_level_${event.level.toFixed(2)}`,
         cancelForge: true,
-        duckForgeAudio: true,
+        duckForgeAudio: state === "forge_speaking",
         openOutboundMic: true,
         ignoreServerSpeechAsBargeIn: false,
       };
