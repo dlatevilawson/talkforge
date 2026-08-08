@@ -84,9 +84,12 @@ export async function connectRealtime(
   );
   // Clone outbound tracks so we can mute OpenAI input while keeping localStream
   // live for echo-aware barge-in detection (speaker bleed must not hit server VAD).
+  // Start muted — hold-to-talk / floor ownership opens the mic deliberately.
   const outboundAudioTracks: MediaStreamTrack[] = [];
   for (const track of localStream.getTracks()) {
+    track.enabled = false;
     const outbound = track.clone();
+    outbound.enabled = false;
     outboundAudioTracks.push(outbound);
     pc.addTrack(outbound, localStream);
   }

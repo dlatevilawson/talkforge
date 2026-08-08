@@ -234,11 +234,17 @@ export default function VoiceArena({
     return transition;
   }
 
+  const forgeLive =
+    phase === "speaking" ||
+    turnState === "forge_speaking" ||
+    turnState === "forge_thinking";
+
   const voice = useArenaVoice({
     voiceMode,
     connection: liveConnection,
     sessionActive,
     turnState,
+    forgeLive,
     onConfirmedBargeIn: (level) => {
       if (!handsFreeRef.current) return;
       applyTurn({ type: "CONFIRMED_BARGE_IN", level });
@@ -383,6 +389,13 @@ export default function VoiceArena({
       isForgeOutputEventType(type) &&
       Date.now() >= ignoreForgeAudioUntilRef.current
     ) {
+      // Hold-to-talk: mute immediately so speaker echo cannot cut Forge off.
+      if (!handsFreeRef.current) {
+        voiceRef.current.onForgeStarted();
+        setMicrophoneEnabled(connectionRef.current, false);
+        setOutboundMicrophoneEnabled(connectionRef.current, false);
+        clearInputAudioBuffer(connectionRef.current);
+      }
       setPhase((current) =>
         current === "connecting" ||
         current === "speaking" ||
@@ -411,6 +424,14 @@ export default function VoiceArena({
         ) {
           pushEvent(`Turn hold · duplicate_response_created_${responseId}`);
         } else {
+          // Mute before any further turn work — Forge owns the floor now.
+          if (!handsFreeRef.current) {
+            voiceRef.current.onForgeStarted();
+            setMicrophoneEnabled(connectionRef.current, false);
+            setOutboundMicrophoneEnabled(connectionRef.current, false);
+            clearInputAudioBuffer(connectionRef.current);
+            pushEvent("Mic muted · Forge speaking");
+          }
           applyTurn(
             { type: "FORGE_RESPONSE_CREATED", responseId },
             { responseId }
@@ -455,6 +476,19 @@ export default function VoiceArena({
     }
 
     if (type === "input_audio_buffer.speech_started") {
+      // Hold mode: any speech_started while Forge is live is echo — remute.
+      if (
+        !handsFreeRef.current &&
+        (phaseRef.current === "speaking" ||
+          turnStateRef.current === "forge_speaking" ||
+          turnStateRef.current === "forge_thinking")
+      ) {
+        setMicrophoneEnabled(connectionRef.current, false);
+        setOutboundMicrophoneEnabled(connectionRef.current, false);
+        clearInputAudioBuffer(connectionRef.current);
+        pushEvent("Ignored speech_started · mic muted while Forge speaks");
+        return;
+      }
       // CRITICAL: never response.cancel from bare server VAD — phone echo
       // falsely fires this while Forge TTS plays over the speaker.
       const transition = applyTurn({
@@ -473,6 +507,19 @@ export default function VoiceArena({
     }
 
     if (type === "input_audio_buffer.speech_stopped") {
+      // Hold mode: do not advance floor ownership from server VAD during Forge.
+      if (
+        !handsFreeRef.current &&
+        (phaseRef.current === "speaking" ||
+          turnStateRef.current === "forge_speaking" ||
+          turnStateRef.current === "forge_thinking")
+      ) {
+        setMicrophoneEnabled(connectionRef.current, false);
+        setOutboundMicrophoneEnabled(connectionRef.current, false);
+        clearInputAudioBuffer(connectionRef.current);
+        pushEvent("Ignored speech_stopped · Forge still owns the floor");
+        return;
+      }
       applyTurn({ type: "USER_SPEECH_STOPPED", source: "server_vad" });
       voiceRef.current.onUserSpeechStopped();
     }
@@ -657,7 +704,7 @@ export default function VoiceArena({
 
       connectionRef.current = connection;
       setLiveConnection(connection);
-      pushEvent(`Voice build · hold-reset · mode=${sessionVoiceMode}`);
+      pushEvent(`Voice build · hold-mute-v1 · mode=${sessionVoiceMode}`);
 
       if (!connection.usedSilentMicFallback) {
         // Start muted; hold-to-talk opens only while the button is pressed.
@@ -766,6 +813,15 @@ export default function VoiceArena({
   }
 
   function handleSpeakDown() {
+    // Forge talks uninterrupted until he finishes — then hold opens the mic.
+    if (
+      phase === "speaking" ||
+      turnStateRef.current === "forge_speaking" ||
+      turnStateRef.current === "forge_thinking"
+    ) {
+      pushEvent("Hold ignored · Forge still speaking");
+      return;
+    }
     voice.startHoldToTalk();
     if (phase === "connected" || phase === "listening") {
       setPhase("listening");

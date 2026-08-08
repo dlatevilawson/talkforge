@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  clearInputAudioBuffer,
   setMicrophoneEnabled,
   setOutboundMicrophoneEnabled,
   type RealtimeConnection,
@@ -32,6 +33,11 @@ type Options = {
   connection: RealtimeConnection | null;
   sessionActive: boolean;
   turnState: TurnState;
+  /**
+   * True while Forge is thinking or speaking (phase or turn FSM).
+   * Hold mode keeps the mic hard-muted for the entire Forge turn.
+   */
+  forgeLive: boolean;
   /** Forge speaking → talk-over confirmed against remote playback. */
   onConfirmedBargeIn?: (level: number) => void;
   /** Listening → confirmed intentional user turn (opens outbound). */
@@ -41,7 +47,7 @@ type Options = {
 /**
  * Dual-engine mic logic for Live Arena.
  *
- * Hold mode: press-and-hold opens mic (stable baseline for all plans).
+ * Hold mode: mic opens only while the button is held AND Forge is not live.
  * Hands-free mode: gated off until echo-reference yield is device-certified.
  */
 export function useArenaVoice({
@@ -49,6 +55,7 @@ export function useArenaVoice({
   connection,
   sessionActive,
   turnState,
+  forgeLive,
   onConfirmedBargeIn,
   onConfirmedUserTurn,
 }: Options) {
@@ -80,11 +87,27 @@ export function useArenaVoice({
   onUserTurnRef.current = onConfirmedUserTurn;
   const connectionRef = useRef(connection);
   connectionRef.current = connection;
+  const forgeLiveRef = useRef(forgeLive);
+  forgeLiveRef.current = forgeLive;
 
   const mode: ArenaVoiceMode = voiceMode;
   const forgeOwnsFloor =
-    turnState === "forge_speaking" || turnState === "forge_thinking";
+    forgeLive ||
+    turnState === "forge_speaking" ||
+    turnState === "forge_thinking";
   const outboundOpen = outboundMicOpenForState(turnState);
+
+  function hardMuteMic(conn: RealtimeConnection | null) {
+    if (!conn || conn.usedSilentMicFallback) return;
+    holdingRef.current = false;
+    setMicrophoneEnabled(conn, false);
+    setOutboundMicrophoneEnabled(conn, false);
+    clearInputAudioBuffer(conn);
+    setMicLive(false);
+    setUserSpeaking(false);
+    setLevel(0);
+    stopAnalyser();
+  }
 
   useEffect(() => {
     if (!connection || connection.usedSilentMicFallback || !sessionActive) {
@@ -113,7 +136,14 @@ export function useArenaVoice({
       return;
     }
 
-    const wantOpen = !forgeOwnsFloor && holdingRef.current;
+    // Hold-to-talk: mic is open ONLY while the button is held and Forge is idle.
+    // Forge talking/thinking → hard mute so echo cannot create_response / cut him off.
+    if (forgeOwnsFloor) {
+      hardMuteMic(connection);
+      return;
+    }
+
+    const wantOpen = holdingRef.current;
     setMicrophoneEnabled(connection, wantOpen);
     setMicLive(wantOpen);
     if (wantOpen) {
@@ -130,6 +160,7 @@ export function useArenaVoice({
     mode,
     handsFreeMuted,
     forgeOwnsFloor,
+    forgeLive,
     outboundOpen,
   ]);
 
@@ -367,7 +398,8 @@ export function useArenaVoice({
     if (mode !== "hold" || !connection || connection.usedSilentMicFallback) {
       return;
     }
-    if (forgeOwnsFloor || !sessionActive) return;
+    // Never open the mic while Forge is live — no interruption path.
+    if (forgeLiveRef.current || forgeOwnsFloor || !sessionActive) return;
     holdingRef.current = true;
     setMicrophoneEnabled(connection, true);
     setMicLive(true);
@@ -380,6 +412,7 @@ export function useArenaVoice({
     }
     holdingRef.current = false;
     setMicrophoneEnabled(connection, false);
+    setOutboundMicrophoneEnabled(connection, false);
     setMicLive(false);
     stopAnalyser();
     setUserSpeaking(false);
@@ -392,14 +425,23 @@ export function useArenaVoice({
   }
 
   function onForgeStarted() {
-    if (mode !== "handsfree") return;
+    // Hold mode: immediately silence mic + clear any buffered ambient so
+    // server VAD cannot spawn a competing response mid-utterance.
+    if (mode === "hold") {
+      hardMuteMic(connectionRef.current);
+      return;
+    }
     setHandsFreeState((s) =>
       reduceHandsFreeState(s, { type: "FORGE_RESPONSE_STARTED" })
     );
   }
 
   function onForgeDone() {
-    if (mode !== "handsfree") return;
+    if (mode === "hold") {
+      // Stay muted until the member presses Hold to speak again.
+      hardMuteMic(connectionRef.current);
+      return;
+    }
     setHandsFreeState((s) =>
       reduceHandsFreeState(s, { type: "FORGE_RESPONSE_DONE" })
     );
