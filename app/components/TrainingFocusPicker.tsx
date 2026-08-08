@@ -21,16 +21,16 @@ type Props = {
 export default function TrainingFocusPicker({
   selectedId,
   onSelect,
-  eyebrow = "Optional",
-  title = "What conversation are you preparing for?",
-  subtitle = "Pick the moment that keeps you up at night — or skip and begin with Forge.",
+  eyebrow,
+  title = "Select an Active Focus Scenario",
+  subtitle,
 }: Props) {
   return (
     <div className={styles.shell}>
       <header className={styles.header}>
-        <p className={styles.eyebrow}>{eyebrow}</p>
-        <h1 className={styles.title}>{title}</h1>
-        <p className={styles.subtitle}>{subtitle}</p>
+        {eyebrow ? <p className={styles.eyebrow}>{eyebrow}</p> : null}
+        <h2 className={styles.title}>{title}</h2>
+        {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}
       </header>
 
       <ul className={styles.grid} role="list">
@@ -43,7 +43,7 @@ export default function TrainingFocusPicker({
                 className={`${styles.card} ${selected ? styles.cardSelected : ""}`}
                 data-accent={option.accent}
                 aria-pressed={selected}
-                aria-label={`${option.title}. ${option.blurb}`}
+                aria-label={`${option.title}. ${option.blurb}${selected ? ". Selected." : ""}`}
                 onClick={() => onSelect(option)}
               >
                 <div className={styles.cardTop}>
@@ -56,9 +56,9 @@ export default function TrainingFocusPicker({
                 </div>
                 <p className={styles.machineTitle}>{option.title}</p>
                 <p className={styles.blurb}>{option.blurb}</p>
-                <span className={styles.pill}>
-                  {selected ? "Selected" : "Prepare"}
-                </span>
+                {selected ? (
+                  <span className={styles.selectedMark}>Selected</span>
+                ) : null}
               </button>
             </li>
           );

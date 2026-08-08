@@ -38,50 +38,45 @@ function formatSessionWhen(value: string): string {
   });
 }
 
-/** Compact card label + mark for mobile session grids. */
-function sessionCardVisual(session: PracticeSession): {
-  mark: string;
-  label: string;
-} {
-  const title = session.scenarioTitle.trim() || "Practice";
-  const lower = title.toLowerCase();
-  if (session.modality === "voice" || lower.includes("voice")) {
-    return { mark: "🎙️", label: shortSessionLabel(title, "Voice practice") };
-  }
-  if (lower.includes("executive") || lower.includes("update")) {
-    return { mark: "🎯", label: shortSessionLabel(title, "Executive") };
-  }
-  if (lower.includes("boundary") || lower.includes("saying no")) {
-    return { mark: "🛡️", label: shortSessionLabel(title, "Boundaries") };
-  }
-  if (lower.includes("empathy") || lower.includes("emotional")) {
-    return { mark: "🤝", label: shortSessionLabel(title, "Empathy") };
-  }
-  if (lower.includes("negotiat") || lower.includes("objection")) {
-    return { mark: "⚖️", label: shortSessionLabel(title, "Negotiation") };
-  }
-  if (lower.includes("interrupt")) {
-    return { mark: "🔁", label: shortSessionLabel(title, "Interruptions") };
-  }
-  if (lower.includes("conflict") || lower.includes("pressure")) {
-    return { mark: "🔥", label: shortSessionLabel(title, "Conflict") };
-  }
-  if (lower.includes("phone") || lower.includes("call")) {
-    return { mark: "📞", label: shortSessionLabel(title, "Phone") };
-  }
-  if (lower.includes("bring") || lower.includes("forge")) {
-    return { mark: "✨", label: shortSessionLabel(title, "With Forge") };
-  }
-  if (lower.includes("showed up") || lower.includes("practice")) {
-    return { mark: "💪", label: shortSessionLabel(title, "Practice") };
-  }
-  return { mark: "💬", label: shortSessionLabel(title, "Conversation") };
+function formatDuration(seconds?: number | null): string | null {
+  if (seconds == null || !Number.isFinite(seconds) || seconds <= 0) return null;
+  const total = Math.round(seconds);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  if (m <= 0) return `${s}s`;
+  return `${m}m ${String(s).padStart(2, "0")}s`;
 }
 
-function shortSessionLabel(title: string, fallback: string): string {
-  const clean = title.replace(/\s+/g, " ").trim();
-  if (clean.length <= 28) return clean;
-  return fallback;
+function poiseLabel(score?: number | null): string | null {
+  if (typeof score !== "number" || !Number.isFinite(score)) return null;
+  if (score >= 80) return "Poise: High";
+  if (score >= 60) return "Poise: Steady";
+  return "Poise: Building";
+}
+
+/** Prefer real scenario titles; rename generic voice defaults. */
+function sessionDisplayTitle(session: PracticeSession): string {
+  const title = session.scenarioTitle?.replace(/\s+/g, " ").trim() || "";
+  const lower = title.toLowerCase();
+  if (
+    !title ||
+    lower === "voice practice with forge" ||
+    lower === "practice" ||
+    lower === "hello" ||
+    lower.startsWith("voice practice")
+  ) {
+    return session.modality === "voice"
+      ? "Open Rehearsal"
+      : "Unstructured Practice Rep";
+  }
+  if (
+    lower.includes("what brings you") ||
+    lower.includes("something on my mind") ||
+    lower === "custom scenario"
+  ) {
+    return "Custom Scenario";
+  }
+  return title;
 }
 
 function matchFocusOption(purpose: string): TrainingFocusOption | null {
@@ -109,6 +104,7 @@ export default function ProfilePage() {
   const [tableReady, setTableReady] = useState(true);
   const [progress, setProgress] = useState<ProgressSummary | null>(null);
   const [sessions, setSessions] = useState<PracticeSession[]>([]);
+  const [longestSessionSeconds, setLongestSessionSeconds] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -136,6 +132,7 @@ export default function ProfilePage() {
             setLiving(null);
             setProgress(null);
             setSessions([]);
+            setLongestSessionSeconds(0);
             setError(
               current?.isGuest
                 ? "Guest identity is no longer active. Please sign in again."
@@ -162,6 +159,12 @@ export default function ProfilePage() {
         setUser(current);
         setProgress(summary);
         setSessions(history.slice(0, 10));
+        let longest = 0;
+        for (const session of history) {
+          const d = session.durationSeconds;
+          if (typeof d === "number" && d > longest) longest = d;
+        }
+        setLongestSessionSeconds(longest);
         setTableReady(lpRes.tableReady !== false);
         const profile = lpRes.profile ?? null;
         setLiving(profile);
@@ -327,16 +330,16 @@ export default function ProfilePage() {
 
   return (
     <>
-      <section className="max-w-3xl">
-        <p className="text-sm uppercase tracking-[0.24em] text-zinc-500">
+      <section className="max-w-3xl scroll-mt-28">
+        <p className="text-sm uppercase tracking-[0.24em] text-[#c9a95f]">
           Living Profile
         </p>
-        <h1 className="mt-3 text-3xl font-semibold">
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight">
           What conversation are you preparing for?
         </h1>
         <p className="mt-3 text-sm leading-6 text-zinc-400">
-          Choose the moment that matters — optional, changeable anytime. Your
-          Coach uses this to prepare you, not to judge you.
+          Select your current focus. Forge uses this to tailor your
+          scenarios—changeable anytime.
         </p>
         {!tableReady && (
           <p className="mt-3 text-sm text-amber-200/90">
@@ -356,17 +359,15 @@ export default function ProfilePage() {
       ) : isAuthenticatedMember ? (
         <>
           <form onSubmit={handleSave} className="mt-8 space-y-8">
-            <div id="goal" className="scroll-mt-24">
+            <div id="goal" className="scroll-mt-28">
               <TrainingFocusPicker
                 selectedId={selectedFocusId}
                 onSelect={applyFocus}
-                eyebrow="Optional"
-                title="What keeps you up at 2 AM?"
-                subtitle="One tap. No forms. You can still Begin from Home without picking."
+                title="Select an Active Focus Scenario"
               />
               {selectedFocusId ? (
                 <p className="mt-3 text-sm text-[#c9a95f]">
-                  Selected:{" "}
+                  Active focus:{" "}
                   {
                     TRAINING_FOCUS_OPTIONS.find((o) => o.id === selectedFocusId)
                       ?.title
@@ -374,32 +375,42 @@ export default function ProfilePage() {
                 </p>
               ) : (
                 <p className={pickerStyles.hint}>
-                  No focus selected yet — that’s fine.
+                  No active focus yet — you can still Begin from Home.
                 </p>
               )}
             </div>
 
-            <div className="max-w-xl space-y-5 rounded-3xl border border-white/10 bg-white/5 p-6">
-              <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-zinc-300">
-                <p>
-                  <span className="text-zinc-500">Email</span>
-                  <br />
-                  <span className="text-white">{user?.email || "—"}</span>
-                </p>
-                <p className="mt-3">
-                  <span className="text-zinc-500">Member since</span>
-                  <br />
-                  <span className="text-white">
-                    {formatMemberSince(user?.createdAt)}
-                  </span>
-                </p>
-                <p className="mt-3">
-                  <span className="text-zinc-500">Sessions completed</span>
-                  <br />
-                  <span className="text-white">
-                    {progress?.sessionsCompleted ?? 0}
-                  </span>
-                </p>
+            <div className="max-w-xl space-y-5 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+              <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[#c9a95f]">
+                  Member Presence Profile
+                </h3>
+                <div className="mt-4 grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-neutral-400">Total Practice Reps</p>
+                    <p className="mt-1 text-xl font-bold text-white">
+                      {progress?.sessionsCompleted ?? 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-neutral-400">Pressure Duration</p>
+                    <p className="mt-1 text-xl font-bold text-white">
+                      {formatDuration(longestSessionSeconds) ?? "—"}
+                    </p>
+                  </div>
+                </div>
+                <dl className="mt-5 grid gap-3 border-t border-white/10 pt-4 text-sm text-zinc-300 sm:grid-cols-2">
+                  <div>
+                    <dt className="text-xs text-neutral-500">Email</dt>
+                    <dd className="mt-1 text-white">{user?.email || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs text-neutral-500">Member since</dt>
+                    <dd className="mt-1 text-white">
+                      {formatMemberSince(user?.createdAt)}
+                    </dd>
+                  </div>
+                </dl>
               </div>
 
               <label className="block" htmlFor="lp-display-name">
@@ -500,27 +511,55 @@ export default function ProfilePage() {
             ) : (
               <ul className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {sessions.map((session) => {
-                  const visual = sessionCardVisual(session);
+                  const title = sessionDisplayTitle(session);
+                  const duration = formatDuration(session.durationSeconds);
+                  const poise = poiseLabel(session.averageScore);
                   return (
                     <li key={session.id}>
                       <Link
                         href="/app/dashboard"
-                        className="flex aspect-square flex-col justify-between rounded-[1.35rem] border border-white/10 bg-gradient-to-b from-white/[0.07] to-white/[0.02] p-4 transition hover:border-white/20 hover:bg-white/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c9a95f]"
+                        className="group relative flex aspect-square flex-col justify-between rounded-[1.35rem] border border-white/10 bg-gradient-to-b from-white/[0.07] to-white/[0.02] p-4 transition hover:border-white/20 hover:bg-white/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c9a95f]"
                       >
-                        <span
-                          className="grid h-11 w-11 place-items-center rounded-2xl bg-white/[0.06] text-2xl leading-none"
-                          aria-hidden
-                        >
-                          {visual.mark}
+                        <span className="flex items-start justify-between gap-2">
+                          <span className="rounded-full border border-white/10 bg-white/[0.05] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-zinc-400">
+                            {session.modality === "voice" ? "Voice" : "Text"}
+                          </span>
+                          <span
+                            className="grid h-7 w-7 place-items-center rounded-full bg-white/90 text-black transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                            aria-hidden
+                          >
+                            <svg viewBox="0 0 20 20" className="h-3 w-3">
+                              <path
+                                d="M5 15 15 5M8 5h7v7"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="1.8"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </span>
                         </span>
                         <span>
-                          <span className="line-clamp-2 text-[0.95rem] font-semibold leading-snug tracking-tight text-white">
-                            {visual.label}
+                          <span className="line-clamp-3 text-[0.92rem] font-semibold leading-snug tracking-tight text-white">
+                            {title}
                           </span>
-                          <span className="mt-1.5 block text-xs text-zinc-500">
-                            {formatSessionWhen(
-                              session.completedAt ?? session.startedAt
-                            )}
+                          <span className="mt-2 flex flex-wrap items-center gap-1.5">
+                            {duration ? (
+                              <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-[#e0c07a]">
+                                {duration}
+                              </span>
+                            ) : null}
+                            {poise ? (
+                              <span className="rounded-full border border-white/10 bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-zinc-300">
+                                {poise}
+                              </span>
+                            ) : null}
+                            <span className="text-xs text-zinc-500">
+                              {formatSessionWhen(
+                                session.completedAt ?? session.startedAt
+                              )}
+                            </span>
                           </span>
                         </span>
                       </Link>
