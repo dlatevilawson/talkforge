@@ -705,7 +705,9 @@ export default function VoiceArena({
 
       connectionRef.current = connection;
       setLiveConnection(connection);
-      pushEvent(`Voice build · hold-mute-v2-tokens · mode=${sessionVoiceMode}`);
+      pushEvent(
+        `Voice build · audio-token-v1 · mode=${sessionVoiceMode}`
+      );
 
       if (!connection.usedSilentMicFallback) {
         // Start muted; hold-to-talk opens only while the button is pressed.
