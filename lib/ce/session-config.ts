@@ -120,12 +120,15 @@ export function buildClientSecretRequest(input?: {
   conciseMode?: boolean;
   turnKind?: VoiceTurnKind;
 }) {
+  // Pro: keep semantic_vad + low eagerness (natural hands-free / thinking pauses).
+  // Do NOT switch Pro to raw server_vad — ambient TV speech still fools energy gates;
+  // outbound stays muted until local intentional-speech confirm.
+  // Free: server_vad with raised threshold for hold-to-talk.
   const turnDetection = input?.handsFree
     ? {
         type: "semantic_vad" as const,
         create_response: true,
         interrupt_response: true,
-        // Low eagerness: respect thinking pauses; don't jump mid-thought.
         eagerness: "low" as const,
       }
     : {

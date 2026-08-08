@@ -18,6 +18,12 @@ export type RealtimeConnection = {
   pc: RTCPeerConnection;
   dc: RTCDataChannel;
   localStream: MediaStream;
+  /**
+   * Cloned tracks added to the peer connection.
+   * Muting these blocks OpenAI VAD without silencing local barge-in analysis
+   * on `localStream` (critical on iPhone speakerphone echo).
+   */
+  outboundAudioTracks: MediaStreamTrack[];
   remoteAudio: HTMLAudioElement;
   ephemeralKey: string;
   /** True when no physical mic — silent track used so Forge can still speak (CE-M1). */
@@ -76,8 +82,13 @@ export async function connectRealtime(
     usedSilentMicFallback ? "silent_fallback" : "microphone",
     micFallbackReason
   );
+  // Clone outbound tracks so we can mute OpenAI input while keeping localStream
+  // live for echo-aware barge-in detection (speaker bleed must not hit server VAD).
+  const outboundAudioTracks: MediaStreamTrack[] = [];
   for (const track of localStream.getTracks()) {
-    pc.addTrack(track, localStream);
+    const outbound = track.clone();
+    outboundAudioTracks.push(outbound);
+    pc.addTrack(outbound, localStream);
   }
 
   const dc = pc.createDataChannel("oai-events");
@@ -107,7 +118,7 @@ export async function connectRealtime(
 
   if (!sdpResponse.ok) {
     const errText = await sdpResponse.text();
-    cleanupPartial(pc, localStream, remoteAudio);
+    cleanupPartial(pc, localStream, remoteAudio, outboundAudioTracks);
     throw new Error(
       `Realtime SDP exchange failed (${sdpResponse.status}): ${errText.slice(0, 200)}`
     );
@@ -129,6 +140,7 @@ export async function connectRealtime(
     pc,
     dc,
     localStream,
+    outboundAudioTracks,
     remoteAudio,
     ephemeralKey: options.ephemeralKey,
     usedSilentMicFallback,
@@ -176,6 +188,26 @@ async function acquireLocalAudioStream(): Promise<{
   }
 }
 
+/**
+ * Browser DSP before audio enters WebRTC.
+ * Prefer mono + ideal 24kHz (OpenAI Realtime native rate) without exact
+ * constraints that break getUserMedia on iOS Safari.
+ */
+export const ARENA_AUDIO_CONSTRAINTS_ADVANCED: MediaTrackConstraints = {
+  echoCancellation: true,
+  noiseSuppression: true,
+  autoGainControl: true,
+  channelCount: 1,
+  sampleRate: { ideal: 24_000 },
+};
+
+export const ARENA_AUDIO_CONSTRAINTS_BASE: MediaTrackConstraints = {
+  echoCancellation: true,
+  noiseSuppression: true,
+  autoGainControl: true,
+  channelCount: { ideal: 1 },
+};
+
 async function requestMicrophoneStream(): Promise<MediaStream> {
   if (!navigator.mediaDevices?.getUserMedia) {
     throw new DOMException(
@@ -183,12 +215,24 @@ async function requestMicrophoneStream(): Promise<MediaStream> {
       "NotSupportedError"
     );
   }
-  return navigator.mediaDevices.getUserMedia({
-    audio: {
-      echoCancellation: true,
-      noiseSuppression: true,
-    },
-  });
+
+  try {
+    return await navigator.mediaDevices.getUserMedia({
+      audio: ARENA_AUDIO_CONSTRAINTS_ADVANCED,
+    });
+  } catch {
+    /* Advanced constraint unsupported — fall back without hard sampleRate. */
+  }
+
+  try {
+    return await navigator.mediaDevices.getUserMedia({
+      audio: ARENA_AUDIO_CONSTRAINTS_BASE,
+    });
+  } catch {
+    /* Last attempt: boolean audio before acquireLocalAudioStream silent path. */
+  }
+
+  return navigator.mediaDevices.getUserMedia({ audio: true });
 }
 
 export function classifyMicCaptureError(error: unknown): MicFallbackReason {
@@ -252,14 +296,25 @@ export async function recoverMicrophone(
       );
     }
 
-    replacementTrack.enabled = false;
-    await sender.replaceTrack(replacementTrack);
+    // Keep analysis on localStream; send a clone outbound (same echo isolation).
+    const outbound = replacementTrack.clone();
+    outbound.enabled = false;
+    await sender.replaceTrack(outbound);
     if (!isCurrent()) {
+      outbound.stop();
       releaseLocalAudioStream(replacementStream);
       return { recovered: false, reason: connection.micFallbackReason };
     }
+    for (const track of connection.outboundAudioTracks ?? []) {
+      try {
+        track.stop();
+      } catch {
+        /* ignore */
+      }
+    }
     releaseLocalAudioStream(connection.localStream);
     connection.localStream = replacementStream;
+    connection.outboundAudioTracks = [outbound];
     connection.usedSilentMicFallback = false;
     connection.micFallbackReason = null;
     return { recovered: true, reason: null };
@@ -338,6 +393,47 @@ export function cancelForgeResponse(
   if (!connection || connection.dc.readyState !== "open") return;
   try {
     connection.dc.send(JSON.stringify({ type: "response.cancel" }));
+    console.info("[handsfree]", {
+      action: "response.cancel",
+      reason: "natural_yield_confirmed_barge_in",
+    });
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Drop any residual input audio before opening outbound after local confirm. */
+export function clearInputAudioBuffer(
+  connection: RealtimeConnection | null
+): void {
+  if (!connection || connection.dc.readyState !== "open") return;
+  try {
+    connection.dc.send(JSON.stringify({ type: "input_audio_buffer.clear" }));
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Immediately duck Forge playback so yield feels conversational (not an error). */
+export function duckRemoteForgeAudio(
+  connection: RealtimeConnection | null
+): void {
+  if (!connection) return;
+  try {
+    connection.remoteAudio.muted = true;
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Unduck Forge playback when Forge legitimately owns the floor again. */
+export function unduckRemoteForgeAudio(
+  connection: RealtimeConnection | null
+): void {
+  if (!connection) return;
+  try {
+    connection.remoteAudio.muted = false;
+    void connection.remoteAudio.play().catch(() => undefined);
   } catch {
     /* ignore */
   }
@@ -360,13 +456,32 @@ export function applyOutputBudget(
   }
 }
 
-/** Mute/unmute local mic tracks (push-to-talk / hands-free mute). */
+/** Mute/unmute local mic tracks (Free hold-to-talk). */
 export function setMicrophoneEnabled(
   connection: RealtimeConnection | null,
   enabled: boolean
 ): void {
   if (!connection || connection.usedSilentMicFallback) return;
   for (const track of connection.localStream.getAudioTracks()) {
+    track.enabled = enabled;
+  }
+  setOutboundMicrophoneEnabled(connection, enabled);
+}
+
+/**
+ * Mute/unmute only the WebRTC outbound mic (what OpenAI VAD hears).
+ * Leaves `localStream` live for local barge-in energy analysis.
+ */
+export function setOutboundMicrophoneEnabled(
+  connection: RealtimeConnection | null,
+  enabled: boolean
+): void {
+  if (!connection || connection.usedSilentMicFallback) return;
+  const tracks =
+    connection.outboundAudioTracks?.length > 0
+      ? connection.outboundAudioTracks
+      : connection.localStream.getAudioTracks();
+  for (const track of tracks) {
     track.enabled = enabled;
   }
 }
@@ -383,6 +498,13 @@ export function disconnectRealtime(connection: RealtimeConnection | null): void 
   } catch {
     /* ignore */
   }
+  for (const track of connection.outboundAudioTracks ?? []) {
+    try {
+      track.stop();
+    } catch {
+      /* ignore */
+    }
+  }
   releaseLocalAudioStream(connection.localStream);
   connection.remoteAudio.pause();
   connection.remoteAudio.srcObject = null;
@@ -391,12 +513,20 @@ export function disconnectRealtime(connection: RealtimeConnection | null): void 
 function cleanupPartial(
   pc: RTCPeerConnection,
   localStream: MediaStream,
-  remoteAudio: HTMLAudioElement
+  remoteAudio: HTMLAudioElement,
+  outboundAudioTracks: MediaStreamTrack[] = []
 ): void {
   try {
     pc.close();
   } catch {
     /* ignore */
+  }
+  for (const track of outboundAudioTracks) {
+    try {
+      track.stop();
+    } catch {
+      /* ignore */
+    }
   }
   releaseLocalAudioStream(localStream);
   remoteAudio.srcObject = null;

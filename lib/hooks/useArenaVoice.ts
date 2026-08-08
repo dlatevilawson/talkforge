@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   setMicrophoneEnabled,
+  setOutboundMicrophoneEnabled,
   type RealtimeConnection,
 } from "@/lib/ce/realtime";
 import {
@@ -10,36 +11,42 @@ import {
   reduceHandsFreeState,
   type HandsFreeState,
 } from "@/lib/ce/handsfree-fsm";
+import {
+  isConfirmedBargeInLevel,
+  isIntentionalSpeechSignal,
+  levelModulation,
+  outboundMicOpenForState,
+  speechBandRatioFromSpectrum,
+  type TurnState,
+} from "@/lib/ce/handsfree-turntaking";
 
 export type ArenaVoiceMode = "hold" | "handsfree";
 
 type Options = {
   isProUser: boolean;
   connection: RealtimeConnection | null;
-  /** Session is live (past mint/connect). */
   sessionActive: boolean;
-  /** Forge currently producing audio. */
-  forgeSpeaking: boolean;
-  /**
-   * Pro barge-in: keep mic open during Forge speech so interrupt_response can fire.
-   * Free never barge-in.
-   */
-  allowBargeIn: boolean;
+  turnState: TurnState;
+  /** Forge speaking → confirmed intentional barge-in. */
+  onConfirmedBargeIn?: (level: number) => void;
+  /** Listening → confirmed intentional user turn (opens outbound). */
+  onConfirmedUserTurn?: (level: number) => void;
 };
 
 /**
  * Dual-engine mic logic for Live Arena.
- * - Free: Hold-to-Talk (manual enable while pressing) — unchanged cost model.
- * - Pro: Hands-free — mic stays open (including during Forge speech for barge-in).
- *
- * Uses the existing Realtime MediaStream (no second getUserMedia).
+ * - Free: Hold-to-Talk.
+ * - Pro: outbound muted until local intentional-speech confirmation
+ *   (listening) or confirmed barge-in (Forge speaking). Ambient/TV never
+ *   reaches OpenAI VAD.
  */
 export function useArenaVoice({
   isProUser,
   connection,
   sessionActive,
-  forgeSpeaking,
-  allowBargeIn,
+  turnState,
+  onConfirmedBargeIn,
+  onConfirmedUserTurn,
 }: Options) {
   const [micLive, setMicLive] = useState(false);
   const [userSpeaking, setUserSpeaking] = useState(false);
@@ -53,8 +60,25 @@ export function useArenaVoice({
   const audioCtxRef = useRef<AudioContext | null>(null);
   const silenceMsRef = useRef(0);
   const lastTickRef = useRef<number | null>(null);
+  const echoFloorRef = useRef(0.08);
+  const ambientFloorRef = useRef(0.06);
+  const echoSamplesRef = useRef<number[]>([]);
+  const ambientSamplesRef = useRef<number[]>([]);
+  const levelHistoryRef = useRef<number[]>([]);
+  const sustainMsRef = useRef(0);
+  const bargeFiredRef = useRef(false);
+  const userTurnFiredRef = useRef(false);
+  const turnStateRef = useRef(turnState);
+  turnStateRef.current = turnState;
+  const onBargeInRef = useRef(onConfirmedBargeIn);
+  onBargeInRef.current = onConfirmedBargeIn;
+  const onUserTurnRef = useRef(onConfirmedUserTurn);
+  onUserTurnRef.current = onConfirmedUserTurn;
 
   const mode: ArenaVoiceMode = isProUser ? "handsfree" : "hold";
+  const forgeOwnsFloor =
+    turnState === "forge_speaking" || turnState === "forge_thinking";
+  const outboundOpen = outboundMicOpenForState(turnState);
 
   useEffect(() => {
     if (!connection || connection.usedSilentMicFallback || !sessionActive) {
@@ -66,16 +90,27 @@ export function useArenaVoice({
       return;
     }
 
-    // Pro: mic open whenever unmuted (incl. Forge speaking → barge-in).
-    // Free: mic open only while holding and Forge is not speaking.
-    const wantOpen =
-      mode === "handsfree"
-        ? !handsFreeMuted
-        : !forgeSpeaking && holdingRef.current;
+    if (mode === "handsfree") {
+      for (const track of connection.localStream.getAudioTracks()) {
+        track.enabled = !handsFreeMuted;
+      }
+      const wantOutbound = !handsFreeMuted && outboundOpen;
+      setOutboundMicrophoneEnabled(connection, wantOutbound);
+      // Mic "live" for UI when outbound open OR when we're locally monitoring.
+      setMicLive(wantOutbound || (!handsFreeMuted && sessionActive));
+      if (!handsFreeMuted) {
+        startAnalyser(connection.localStream);
+      } else {
+        stopAnalyser();
+        setUserSpeaking(false);
+        setLevel(0);
+      }
+      return;
+    }
 
+    const wantOpen = !forgeOwnsFloor && holdingRef.current;
     setMicrophoneEnabled(connection, wantOpen);
     setMicLive(wantOpen);
-
     if (wantOpen) {
       startAnalyser(connection.localStream);
     } else {
@@ -86,16 +121,34 @@ export function useArenaVoice({
   }, [
     connection,
     sessionActive,
-    forgeSpeaking,
+    turnState,
     mode,
     handsFreeMuted,
-    allowBargeIn,
+    forgeOwnsFloor,
+    outboundOpen,
   ]);
 
   useEffect(() => {
     if (mode !== "handsfree" || !sessionActive) return;
     setHandsFreeState((s) => reduceHandsFreeState(s, { type: "SESSION_READY" }));
   }, [mode, sessionActive]);
+
+  useEffect(() => {
+    if (forgeOwnsFloor) {
+      bargeFiredRef.current = false;
+      sustainMsRef.current = 0;
+      echoSamplesRef.current = [];
+      userTurnFiredRef.current = false;
+    } else if (turnState === "listening") {
+      bargeFiredRef.current = false;
+      userTurnFiredRef.current = false;
+      sustainMsRef.current = 0;
+      ambientSamplesRef.current = [];
+      levelHistoryRef.current = [];
+    } else if (turnState === "user_speaking" || turnState === "interrupted") {
+      userTurnFiredRef.current = true;
+    }
+  }, [forgeOwnsFloor, turnState]);
 
   useEffect(() => {
     return () => {
@@ -111,7 +164,7 @@ export function useArenaVoice({
       const source = ctx.createMediaStreamSource(stream);
       const analyser = ctx.createAnalyser();
       analyser.fftSize = 256;
-      analyser.smoothingTimeConstant = 0.78;
+      analyser.smoothingTimeConstant = 0.72;
       source.connect(analyser);
       audioCtxRef.current = ctx;
       analyserRef.current = analyser;
@@ -133,33 +186,107 @@ export function useArenaVoice({
         const nextLevel = Math.min(1, avg * 2.4);
         setLevel(nextLevel);
 
-        // Higher threshold + hysteresis — brief thinking pauses ≠ end of turn.
-        const speaking = nextLevel > 0.1;
-        setUserSpeaking(speaking);
+        const history = levelHistoryRef.current;
+        history.push(nextLevel);
+        if (history.length > 16) history.shift();
+        const modulation = levelModulation(history);
+        const speechRatio = speechBandRatioFromSpectrum(data);
 
-        if (mode === "handsfree") {
-          if (speaking) {
-            silenceMsRef.current = 0;
+        const currentTurn = turnStateRef.current;
+        const forgeSpeakingNow =
+          currentTurn === "forge_speaking" || currentTurn === "forge_thinking";
+
+        if (mode === "handsfree" && forgeSpeakingNow) {
+          if (echoSamplesRef.current.length < 14) {
+            echoSamplesRef.current.push(nextLevel);
+            const samples = echoSamplesRef.current;
+            echoFloorRef.current =
+              samples.reduce((a, b) => a + b, 0) / samples.length;
+          }
+
+          const rising =
+            nextLevel >= Math.max(0.32, echoFloorRef.current * 3.5);
+          sustainMsRef.current = rising ? sustainMsRef.current + dt : 0;
+
+          if (
+            !bargeFiredRef.current &&
+            isConfirmedBargeInLevel({
+              level: nextLevel,
+              echoFloor: echoFloorRef.current,
+              sustainedMs: sustainMsRef.current,
+              modulation,
+              speechBandRatio: speechRatio,
+            })
+          ) {
+            bargeFiredRef.current = true;
+            setUserSpeaking(true);
+            setHandsFreeState((s) =>
+              reduceHandsFreeState(s, { type: "BARGE_IN" })
+            );
+            onBargeInRef.current?.(nextLevel);
+          }
+          return requestNext(tick);
+        }
+
+        if (mode === "handsfree" && currentTurn === "listening") {
+          // Learn ambient floor from quieter frames.
+          if (nextLevel < 0.14 && ambientSamplesRef.current.length < 24) {
+            ambientSamplesRef.current.push(nextLevel);
+            const samples = ambientSamplesRef.current;
+            ambientFloorRef.current =
+              samples.reduce((a, b) => a + b, 0) / Math.max(1, samples.length);
+          }
+
+          const rising =
+            nextLevel >= Math.max(0.24, ambientFloorRef.current * 3.2);
+          sustainMsRef.current = rising ? sustainMsRef.current + dt : 0;
+
+          const intentional = isIntentionalSpeechSignal({
+            level: nextLevel,
+            ambientFloor: ambientFloorRef.current,
+            sustainedMs: sustainMsRef.current,
+            modulation,
+            speechBandRatio: speechRatio,
+          });
+
+          setUserSpeaking(intentional);
+
+          if (!userTurnFiredRef.current && intentional) {
+            userTurnFiredRef.current = true;
             setHandsFreeState((s) =>
               reduceHandsFreeState(s, { type: "USER_SPEECH_STARTED" })
             );
-          } else if (!forgeSpeaking) {
+            onUserTurnRef.current?.(nextLevel);
+          } else if (!intentional) {
             silenceMsRef.current += dt;
-            // ~2.4s of low energy before PAUSED (not mid-thought ~400–800ms).
             if (silenceMsRef.current > 2400) {
               setHandsFreeState((s) =>
                 reduceHandsFreeState(s, { type: "LONG_SILENCE" })
               );
             }
+          } else {
+            silenceMsRef.current = 0;
           }
+          return requestNext(tick);
         }
 
-        rafRef.current = requestAnimationFrame(tick);
+        // user_speaking / interrupted — UI level only; server owns end-of-turn.
+        const speaking = nextLevel > 0.12;
+        setUserSpeaking(speaking);
+        if (mode === "handsfree" && speaking) {
+          silenceMsRef.current = 0;
+        }
+
+        requestNext(tick);
       };
       rafRef.current = requestAnimationFrame(tick);
     } catch {
       /* analyser optional */
     }
+  }
+
+  function requestNext(tick: (now: number) => void) {
+    rafRef.current = requestAnimationFrame(tick);
   }
 
   function stopAnalyser() {
@@ -179,7 +306,7 @@ export function useArenaVoice({
     if (mode !== "hold" || !connection || connection.usedSilentMicFallback) {
       return;
     }
-    if (forgeSpeaking || !sessionActive) return;
+    if (forgeOwnsFloor || !sessionActive) return;
     holdingRef.current = true;
     setMicrophoneEnabled(connection, true);
     setMicLive(true);
@@ -233,6 +360,17 @@ export function useArenaVoice({
     setHandsFreeState((s) => reduceHandsFreeState(s, { type: "END" }));
   }
 
+  const labelFromTurn =
+    turnState === "forge_thinking"
+      ? "Thinking"
+      : turnState === "forge_speaking"
+        ? "Forge speaking"
+        : turnState === "user_speaking" || turnState === "interrupted"
+          ? "Listening"
+          : turnState === "listening"
+            ? "Speak naturally"
+            : handsFreeStateLabel(handsFreeState);
+
   return {
     mode,
     micLive,
@@ -240,7 +378,7 @@ export function useArenaVoice({
     level,
     handsFreeMuted,
     handsFreeState,
-    handsFreeLabel: handsFreeStateLabel(handsFreeState),
+    handsFreeLabel: labelFromTurn,
     startHoldToTalk,
     stopHoldToTalk,
     toggleHandsFreeMute,
