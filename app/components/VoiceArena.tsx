@@ -151,20 +151,9 @@ export default function VoiceArena({
   const turnStateRef = useRef<TurnState>("listening");
   const activeResponseIdRef = useRef<string | null>(null);
   const pendingBudgetRef = useRef<number | null>(null);
-  const hitchClearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [turnState, setTurnState] = useState<TurnState>("listening");
 
-  const HITCH_ERROR =
-    "Coach Forge hit a brief connection hitch. Keep speaking when you’re ready.";
-
   const showDevDiagnostics = process.env.NODE_ENV === "development";
-
-  function clearHitchTimer() {
-    if (hitchClearTimerRef.current != null) {
-      clearTimeout(hitchClearTimerRef.current);
-      hitchClearTimerRef.current = null;
-    }
-  }
 
   const sessionActive =
     micMode === "microphone" &&
@@ -193,8 +182,7 @@ export default function VoiceArena({
 
     if (transition.cancelForge) {
       // Natural yield — cancel + duck. Never surface as hitch/error.
-      clearHitchTimer();
-      setError((current) => (current === HITCH_ERROR ? "" : current));
+      setError("");
       duckRemoteForgeAudio(connectionRef.current);
       cancelForgeResponse(connectionRef.current);
       activeResponseIdRef.current = null;
@@ -275,7 +263,6 @@ export default function VoiceArena({
     return () => {
       mountedRef.current = false;
       lifecycleGenerationRef.current += 1;
-      clearHitchTimer();
       const usageId = usageIdRef.current;
       usageIdRef.current = null;
       if (usageId) {
@@ -521,7 +508,6 @@ export default function VoiceArena({
     }
     lifecycleGenerationRef.current += 1;
 
-    clearHitchTimer();
     setError("");
     setMicMode(null);
     setMicFallbackReason(null);
@@ -647,24 +633,10 @@ export default function VoiceArena({
         onConnectionState: (state) => {
           pushEvent(`Peer: ${state}`);
           if (state === "failed") {
-            clearHitchTimer();
             setError(
               "The Training Room lost its connection. Restart when you’re ready."
             );
             setPhase("error");
-            return;
-          }
-          // Stable peer again — drop transient hitch copy after a short settle.
-          if (state === "connected") {
-            clearHitchTimer();
-            hitchClearTimerRef.current = setTimeout(() => {
-              hitchClearTimerRef.current = null;
-              if (connectionRef.current?.pc.connectionState === "connected") {
-                setError((current) =>
-                  current === HITCH_ERROR ? "" : current
-                );
-              }
-            }, 3000);
           }
         },
         onServerEvent: handleServerEvent,
@@ -672,6 +644,7 @@ export default function VoiceArena({
 
       connectionRef.current = connection;
       setLiveConnection(connection);
+      pushEvent("Voice build · floor-v3");
 
       if (!connection.usedSilentMicFallback) {
         // Start muted; Free uses hold-to-talk, Pro hands-free opens on listening.
