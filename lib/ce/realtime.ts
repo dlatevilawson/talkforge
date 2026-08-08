@@ -1,4 +1,7 @@
-import { buildOpeningSpeechInstructions } from "@/lib/coach/philosophy";
+import {
+  buildOpeningSpeechInstructions,
+  FORGE_TURN_MAX_OUTPUT_TOKENS,
+} from "@/lib/coach/philosophy";
 import { buildSessionUpdateForTranscription } from "./session-config";
 import {
   registerLocalAudioCleanup,
@@ -316,6 +319,7 @@ export function requestOpeningSpeech(
       type: "response.create",
       response: {
         output_modalities: ["audio"],
+        max_output_tokens: FORGE_TURN_MAX_OUTPUT_TOKENS,
         instructions: buildOpeningSpeechInstructions({
           welcomeHint,
           eventTitle: options?.eventTitle,

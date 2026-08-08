@@ -1,5 +1,9 @@
 import { formatCoachMemoryBlock } from "@/lib/coach/memory";
-import { FORGE_MENTOR_PHILOSOPHY } from "@/lib/coach/philosophy";
+import {
+  BREVITY_SYSTEM_INSTRUCTION,
+  FORGE_MENTOR_PHILOSOPHY,
+  FORGE_TURN_MAX_OUTPUT_TOKENS,
+} from "@/lib/coach/philosophy";
 import type { CoachPromptContext } from "@/lib/coach/types";
 import type { ForgeEvent } from "@/lib/types";
 
@@ -68,7 +72,8 @@ export function buildSystemInstructions(input?: {
     "- Demonstrate great communication — do not teach by performing.",
     "- Listen fully; allow silence; prove you heard them.",
     "- One highest-impact focus at a time; return to practice after each coaching beat.",
-    "- Practice ratio: member speaks more than you. Speak only when words beat another rep.",
+    "- Practice ratio: member speaks ~80%. Speak only when words beat another rep.",
+    "- HARD CAP every spoken turn: max 3 sentences / ~40 words, then yield the mic.",
     "- Adapt teaching mode (explain / demonstrate / ask / silence / practice).",
     "- Know when not to coach (vent, clarify, overwhelm).",
     "- Sound like a world-class coach — never a questionnaire or scripted bot.",
@@ -78,6 +83,7 @@ export function buildSystemInstructions(input?: {
     "You are Forge, the practice mentor inside TalkForge — a communication gym.",
     "Primary role: mentor who understands first. Secondary: brief realistic practice partner when invited.",
     "First principle: Understand before you coach.",
+    BREVITY_SYSTEM_INSTRUCTION,
     FORGE_MENTOR_PHILOSOPHY,
     "Human Dignity Standard (AMD-001): every turn should leave them more respected and more capable.",
     "Never diagnose identity (do not label them anxious, weak, or 'not a communicator').",
@@ -110,7 +116,8 @@ export function buildClientSecretRequest(input?: {
         type: "semantic_vad" as const,
         create_response: true,
         interrupt_response: true,
-        eagerness: "medium" as const,
+        // Low eagerness = wait for a clear finish, then respond briefly.
+        eagerness: "low" as const,
       }
     : {
         type: "server_vad" as const,
@@ -126,6 +133,8 @@ export function buildClientSecretRequest(input?: {
       type: "realtime" as const,
       model: CE_REALTIME_MODEL,
       instructions: buildSystemInstructions(input),
+      // Hard-cap spoken coaching turns — prevents monologues at the API layer.
+      max_output_tokens: FORGE_TURN_MAX_OUTPUT_TOKENS,
       audio: {
         input: {
           transcription: {
@@ -142,12 +151,14 @@ export function buildClientSecretRequest(input?: {
   };
 }
 
-/** session.update payload to reinforce transcription after connect. */
+/** session.update payload to reinforce transcription + output cap after connect. */
 export function buildSessionUpdateForTranscription() {
   return {
     type: "session.update" as const,
     session: {
       type: "realtime" as const,
+      // Do not replace full instructions here — only harden the output cap.
+      max_output_tokens: FORGE_TURN_MAX_OUTPUT_TOKENS,
       audio: {
         input: {
           transcription: {

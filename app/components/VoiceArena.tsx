@@ -817,7 +817,7 @@ export default function VoiceArena({
 
                   {momentumLoading ? (
                     <p className="mt-10 text-sm text-white/45">
-                      Forge is wrapping up your session…
+                      Preparing your wrap…
                     </p>
                   ) : momentum ? (
                     <div className="mt-10 w-full max-w-xl space-y-5 text-left">

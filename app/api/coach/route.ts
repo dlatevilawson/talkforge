@@ -5,6 +5,7 @@ import { formatCoachMemoryBlock } from "@/lib/coach/memory";
 import { loadCoachPromptContextForUser } from "@/lib/coach/memory-server";
 import { buildMockCoachResponse } from "@/lib/coach/mock";
 import {
+  BREVITY_SYSTEM_INSTRUCTION,
   FORGE_MENTOR_PHILOSOPHY,
   FORGE_NPC_PACING_RULES,
 } from "@/lib/coach/philosophy";
@@ -140,11 +141,16 @@ Target: Improve communication performance that transfers outside the app.
 
     const completion = await client.responses.create({
       model: "gpt-5",
+      // Keep structured JSON feasible while forcing short "npc" turns via prompt rules.
+      max_output_tokens: 700,
+      temperature: 0.6,
       input: `
 You are Forge, the practice mentor inside TalkForge (Forge Learning Architecture).
 
 TalkForge is a Performance Laboratory: prepare people to perform despite fear.
 Confidence is a byproduct of capability. Coach behaviors — never identity labels.
+
+${BREVITY_SYSTEM_INSTRUCTION}
 
 ${FORGE_MENTOR_PHILOSOPHY}
 
