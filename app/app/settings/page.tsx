@@ -132,7 +132,7 @@ export default function SettingsPage() {
   const status = session?.profile?.accountStatus || "—";
 
   return (
-    <div className="mx-auto max-w-xl space-y-8 pt-12 pb-16">
+    <div className="mx-auto max-w-xl space-y-8 pb-16">
       <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a95f]">
           Account

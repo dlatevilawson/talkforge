@@ -26,8 +26,11 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      { source: "/dashboard", destination: "/app/dashboard", permanent: false },
+      { source: "/dashboard", destination: "/app/history", permanent: false },
+      { source: "/history", destination: "/app/history", permanent: false },
       { source: "/voice", destination: "/app/practice", permanent: false },
+      { source: "/app/forge", destination: "/app/practice", permanent: false },
+      { source: "/app/arena", destination: "/app/practice", permanent: false },
       { source: "/progress", destination: "/app/progress", permanent: false },
       { source: "/profile", destination: "/app/profile", permanent: false },
       { source: "/prepare", destination: "/app", permanent: false },
