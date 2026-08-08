@@ -6,6 +6,7 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import styles from "./ContinuityHome.module.css";
 import { buildAdaptiveHome } from "@/lib/system2";
 import type { AdaptiveHomeModel } from "@/lib/system2";
+import { APP_HOME_SCREEN_COPY } from "@/lib/system2/home-copy";
 import type { LivingProfile } from "@/lib/system1/types";
 import { getUser } from "@/lib/storage";
 
@@ -15,6 +16,8 @@ type WorkOption = {
   blurb: string;
   practiceTitle: string;
 };
+
+const homeCopy = APP_HOME_SCREEN_COPY;
 
 function gateMessage(gate: string | null): string | null {
   if (!gate) return null;
@@ -31,41 +34,35 @@ function gateMessage(gate: string | null): string | null {
 }
 
 function buildWorkOptions(focus: string | null): WorkOption[] {
+  const [continueCard, ...rest] = homeCopy.cards;
   const options: WorkOption[] = [];
+
+  // Prefer active Living Profile focus as the first path when present.
   if (focus?.trim()) {
     options.push({
-      id: "continue",
-      title: "Continue today’s focus",
+      id: continueCard.id,
+      title: continueCard.title,
       blurb: focus.trim(),
       practiceTitle: focus.trim(),
     });
+  } else {
+    options.push({
+      id: continueCard.id,
+      title: continueCard.title,
+      blurb: continueCard.subtitle,
+      practiceTitle: continueCard.practiceTitle,
+    });
   }
-  options.push(
-    {
-      id: "forge",
-      title: "Something on my mind",
-      blurb: "Walk in and tell Forge what’s at stake.",
-      practiceTitle: "What brings you in today?",
-    },
-    {
-      id: "confident",
-      title: "Stop replaying it at 2 AM",
-      blurb: "Leave the conversation knowing you said it right.",
-      practiceTitle: "Sound more confident in important conversations.",
-    },
-    {
-      id: "difficult",
-      title: "The conversation I’ve been avoiding",
-      blurb: "Stay calm when it finally gets real.",
-      practiceTitle: "Navigate a difficult conversation with composure.",
-    },
-    {
-      id: "concise",
-      title: "Command the room in one update",
-      blurb: "Sound like the person they already trust.",
-      practiceTitle: "Deliver concise, high-impact updates.",
-    }
-  );
+
+  for (const card of rest) {
+    options.push({
+      id: card.id,
+      title: card.title,
+      blurb: card.subtitle,
+      practiceTitle: card.practiceTitle,
+    });
+  }
+
   // Keep the choice set short — curiosity without a catalog.
   return options.slice(0, 4);
 }
@@ -194,10 +191,10 @@ function ContinuityHomeInner() {
 
         <h1 id="coach-heading" className={styles.heading}>
           {loading
-            ? "Preparing today’s training."
+            ? homeCopy.loadingHeadline
             : isReady
-              ? "What would you like to work on today?"
-              : "Your Coach is almost ready."}
+              ? homeCopy.headline
+              : homeCopy.notReadyHeadline}
         </h1>
 
         <div className={styles.recommendation} aria-live="polite">
@@ -209,9 +206,9 @@ function ContinuityHomeInner() {
                 aria-label="Loading recommendation"
               />
             ) : isReady ? (
-              "Pick a starting place. Forge understands before it coaches — you can always change direction."
+              homeCopy.subheadline
             ) : (
-              "Standing by while your profile loads."
+              homeCopy.notReadySubheadline
             )}
           </p>
         </div>
@@ -229,7 +226,7 @@ function ContinuityHomeInner() {
               href="/app/billing"
               className="text-[#c9a95f] underline-offset-4 hover:underline"
             >
-              Become a Pro Member
+              Claim Your Founding Pass →
             </Link>{" "}
             whenever you’re ready — your account and progress stay open to
             explore.
@@ -268,21 +265,19 @@ function ContinuityHomeInner() {
               </div>
               <p className={styles.actionNote}>
                 <Link
-                  href="/app/profile#goal"
+                  href={homeCopy.footerHref}
                   className="text-[#c9a95f] underline-offset-4 hover:underline"
                 >
-                  Help Forge coach you better
+                  {homeCopy.footerLink}
                 </Link>
-                {" · "}
-                optional
                 {practiceLimitReached ? (
                   <>
                     {" · "}
                     <Link
-                      href="/membership"
+                      href="/app/billing"
                       className="text-white/45 underline-offset-4 hover:underline"
                     >
-                      Membership
+                      Founding Pass
                     </Link>
                   </>
                 ) : null}
