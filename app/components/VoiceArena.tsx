@@ -14,6 +14,7 @@ import {
   disconnectRealtime,
   duckRemoteForgeAudio,
   recoverMicrophone,
+  requestHoldTurnResponse,
   requestOpeningSpeech,
   resumeRemoteAudio,
   setMicrophoneEnabled,
@@ -490,6 +491,13 @@ export default function VoiceArena({
         pushEvent("Ignored speech_started · mic muted while Forge speaks");
         return;
       }
+      // Hold mode: speech while button is down — mark for reply-on-release.
+      // Do NOT treat this as permission for Forge to talk (create_response off).
+      if (!handsFreeRef.current) {
+        voiceRef.current.noteHoldSpeech();
+        pushEvent("Member speech · holding · Forge waits for release");
+        return;
+      }
       // CRITICAL: never response.cancel from bare server VAD — phone echo
       // falsely fires this while Forge TTS plays over the speaker.
       const transition = applyTurn({
@@ -519,6 +527,11 @@ export default function VoiceArena({
         setOutboundMicrophoneEnabled(connectionRef.current, false);
         clearInputAudioBuffer(connectionRef.current);
         pushEvent("Ignored speech_stopped · Forge still owns the floor");
+        return;
+      }
+      // Hold mode: pauses while holding are thinking time — wait for release.
+      if (!handsFreeRef.current) {
+        pushEvent("Speech pause · still holding · Forge waits");
         return;
       }
       applyTurn({ type: "USER_SPEECH_STOPPED", source: "server_vad" });
@@ -706,7 +719,7 @@ export default function VoiceArena({
       connectionRef.current = connection;
       setLiveConnection(connection);
       pushEvent(
-        `Voice build · audio-token-v1 · mode=${sessionVoiceMode}`
+        `Voice build · listen-first-v1 · mode=${sessionVoiceMode}`
       );
 
       if (!connection.usedSilentMicFallback) {
@@ -833,7 +846,19 @@ export default function VoiceArena({
   }
 
   function handleSpeakUp() {
-    voice.stopHoldToTalk();
+    const { spoke } = voice.stopHoldToTalk();
+    // Hold-to-talk: Forge responds only after release — never mid-pause.
+    // create_response is false in session config for this reason.
+    if (!spoke || !connectionRef.current) {
+      if (!spoke) pushEvent("Hold released · no speech · waiting");
+      return;
+    }
+    const requested = requestHoldTurnResponse(connectionRef.current);
+    pushEvent(
+      requested
+        ? "Hold released · listen-first response requested"
+        : "Hold released · response request failed"
+    );
   }
 
   async function persistCompletedVoiceSession(

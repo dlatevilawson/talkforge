@@ -79,6 +79,8 @@ export function useArenaVoice({
   const sustainMsRef = useRef(0);
   const bargeFiredRef = useRef(false);
   const userTurnFiredRef = useRef(false);
+  /** True if the member produced speech energy while Hold was down. */
+  const spokeDuringHoldRef = useRef(false);
   const turnStateRef = useRef(turnState);
   turnStateRef.current = turnState;
   const onBargeInRef = useRef(onConfirmedBargeIn);
@@ -366,6 +368,9 @@ export function useArenaVoice({
 
         const speaking = nextLevel > 0.12;
         setUserSpeaking(speaking);
+        if (mode === "hold" && holdingRef.current && speaking) {
+          spokeDuringHoldRef.current = true;
+        }
         if (mode === "handsfree" && speaking) silenceMsRef.current = 0;
 
         requestNext(tick);
@@ -396,27 +401,43 @@ export function useArenaVoice({
 
   function startHoldToTalk() {
     if (mode !== "hold" || !connection || connection.usedSilentMicFallback) {
-      return;
+      return false;
     }
     // Never open the mic while Forge is live — no interruption path.
-    if (forgeLiveRef.current || forgeOwnsFloor || !sessionActive) return;
+    if (forgeLiveRef.current || forgeOwnsFloor || !sessionActive) return false;
     holdingRef.current = true;
+    spokeDuringHoldRef.current = false;
     setMicrophoneEnabled(connection, true);
     setMicLive(true);
     startAnalyser(connection);
+    return true;
   }
 
-  function stopHoldToTalk() {
+  /**
+   * End hold-to-talk. Returns whether the member spoke during the hold so the
+   * caller can request a Forge reply only after a real utterance.
+   */
+  function stopHoldToTalk(): { spoke: boolean } {
     if (mode !== "hold" || !connection || connection.usedSilentMicFallback) {
-      return;
+      return { spoke: false };
     }
+    const spoke = spokeDuringHoldRef.current;
     holdingRef.current = false;
+    spokeDuringHoldRef.current = false;
     setMicrophoneEnabled(connection, false);
     setOutboundMicrophoneEnabled(connection, false);
     setMicLive(false);
     stopAnalyser();
     setUserSpeaking(false);
     setLevel(0);
+    return { spoke };
+  }
+
+  /** Server VAD confirmed speech while Hold was down. */
+  function noteHoldSpeech() {
+    if (mode === "hold" && holdingRef.current) {
+      spokeDuringHoldRef.current = true;
+    }
   }
 
   function toggleHandsFreeMute() {
@@ -484,6 +505,7 @@ export function useArenaVoice({
     handsFreeLabel: labelFromTurn,
     startHoldToTalk,
     stopHoldToTalk,
+    noteHoldSpeech,
     toggleHandsFreeMute,
     onForgeStarted,
     onForgeDone,

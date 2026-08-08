@@ -3,6 +3,7 @@ import {
   BREVITY_SYSTEM_INSTRUCTION,
   FORGE_MENTOR_PHILOSOPHY,
   FORGE_TURN_MAX_OUTPUT_TOKENS,
+  LISTEN_FIRST_SYSTEM_INSTRUCTION,
 } from "@/lib/coach/philosophy";
 import type { CoachPromptContext } from "@/lib/coach/types";
 import type { ForgeEvent } from "@/lib/types";
@@ -76,7 +77,7 @@ export function buildSystemInstructions(input?: {
     "- First principle: Understand before you coach. Judgment before advice.",
     "- Ask: what does this person need most right now? (heard / clarity / prep / practice / earned confidence)",
     "- Demonstrate great communication — do not teach by performing.",
-    "- Listen fully; allow silence; prove you heard them.",
+    "- Listen fully; allow silence; prove you heard them before any suggestion.",
     "- One highest-impact focus at a time; return to practice after each coaching beat.",
     "- Practice ratio: member speaks ~80%. Speak only when words beat another rep.",
     "- Prefer 2–3 short sentences (~15–20 seconds), then yield. Never stop mid-sentence.",
@@ -86,16 +87,18 @@ export function buildSystemInstructions(input?: {
   ].join("\n");
 
   const acousticRule = [
-    "ACOUSTIC RULES (hands-free):",
-    "- Respond only to clear articulated member speech — not continuous ambient hum, fans, keyboard clicks, or room noise.",
+    "ACOUSTIC / TURN RULES:",
+    "- Members pause while thinking. A pause is not permission to take over.",
+    "- Respond only after their thought is complete — never jump into a mid-explanation.",
     "- Coughs, throat clears, and brief non-words are not turns. Wait for real language.",
-    "- Members pause while thinking. Prefer waiting over jumping in.",
+    "- Prefer waiting and reflecting over filling silence with coaching.",
   ].join("\n");
 
   return [
     "You are Forge, the practice mentor inside TalkForge — a communication gym.",
     "Primary role: mentor who understands first. Secondary: brief realistic practice partner when invited.",
     "First principle: Understand before you coach.",
+    LISTEN_FIRST_SYSTEM_INSTRUCTION,
     BREVITY_SYSTEM_INSTRUCTION,
     input?.conciseMode ? CONCISE_MODE_INSTRUCTION : "",
     acousticRule,
@@ -128,10 +131,9 @@ export function buildClientSecretRequest(input?: {
   conciseMode?: boolean;
   turnKind?: VoiceTurnKind;
 }) {
-  // Pro: semantic_vad + low eagerness. interrupt_response OFF — client yields
-  // only on talk-over confirmed against remote playback (HTMLAudioElement echo
-  // is not cancelled by getUserMedia AEC on iPhone speakerphone).
-  // Free: server_vad hold-to-talk.
+  // Hands-free (gated): semantic_vad; client owns barge-in yield.
+  // Hold-to-talk: create_response OFF — mid-hold thinking pauses must NOT
+  // spawn Forge. Client calls response.create only when Hold is released.
   const turnDetection = input?.handsFree
     ? {
         type: "semantic_vad" as const,
@@ -141,11 +143,12 @@ export function buildClientSecretRequest(input?: {
       }
     : {
         type: "server_vad" as const,
-        create_response: true,
+        create_response: false,
         interrupt_response: false,
         threshold: 0.65,
         prefix_padding_ms: 300,
-        silence_duration_ms: 700,
+        // Longer silence before segmenting — members pause while explaining.
+        silence_duration_ms: 1200,
       };
 
   const maxTokens = outputBudgetForTurn(
