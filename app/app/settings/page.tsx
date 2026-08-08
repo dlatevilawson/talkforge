@@ -1,10 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { destroySession } from "@/lib/auth/client";
-import { trackAuthEvent } from "@/lib/auth/analytics";
 import {
   emptyCoachMemory,
   parseMemoryList,
@@ -28,20 +25,30 @@ type SessionPayload = {
   } | null;
 };
 
-const LEARNING_OPTIONS: Array<{ value: LearningStyle; label: string }> = [
-  { value: "", label: "Not set yet" },
-  { value: "practice_first", label: "Practice first — learn by doing" },
-  { value: "reflect_first", label: "Reflect first — think, then try" },
-  { value: "example_first", label: "Example first — show me, then I’ll try" },
-  { value: "challenge_first", label: "Challenge first — stretch me gently" },
+/** Coaching pressure UI — stored on CoachMemory.learningStyle (continuity, not identity). */
+const PRESSURE_OPTIONS: Array<{ value: LearningStyle; label: string }> = [
+  {
+    value: "challenge_first",
+    label: "Direct & High Tension (Recommended)",
+  },
+  { value: "practice_first", label: "Balanced & Measured" },
+  { value: "reflect_first", label: "Supportive & Low Pressure" },
 ];
 
+function normalizePressure(value: LearningStyle): LearningStyle {
+  if (value === "challenge_first" || value === "practice_first" || value === "reflect_first") {
+    return value;
+  }
+  // Legacy example_first → balanced; unset stays unset until member chooses.
+  if (value === "example_first") return "practice_first";
+  return "";
+}
+
 /**
- * Settings = account + coach continuity preferences only.
+ * Settings = account credentials + coaching mechanics preferences.
  * Identity (purpose, principles, seasons, nickname) lives on Living Profile.
  */
 export default function SettingsPage() {
-  const router = useRouter();
   const [session, setSession] = useState<SessionPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [memory, setMemory] = useState<CoachMemory | null>(null);
@@ -72,7 +79,7 @@ export default function SettingsPage() {
           if (cancelled) return;
           setMemory(existing);
           setTriggers(existing.emotionalTriggers.join(", "));
-          setLearningStyle(existing.learningStyle);
+          setLearningStyle(normalizePressure(existing.learningStyle));
         }
       } catch {
         if (!cancelled) setSession(null);
@@ -87,13 +94,6 @@ export default function SettingsPage() {
     };
   }, []);
 
-  async function handleSignOut() {
-    trackAuthEvent("auth_logout");
-    await destroySession();
-    router.push("/");
-    router.refresh();
-  }
-
   async function handleSaveContinuity(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -106,20 +106,17 @@ export default function SettingsPage() {
         throw new Error("Sign in to save coaching preferences.");
       }
       const base = memory ?? emptyCoachMemory(user.id, user.displayName);
-      // Continuity-only writes. Identity fields are not updated here (OWN-001).
       const next: CoachMemory = {
         ...base,
         userId: user.id,
         displayName: user.displayName || base.displayName,
         emotionalTriggers: parseMemoryList(triggers),
-        learningStyle,
+        learningStyle: normalizePressure(learningStyle),
         updatedAt: new Date().toISOString(),
       };
       await saveCoachMemory(next);
       setMemory(next);
-      setSaveMsg(
-        "Continuity preferences saved. Identity lives on your Living Profile."
-      );
+      setSaveMsg("Coaching preferences saved.");
     } catch (err) {
       setSaveError(
         err instanceof Error ? err.message : "Could not save preferences."
@@ -135,107 +132,125 @@ export default function SettingsPage() {
   const status = session?.profile?.accountStatus || "—";
 
   return (
-    <div>
-      <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
-      <p className="mt-3 max-w-xl text-zinc-400">
-        Account controls and coach continuity preferences. Who you are becoming
-        is edited on your Living Profile — not here.
-      </p>
+    <div className="mx-auto max-w-xl space-y-8 pt-12 pb-16">
+      <header className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a95f]">
+          Account
+        </p>
+        <h1 className="text-3xl font-semibold tracking-tight text-white">
+          Settings
+        </h1>
+        <p className="max-w-xl text-sm leading-6 text-neutral-400">
+          Manage account credentials, communication preferences, and Forge
+          coaching behavior.
+        </p>
+      </header>
 
       {loading ? (
-        <p className="mt-10 text-sm text-zinc-500">Loading account…</p>
+        <p className="text-sm text-zinc-500">Loading account…</p>
       ) : (
-        <div className="mt-10 max-w-xl space-y-10">
-          <dl className="space-y-5 text-sm">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <dt className="text-zinc-500">Email</dt>
-              <dd className="mt-1 text-zinc-100">{email}</dd>
-              <p className="mt-2 text-xs text-zinc-500">
-                {verified ? "Email verified" : "Email not verified"}
-                {status !== "—" ? ` · Status: ${status}` : ""}
-              </p>
-            </div>
+        <div className="space-y-6">
+          {/* Card 1: Account & Credentials */}
+          <section className="rounded-2xl border border-neutral-800 bg-neutral-900/50 p-5 sm:p-6">
+            <h2 className="text-lg font-semibold text-white">
+              Account & Credentials
+            </h2>
+            <p className="mt-1.5 text-xs text-neutral-500">
+              Sign-in identity and password controls for this membership.
+            </p>
 
-            <div>
-              <dt className="text-zinc-500">Display name</dt>
-              <dd className="mt-1 text-zinc-200">{name}</dd>
-            </div>
-
-            <div>
-              <dt className="text-zinc-500">Living Profile</dt>
-              <dd className="mt-1">
-                <Link href="/app/profile" className="text-blue-300 underline">
-                  Edit purpose, principles, seasons
-                </Link>
-              </dd>
-            </div>
-
-            <div>
-              <dt className="text-zinc-500">Password</dt>
-              <dd className="mt-1 space-x-4">
-                <Link
-                  href="/change-password?next=/app/settings"
-                  className="text-blue-300 underline"
-                >
-                  Change password
-                </Link>
-                <Link href="/forgot-password" className="text-zinc-400 underline">
-                  Reset via email
-                </Link>
-              </dd>
-            </div>
-
-            {!verified ? (
+            <dl className="mt-6 space-y-5 text-sm">
               <div>
-                <dt className="text-zinc-500">Verification</dt>
-                <dd className="mt-1">
+                <dt className="text-xs uppercase tracking-[0.14em] text-neutral-500">
+                  Email
+                </dt>
+                <dd className="mt-1.5 text-zinc-100">{email}</dd>
+                <p className="mt-1.5 text-xs text-neutral-500">
+                  {verified ? "Email verified" : "Email not verified"}
+                  {status !== "—" ? ` · Status: ${status}` : ""}
+                </p>
+                {!verified ? (
                   <Link
                     href={`/verify-email?email=${encodeURIComponent(session?.email || "")}`}
-                    className="text-blue-300 underline"
+                    className="mt-2 inline-block text-sm text-[#c9a95f] underline-offset-4 hover:underline"
                   >
                     Verify email
                   </Link>
+                ) : null}
+              </div>
+
+              <div>
+                <dt className="text-xs uppercase tracking-[0.14em] text-neutral-500">
+                  Display name
+                </dt>
+                <dd className="mt-1.5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <span className="text-zinc-100">{name}</span>
+                  <Link
+                    href="/app/profile"
+                    className="text-sm font-medium text-[#c9a95f] underline-offset-4 hover:underline"
+                  >
+                    Edit Living Profile →
+                  </Link>
                 </dd>
               </div>
-            ) : null}
-          </dl>
 
-          <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
-            <h2 className="text-lg font-medium text-zinc-100">
-              Coach continuity
+              <div>
+                <dt className="text-xs uppercase tracking-[0.14em] text-neutral-500">
+                  Password controls
+                </dt>
+                <dd className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+                  <Link
+                    href="/change-password?next=/app/settings"
+                    className="text-sm text-zinc-200 underline-offset-4 hover:underline"
+                  >
+                    Change password
+                  </Link>
+                  <Link
+                    href="/forgot-password"
+                    className="text-sm text-neutral-400 underline-offset-4 hover:underline"
+                  >
+                    Reset via email
+                  </Link>
+                </dd>
+              </div>
+            </dl>
+          </section>
+
+          {/* Card 2: Coaching Mechanics */}
+          <section className="rounded-2xl border border-neutral-800 bg-neutral-900/50 p-5 sm:p-6">
+            <h2 className="text-lg font-semibold text-white">
+              Coaching Mechanics & Continuity
             </h2>
-            <p className="mt-2 text-sm leading-6 text-zinc-500">
-              How Forge should pace and care for you in session. These are not
-              identity facts — goals and purpose live on your{" "}
-              <Link href="/app/profile" className="text-zinc-300 underline">
-                Living Profile
-              </Link>
-              .
+            <p className="mt-1.5 text-xs leading-5 text-neutral-500">
+              Customize how Forge calibrates pressure, tone, and pacing during
+              practice reps.
             </p>
 
             <form className="mt-6 space-y-5" onSubmit={handleSaveContinuity}>
               <Field
-                label="Emotional triggers"
-                hint="Moments that throw you — coaching care only, not identity"
+                label="Pressure Points & Hesitation Triggers"
+                hint="Specific conversational dynamics where you tend to freeze or yield status (e.g., interruptions, defensive pushback)."
               >
                 <textarea
                   value={triggers}
                   onChange={(e) => setTriggers(e.target.value)}
-                  rows={2}
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
+                  rows={3}
+                  placeholder="Interruptions, status challenges, defensive pushback…"
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-[#c9a95f]/35 focus:ring-2"
                 />
               </Field>
 
-              <Field label="Learning style">
+              <Field label="Coaching Pressure Level">
                 <select
                   value={learningStyle}
                   onChange={(e) =>
                     setLearningStyle(e.target.value as LearningStyle)
                   }
-                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-sky-400/40 focus:ring-2"
+                  className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-[#c9a95f]/35 focus:ring-2"
                 >
-                  {LEARNING_OPTIONS.map((opt) => (
-                    <option key={opt.value || "unset"} value={opt.value}>
+                  <option value="">Select coaching pressure</option>
+                  {PRESSURE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
                   ))}
@@ -248,7 +263,9 @@ export default function SettingsPage() {
                 </p>
               ) : null}
               {saveMsg ? (
-                <p className="text-sm text-emerald-300/90">{saveMsg}</p>
+                <p className="text-sm text-emerald-300/90" role="status">
+                  {saveMsg}
+                </p>
               ) : null}
 
               <button
@@ -256,20 +273,10 @@ export default function SettingsPage() {
                 disabled={saving}
                 className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-zinc-200 disabled:opacity-50"
               >
-                {saving ? "Saving…" : "Save continuity preferences"}
+                {saving ? "Saving…" : "Save Preferences"}
               </button>
             </form>
           </section>
-
-          <div>
-            <button
-              type="button"
-              onClick={() => void handleSignOut()}
-              className="rounded-full border border-white/15 px-5 py-2.5 text-sm text-zinc-200 transition hover:bg-white/10"
-            >
-              Sign out
-            </button>
-          </div>
         </div>
       )}
     </div>
@@ -287,9 +294,9 @@ function Field({
 }) {
   return (
     <label className="block text-sm">
-      <span className="text-zinc-400">{label}</span>
+      <span className="font-medium text-zinc-300">{label}</span>
       <div className="mt-2">{children}</div>
-      {hint ? <p className="mt-1.5 text-xs text-zinc-600">{hint}</p> : null}
+      {hint ? <p className="mt-1.5 text-xs leading-5 text-neutral-500">{hint}</p> : null}
     </label>
   );
 }

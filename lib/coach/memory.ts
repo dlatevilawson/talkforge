@@ -244,10 +244,10 @@ export function buildCoachPromptContext(
 }
 
 const LEARNING_STYLE_LABELS: Record<Exclude<LearningStyle, "">, string> = {
-  practice_first: "learns by practicing first",
-  reflect_first: "prefers a moment to reflect before diving in",
-  example_first: "learns best from a short example",
-  challenge_first: "likes a gentle stretch sooner",
+  practice_first: "prefers balanced, measured coaching pressure",
+  reflect_first: "prefers supportive, lower-pressure coaching",
+  example_first: "prefers balanced, measured coaching pressure",
+  challenge_first: "prefers direct, high-tension coaching pressure",
 };
 
 /** Compact block injected into system / coach prompts. */
@@ -263,7 +263,7 @@ Member relationship memory:
 - First saved session for ${ctx.firstName}.
 - Nickname: ${ctx.nickname || "(none)"}
 - Opening style: ${ctx.welcomeHint}
-- Learning style: ${learning}
+- Coaching pressure: ${learning}
 - CFX §5: welcome · curiosity · natural discovery. No product tour. No interrogation.
 - Remember: understand before coaching. Member speaks more. No topic menus.
 `;
@@ -282,7 +282,7 @@ Member relationship memory (Living Profile = identity SSOT; continuity = last se
 - Purpose / goals (from Living Profile): ${ctx.communicationGoals.join("; ") || "(not set)"}
 - Emotional triggers (continuity care): ${ctx.emotionalTriggers.join("; ") || ctx.biggestFears.join("; ") || "(not set)"}
 - Preferred coaching style: ${ctx.preferredCoachingStyle || "warm, curious, unhurried"}
-- Learning style: ${learning}
+- Coaching pressure: ${learning}
 - Pattern insight (session analytics — not identity): ${ctx.adaptiveInsight || "(none)"}
 - Opening style: ${ctx.welcomeHint}
 - Law #016: do not invent or overwrite who they are becoming.
