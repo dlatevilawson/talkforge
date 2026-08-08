@@ -719,7 +719,7 @@ export default function VoiceArena({
       connectionRef.current = connection;
       setLiveConnection(connection);
       pushEvent(
-        `Voice build · listen-first-v1 · mode=${sessionVoiceMode}`
+        `Voice build · minimal-coach-v1 · mode=${sessionVoiceMode}`
       );
 
       if (!connection.usedSilentMicFallback) {

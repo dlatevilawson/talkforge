@@ -4,6 +4,7 @@ import {
   FORGE_MENTOR_PHILOSOPHY,
   FORGE_TURN_MAX_OUTPUT_TOKENS,
   LISTEN_FIRST_SYSTEM_INSTRUCTION,
+  MINIMAL_INTERVENTION_COACHING_RULES,
 } from "@/lib/coach/philosophy";
 import type { CoachPromptContext } from "@/lib/coach/types";
 import type { ForgeEvent } from "@/lib/types";
@@ -77,10 +78,9 @@ export function buildSystemInstructions(input?: {
     "- First principle: Understand before you coach. Judgment before advice.",
     "- Ask: what does this person need most right now? (heard / clarity / prep / practice / earned confidence)",
     "- Demonstrate great communication — do not teach by performing.",
-    "- Listen fully; allow silence; prove you heard them before any suggestion.",
+    "- Default pattern: REFLECT → PROMPT. Member speaks most of the time.",
     "- One highest-impact focus at a time; return to practice after each coaching beat.",
-    "- Practice ratio: member speaks ~80%. Speak only when words beat another rep.",
-    "- Prefer 2–3 short sentences (~15–20 seconds), then yield. Never stop mid-sentence.",
+    "- Do not make every turn a coaching lesson — keep roleplay natural.",
     "- Adapt teaching mode (explain / demonstrate / ask / silence / practice).",
     "- Know when not to coach (vent, clarify, overwhelm).",
     "- Sound like a world-class coach — never a questionnaire or scripted bot.",
@@ -99,6 +99,7 @@ export function buildSystemInstructions(input?: {
     "Primary role: mentor who understands first. Secondary: brief realistic practice partner when invited.",
     "First principle: Understand before you coach.",
     LISTEN_FIRST_SYSTEM_INSTRUCTION,
+    MINIMAL_INTERVENTION_COACHING_RULES,
     BREVITY_SYSTEM_INSTRUCTION,
     input?.conciseMode ? CONCISE_MODE_INSTRUCTION : "",
     acousticRule,
