@@ -6,6 +6,7 @@ import {
   buildClientSecretRequest,
   type CeTrack,
 } from "@/lib/ce/session-config";
+import { resolveArenaVoiceMode } from "@/lib/ce/voice-mode";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { evaluatePracticeRouteAccess } from "@/lib/system2/server-readiness";
 
@@ -89,10 +90,14 @@ export async function POST(req: Request) {
 
   const track = normalizeTrack(body.track);
   const memory = await loadCoachPromptContextForUser(gate.userId);
-  const handsFree =
+  const planIsPro =
     entitlement.plan === "pro" ||
     entitlement.reason === "pro" ||
     entitlement.reason === "staff";
+  // Hands-free is gated off until speakerphone yield is certified.
+  // Pro members still get Pro entitlement — mic UX is hold-to-talk for all.
+  const voiceMode = resolveArenaVoiceMode({ planIsPro });
+  const handsFree = voiceMode === "handsfree";
   const payload = buildClientSecretRequest({
     track,
     eventTitle:
@@ -143,7 +148,7 @@ export async function POST(req: Request) {
       model: data.session?.model ?? payload.session.model,
       track,
       milestone: "CE-M1",
-      voiceMode: handsFree ? "handsfree" : "hold",
+      voiceMode,
       entitlement: {
         plan: entitlement.plan,
         sessionsRemaining: entitlement.sessionsRemaining,

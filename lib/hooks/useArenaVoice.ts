@@ -22,11 +22,13 @@ import {
   speechBandRatioFromSpectrum,
   type TurnState,
 } from "@/lib/ce/handsfree-turntaking";
+import type { ArenaVoiceMode } from "@/lib/ce/voice-mode";
 
-export type ArenaVoiceMode = "hold" | "handsfree";
+export type { ArenaVoiceMode };
 
 type Options = {
-  isProUser: boolean;
+  /** Explicit mode from server gate — never infer from plan alone. */
+  voiceMode: ArenaVoiceMode;
   connection: RealtimeConnection | null;
   sessionActive: boolean;
   turnState: TurnState;
@@ -39,12 +41,11 @@ type Options = {
 /**
  * Dual-engine mic logic for Live Arena.
  *
- * Critical Pro insight: Forge TTS plays via HTMLAudioElement, so browser AEC
- * often fails on speakerphone. Barge-in must compare mic vs remote playback
- * envelope — absolute "speech-like" mic energy alone will cancel Forge.
+ * Hold mode: press-and-hold opens mic (stable baseline for all plans).
+ * Hands-free mode: gated off until echo-reference yield is device-certified.
  */
 export function useArenaVoice({
-  isProUser,
+  voiceMode,
   connection,
   sessionActive,
   turnState,
@@ -80,7 +81,7 @@ export function useArenaVoice({
   const connectionRef = useRef(connection);
   connectionRef.current = connection;
 
-  const mode: ArenaVoiceMode = isProUser ? "handsfree" : "hold";
+  const mode: ArenaVoiceMode = voiceMode;
   const forgeOwnsFloor =
     turnState === "forge_speaking" || turnState === "forge_thinking";
   const outboundOpen = outboundMicOpenForState(turnState);

@@ -53,6 +53,10 @@ import {
   type TurnState,
 } from "@/lib/ce/handsfree-turntaking";
 import {
+  type ArenaVoiceMode,
+  resolveArenaVoiceMode,
+} from "@/lib/ce/voice-mode";
+import {
   COMPLIMENTARY_COMPLETE_BODY,
   COMPLIMENTARY_COMPLETE_HEADLINE,
   MAYBE_LATER_CTA,
@@ -143,9 +147,10 @@ export default function VoiceArena({
   const [complimentaryComplete, setComplimentaryComplete] = useState(false);
   const [wrapStage, setWrapStage] = useState<WrapStage>("coaching");
   const [isProUser, setIsProUser] = useState(false);
+  const [voiceMode, setVoiceMode] = useState<ArenaVoiceMode>("hold");
   const [repsRemaining, setRepsRemaining] = useState<number | null>(null);
   const usageIdRef = useRef<string | null>(null);
-  const isProUserRef = useRef(false);
+  const handsFreeRef = useRef(false);
   const phaseRef = useRef<Phase>("idle");
   /** After confirmed barge-in, ignore stale Forge audio events briefly. */
   const ignoreForgeAudioUntilRef = useRef(0);
@@ -153,6 +158,7 @@ export default function VoiceArena({
   const activeResponseIdRef = useRef<string | null>(null);
   const pendingBudgetRef = useRef<number | null>(null);
   const [turnState, setTurnState] = useState<TurnState>("listening");
+  const handsFree = voiceMode === "handsfree";
 
   const showDevDiagnostics = process.env.NODE_ENV === "development";
 
@@ -181,33 +187,34 @@ export default function VoiceArena({
       pushEvent(`Turn hold · ${transition.reason}`);
     }
 
-    if (transition.cancelForge) {
-      // Natural yield — cancel + duck. Never surface as hitch/error.
-      setError("");
-      duckRemoteForgeAudio(connectionRef.current);
-      cancelForgeResponse(connectionRef.current);
-      activeResponseIdRef.current = null;
-      ignoreForgeAudioUntilRef.current = Date.now() + 1200;
-      pushEvent("Natural yield · Forge gave the floor");
-    } else if (transition.duckForgeAudio) {
-      duckRemoteForgeAudio(connectionRef.current);
-    } else if (
-      transition.to === "forge_speaking" ||
-      transition.to === "forge_thinking"
-    ) {
-      unduckRemoteForgeAudio(connectionRef.current);
-    }
-
-    if (isProUserRef.current && connectionRef.current) {
-      // Belt-and-suspenders: never open outbound unless the destination state
-      // actually grants member floor (Listening stays muted).
-      const wantOutbound =
-        transition.openOutboundMic && outboundMicOpenForState(transition.to);
-      if (wantOutbound) {
-        // Start clean — do not flush ambient that never should have been sent.
-        clearInputAudioBuffer(connectionRef.current);
+    // Hands-free floor ownership only. Hold-to-talk must not duck/cancel/mute
+    // from this FSM — the hold button owns the mic exclusively.
+    if (handsFreeRef.current) {
+      if (transition.cancelForge) {
+        // Natural yield — cancel + duck. Never surface as hitch/error.
+        setError("");
+        duckRemoteForgeAudio(connectionRef.current);
+        cancelForgeResponse(connectionRef.current);
+        activeResponseIdRef.current = null;
+        ignoreForgeAudioUntilRef.current = Date.now() + 1200;
+        pushEvent("Natural yield · Forge gave the floor");
+      } else if (transition.duckForgeAudio) {
+        duckRemoteForgeAudio(connectionRef.current);
+      } else if (
+        transition.to === "forge_speaking" ||
+        transition.to === "forge_thinking"
+      ) {
+        unduckRemoteForgeAudio(connectionRef.current);
       }
-      setOutboundMicrophoneEnabled(connectionRef.current, wantOutbound);
+
+      if (connectionRef.current) {
+        const wantOutbound =
+          transition.openOutboundMic && outboundMicOpenForState(transition.to);
+        if (wantOutbound) {
+          clearInputAudioBuffer(connectionRef.current);
+        }
+        setOutboundMicrophoneEnabled(connectionRef.current, wantOutbound);
+      }
     }
 
     if (
@@ -228,12 +235,12 @@ export default function VoiceArena({
   }
 
   const voice = useArenaVoice({
-    isProUser,
+    voiceMode,
     connection: liveConnection,
     sessionActive,
     turnState,
     onConfirmedBargeIn: (level) => {
-      if (!isProUserRef.current) return;
+      if (!handsFreeRef.current) return;
       applyTurn({ type: "CONFIRMED_BARGE_IN", level });
       trackUsage("barge_in");
       // Stay in-session listening chrome — never error/restart.
@@ -241,7 +248,7 @@ export default function VoiceArena({
       voiceRef.current.onBargeIn();
     },
     onConfirmedUserTurn: (level) => {
-      if (!isProUserRef.current) return;
+      if (!handsFreeRef.current) return;
       // Listening → member turn only after local intentional-speech confirm.
       const transition = applyTurn({
         type: "USER_SPEECH_STARTED",
@@ -257,7 +264,7 @@ export default function VoiceArena({
   });
   const voiceRef = useRef(voice);
   voiceRef.current = voice;
-  isProUserRef.current = isProUser;
+  handsFreeRef.current = handsFree;
   phaseRef.current = phase;
 
   useEffect(() => {
@@ -296,6 +303,7 @@ export default function VoiceArena({
             ent?.reason === "pro" ||
             ent?.reason === "staff";
           setIsProUser(Boolean(pro));
+          setVoiceMode(resolveArenaVoiceMode({ planIsPro: Boolean(pro) }));
           setRepsRemaining(
             typeof ent?.sessionsRemaining === "number"
               ? ent.sessionsRemaining
@@ -583,10 +591,13 @@ export default function VoiceArena({
         throw new Error(tokenData.error || "Could not start session.");
       }
 
-      const proSession =
-        tokenData.voiceMode === "handsfree" ||
-        tokenData.entitlement?.plan === "pro";
-      setIsProUser(Boolean(proSession));
+      const planIsPro = tokenData.entitlement?.plan === "pro";
+      const sessionVoiceMode: ArenaVoiceMode =
+        tokenData.voiceMode === "handsfree" || tokenData.voiceMode === "hold"
+          ? tokenData.voiceMode
+          : resolveArenaVoiceMode({ planIsPro });
+      setIsProUser(Boolean(planIsPro));
+      setVoiceMode(sessionVoiceMode);
       if (typeof tokenData.entitlement?.sessionsRemaining === "number") {
         setRepsRemaining(tokenData.entitlement.sessionsRemaining);
       }
@@ -646,10 +657,10 @@ export default function VoiceArena({
 
       connectionRef.current = connection;
       setLiveConnection(connection);
-      pushEvent("Voice build · floor-v4-echo-ref");
+      pushEvent(`Voice build · hold-reset · mode=${sessionVoiceMode}`);
 
       if (!connection.usedSilentMicFallback) {
-        // Start muted; Free uses hold-to-talk, Pro hands-free opens on listening.
+        // Start muted; hold-to-talk opens only while the button is pressed.
         setMicrophoneEnabled(connection, false);
       }
 
@@ -669,8 +680,8 @@ export default function VoiceArena({
       usageIdRef.current = await startVoiceUsageTracking({
         practiceSessionId: practice.id,
         realtimeSessionId: realtimeSessionIdRef.current,
-        plan: proSession ? "pro" : "free",
-        voiceMode: proSession ? "handsfree" : "hold",
+        plan: planIsPro ? "pro" : "free",
+        voiceMode: sessionVoiceMode,
         model:
           typeof tokenData.model === "string"
             ? tokenData.model
@@ -927,7 +938,7 @@ export default function VoiceArena({
   const ringState: PresenceRingState =
     phase === "momentum"
       ? "wrap"
-      : isProUser &&
+      : handsFree &&
           (turnState === "forge_speaking" || turnState === "forge_thinking")
         ? "forge_speaking"
         : phase === "speaking"
@@ -935,8 +946,8 @@ export default function VoiceArena({
           : phase === "listening" ||
               micLive ||
               voice.userSpeaking ||
-              turnState === "user_speaking" ||
-              turnState === "interrupted"
+              (handsFree &&
+                (turnState === "user_speaking" || turnState === "interrupted"))
             ? "listening"
             : phase === "minting" || phase === "connecting"
               ? "connecting"
@@ -951,7 +962,7 @@ export default function VoiceArena({
           ? "Rep Complete"
           : phase === "error"
             ? "Connection lost"
-            : isProUser
+            : handsFree
               ? voice.handsFreeMuted
                 ? "Mic muted"
                 : voice.handsFreeLabel ?? "Speak naturally"
@@ -961,11 +972,13 @@ export default function VoiceArena({
                   ? "Listening"
                   : "Your turn";
 
-  const statusBadge = isProUser
+  const statusBadge = handsFree
     ? "PRO HANDS-FREE"
-    : repsRemaining != null
-      ? `${repsRemaining} REP${repsRemaining === 1 ? "" : "S"} LEFT`
-      : "HOLD TO SPEAK";
+    : isProUser
+      ? "PRO · HOLD TO SPEAK"
+      : repsRemaining != null
+        ? `${repsRemaining} REP${repsRemaining === 1 ? "" : "S"} LEFT`
+        : "HOLD TO SPEAK";
 
   return (
     <main className="relative min-h-[100dvh] overflow-hidden bg-[#000000] text-white">
@@ -1015,9 +1028,11 @@ export default function VoiceArena({
                 {eventTitle?.trim() || "I’m ready when you are"}
               </h1>
               <p className="mt-5 max-w-md text-base leading-7 text-white/50">
-                {isProUser
+                {handsFree
                   ? "Hands-free coaching is ready. Begin when you want an uninterrupted room."
-                  : "You don’t have to perform here. Hold to speak when you’re ready — or unlock Hands-Free with Pro."}
+                  : isProUser
+                    ? "You don’t have to perform here. Hold to speak when you’re ready."
+                    : "You don’t have to perform here. Hold to speak when you’re ready — or unlock Hands-Free with Pro."}
               </p>
               {welcomeLine ? (
                 <p className="mt-3 max-w-md text-sm leading-6 text-[#d7b56a]/85">
@@ -1247,7 +1262,7 @@ export default function VoiceArena({
 
               <div className="mt-auto w-full max-w-lg pt-12">
                 <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 px-4 py-4 backdrop-blur-lg sm:px-5">
-                  {isProUser ? (
+                  {handsFree ? (
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <p className="text-sm text-[#D4AF37]/90">
                         Hands-Free Active — Speak Naturally
@@ -1315,12 +1330,18 @@ export default function VoiceArena({
                       >
                         {micLive ? "Listening" : "Hold to speak"}
                       </button>
-                      <Link
-                        href="/membership"
-                        className="text-xs text-[#D4AF37]/75 transition hover:text-[#D4AF37]"
-                      >
-                        Unlock Hands-Free Streaming with Pro →
-                      </Link>
+                      {!isProUser ? (
+                        <Link
+                          href="/membership"
+                          className="text-xs text-[#D4AF37]/75 transition hover:text-[#D4AF37]"
+                        >
+                          Unlock Hands-Free Streaming with Pro →
+                        </Link>
+                      ) : (
+                        <p className="text-xs text-white/35">
+                          Hold to speak — stable coaching mode
+                        </p>
+                      )}
                     </div>
                   )}
 
