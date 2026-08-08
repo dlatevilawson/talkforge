@@ -71,7 +71,7 @@ export default function SkillsWaveform({
           viewBox={`0 0 ${width} ${height}`}
           className="h-36 w-full sm:h-40"
           role="img"
-          aria-label="Communication skills waveform"
+          aria-label="Presence trajectory waveform"
         >
           <defs>
             <linearGradient id="tf-wave-fill" x1="0" y1="0" x2="0" y2="1">
