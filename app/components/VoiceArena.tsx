@@ -7,6 +7,8 @@ import PresenceRing, {
 } from "@/app/components/arena/PresenceRing";
 import BecomeProMemberButton from "@/app/components/billing/BecomeProMemberButton";
 import {
+  applyOutputBudget,
+  cancelForgeResponse,
   connectRealtime,
   disconnectRealtime,
   recoverMicrophone,
@@ -18,6 +20,7 @@ import {
 } from "@/lib/ce/realtime";
 import { useArenaVoice } from "@/lib/hooks/useArenaVoice";
 import {
+  CE_REALTIME_MODEL,
   CE_TRACK_TITLES,
   type CeTrack,
 } from "@/lib/ce/session-config";
@@ -31,6 +34,11 @@ import {
   setActiveVoiceSessionId,
 } from "@/lib/ce/transcript-store";
 import { isCurrentVoiceLifecycle } from "@/lib/ce/voice-lifecycle";
+import {
+  completeVoiceUsageTracking,
+  reportVoiceUsageEvent,
+  startVoiceUsageTracking,
+} from "@/lib/ce/voice-usage-client";
 import {
   COMPLIMENTARY_COMPLETE_BODY,
   COMPLIMENTARY_COMPLETE_HEADLINE,
@@ -123,26 +131,44 @@ export default function VoiceArena({
   const [wrapStage, setWrapStage] = useState<WrapStage>("coaching");
   const [isProUser, setIsProUser] = useState(false);
   const [repsRemaining, setRepsRemaining] = useState<number | null>(null);
+  const usageIdRef = useRef<string | null>(null);
+  const isProUserRef = useRef(false);
+  const phaseRef = useRef<Phase>("idle");
+  /** After barge-in, ignore stale Forge audio events briefly so phase stays on the member. */
+  const ignoreForgeAudioUntilRef = useRef(0);
 
   const showDevDiagnostics = process.env.NODE_ENV === "development";
 
   const forgeSpeaking = phase === "speaking";
-  const canListen =
-    (phase === "listening" || phase === "connected") &&
-    micMode === "microphone";
+  const sessionActive =
+    micMode === "microphone" &&
+    (phase === "speaking" ||
+      phase === "listening" ||
+      phase === "connected");
+  const allowBargeIn = isProUser && sessionActive;
 
   const voice = useArenaVoice({
     isProUser,
     connection: liveConnection,
-    canListen,
+    sessionActive,
     forgeSpeaking,
+    allowBargeIn,
   });
+  const voiceRef = useRef(voice);
+  voiceRef.current = voice;
+  isProUserRef.current = isProUser;
+  phaseRef.current = phase;
 
   useEffect(() => {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
       lifecycleGenerationRef.current += 1;
+      const usageId = usageIdRef.current;
+      usageIdRef.current = null;
+      if (usageId) {
+        void completeVoiceUsageTracking({ usageId });
+      }
       disconnectRealtime(connectionRef.current);
       connectionRef.current = null;
       setLiveConnection(null);
@@ -220,6 +246,19 @@ export default function VoiceArena({
     }
   }
 
+  function trackUsage(
+    event: "assistant_turn" | "user_speech" | "barge_in" | "assistant_text",
+    text?: string
+  ) {
+    const usageId = usageIdRef.current;
+    if (!usageId) return;
+    void reportVoiceUsageEvent({ usageId, event, text }).then((advice) => {
+      if (!advice?.maxOutputTokens) return;
+      // Invisible control only — never surface budgets/meters to the member.
+      applyOutputBudget(connectionRef.current, advice.maxOutputTokens);
+    });
+  }
+
   function handleServerEvent(event: Record<string, unknown>) {
     const type = typeof event.type === "string" ? event.type : "event";
 
@@ -228,11 +267,24 @@ export default function VoiceArena({
       type === "response.created" ||
       type === "response.output_item.added"
     ) {
-      setPhase((current) =>
-        current === "connecting" || current === "speaking"
-          ? "speaking"
-          : current
-      );
+      if (Date.now() >= ignoreForgeAudioUntilRef.current) {
+        setPhase((current) =>
+          current === "connecting" ||
+          current === "speaking" ||
+          current === "listening" ||
+          current === "connected"
+            ? "speaking"
+            : current
+        );
+      }
+    }
+
+    if (type === "response.created") {
+      if (Date.now() >= ignoreForgeAudioUntilRef.current) {
+        voiceRef.current.onForgeStarted();
+        trackUsage("assistant_turn");
+        pushEvent("Forge responding");
+      }
     }
 
     if (type === "response.done") {
@@ -243,12 +295,27 @@ export default function VoiceArena({
             ? "connected"
             : current
       );
+      voiceRef.current.onForgeDone();
       pushEvent("Forge response complete");
     }
 
     if (type === "input_audio_buffer.speech_started") {
+      const pro = isProUserRef.current;
+      const forgeWasSpeaking = phaseRef.current === "speaking";
+      if (pro && forgeWasSpeaking) {
+        // Pro barge-in: stop Forge immediately; member owns the floor.
+        ignoreForgeAudioUntilRef.current = Date.now() + 900;
+        cancelForgeResponse(connectionRef.current);
+        voiceRef.current.onBargeIn();
+        trackUsage("barge_in");
+        pushEvent("Barge-in — Forge yielded");
+      }
       setPhase("listening");
-      pushEvent("Founder speech detected");
+      pushEvent("Member speech detected");
+    }
+
+    if (type === "input_audio_buffer.speech_stopped") {
+      voiceRef.current.onUserSpeechStopped();
     }
 
     if (type === "error") {
@@ -257,11 +324,18 @@ export default function VoiceArena({
         event.error && typeof event.error === "object"
           ? (event.error as { message?: unknown }).message
           : null;
+      // Recovery: do not kill the session permanently — return to listening.
       setError(
         typeof serverError === "string"
-          ? serverError
-          : "Coach Forge hit a connection problem. Restart when you’re ready."
+          ? "Coach Forge hit a brief connection hitch. Keep speaking when you’re ready."
+          : "Coach Forge hit a brief connection hitch. Keep speaking when you’re ready."
       );
+      setPhase((current) =>
+        current === "error" || current === "momentum" || current === "idle"
+          ? current
+          : "listening"
+      );
+      voiceRef.current.onForgeDone();
     }
 
     const { turns: next, added } = applyRealtimeTranscriptEvent(
@@ -272,6 +346,11 @@ export default function VoiceArena({
       turnsRef.current = next;
       setTurns(next);
       persistTurns(next);
+      if (added.role === "forge") {
+        trackUsage("assistant_text", added.text);
+      } else if (added.role === "founder") {
+        trackUsage("user_speech", added.text);
+      }
       pushEvent(
         `Transcript · ${added.role} #${added.turnIndex}: "${added.text.slice(0, 48)}${
           added.text.length > 48 ? "…" : ""
@@ -303,6 +382,11 @@ export default function VoiceArena({
     setComplimentaryComplete(false);
     setWrapStage("coaching");
     practiceSessionRef.current = null;
+    const priorUsage = usageIdRef.current;
+    usageIdRef.current = null;
+    if (priorUsage) {
+      void completeVoiceUsageTracking({ usageId: priorUsage });
+    }
     setPhase("minting");
     pushEvent("Minting session…");
 
@@ -329,6 +413,7 @@ export default function VoiceArena({
       const tokenData = (await tokenRes.json()) as {
         value?: string;
         session_id?: string | null;
+        model?: string;
         error?: string;
         voiceMode?: "handsfree" | "hold";
         entitlement?: {
@@ -430,7 +515,19 @@ export default function VoiceArena({
       setSavedSessionId(practice.id);
       pushEvent(`Session saved · ${practice.id.slice(0, 8)}`);
 
+      usageIdRef.current = await startVoiceUsageTracking({
+        practiceSessionId: practice.id,
+        realtimeSessionId: realtimeSessionIdRef.current,
+        plan: proSession ? "pro" : "free",
+        voiceMode: proSession ? "handsfree" : "hold",
+        model:
+          typeof tokenData.model === "string"
+            ? tokenData.model
+            : CE_REALTIME_MODEL,
+      });
+
       setPhase("speaking");
+      applyOutputBudget(connection, 100);
       requestOpeningSpeech(connection.dc, welcomeHintRef.current, {
         eventTitle: eventTitle?.trim() || undefined,
         isReturning: Boolean(tokenData.memory?.isReturning),
@@ -442,6 +539,11 @@ export default function VoiceArena({
       );
     } catch (err) {
       console.error(err);
+      const usageId = usageIdRef.current;
+      usageIdRef.current = null;
+      if (usageId) {
+        void completeVoiceUsageTracking({ usageId });
+      }
       disconnectRealtime(connectionRef.current);
       connectionRef.current = null;
       setLiveConnection(null);
@@ -563,6 +665,15 @@ export default function VoiceArena({
         turns: turnsRef.current,
       });
     }
+    voiceRef.current.onSessionEnd();
+    const usageId = usageIdRef.current;
+    usageIdRef.current = null;
+    if (usageId) {
+      void completeVoiceUsageTracking({
+        usageId,
+        practiceSessionId: practiceSessionRef.current?.id ?? null,
+      });
+    }
     lifecycleGenerationRef.current += 1;
     disconnectRealtime(connectionRef.current);
     connectionRef.current = null;
@@ -678,18 +789,16 @@ export default function VoiceArena({
       ? undefined
       : phase === "minting" || phase === "connecting"
         ? "Connecting"
-        : phase === "speaking"
-          ? "Forge speaking"
-          : phase === "momentum"
-            ? "Rep Complete"
-            : phase === "error"
-              ? "Connection lost"
-              : isProUser
-                ? voice.handsFreeMuted
-                  ? "Mic muted"
-                  : voice.userSpeaking
-                    ? "Listening"
-                    : "Speak naturally"
+        : phase === "momentum"
+          ? "Rep Complete"
+          : phase === "error"
+            ? "Connection lost"
+            : isProUser
+              ? voice.handsFreeMuted
+                ? "Mic muted"
+                : voice.handsFreeLabel ?? "Speak naturally"
+              : phase === "speaking"
+                ? "Forge speaking"
                 : micLive
                   ? "Listening"
                   : "Your turn";

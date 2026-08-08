@@ -251,6 +251,19 @@ const LEARNING_STYLE_LABELS: Record<Exclude<LearningStyle, "">, string> = {
 };
 
 /** Compact block injected into system / coach prompts. */
+function clipMemory(text: string | null | undefined, max: number): string {
+  const t = (text ?? "").trim();
+  if (!t) return "(none)";
+  if (t.length <= max) return t;
+  return `${t.slice(0, max - 1).trimEnd()}…`;
+}
+
+function joinClipped(items: string[] | undefined, maxItems: number, maxChars: number): string {
+  const list = (items ?? []).filter(Boolean).slice(0, maxItems);
+  if (list.length === 0) return "(none yet)";
+  return clipMemory(list.join("; "), maxChars);
+}
+
 export function formatCoachMemoryBlock(ctx: CoachPromptContext): string {
   const learning =
     ctx.learningStyle && ctx.learningStyle in LEARNING_STYLE_LABELS
@@ -262,29 +275,34 @@ export function formatCoachMemoryBlock(ctx: CoachPromptContext): string {
 Member relationship memory:
 - First saved session for ${ctx.firstName}.
 - Nickname: ${ctx.nickname || "(none)"}
-- Opening style: ${ctx.welcomeHint}
+- Opening style: ${clipMemory(ctx.welcomeHint, 220)}
 - Coaching pressure: ${learning}
 - CFX §5: welcome · curiosity · natural discovery. No product tour. No interrogation.
 - Remember: understand before coaching. Member speaks more. No topic menus.
 `;
   }
 
+  // Keep continuity signals; clip long free-text so every turn isn't billed for the whole vault.
   return `
 Member relationship memory (Living Profile = identity SSOT; continuity = last session):
 - Call them: ${ctx.firstName}${ctx.nickname ? ` (nickname: ${ctx.nickname})` : ""}
 - Sessions completed: ${ctx.sessionsCompleted}
-- Last scenario: ${ctx.lastScenarioTitle || "(unknown)"}
+- Last scenario: ${clipMemory(ctx.lastScenarioTitle, 120)}
 - Last practiced: ${ctx.lastSessionAt || "(unknown)"}
-- Last summary: ${ctx.lastSessionSummary || "(none)"}
-- Confirmed strength (identity only if member/evidence-confirmed): ${ctx.biggestStrength || "(none yet)"}
-- Soft focus / last struggle (session context — NOT identity fact): ${ctx.topicsWorkingOn.join("; ") || "(none yet)"}
-- Life seasons / challenges (from Living Profile): ${ctx.longTermChallenges.join("; ") || "(not set)"}
-- Purpose / goals (from Living Profile): ${ctx.communicationGoals.join("; ") || "(not set)"}
-- Emotional triggers (continuity care): ${ctx.emotionalTriggers.join("; ") || ctx.biggestFears.join("; ") || "(not set)"}
-- Preferred coaching style: ${ctx.preferredCoachingStyle || "warm, curious, unhurried"}
+- Last summary: ${clipMemory(ctx.lastSessionSummary, 320)}
+- Confirmed strength (identity only if member/evidence-confirmed): ${clipMemory(ctx.biggestStrength, 160)}
+- Soft focus / last struggle (session context — NOT identity fact): ${joinClipped(ctx.topicsWorkingOn, 3, 180)}
+- Life seasons / challenges (from Living Profile): ${joinClipped(ctx.longTermChallenges, 3, 180)}
+- Purpose / goals (from Living Profile): ${joinClipped(ctx.communicationGoals, 3, 180)}
+- Emotional triggers (continuity care): ${joinClipped(
+    ctx.emotionalTriggers.length ? ctx.emotionalTriggers : ctx.biggestFears,
+    3,
+    160
+  )}
+- Preferred coaching style: ${clipMemory(ctx.preferredCoachingStyle || "warm, curious, unhurried", 80)}
 - Coaching pressure: ${learning}
-- Pattern insight (session analytics — not identity): ${ctx.adaptiveInsight || "(none)"}
-- Opening style: ${ctx.welcomeHint}
+- Pattern insight (session analytics — not identity): ${clipMemory(ctx.adaptiveInsight, 220)}
+- Opening style: ${clipMemory(ctx.welcomeHint, 220)}
 - Law #016: do not invent or overwrite who they are becoming.
 `;
 }

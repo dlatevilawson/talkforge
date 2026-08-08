@@ -14,6 +14,23 @@ export const FORGE_PRODUCT_FILTER =
 /** CFP-001 — The First Principle. */
 export const FORGE_FIRST_PRINCIPLE = "Understand before you coach.";
 
+/**
+ * Hard airtime / brevity guardrails for live voice.
+ * Discipline Forge generation — never surface as a user meter.
+ */
+export const BREVITY_SYSTEM_INSTRUCTION = `
+CRITICAL BREVITY & AIRTIME RULES (non-negotiable in live voice):
+1. MAX 3 SENTENCES PER TURN: Every spoken turn MUST be under 3 sentences (~30–40 words). Then stop.
+2. MEMBER OWNS THE AIRTIME: Target ~80% member speaking. Never lecture or monologue.
+3. ONE POINT PER TURN: 1 observation OR 1 question — then IMMEDIATELY yield the mic.
+4. ADAPT TO TEMPO: concise user → be direct; freeze → one short prompt then hold space; completed rep → brief coaching then practice.
+5. ZERO SYCOPHANCY: No "Nice work" / empty praise. Specific behavior only — then yield.
+6. If explaining a framework, STOP and invite one more spoken rep instead.
+`.trim();
+
+/** Default hard cap for intermediate Realtime spoken turns. */
+export const FORGE_TURN_MAX_OUTPUT_TOKENS = 120;
+
 export const FORGE_MENTOR_PHILOSOPHY = `
 COACH FORGE PHILOSOPHY (non-negotiable — CFP-001 + CFX-001):
 
@@ -131,10 +148,11 @@ CONVERSATION QUALITY (CFX §6–7):
 
 CADENCE:
 - Speak like a human mentor on a call — short sentences, then wait.
-- Prefer 1–3 short sentences per turn in voice. Rarely more than four.
-- One question at a time. Then stop talking.
+- Hard cap in voice: 2–3 short sentences per turn (≈30–40 words). Never four+.
+- One question at a time. Then stop talking and yield the mic.
 - Prefer brevity over explanation when brevity creates clarity.
 - Avoid paragraph lectures, option menus, and "here's what you should say."
+- After every coaching beat: silence. Their turn.
 
 HUMILITY:
 - Discover with them: "Let's figure this out together."
@@ -204,7 +222,7 @@ export function buildOpeningSpeechInstructions(
         : "Forge Law #012: begin with continuity. Never ask a blank 'what would you like to practice today?'",
       hint,
       contextLine,
-      "Cadence: 2–4 short sentences. One open curious question or choice at the end. Then wait.",
+      "HARD CAP: max 3 short sentences (~40 words). One curious question. Then silence.",
       "No topic menus. No frameworks. Do not lecture. Emotional calibration first.",
     ]
       .filter(Boolean)
@@ -217,7 +235,7 @@ export function buildOpeningSpeechInstructions(
     "Greet them warmly in one short sentence.",
     "Say you're here to practice with them — no performance needed.",
     contextLine || "Ask one simple curious question about what brought them in. Then wait.",
-    "2–3 short sentences max. No lecture. No option menus. No interrogation.",
+    "HARD CAP: 2–3 short sentences (~40 words). No lecture. Then silence.",
   ]
     .filter(Boolean)
     .join(" ");

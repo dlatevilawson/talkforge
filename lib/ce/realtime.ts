@@ -1,5 +1,9 @@
-import { buildOpeningSpeechInstructions } from "@/lib/coach/philosophy";
+import {
+  buildOpeningSpeechInstructions,
+  FORGE_TURN_MAX_OUTPUT_TOKENS,
+} from "@/lib/coach/philosophy";
 import { buildSessionUpdateForTranscription } from "./session-config";
+import { outputBudgetForTurn } from "./voice-economics";
 import {
   registerLocalAudioCleanup,
   releaseLocalAudioStream,
@@ -316,6 +320,7 @@ export function requestOpeningSpeech(
       type: "response.create",
       response: {
         output_modalities: ["audio"],
+        max_output_tokens: outputBudgetForTurn("opening", false),
         instructions: buildOpeningSpeechInstructions({
           welcomeHint,
           eventTitle: options?.eventTitle,
@@ -326,7 +331,36 @@ export function requestOpeningSpeech(
   );
 }
 
-/** Mute/unmute local mic tracks (push-to-talk). */
+/** Stop Forge mid-utterance so member barge-in takes the floor (Pro). */
+export function cancelForgeResponse(
+  connection: RealtimeConnection | null
+): void {
+  if (!connection || connection.dc.readyState !== "open") return;
+  try {
+    connection.dc.send(JSON.stringify({ type: "response.cancel" }));
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Apply a dynamic per-turn output budget without wiping session instructions. */
+export function applyOutputBudget(
+  connection: RealtimeConnection | null,
+  maxOutputTokens: number = FORGE_TURN_MAX_OUTPUT_TOKENS
+): void {
+  if (!connection || connection.dc.readyState !== "open") return;
+  try {
+    connection.dc.send(
+      JSON.stringify(
+        buildSessionUpdateForTranscription({ maxOutputTokens })
+      )
+    );
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Mute/unmute local mic tracks (push-to-talk / hands-free mute). */
 export function setMicrophoneEnabled(
   connection: RealtimeConnection | null,
   enabled: boolean

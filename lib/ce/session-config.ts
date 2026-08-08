@@ -1,7 +1,16 @@
 import { formatCoachMemoryBlock } from "@/lib/coach/memory";
-import { FORGE_MENTOR_PHILOSOPHY } from "@/lib/coach/philosophy";
+import {
+  BREVITY_SYSTEM_INSTRUCTION,
+  FORGE_MENTOR_PHILOSOPHY,
+  FORGE_TURN_MAX_OUTPUT_TOKENS,
+} from "@/lib/coach/philosophy";
 import type { CoachPromptContext } from "@/lib/coach/types";
 import type { ForgeEvent } from "@/lib/types";
+import {
+  CONCISE_MODE_INSTRUCTION,
+  outputBudgetForTurn,
+  type VoiceTurnKind,
+} from "@/lib/ce/voice-economics";
 
 /** OpenAI Realtime model for CE-M1+. */
 export const CE_REALTIME_MODEL = "gpt-realtime-2.1";
@@ -31,6 +40,7 @@ export function buildSystemInstructions(input?: {
   eventTitle?: string;
   successCriteria?: string;
   memory?: CoachPromptContext | null;
+  conciseMode?: boolean;
 }): string {
   const track = input?.track ?? "system_design";
   const eventLine = input?.eventTitle
@@ -68,7 +78,8 @@ export function buildSystemInstructions(input?: {
     "- Demonstrate great communication — do not teach by performing.",
     "- Listen fully; allow silence; prove you heard them.",
     "- One highest-impact focus at a time; return to practice after each coaching beat.",
-    "- Practice ratio: member speaks more than you. Speak only when words beat another rep.",
+    "- Practice ratio: member speaks ~80%. Speak only when words beat another rep.",
+    "- HARD CAP every spoken turn: max 3 sentences / ~40 words, then yield the mic.",
     "- Adapt teaching mode (explain / demonstrate / ask / silence / practice).",
     "- Know when not to coach (vent, clarify, overwhelm).",
     "- Sound like a world-class coach — never a questionnaire or scripted bot.",
@@ -78,6 +89,8 @@ export function buildSystemInstructions(input?: {
     "You are Forge, the practice mentor inside TalkForge — a communication gym.",
     "Primary role: mentor who understands first. Secondary: brief realistic practice partner when invited.",
     "First principle: Understand before you coach.",
+    BREVITY_SYSTEM_INSTRUCTION,
+    input?.conciseMode ? CONCISE_MODE_INSTRUCTION : "",
     FORGE_MENTOR_PHILOSOPHY,
     "Human Dignity Standard (AMD-001): every turn should leave them more respected and more capable.",
     "Never diagnose identity (do not label them anxious, weak, or 'not a communicator').",
@@ -104,28 +117,37 @@ export function buildClientSecretRequest(input?: {
   memory?: CoachPromptContext | null;
   /** Pro/Founding: semantic hands-free VAD. Free: tighter server VAD for hold-to-talk. */
   handsFree?: boolean;
+  conciseMode?: boolean;
+  turnKind?: VoiceTurnKind;
 }) {
   const turnDetection = input?.handsFree
     ? {
         type: "semantic_vad" as const,
         create_response: true,
         interrupt_response: true,
-        eagerness: "medium" as const,
+        // Low eagerness: respect thinking pauses; don't jump mid-thought.
+        eagerness: "low" as const,
       }
     : {
         type: "server_vad" as const,
         create_response: true,
         interrupt_response: false,
-        threshold: 0.6,
-        prefix_padding_ms: 280,
-        silence_duration_ms: 520,
+        threshold: 0.65,
+        prefix_padding_ms: 300,
+        silence_duration_ms: 700,
       };
+
+  const maxTokens = outputBudgetForTurn(
+    input?.turnKind ?? "normal",
+    Boolean(input?.conciseMode)
+  );
 
   return {
     session: {
       type: "realtime" as const,
       model: CE_REALTIME_MODEL,
       instructions: buildSystemInstructions(input),
+      max_output_tokens: maxTokens || FORGE_TURN_MAX_OUTPUT_TOKENS,
       audio: {
         input: {
           transcription: {
@@ -142,12 +164,18 @@ export function buildClientSecretRequest(input?: {
   };
 }
 
-/** session.update payload to reinforce transcription after connect. */
-export function buildSessionUpdateForTranscription() {
+/** session.update — reinforce transcription + dynamic output budget only. */
+export function buildSessionUpdateForTranscription(options?: {
+  maxOutputTokens?: number;
+}) {
+  const maxOutputTokens =
+    options?.maxOutputTokens ?? FORGE_TURN_MAX_OUTPUT_TOKENS;
   return {
     type: "session.update" as const,
     session: {
       type: "realtime" as const,
+      // Never replace full instructions here — that would drop Living Profile memory.
+      max_output_tokens: maxOutputTokens,
       audio: {
         input: {
           transcription: {
