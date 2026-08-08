@@ -9,7 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test:voice-lifecycle": "node --experimental-strip-types --test lib/ce/voice-lifecycle.test.mjs",
-    "test:voice-economics": "node --experimental-strip-types --test lib/ce/handsfree-fsm.test.mjs lib/ce/voice-economics.test.mjs",
+    "test:voice-economics": "node --experimental-strip-types --test lib/ce/handsfree-fsm.test.mjs lib/ce/voice-economics.test.mjs lib/ce/handsfree-turntaking.test.mjs",
     "test:coach-philosophy": "node --experimental-strip-types --test lib/coach/philosophy.test.mjs",
     "test:billing": "node --experimental-strip-types --test lib/billing/access.test.mjs lib/billing/config.test.mjs lib/billing/member-copy.test.mjs",
     "practice-readiness:check": "node scripts/check-practice-readiness-gate.mjs",
