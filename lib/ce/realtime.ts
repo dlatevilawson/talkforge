@@ -1,4 +1,5 @@
 import {
+  buildListenFirstTurnInstructions,
   buildOpeningSpeechInstructions,
   FORGE_TURN_MAX_OUTPUT_TOKENS,
 } from "@/lib/coach/philosophy";
@@ -387,6 +388,39 @@ export function requestOpeningSpeech(
       },
     })
   );
+}
+
+/**
+ * Hold-to-talk: after the member releases Hold, commit any remaining audio and
+ * ask Forge to respond. create_response is OFF in session config so thinking
+ * pauses mid-hold never spawn a competing Forge turn.
+ */
+export function requestHoldTurnResponse(
+  connection: RealtimeConnection | null
+): boolean {
+  if (!connection || connection.dc.readyState !== "open") return false;
+  try {
+    // Commit any trailing audio. Empty-buffer commit may error server-side —
+    // that is benign; prior VAD segments are already conversation items.
+    try {
+      connection.dc.send(JSON.stringify({ type: "input_audio_buffer.commit" }));
+    } catch {
+      /* ignore */
+    }
+    connection.dc.send(
+      JSON.stringify({
+        type: "response.create",
+        response: {
+          output_modalities: ["audio"],
+          max_output_tokens: outputBudgetForTurn("normal", false),
+          instructions: buildListenFirstTurnInstructions(),
+        },
+      })
+    );
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** Stop Forge mid-utterance so member barge-in takes the floor (Pro). */
