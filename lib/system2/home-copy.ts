@@ -38,6 +38,24 @@ export const APP_HOME_SCREEN_COPY = {
     },
   ],
 
+  /**
+   * Explorer (new-user) paths — no completed practice_sessions yet.
+   * Neither option pre-selects a topic or scenario.
+   */
+  explorerCards: [
+    {
+      id: "living-plan",
+      title: "Build My Living Training Plan",
+      subtitle: "Shape what Forge trains with you—start from what matters now.",
+      href: "/app/profile#goal",
+    },
+    {
+      id: "talk-forge",
+      title: "Talk to Coach Forge",
+      subtitle: "Open the floor. Forge listens first—no scenario required.",
+    },
+  ],
+
   footerLink: "Tune Forge's memory & preferences →",
   footerHref: "/app/profile#goal",
 } as const;

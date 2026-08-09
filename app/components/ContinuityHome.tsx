@@ -8,13 +8,16 @@ import { buildAdaptiveHome } from "@/lib/system2";
 import type { AdaptiveHomeModel } from "@/lib/system2";
 import { APP_HOME_SCREEN_COPY } from "@/lib/system2/home-copy";
 import type { LivingProfile } from "@/lib/system1/types";
-import { getUser } from "@/lib/storage";
+import { countCompletedSessions, getUser } from "@/lib/storage";
 
 type WorkOption = {
   id: string;
   title: string;
   blurb: string;
+  /** Empty string = open practice with no pre-selected topic/scenario. */
   practiceTitle: string;
+  /** When set, navigate here instead of entering practice. */
+  href?: string;
 };
 
 const homeCopy = APP_HOME_SCREEN_COPY;
@@ -31,6 +34,17 @@ function gateMessage(gate: string | null): string | null {
     return "Please sign in again to continue training.";
   }
   return "Return to Home for your next step — coaching starts from readiness.";
+}
+
+/** Explorer: zero completed practice_sessions for this user. */
+function buildExplorerOptions(): WorkOption[] {
+  return homeCopy.explorerCards.map((card) => ({
+    id: card.id,
+    title: card.title,
+    blurb: card.subtitle,
+    practiceTitle: "",
+    href: "href" in card ? card.href : undefined,
+  }));
 }
 
 function buildWorkOptions(focus: string | null): WorkOption[] {
@@ -80,10 +94,13 @@ function ContinuityHomeInner() {
   const [enteringTraining, setEnteringTraining] = useState(false);
   const [loadError, setLoadError] = useState("");
   const [practiceLimitReached, setPracticeLimitReached] = useState(false);
+  /** True when the member has zero completed practice_sessions. */
+  const [isExplorer, setIsExplorer] = useState(true);
 
   useEffect(() => {
     router.prefetch("/app/practice?start=1");
     router.prefetch("/app/billing");
+    router.prefetch("/app/profile");
     let cancelled = false;
 
     async function load() {
@@ -91,6 +108,15 @@ function ContinuityHomeInner() {
         const user = await getUser();
         let profile: LivingProfile | null = null;
         if (user?.id) {
+          try {
+            const completed = await countCompletedSessions(user.id);
+            if (!cancelled) {
+              setIsExplorer(completed === 0);
+            }
+          } catch {
+            // Soft-fail toward Explorer so new members are not shown returning drills.
+            if (!cancelled) setIsExplorer(true);
+          }
           try {
             const res = await fetch("/api/living-profile", { cache: "no-store" });
             if (res.ok) {
@@ -122,6 +148,8 @@ function ContinuityHomeInner() {
           } catch {
             // Billing soft-check must never block Home.
           }
+        } else if (!cancelled) {
+          setIsExplorer(true);
         }
         if (!cancelled) {
           setHome(buildAdaptiveHome(profile));
@@ -129,6 +157,7 @@ function ContinuityHomeInner() {
       } catch {
         if (!cancelled) {
           setHome(buildAdaptiveHome(null));
+          setIsExplorer(true);
           setLoadError("Couldn’t load your session. Refresh and try again.");
         }
       } finally {
@@ -146,7 +175,11 @@ function ContinuityHomeInner() {
   const isReady = Boolean(readiness?.profileGatePassed);
   const focus = readiness?.objective;
   const bounceNote = gateMessage(gate);
-  const workOptions = useMemo(() => buildWorkOptions(focus ?? null), [focus]);
+  const workOptions = useMemo(
+    () =>
+      isExplorer ? buildExplorerOptions() : buildWorkOptions(focus ?? null),
+    [isExplorer, focus]
+  );
 
   function enterPractice(practiceTitle: string) {
     setEnteringTraining(true);
@@ -155,6 +188,14 @@ function ContinuityHomeInner() {
       trainingParams.set("title", practiceTitle.trim());
     }
     window.location.assign(`/app/practice?${trainingParams.toString()}`);
+  }
+
+  function selectOption(option: WorkOption) {
+    if (option.href) {
+      router.push(option.href);
+      return;
+    }
+    enterPractice(option.practiceTitle);
   }
 
   return (
@@ -249,7 +290,7 @@ function ContinuityHomeInner() {
                     role="listitem"
                     className={styles.option}
                     disabled={enteringTraining}
-                    onClick={() => enterPractice(option.practiceTitle)}
+                    onClick={() => selectOption(option)}
                   >
                     <span className={styles.optionLabel}>
                       <span className={styles.optionTitle}>{option.title}</span>
