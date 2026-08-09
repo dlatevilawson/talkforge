@@ -1,3 +1,8 @@
+import {
+  normalizePresenceScores,
+  normalizeStringList,
+  type ProfileSource,
+} from "./assessment";
 import type { LivingProfile } from "./types";
 
 export type LivingProfileRow = {
@@ -12,8 +17,24 @@ export type LivingProfileRow = {
   preferred_coaching_style?: string | null;
   mattering_conversation_ids?: string[] | null;
   provenance?: LivingProfile["provenance"] | null;
+  presence_scores?: LivingProfile["presenceScores"] | null;
+  goals?: string[] | null;
+  strengths?: string[] | null;
+  challenges?: string[] | null;
+  profile_source?: string | null;
   updated_at?: string | null;
 };
+
+function mapProfileSource(value: unknown): ProfileSource | null {
+  if (
+    value === "quick_pick" ||
+    value === "assessment" ||
+    value === "incomplete"
+  ) {
+    return value;
+  }
+  return null;
+}
 
 /** Map the canonical database row without creating a second profile shape. */
 export function mapLivingProfileRow(row: LivingProfileRow): LivingProfile {
@@ -29,6 +50,11 @@ export function mapLivingProfileRow(row: LivingProfileRow): LivingProfile {
     preferredCoachingStyle: row.preferred_coaching_style ?? "",
     matteringConversationIds: row.mattering_conversation_ids ?? [],
     provenance: row.provenance ?? [],
+    presenceScores: normalizePresenceScores(row.presence_scores),
+    goals: normalizeStringList(row.goals, 8),
+    strengths: normalizeStringList(row.strengths, 8),
+    challenges: normalizeStringList(row.challenges, 8),
+    profileSource: mapProfileSource(row.profile_source),
     updatedAt: row.updated_at ?? new Date().toISOString(),
   };
 }

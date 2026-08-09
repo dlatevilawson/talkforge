@@ -6,6 +6,7 @@ import type {
   LearningStyle,
   SessionReport,
 } from "@/lib/coach/types";
+import { mapLivingProfileRow } from "@/lib/system1/persistence";
 
 function asLearningStyle(value: unknown): LearningStyle {
   if (
@@ -175,36 +176,7 @@ export async function loadCoachPromptContextForUser(
     }
 
     const livingProfile = livingRow
-      ? {
-          userId: String(livingRow.user_id),
-          version:
-            typeof livingRow.version === "number" ? livingRow.version : 0,
-          displayName: String(livingRow.display_name ?? ""),
-          preferredNickname: String(livingRow.preferred_nickname ?? ""),
-          purposeStatement: String(livingRow.purpose_statement ?? ""),
-          personalPrinciples: Array.isArray(livingRow.personal_principles)
-            ? livingRow.personal_principles
-            : [],
-          seasons: Array.isArray(livingRow.seasons) ? livingRow.seasons : [],
-          coachingIntensity:
-            livingRow.coaching_intensity === "gentle" ||
-            livingRow.coaching_intensity === "direct" ||
-            livingRow.coaching_intensity === "challenging"
-              ? livingRow.coaching_intensity
-              : ("steady" as const),
-          preferredCoachingStyle: String(
-            livingRow.preferred_coaching_style ?? ""
-          ),
-          matteringConversationIds: Array.isArray(
-            livingRow.mattering_conversation_ids
-          )
-            ? livingRow.mattering_conversation_ids
-            : [],
-          provenance: Array.isArray(livingRow.provenance)
-            ? livingRow.provenance
-            : [],
-          updatedAt: String(livingRow.updated_at ?? new Date().toISOString()),
-        }
+      ? mapLivingProfileRow(livingRow as Parameters<typeof mapLivingProfileRow>[0])
       : null;
 
     const reports = (reportRows ?? []).map((row) =>

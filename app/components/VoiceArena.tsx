@@ -28,8 +28,10 @@ import { useArenaVoice } from "@/lib/hooks/useArenaVoice";
 import {
   CE_REALTIME_MODEL,
   CE_TRACK_TITLES,
+  type CeSessionMode,
   type CeTrack,
 } from "@/lib/ce/session-config";
+import type { PresenceScores } from "@/lib/system1/assessment";
 import {
   applyRealtimeTranscriptEvent,
   type TranscriptTurn,
@@ -80,6 +82,17 @@ type VoiceArenaProps = {
   eventTitle?: string;
   successCriteria?: string;
   autoStart?: boolean;
+  mode?: CeSessionMode;
+};
+
+type AssessmentWrap = {
+  ready: boolean;
+  profileSource: string | null;
+  goals: string[];
+  strengths: string[];
+  challenges: string[];
+  presenceScores: PresenceScores | null;
+  corePattern: string | null;
 };
 
 type Phase =
@@ -112,7 +125,9 @@ export default function VoiceArena({
   eventTitle,
   successCriteria,
   autoStart = false,
+  mode = "practice",
 }: VoiceArenaProps) {
+  const isAssessment = mode === "assessment";
   const connectionRef = useRef<RealtimeConnection | null>(null);
   const turnsRef = useRef<TranscriptTurn[]>([]);
   const voiceSessionIdRef = useRef<string | null>(null);
@@ -140,6 +155,9 @@ export default function VoiceArena({
     useState<RealtimeConnection | null>(null);
   const [momentum, setMomentum] = useState<Momentum | null>(null);
   const [momentumLoading, setMomentumLoading] = useState(false);
+  const [assessmentWrap, setAssessmentWrap] = useState<AssessmentWrap | null>(
+    null
+  );
   const [savedSessionId, setSavedSessionId] = useState<string | null>(null);
   const [sessionPersisted, setSessionPersisted] = useState(false);
   const [completionError, setCompletionError] = useState("");
@@ -617,16 +635,20 @@ export default function VoiceArena({
       disconnectRealtime(connectionRef.current);
       connectionRef.current = null;
 
-      const scenarioTitle =
-        eventTitle?.trim() || CE_TRACK_TITLES[track] || "Voice practice with Forge";
+      const scenarioTitle = isAssessment
+        ? "Living Profile assessment"
+        : eventTitle?.trim() ||
+          CE_TRACK_TITLES[track] ||
+          "Voice practice with Forge";
 
       const tokenRes = await fetch("/api/realtime/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           track,
-          eventTitle,
-          successCriteria,
+          eventTitle: isAssessment ? undefined : eventTitle,
+          successCriteria: isAssessment ? undefined : successCriteria,
+          mode,
         }),
       });
       const tokenData = (await tokenRes.json()) as {
@@ -729,11 +751,12 @@ export default function VoiceArena({
 
       // Do not create permanent history until Realtime is connected.
       const practice = await createPracticeSession({
-        scenarioId: `voice_${track}`,
+        scenarioId: isAssessment ? "voice_assessment" : `voice_${track}`,
         scenarioTitle,
-        missionPrompt:
-          successCriteria?.trim() ||
-          "Practice clear, warm, confident communication out loud with Forge.",
+        missionPrompt: isAssessment
+          ? "Short discovery interview so Forge can get a sense of you."
+          : successCriteria?.trim() ||
+            "Practice clear, warm, confident communication out loud with Forge.",
         modality: "voice",
       });
       practiceSessionRef.current = practice;
@@ -755,8 +778,13 @@ export default function VoiceArena({
       const openingBudget = outputBudgetForTurn("opening", false);
       applyOutputBudget(connection, openingBudget);
       requestOpeningSpeech(connection.dc, welcomeHintRef.current, {
-        eventTitle: eventTitle?.trim() || undefined,
-        isReturning: Boolean(tokenData.memory?.isReturning),
+        eventTitle: isAssessment
+          ? undefined
+          : eventTitle?.trim() || undefined,
+        isReturning: isAssessment
+          ? false
+          : Boolean(tokenData.memory?.isReturning),
+        mode,
       });
       pushEvent(
         tokenData.memory?.isReturning
@@ -932,48 +960,116 @@ export default function VoiceArena({
     setPhase("momentum");
     setMomentumLoading(true);
     setMomentum(null);
+    setAssessmentWrap(null);
 
     let wrap: Momentum = {
-      strength: "You showed up and practiced — that already builds readiness.",
-      improve:
-        "Next time, say one full thought so we can coach something specific.",
-      nextAction:
-        "Try one clearer opening line in your next real conversation.",
+      strength: isAssessment
+        ? "Thanks for sharing — Forge has what it needs to put this together."
+        : "You showed up and practiced — that already builds readiness.",
+      improve: isAssessment
+        ? "If anything felt unfinished, you can always talk with Forge again."
+        : "Next time, say one full thought so we can coach something specific.",
+      nextAction: isAssessment
+        ? "Open your Living Profile to see the current-state summary."
+        : "Try one clearer opening line in your next real conversation.",
     };
 
-    try {
-      const res = await fetch("/api/session-momentum", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          turns: snapshot,
-          eventTitle,
-        }),
-      });
-      const data = (await res.json()) as Momentum;
-      wrap = {
-        strength:
-          data.strength ||
-          "You showed up and practiced — that already builds readiness.",
-        improve:
-          data.improve ||
-          "Next time, say one full thought so we can coach something specific.",
-        nextAction:
-          data.nextAction ||
-          "Try one clearer opening line in your next real conversation.",
-        breakthrough: data.breakthrough,
-        biggestWeakness: data.biggestWeakness,
-        homework: data.homework,
-        coachSummary: data.coachSummary,
-        overallScore: data.overallScore,
-        confidence: data.confidence,
-        empathy: data.empathy,
-        listening: data.listening,
-        clarity: data.clarity,
-      };
-      setMomentum(wrap);
-    } catch {
-      setMomentum(wrap);
+    if (isAssessment) {
+      try {
+        const res = await fetch("/api/assessment/complete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            turns: snapshot,
+            practiceSessionId: practiceSessionRef.current?.id,
+          }),
+        });
+        const data = (await res.json()) as {
+          ready?: boolean;
+          profileSource?: string | null;
+          extraction?: {
+            goals?: string[];
+            strengths?: string[];
+            challenges?: string[];
+            presenceScores?: PresenceScores | null;
+            corePattern?: string | null;
+          };
+          error?: string;
+        };
+        if (!res.ok) {
+          throw new Error(data.error || "Assessment save failed.");
+        }
+        const ready = Boolean(data.ready);
+        setAssessmentWrap({
+          ready,
+          profileSource: data.profileSource ?? null,
+          goals: data.extraction?.goals ?? [],
+          strengths: data.extraction?.strengths ?? [],
+          challenges: data.extraction?.challenges ?? [],
+          presenceScores: data.extraction?.presenceScores ?? null,
+          corePattern: data.extraction?.corePattern ?? null,
+        });
+        wrap = {
+          strength: ready
+            ? "I've got a good picture of what's going on."
+            : "We didn’t capture enough yet to write a full profile.",
+          improve: ready
+            ? data.extraction?.corePattern ||
+              "Open your Living Profile to review goals and challenges."
+            : "Try the assessment again when you have a few minutes to answer more fully.",
+          nextAction: ready
+            ? "Open your Living Profile to see the current-state summary."
+            : "Return home whenever you’re ready to continue.",
+        };
+        setMomentum(wrap);
+      } catch (err) {
+        console.warn("[voice] assessment complete failed", err);
+        setAssessmentWrap({
+          ready: false,
+          profileSource: "incomplete",
+          goals: [],
+          strengths: [],
+          challenges: [],
+          presenceScores: null,
+          corePattern: null,
+        });
+        setMomentum(wrap);
+      }
+    } else {
+      try {
+        const res = await fetch("/api/session-momentum", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            turns: snapshot,
+            eventTitle,
+          }),
+        });
+        const data = (await res.json()) as Momentum;
+        wrap = {
+          strength:
+            data.strength ||
+            "You showed up and practiced — that already builds readiness.",
+          improve:
+            data.improve ||
+            "Next time, say one full thought so we can coach something specific.",
+          nextAction:
+            data.nextAction ||
+            "Try one clearer opening line in your next real conversation.",
+          breakthrough: data.breakthrough,
+          biggestWeakness: data.biggestWeakness,
+          homework: data.homework,
+          coachSummary: data.coachSummary,
+          overallScore: data.overallScore,
+          confidence: data.confidence,
+          empathy: data.empathy,
+          listening: data.listening,
+          clarity: data.clarity,
+        };
+        setMomentum(wrap);
+      } catch {
+        setMomentum(wrap);
+      }
     }
 
     await persistCompletedVoiceSession(snapshot, wrap);
@@ -1110,14 +1206,18 @@ export default function VoiceArena({
                 Coach Forge
               </p>
               <h1 className="mt-4 max-w-xl text-4xl font-semibold tracking-tight sm:text-5xl">
-                {eventTitle?.trim() || "I’m ready when you are"}
+                {isAssessment
+                  ? "A few quick questions"
+                  : eventTitle?.trim() || "I’m ready when you are"}
               </h1>
               <p className="mt-5 max-w-md text-base leading-7 text-white/50">
-                {handsFree
-                  ? "Hands-free coaching is ready. Begin when you want an uninterrupted room."
-                  : isProUser
-                    ? "You don’t have to perform here. Hold to speak when you’re ready."
-                    : "You don’t have to perform here. Hold to speak when you’re ready — or unlock Hands-Free with Pro."}
+                {isAssessment
+                  ? "Nothing formal — Forge just wants a sense of you before anything else."
+                  : handsFree
+                    ? "Hands-free coaching is ready. Begin when you want an uninterrupted room."
+                    : isProUser
+                      ? "You don’t have to perform here. Hold to speak when you’re ready."
+                      : "You don’t have to perform here. Hold to speak when you’re ready — or unlock Hands-Free with Pro."}
               </p>
               {welcomeLine ? (
                 <p className="mt-3 max-w-md text-sm leading-6 text-[#d7b56a]/85">
@@ -1170,6 +1270,111 @@ export default function VoiceArena({
                       Reflect on this session
                     </Link>
                   ) : null}
+                </>
+              ) : isAssessment ? (
+                <>
+                  <PresenceRing
+                    state="wrap"
+                    label={
+                      assessmentWrap?.ready ? "Profile captured" : "Almost there"
+                    }
+                  />
+                  <h1 className="mt-10 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
+                    {assessmentWrap?.ready
+                      ? "Here’s what Forge heard"
+                      : "Not enough to write a full profile yet"}
+                  </h1>
+                  <p className="mt-3 max-w-md text-base leading-7 text-white/50">
+                    {assessmentWrap?.ready
+                      ? "A simple current-state summary — no roadmap, just what you shared."
+                      : "If you left early or kept answers very short, Forge won’t force a profile."}
+                  </p>
+
+                  {momentumLoading ? (
+                    <p className="mt-10 text-sm text-white/45">
+                      Putting this together…
+                    </p>
+                  ) : assessmentWrap ? (
+                    <div className="mt-10 w-full max-w-xl space-y-5 text-left">
+                      {assessmentWrap.corePattern ? (
+                        <div className="rounded-2xl border border-[#d7b56a]/30 bg-[#c9a95f]/10 px-5 py-4">
+                          <p className="text-xs uppercase tracking-[0.2em] text-[#d7b56a]/80">
+                            Core pattern
+                          </p>
+                          <p className="mt-2 text-base leading-7 text-white">
+                            {assessmentWrap.corePattern}
+                          </p>
+                        </div>
+                      ) : null}
+                      {assessmentWrap.goals.length > 0 ? (
+                        <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
+                          <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+                            Goals
+                          </p>
+                          <ul className="mt-2 list-disc space-y-1 pl-5 text-base leading-7 text-white/90">
+                            {assessmentWrap.goals.map((g) => (
+                              <li key={g}>{g}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null}
+                      {assessmentWrap.challenges.length > 0 ? (
+                        <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
+                          <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+                            Challenges
+                          </p>
+                          <ul className="mt-2 list-disc space-y-1 pl-5 text-base leading-7 text-white/90">
+                            {assessmentWrap.challenges.map((c) => (
+                              <li key={c}>{c}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null}
+                      {assessmentWrap.strengths.length > 0 ? (
+                        <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
+                          <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+                            Strengths
+                          </p>
+                          <ul className="mt-2 list-disc space-y-1 pl-5 text-base leading-7 text-white/90">
+                            {assessmentWrap.strengths.map((s) => (
+                              <li key={s}>{s}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ) : null}
+                      {assessmentWrap.presenceScores ? (
+                        <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
+                          <p className="text-xs uppercase tracking-[0.2em] text-white/40">
+                            Inferred presence (1–10)
+                          </p>
+                          <dl className="mt-3 grid grid-cols-2 gap-3 text-sm text-white/85">
+                            {Object.entries(assessmentWrap.presenceScores).map(
+                              ([key, value]) => (
+                                <div key={key}>
+                                  <dt className="capitalize text-white/40">
+                                    {key}
+                                  </dt>
+                                  <dd className="mt-0.5 text-lg font-semibold text-white">
+                                    {value}
+                                  </dd>
+                                </div>
+                              )
+                            )}
+                          </dl>
+                          <p className="mt-3 text-xs leading-5 text-white/35">
+                            Inferred from conversation only — not a self-rating.
+                          </p>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+
+                  <Link
+                    href="/app/profile"
+                    className="mt-10 rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                  >
+                    Open Living Profile
+                  </Link>
                 </>
               ) : (
                 <>

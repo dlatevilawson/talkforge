@@ -14,7 +14,7 @@ import { mapLivingProfileRow, type LivingProfileRow } from "./persistence";
 import type { LivingProfile, ProvenanceRecord } from "./types";
 
 const LP_SELECT =
-  "user_id, version, display_name, preferred_nickname, purpose_statement, personal_principles, seasons, coaching_intensity, preferred_coaching_style, mattering_conversation_ids, provenance, updated_at";
+  "user_id, version, display_name, preferred_nickname, purpose_statement, personal_principles, seasons, coaching_intensity, preferred_coaching_style, mattering_conversation_ids, provenance, presence_scores, goals, strengths, challenges, profile_source, updated_at";
 
 export type EnsureLivingProfileResult = {
   profile: LivingProfile | null;

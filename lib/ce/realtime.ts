@@ -3,6 +3,7 @@ import {
   buildOpeningSpeechInstructions,
   FORGE_TURN_MAX_OUTPUT_TOKENS,
 } from "@/lib/coach/philosophy";
+import { buildAssessmentOpeningSpeechInstructions } from "./assessment-prompt";
 import { buildSessionUpdateForTranscription } from "./session-config";
 import { outputBudgetForTurn } from "./voice-economics";
 import {
@@ -368,11 +369,24 @@ function createSilentAudioStream(): MediaStream {
 export function requestOpeningSpeech(
   dc: RTCDataChannel,
   welcomeHint?: string,
-  options?: { eventTitle?: string; isReturning?: boolean }
+  options?: {
+    eventTitle?: string;
+    isReturning?: boolean;
+    mode?: "practice" | "assessment";
+  }
 ): void {
   if (dc.readyState !== "open") {
     throw new Error("Data channel not open — cannot request opening speech.");
   }
+
+  const instructions =
+    options?.mode === "assessment"
+      ? buildAssessmentOpeningSpeechInstructions()
+      : buildOpeningSpeechInstructions({
+          welcomeHint,
+          eventTitle: options?.eventTitle,
+          isReturning: options?.isReturning,
+        });
 
   dc.send(
     JSON.stringify({
@@ -380,11 +394,7 @@ export function requestOpeningSpeech(
       response: {
         output_modalities: ["audio"],
         max_output_tokens: outputBudgetForTurn("opening", false),
-        instructions: buildOpeningSpeechInstructions({
-          welcomeHint,
-          eventTitle: options?.eventTitle,
-          isReturning: options?.isReturning,
-        }),
+        instructions,
       },
     })
   );

@@ -46,8 +46,9 @@ export const APP_HOME_SCREEN_COPY = {
     {
       id: "living-plan",
       title: "Build My Living Training Plan",
-      subtitle: "Shape what Forge trains with you—start from what matters now.",
-      href: "/app/profile#goal",
+      subtitle: "A short conversation with Forge so it can get a sense of you.",
+      /** Opens Coach Forge in assessment mode — not the focus picker. */
+      mode: "assessment" as const,
     },
     {
       id: "talk-forge",

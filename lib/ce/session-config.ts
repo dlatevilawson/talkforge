@@ -13,6 +13,7 @@ import {
   outputBudgetForTurn,
   type VoiceTurnKind,
 } from "@/lib/ce/voice-economics";
+import { buildAssessmentSystemInstructions } from "@/lib/ce/assessment-prompt";
 
 /** OpenAI Realtime model for CE-M1+. */
 export const CE_REALTIME_MODEL = "gpt-realtime-2.1";
@@ -24,6 +25,9 @@ export const CE_REALTIME_VOICE = "marin";
 export const CE_TRANSCRIBE_MODEL = "gpt-4o-mini-transcribe";
 
 export type CeTrack = ForgeEvent["track"] | "hello";
+
+/** Session mode — assessment uses a discovery interview prompt. */
+export type CeSessionMode = "practice" | "assessment";
 
 export const CE_TRACK_TITLES: Record<CeTrack, string> = {
   hello: "Voice practice with Forge",
@@ -43,7 +47,12 @@ export function buildSystemInstructions(input?: {
   successCriteria?: string;
   memory?: CoachPromptContext | null;
   conciseMode?: boolean;
+  mode?: CeSessionMode;
 }): string {
+  if (input?.mode === "assessment") {
+    return buildAssessmentSystemInstructions();
+  }
+
   const track = input?.track ?? "system_design";
   const eventLine = input?.eventTitle
     ? `They may be preparing for: ${input.eventTitle}. Hold that lightly — understand them before shaping practice. Do not interrogate it as a form.`
@@ -131,6 +140,7 @@ export function buildClientSecretRequest(input?: {
   handsFree?: boolean;
   conciseMode?: boolean;
   turnKind?: VoiceTurnKind;
+  mode?: CeSessionMode;
 }) {
   // Hands-free (gated): semantic_vad; client owns barge-in yield.
   // Hold-to-talk: create_response OFF — mid-hold thinking pauses must NOT

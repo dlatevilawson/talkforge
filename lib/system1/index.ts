@@ -29,3 +29,14 @@ export type { MemberLivingProfileInput } from "./member-writes";
 export { applyMemberLivingProfileUpdate } from "./member-writes";
 export type { LegacyEvidenceMigrationResult } from "./migrate-from-coach-memory";
 export { attachLegacyCoachMemoryEvidence } from "./migrate-from-coach-memory";
+export type {
+  AssessmentExtraction,
+  PresenceScores,
+  ProfileSource,
+} from "./assessment";
+export {
+  isAssessmentReady,
+  normalizePresenceScores,
+  normalizeStringList,
+  PRESENCE_SCORE_KEYS,
+} from "./assessment";

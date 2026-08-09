@@ -1,6 +1,6 @@
 import VoiceArena from "@/app/components/VoiceArena";
 import EndOfFreePractice from "@/app/components/billing/EndOfFreePractice";
-import type { CeTrack } from "@/lib/ce/session-config";
+import type { CeSessionMode, CeTrack } from "@/lib/ce/session-config";
 import { evaluatePracticeEntitlement } from "@/lib/billing/entitlements";
 import { evaluatePracticeRouteAccess } from "@/lib/system2/server-readiness";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -15,6 +15,7 @@ export default async function VoicePage({
     title?: string | string[];
     success?: string | string[];
     start?: string | string[];
+    mode?: string | string[];
   }>;
 }) {
   await connection();
@@ -51,6 +52,9 @@ export default async function VoicePage({
     trackRaw === "hello"
       ? trackRaw
       : "hello";
+  const modeRaw = first(params.mode);
+  const mode: CeSessionMode =
+    modeRaw === "assessment" ? "assessment" : "practice";
 
   return (
     <VoiceArena
@@ -58,6 +62,7 @@ export default async function VoicePage({
       eventTitle={first(params.title)}
       successCriteria={first(params.success)}
       autoStart={first(params.start) === "1"}
+      mode={mode}
     />
   );
 }

@@ -14,6 +14,7 @@ import type {
   GrowthSummary,
   SessionReport,
 } from "@/lib/coach/types";
+import { mapLivingProfileRow } from "@/lib/system1/persistence";
 import type { LivingProfile } from "@/lib/system1/types";
 import type {
   ConversationTurn,
@@ -635,34 +636,8 @@ export async function saveCoachMemory(memory: CoachMemory): Promise<void> {
   }
 }
 
-function mapLivingProfile(row: {
-  user_id: string;
-  version?: number | null;
-  display_name?: string | null;
-  preferred_nickname?: string | null;
-  purpose_statement?: string | null;
-  personal_principles?: LivingProfile["personalPrinciples"] | null;
-  seasons?: LivingProfile["seasons"] | null;
-  coaching_intensity?: LivingProfile["coachingIntensity"] | null;
-  preferred_coaching_style?: string | null;
-  mattering_conversation_ids?: string[] | null;
-  provenance?: LivingProfile["provenance"] | null;
-  updated_at?: string | null;
-}): LivingProfile {
-  return {
-    userId: row.user_id,
-    version: row.version ?? 0,
-    displayName: row.display_name ?? "",
-    preferredNickname: row.preferred_nickname ?? "",
-    purposeStatement: row.purpose_statement ?? "",
-    personalPrinciples: row.personal_principles ?? [],
-    seasons: row.seasons ?? [],
-    coachingIntensity: row.coaching_intensity ?? "steady",
-    preferredCoachingStyle: row.preferred_coaching_style ?? "",
-    matteringConversationIds: row.mattering_conversation_ids ?? [],
-    provenance: row.provenance ?? [],
-    updatedAt: row.updated_at ?? new Date().toISOString(),
-  };
+function mapLivingProfile(row: Parameters<typeof mapLivingProfileRow>[0]): LivingProfile {
+  return mapLivingProfileRow(row);
 }
 
 /** Living Profile SSOT — soft-fails if table not migrated yet. */

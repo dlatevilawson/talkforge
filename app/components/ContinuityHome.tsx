@@ -18,6 +18,8 @@ type WorkOption = {
   practiceTitle: string;
   /** When set, navigate here instead of entering practice. */
   href?: string;
+  /** Practice session mode (assessment = discovery interview). */
+  mode?: "assessment";
 };
 
 const homeCopy = APP_HOME_SCREEN_COPY;
@@ -38,13 +40,20 @@ function gateMessage(gate: string | null): string | null {
 
 /** Explorer: zero completed practice_sessions for this user. */
 function buildExplorerOptions(): WorkOption[] {
-  return homeCopy.explorerCards.map((card) => ({
-    id: card.id,
-    title: card.title,
-    blurb: card.subtitle,
-    practiceTitle: "",
-    href: "href" in card ? card.href : undefined,
-  }));
+  return homeCopy.explorerCards.map((card) => {
+    const href =
+      "href" in card && typeof card.href === "string" ? card.href : undefined;
+    const mode =
+      "mode" in card && card.mode === "assessment" ? "assessment" : undefined;
+    return {
+      id: card.id,
+      title: card.title,
+      blurb: card.subtitle,
+      practiceTitle: "",
+      href,
+      mode,
+    };
+  });
 }
 
 function buildWorkOptions(focus: string | null): WorkOption[] {
@@ -181,11 +190,17 @@ function ContinuityHomeInner() {
     [isExplorer, focus]
   );
 
-  function enterPractice(practiceTitle: string) {
+  function enterPractice(
+    practiceTitle: string,
+    mode?: "assessment"
+  ) {
     setEnteringTraining(true);
     const trainingParams = new URLSearchParams({ start: "1" });
     if (practiceTitle.trim()) {
       trainingParams.set("title", practiceTitle.trim());
+    }
+    if (mode === "assessment") {
+      trainingParams.set("mode", "assessment");
     }
     window.location.assign(`/app/practice?${trainingParams.toString()}`);
   }
@@ -195,7 +210,7 @@ function ContinuityHomeInner() {
       router.push(option.href);
       return;
     }
-    enterPractice(option.practiceTitle);
+    enterPractice(option.practiceTitle, option.mode);
   }
 
   return (

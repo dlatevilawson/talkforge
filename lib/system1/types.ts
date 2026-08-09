@@ -8,6 +8,8 @@
  * Only member declaration + Intelligence Engine (with evidence) may write.
  */
 
+import type { PresenceScores, ProfileSource } from "./assessment";
+
 /** Provenance for any Living Profile claim (Law #014). */
 export type EvidenceSourceKind =
   | "member_declared"
@@ -110,6 +112,16 @@ export type LivingProfile = {
   matteringConversationIds: string[];
   /** Provenance ledger for profile claims */
   provenance: ProvenanceRecord[];
+  /** Assessment test slice — inferred 1–10 scores (null if incomplete/unscored). */
+  presenceScores: PresenceScores | null;
+  /** Assessment test slice — goals surfaced in conversation. */
+  goals: string[];
+  /** Assessment test slice — strengths surfaced in conversation. */
+  strengths: string[];
+  /** Assessment test slice — challenges surfaced in conversation. */
+  challenges: string[];
+  /** How the current snapshot was captured. */
+  profileSource: ProfileSource | null;
   updatedAt: string;
 };
 

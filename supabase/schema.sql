@@ -142,6 +142,15 @@ create table if not exists public.living_profiles (
   preferred_coaching_style text not null default '',
   mattering_conversation_ids text[] not null default '{}',
   provenance jsonb not null default '[]'::jsonb,
+  presence_scores jsonb,
+  goals text[] not null default '{}',
+  strengths text[] not null default '{}',
+  challenges text[] not null default '{}',
+  profile_source text
+    check (
+      profile_source is null
+      or profile_source in ('quick_pick', 'assessment', 'incomplete')
+    ),
   version bigint not null default 1
     constraint living_profiles_version_positive check (version >= 1),
   updated_at timestamptz not null default now()
@@ -149,6 +158,10 @@ create table if not exists public.living_profiles (
 
 comment on column public.living_profiles.version is
   'Optimistic-concurrency token; compare current value and increment on each write.';
+comment on column public.living_profiles.presence_scores is
+  'Inferred 1–10 skill scores from assessment conversation (test slice).';
+comment on column public.living_profiles.profile_source is
+  'How the current snapshot was captured: quick_pick | assessment | incomplete.';
 
 create table if not exists public.reflections (
   session_id text primary key references public.practice_sessions (id) on delete cascade,

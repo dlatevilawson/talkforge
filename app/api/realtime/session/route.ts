@@ -4,6 +4,7 @@ import { evaluatePracticeEntitlement } from "@/lib/billing/entitlements";
 import { loadCoachPromptContextForUser } from "@/lib/coach/memory-server";
 import {
   buildClientSecretRequest,
+  type CeSessionMode,
   type CeTrack,
 } from "@/lib/ce/session-config";
 import { resolveArenaVoiceMode } from "@/lib/ce/voice-mode";
@@ -16,6 +17,7 @@ type SessionBody = {
   track?: CeTrack;
   eventTitle?: string;
   successCriteria?: string;
+  mode?: CeSessionMode | string;
 };
 
 /**
@@ -89,6 +91,8 @@ export async function POST(req: Request) {
   }
 
   const track = normalizeTrack(body.track);
+  const mode: CeSessionMode =
+    body.mode === "assessment" ? "assessment" : "practice";
   const memory = await loadCoachPromptContextForUser(gate.userId);
   const planIsPro =
     entitlement.plan === "pro" ||
@@ -108,6 +112,7 @@ export async function POST(req: Request) {
         : undefined,
     memory,
     handsFree,
+    mode,
   });
 
   try {
@@ -147,6 +152,7 @@ export async function POST(req: Request) {
       session_id: data.session?.id ?? null,
       model: data.session?.model ?? payload.session.model,
       track,
+      mode,
       milestone: "CE-M1",
       voiceMode,
       entitlement: {

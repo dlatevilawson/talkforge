@@ -16,7 +16,8 @@
       "20260803_atomic_member_data_reset.sql",
       "20260805_living_profile_on_signup.sql",
       "20260807_member_subscriptions.sql",
-      "20260808_voice_session_usage.sql"
+      "20260808_voice_session_usage.sql",
+      "20260809_living_profile_assessment.sql"
     ],
     "existingProduction": [
       "20260730_upgrade_legacy_profiles.sql",
@@ -28,7 +29,8 @@
       "20260803_atomic_member_data_reset.sql",
       "20260805_living_profile_on_signup.sql",
       "20260807_member_subscriptions.sql",
-      "20260808_voice_session_usage.sql"
+      "20260808_voice_session_usage.sql",
+      "20260809_living_profile_assessment.sql"
     ]
   },
   "securityInvariants": {

@@ -25,6 +25,11 @@ export function emptyLivingProfile(
     preferredCoachingStyle: "",
     matteringConversationIds: [],
     provenance: [],
+    presenceScores: null,
+    goals: [],
+    strengths: [],
+    challenges: [],
+    profileSource: null,
     updatedAt: new Date().toISOString(),
   };
 }
