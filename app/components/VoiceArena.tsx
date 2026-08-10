@@ -881,7 +881,9 @@ export default function VoiceArena({
       if (!spoke) pushEvent("Hold released · no speech · waiting");
       return;
     }
-    const requested = requestHoldTurnResponse(connectionRef.current);
+    const requested = requestHoldTurnResponse(connectionRef.current, {
+      mode,
+    });
     pushEvent(
       requested
         ? "Hold released · listen-first response requested"
@@ -987,6 +989,7 @@ export default function VoiceArena({
         const data = (await res.json()) as {
           ready?: boolean;
           profileSource?: string | null;
+          abortedForDisengagement?: boolean;
           extraction?: {
             goals?: string[];
             strengths?: string[];
@@ -1000,6 +1003,7 @@ export default function VoiceArena({
           throw new Error(data.error || "Assessment save failed.");
         }
         const ready = Boolean(data.ready);
+        const aborted = Boolean(data.abortedForDisengagement);
         setAssessmentWrap({
           ready,
           profileSource: data.profileSource ?? null,
@@ -1012,11 +1016,15 @@ export default function VoiceArena({
         wrap = {
           strength: ready
             ? "I've got a good picture of what's going on."
-            : "We didn’t capture enough yet to write a full profile.",
+            : aborted
+              ? "No worries — we won’t force a profile from a confused pass."
+              : "We didn’t capture enough yet to write a full profile.",
           improve: ready
             ? data.extraction?.corePattern ||
               "Open your Living Profile to review goals and challenges."
-            : "Try the assessment again when you have a few minutes to answer more fully.",
+            : aborted
+              ? "You can talk with Forge openly, or try the assessment again later."
+              : "Try the assessment again when you have a few minutes to answer more fully.",
           nextAction: ready
             ? "Open your Living Profile to see the current-state summary."
             : "Return home whenever you’re ready to continue.",

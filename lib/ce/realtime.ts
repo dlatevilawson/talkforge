@@ -3,7 +3,10 @@ import {
   buildOpeningSpeechInstructions,
   FORGE_TURN_MAX_OUTPUT_TOKENS,
 } from "@/lib/coach/philosophy";
-import { buildAssessmentOpeningSpeechInstructions } from "./assessment-prompt";
+import {
+  buildAssessmentOpeningSpeechInstructions,
+  buildAssessmentTurnInstructions,
+} from "./assessment-prompt";
 import { buildSessionUpdateForTranscription } from "./session-config";
 import { outputBudgetForTurn } from "./voice-economics";
 import {
@@ -406,7 +409,8 @@ export function requestOpeningSpeech(
  * pauses mid-hold never spawn a competing Forge turn.
  */
 export function requestHoldTurnResponse(
-  connection: RealtimeConnection | null
+  connection: RealtimeConnection | null,
+  options?: { mode?: "practice" | "assessment" }
 ): boolean {
   if (!connection || connection.dc.readyState !== "open") return false;
   try {
@@ -417,13 +421,17 @@ export function requestHoldTurnResponse(
     } catch {
       /* ignore */
     }
+    const instructions =
+      options?.mode === "assessment"
+        ? buildAssessmentTurnInstructions()
+        : buildListenFirstTurnInstructions();
     connection.dc.send(
       JSON.stringify({
         type: "response.create",
         response: {
           output_modalities: ["audio"],
           max_output_tokens: outputBudgetForTurn("normal", false),
-          instructions: buildListenFirstTurnInstructions(),
+          instructions,
         },
       })
     );

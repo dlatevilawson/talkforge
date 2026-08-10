@@ -2,6 +2,9 @@ import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
 import {
+  countConfusionAnswers,
+  countTrailingConfusionAnswers,
+  filterSubstantiveAnswers,
   isAssessmentReady,
   normalizePresenceScores,
   normalizeStringList,
@@ -26,24 +29,43 @@ function newProvId(): string {
   return `prov_assess_${Date.now()}`;
 }
 
+function incompleteExtraction(
+  extras?: Partial<AssessmentExtraction>
+): AssessmentExtraction {
+  return {
+    goals: [],
+    strengths: [],
+    challenges: [],
+    presenceScores: null,
+    ready: false,
+    abortedForDisengagement: false,
+    confusionAnswerCount: 0,
+    ...extras,
+  };
+}
+
 function heuristicExtraction(userTexts: string[]): AssessmentExtraction {
-  const joined = userTexts.join(" ").trim();
-  if (joined.length < 24 || userTexts.length < 2) {
-    return {
-      goals: [],
-      strengths: [],
-      challenges: [],
-      presenceScores: null,
-      ready: false,
-    };
+  const confusionAnswerCount = countConfusionAnswers(userTexts);
+  const trailingConfusion = countTrailingConfusionAnswers(userTexts);
+  if (trailingConfusion >= 2) {
+    return incompleteExtraction({
+      abortedForDisengagement: true,
+      confusionAnswerCount,
+    });
+  }
+
+  const substantive = filterSubstantiveAnswers(userTexts);
+  const joined = substantive.join(" ").trim();
+  if (joined.length < 24 || substantive.length < 2) {
+    return incompleteExtraction({ confusionAnswerCount });
   }
 
   const goals = [
-    userTexts[userTexts.length - 1]?.slice(0, 160) ||
+    substantive[substantive.length - 1]?.slice(0, 160) ||
       "Communicate with more ease in the situations that matter.",
   ];
   const challenges = [
-    userTexts[0]?.slice(0, 160) ||
+    substantive[0]?.slice(0, 160) ||
       "Communication feels harder than it should in key moments.",
   ];
   const strengths: string[] = [];
@@ -63,6 +85,8 @@ function heuristicExtraction(userTexts: string[]): AssessmentExtraction {
     presenceScores,
     ready: isAssessmentReady(goals, challenges),
     corePattern: challenges[0],
+    abortedForDisengagement: false,
+    confusionAnswerCount,
   };
 }
 
@@ -70,6 +94,15 @@ async function extractFromTranscript(
   lines: string[],
   userTexts: string[]
 ): Promise<AssessmentExtraction> {
+  const confusionAnswerCount = countConfusionAnswers(userTexts);
+  const trailingConfusion = countTrailingConfusionAnswers(userTexts);
+  if (trailingConfusion >= 2) {
+    return incompleteExtraction({
+      abortedForDisengagement: true,
+      confusionAnswerCount,
+    });
+  }
+
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey || lines.length === 0) {
     return heuristicExtraction(userTexts);
@@ -83,13 +116,15 @@ async function extractFromTranscript(
 You extract a Living Profile assessment snapshot from a short Forge discovery interview.
 
 Rules:
-- Use ONLY what the member said. Do not invent biography.
-- goals: what they want to be different / able to do (clear, concrete phrases).
-- challenges: what specifically makes communication hard for them.
+- Use ONLY substantive member answers about their communication.
+- IGNORE process-confusion / disengagement answers (e.g. "why are you asking this?", "not sure what this is for", "can we just practice?"). Never put those into goals, strengths, or challenges.
+- If two or more consecutive trailing user answers are process-confusion / disengagement, set ready=false, abortedForDisengagement=true, empty arrays, presence_scores=null.
+- goals: what they want to be different / able to do (clear, concrete phrases) from substantive answers only.
+- challenges: what specifically makes communication hard for them — never process meta-questions.
 - strengths: only if they stated or clearly demonstrated one; else [].
 - presence_scores: infer 1–10 integers for clarity, composure, confidence, listening, assertiveness, presence from conversation content alone. If evidence is thin, stay near 5 and avoid extreme scores.
-- ready: true ONLY if there is at least one clear goal AND one clear challenge (not one-word / empty answers).
-- corePattern: one short sentence of the core pattern they confirmed (or best read).
+- ready: true ONLY if there is at least one clear goal AND one clear challenge from substantive answers (not one-word / empty / confusion answers).
+- corePattern: one short sentence of the core pattern they confirmed (or best read) — only from substantive content.
 
 Transcript:
 ${lines.join("\n")}
@@ -108,6 +143,8 @@ Return ONLY valid JSON:
     "presence": 5
   },
   "ready": true,
+  "abortedForDisengagement": false,
+  "confusionAnswerCount": 0,
   "corePattern": "..."
 }
 `,
@@ -125,12 +162,33 @@ Return ONLY valid JSON:
       challenges?: unknown;
       presence_scores?: unknown;
       ready?: unknown;
+      abortedForDisengagement?: unknown;
+      confusionAnswerCount?: unknown;
       corePattern?: unknown;
     };
 
-    const goals = normalizeStringList(parsed.goals);
+    const aborted =
+      parsed.abortedForDisengagement === true || trailingConfusion >= 2;
+    if (aborted) {
+      return incompleteExtraction({
+        abortedForDisengagement: true,
+        confusionAnswerCount:
+          typeof parsed.confusionAnswerCount === "number"
+            ? parsed.confusionAnswerCount
+            : confusionAnswerCount,
+      });
+    }
+
+    // Defense in depth: never persist confusion-looking strings as profile fields.
+    const goals = normalizeStringList(parsed.goals).filter(
+      (g) => !g.toLowerCase().includes("why are you asking")
+    );
     const strengths = normalizeStringList(parsed.strengths);
-    const challenges = normalizeStringList(parsed.challenges);
+    const challenges = normalizeStringList(parsed.challenges).filter(
+      (c) =>
+        !c.toLowerCase().includes("why are you asking") &&
+        !c.toLowerCase().includes("what this is for")
+    );
     const ready =
       typeof parsed.ready === "boolean"
         ? parsed.ready && isAssessmentReady(goals, challenges)
@@ -145,6 +203,11 @@ Return ONLY valid JSON:
       challenges,
       presenceScores,
       ready,
+      abortedForDisengagement: false,
+      confusionAnswerCount:
+        typeof parsed.confusionAnswerCount === "number"
+          ? parsed.confusionAnswerCount
+          : confusionAnswerCount,
       corePattern:
         typeof parsed.corePattern === "string"
           ? parsed.corePattern.trim().slice(0, 220)
@@ -236,6 +299,7 @@ export async function POST(req: Request) {
       });
     }
 
+    // Incomplete path also covers disengagement abort — never fabricate arrays.
     const payload = extraction.ready
       ? {
           goals: extraction.goals,
@@ -246,7 +310,6 @@ export async function POST(req: Request) {
           provenance,
           version: current.version + 1,
           updated_at: now,
-          // Soft-sync purpose from first goal when empty — member can edit later.
           purpose_statement:
             current.purposeStatement.trim() ||
             extraction.goals[0] ||
@@ -290,6 +353,8 @@ export async function POST(req: Request) {
     return NextResponse.json({
       ready: extraction.ready,
       profileSource: profile.profileSource,
+      abortedForDisengagement: Boolean(extraction.abortedForDisengagement),
+      confusionAnswerCount: extraction.confusionAnswerCount ?? 0,
       extraction: {
         goals: profile.goals,
         strengths: profile.strengths,

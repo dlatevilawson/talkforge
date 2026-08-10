@@ -35,7 +35,11 @@ export type {
   ProfileSource,
 } from "./assessment";
 export {
+  countConfusionAnswers,
+  countTrailingConfusionAnswers,
+  filterSubstantiveAnswers,
   isAssessmentReady,
+  looksLikeProcessConfusion,
   normalizePresenceScores,
   normalizeStringList,
   PRESENCE_SCORE_KEYS,
