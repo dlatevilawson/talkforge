@@ -201,7 +201,7 @@ export function inferAssessmentCategories(text: string): AssessmentCategory[] {
     hits.push("practiceCapacity");
   }
   if (
-    /(want to be|become|sound like|identity|confident|calm|clear|leader)/.test(
+    /(six weeks|able to|comfortably|target|success would|want to get better|sound like|clearer|more direct|hold the floor|finish my point)/.test(
       t
     )
   ) {
