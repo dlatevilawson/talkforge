@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import {
   ASSESSMENT_CATEGORIES,
   readAssessmentResultClient,
   type AssessmentCategory,
-  type AssessmentResult,
+  type StoredAssessmentResult,
 } from "@/lib/ce/assessment-lifecycle";
 
 const LABELS: Record<AssessmentCategory, string> = {
@@ -19,22 +20,21 @@ const LABELS: Record<AssessmentCategory, string> = {
 };
 
 /**
- * Placeholder Assessment Results route (STEP 2).
- * Full Living Profile UI ships in a later step — this only confirms
- * structural completion and surfaces the assessment data contract.
+ * Placeholder Assessment Results route.
+ * Full Living Profile UI ships later — this only confirms terminal assessment
+ * state. Incomplete endings must NOT offer a completed Living Profile CTA.
  */
-export default function AssessmentResultsPlaceholderPage() {
-  const [result, setResult] = useState<
-    (AssessmentResult & {
-      practiceSessionId?: string | null;
-      completedAt?: string;
-    }) | null
-  >(null);
+function AssessmentResultsBody() {
+  const searchParams = useSearchParams();
+  const statusParam = searchParams.get("status");
+  const [result, setResult] = useState<StoredAssessmentResult | null>(null);
 
   useEffect(() => {
     setResult(readAssessmentResultClient());
   }, []);
 
+  const incomplete =
+    statusParam === "incomplete" || result?.sufficient === false;
   const filled = ASSESSMENT_CATEGORIES.filter((key) => result?.[key]);
 
   return (
@@ -52,23 +52,25 @@ export default function AssessmentResultsPlaceholderPage() {
         </Link>
 
         <p className="mt-14 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/75">
-          Assessment complete
+          {incomplete ? "Assessment unfinished" : "Assessment complete"}
         </p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight">
-          Your Living Profile is next
+          {incomplete
+            ? "Not enough yet for a Living Profile"
+            : "Baseline captured"}
         </h1>
         <p className="mt-4 max-w-md text-base leading-7 text-white/55">
-          Forge gathered enough to establish your initial communication
-          baseline. The full Living Profile view arrives in a later step —
-          this page confirms the assessment ended cleanly.
+          {incomplete
+            ? "Forge didn’t gather enough to write your initial communication baseline. No Living Profile was created from this pass."
+            : "Forge gathered enough to establish your initial communication baseline. The full Living Profile view arrives in a later step — this page confirms the assessment ended cleanly."}
         </p>
 
-        {result ? (
+        {!incomplete && result ? (
           <ul className="mt-10 space-y-5">
             {filled.length === 0 ? (
               <li className="text-sm text-white/45">
-                Assessment finished. Detailed fields will appear once the
-                Living Profile view ships.
+                Assessment finished. Detailed fields will appear once the Living
+                Profile view ships.
               </li>
             ) : (
               filled.map((key) => (
@@ -83,20 +85,23 @@ export default function AssessmentResultsPlaceholderPage() {
               ))
             )}
           </ul>
-        ) : (
-          <p className="mt-10 text-sm text-white/45">
-            No assessment result in this browser session. Start from Explorer →
-            Build My Living Training Plan.
-          </p>
-        )}
+        ) : null}
 
-        <div className="mt-auto flex flex-col gap-3 pt-12 sm:flex-row">
+        <div className="mt-auto flex flex-col gap-3 pt-12 sm:flex-row sm:flex-wrap">
           <Link
             href="/app"
             className="inline-flex items-center justify-center rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
           >
             Back to home
           </Link>
+          {incomplete ? (
+            <Link
+              href="/app/practice?start=1&mode=assessment"
+              className="inline-flex items-center justify-center rounded-full border border-white/15 px-8 py-3.5 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:text-white"
+            >
+              Try assessment again
+            </Link>
+          ) : null}
           <Link
             href="/app/practice?start=1"
             className="inline-flex items-center justify-center rounded-full border border-white/15 px-8 py-3.5 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:text-white"
@@ -106,5 +111,19 @@ export default function AssessmentResultsPlaceholderPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function AssessmentResultsPlaceholderPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-[100dvh] bg-[#070708] text-white/50">
+          <div className="mx-auto max-w-xl px-6 pt-20">Loading…</div>
+        </main>
+      }
+    >
+      <AssessmentResultsBody />
+    </Suspense>
   );
 }

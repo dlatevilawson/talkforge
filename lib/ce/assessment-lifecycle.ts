@@ -28,10 +28,10 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
 ];
 
 /** Soft target ~5 minutes; structural caps keep the interview finite. */
-export const ASSESSMENT_MIN_SUBSTANTIVE_ANSWERS = 4;
-export const ASSESSMENT_MAX_SUBSTANTIVE_ANSWERS = 7;
-export const ASSESSMENT_MIN_COVERED_CATEGORIES = 3;
-export const ASSESSMENT_MAX_FORGE_CONTENT_QUESTIONS = 6;
+export const ASSESSMENT_MIN_SUBSTANTIVE_ANSWERS = 3;
+export const ASSESSMENT_MAX_SUBSTANTIVE_ANSWERS = 5;
+export const ASSESSMENT_MIN_COVERED_CATEGORIES = 2;
+export const ASSESSMENT_MAX_FORGE_CONTENT_QUESTIONS = 4;
 
 export type AssessmentLifecycleState = {
   assessmentMode: boolean;
@@ -58,6 +58,8 @@ export type AssessmentLifecycleEvent =
   | { type: "CONSENT_DECLINED" }
   | { type: "USER_UTTERANCE"; text: string }
   | { type: "FORGE_CONTENT_QUESTION_ASKED" }
+  /** Forge improvised an end-of-assessment line — app must terminalize. */
+  | { type: "FORGE_SOFT_CLOSE"; text: string }
   | { type: "BEGIN_CLOSING" }
   | { type: "FINAL_RESPONSE_DONE" }
   | { type: "CANCEL"; reason?: string };
@@ -65,6 +67,8 @@ export type AssessmentLifecycleEvent =
 export type AssessmentLifecycleEffect =
   | { type: "NONE" }
   | { type: "REQUEST_FINAL_RESPONSE" }
+  /** Forge already spoke a closing — do not create another; finalize on done. */
+  | { type: "ADOPT_IN_FLIGHT_CLOSING" }
   | { type: "NAVIGATE_RESULTS" }
   | { type: "EXIT_TO_COACH" };
 
@@ -359,6 +363,31 @@ export function reduceAssessmentLifecycle(
       }
       return { state: next, effect: { type: "NONE" } };
     }
+    case "FORGE_SOFT_CLOSE": {
+      if (
+        !state.assessmentMode ||
+        state.assessmentStatus === "cancelled" ||
+        state.finalResponseDelivered
+      ) {
+        return { state, effect: { type: "NONE" } };
+      }
+      if (
+        state.assessmentStatus === "complete" &&
+        state.finalResponseRequested
+      ) {
+        // Already closing — treat this as the in-flight final line.
+        return { state, effect: { type: "ADOPT_IN_FLIGHT_CLOSING" } };
+      }
+      return {
+        state: {
+          ...state,
+          assessmentStatus: "complete",
+          finalResponseRequested: true,
+          responsesLocked: true,
+        },
+        effect: { type: "ADOPT_IN_FLIGHT_CLOSING" },
+      };
+    }
     case "BEGIN_CLOSING": {
       if (!state.assessmentMode) return { state, effect: { type: "NONE" } };
       if (state.finalResponseRequested || state.assessmentStatus === "complete") {
@@ -422,16 +451,55 @@ export function forgeTextLooksLikeContentQuestion(text: string): boolean {
   const t = text.trim();
   if (!t || !t.includes("?")) return false;
   // Closing / acknowledgments must never count.
-  if (/i'?ve got a good picture/i.test(t)) return false;
+  if (looksLikeForgeAssessmentSoftClose(t)) return false;
   if (/^(got it|makes sense|okay|alright|ok)\b/i.test(t) && !/\?/.test(t.slice(8))) {
     return false;
   }
   return true;
 }
 
+/**
+ * Forge ended the interview in prose without the app requesting closing.
+ * The app must treat this as terminal — never leave the UI on "Your turn".
+ */
+export function looksLikeForgeAssessmentSoftClose(text: string): boolean {
+  const t = text
+    .trim()
+    .toLowerCase()
+    .replace(/[\u2018\u2019\u201b\u2032]/g, "'")
+    .replace(/[\u2013\u2014]/g, "-");
+  if (!t) return false;
+  const signals = [
+    "that's all i need",
+    "thats all i need",
+    "i've got a good picture",
+    "ive got a good picture",
+    "i have what i need",
+    "i've got what i need",
+    "ive got what i need",
+    "that's enough for now",
+    "thats enough for now",
+    "we can pick this up later",
+    "let me put this together",
+    "thanks-that's all",
+    "thanks - that's all",
+    "thanks that's all",
+    "that's all for now",
+    "thats all for now",
+  ];
+  return signals.some((s) => t.includes(s));
+}
+
+export type StoredAssessmentResult = AssessmentResult & {
+  practiceSessionId?: string | null;
+  completedAt?: string;
+  /** false when member ended early / extraction insufficient */
+  sufficient?: boolean;
+};
+
 export function persistAssessmentResultClient(
   result: AssessmentResult,
-  meta?: { practiceSessionId?: string | null }
+  meta?: { practiceSessionId?: string | null; sufficient?: boolean }
 ): void {
   if (typeof window === "undefined") return;
   try {
@@ -440,28 +508,21 @@ export function persistAssessmentResultClient(
       JSON.stringify({
         ...result,
         practiceSessionId: meta?.practiceSessionId ?? null,
+        sufficient: meta?.sufficient !== false,
         completedAt: new Date().toISOString(),
-      })
+      } satisfies StoredAssessmentResult)
     );
   } catch {
     /* ignore quota / private mode */
   }
 }
 
-export function readAssessmentResultClient():
-  | (AssessmentResult & {
-      practiceSessionId?: string | null;
-      completedAt?: string;
-    })
-  | null {
+export function readAssessmentResultClient(): StoredAssessmentResult | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = window.sessionStorage.getItem(ASSESSMENT_RESULT_STORAGE_KEY);
     if (!raw) return null;
-    return JSON.parse(raw) as AssessmentResult & {
-      practiceSessionId?: string | null;
-      completedAt?: string;
-    };
+    return JSON.parse(raw) as StoredAssessmentResult;
   } catch {
     return null;
   }
@@ -557,6 +618,7 @@ export function decideAssessmentAfterUserUtterance(
   if (
     effect.type === "EXIT_TO_COACH" ||
     effect.type === "REQUEST_FINAL_RESPONSE" ||
+    effect.type === "ADOPT_IN_FLIGHT_CLOSING" ||
     effect.type === "NAVIGATE_RESULTS"
   ) {
     return { action: "none" };
