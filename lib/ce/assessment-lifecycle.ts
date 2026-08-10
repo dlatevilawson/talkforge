@@ -3,6 +3,9 @@
  *
  * Structural — not prompt-enforced. The UI/session owner decides when the
  * assessment is complete and locks further model turns.
+ *
+ * Slot primitives below are SHADOW STATE (migration Step 1): inspectable and
+ * unit-tested, but not yet wired into reduceAssessmentLifecycle / persistence.
  */
 
 export type AssessmentStatus = "idle" | "active" | "complete" | "cancelled";
@@ -33,6 +36,45 @@ export const ASSESSMENT_MAX_SUBSTANTIVE_ANSWERS = 5;
 export const ASSESSMENT_MIN_COVERED_CATEGORIES = 2;
 export const ASSESSMENT_MAX_FORGE_CONTENT_QUESTIONS = 4;
 
+/** App-owned interview slots — single catalog/order (migration Step 1). */
+export type AssessmentSlotId =
+  | "skill_to_improve"
+  | "where_it_shows_up"
+  | "what_goes_wrong"
+  | "behavior_to_change"
+  | "recent_missed_conversation"
+  | "six_week_success"
+  | "practice_time";
+
+export type AssessmentSlotStatus =
+  | "pending"
+  | "asking"
+  | "filled"
+  | "skipped";
+
+export type AssessmentSlotRecord = {
+  id: AssessmentSlotId;
+  status: AssessmentSlotStatus;
+  /** Accepted answer only — never consent/filler. */
+  answer: string | null;
+};
+
+export type AssessmentSlotsState = Record<AssessmentSlotId, AssessmentSlotRecord>;
+
+export const ASSESSMENT_SLOT_ORDER: readonly AssessmentSlotId[] = [
+  "skill_to_improve",
+  "where_it_shows_up",
+  "what_goes_wrong",
+  "behavior_to_change",
+  "recent_missed_conversation",
+  "six_week_success",
+  "practice_time",
+] as const;
+
+/** Required for isAssessmentSlotsComplete — same catalog during Step 1. */
+export const ASSESSMENT_REQUIRED_SLOTS: readonly AssessmentSlotId[] =
+  ASSESSMENT_SLOT_ORDER;
+
 export type AssessmentLifecycleState = {
   assessmentMode: boolean;
   assessmentStatus: AssessmentStatus;
@@ -41,6 +83,10 @@ export type AssessmentLifecycleState = {
   forgeContentQuestionsAsked: number;
   covered: Record<AssessmentCategory, boolean>;
   result: AssessmentResult;
+  /** Shadow slot map — not yet authoritative for results/LP. */
+  slots: AssessmentSlotsState;
+  /** Slot currently being asked; null until interview wiring (Step 4). */
+  currentSlot: AssessmentSlotId | null;
   /** True once the app has decided to close and requested the final line. */
   finalResponseRequested: boolean;
   /** True after the final closing response has finished. */
@@ -48,6 +94,29 @@ export type AssessmentLifecycleState = {
   /** After complete/cancel — no further mid-assessment response.create. */
   responsesLocked: boolean;
 };
+
+export type AcceptAnswerReason =
+  | "not_active"
+  | "not_consented"
+  | "no_current_slot"
+  | "consent_only"
+  | "not_substantive"
+  | "confusion"
+  | "empty";
+
+export type AcceptAnswerResult =
+  | {
+      ok: true;
+      state: AssessmentLifecycleState;
+      slotId: AssessmentSlotId;
+      answer: string;
+    }
+  | {
+      ok: false;
+      state: AssessmentLifecycleState;
+      slotId: AssessmentSlotId | null;
+      reason: AcceptAnswerReason;
+    };
 
 export const ASSESSMENT_RESULT_STORAGE_KEY =
   "talkforge.assessmentResult.v1";
@@ -94,6 +163,22 @@ function emptyCovered(): Record<AssessmentCategory, boolean> {
   };
 }
 
+function emptySlots(): AssessmentSlotsState {
+  const slots = {} as AssessmentSlotsState;
+  for (const id of ASSESSMENT_SLOT_ORDER) {
+    slots[id] = { id, status: "pending", answer: null };
+  }
+  return slots;
+}
+
+function cloneSlots(slots: AssessmentSlotsState): AssessmentSlotsState {
+  const next = {} as AssessmentSlotsState;
+  for (const id of ASSESSMENT_SLOT_ORDER) {
+    next[id] = { ...slots[id] };
+  }
+  return next;
+}
+
 export function createIdleAssessmentState(): AssessmentLifecycleState {
   return {
     assessmentMode: false,
@@ -103,6 +188,8 @@ export function createIdleAssessmentState(): AssessmentLifecycleState {
     forgeContentQuestionsAsked: 0,
     covered: emptyCovered(),
     result: emptyResult(),
+    slots: emptySlots(),
+    currentSlot: null,
     finalResponseRequested: false,
     finalResponseDelivered: false,
     responsesLocked: false,
@@ -202,6 +289,44 @@ function looksSubstantive(text: string): boolean {
   return t.split(/\s+/).length >= 3;
 }
 
+/**
+ * Process-confusion gate for acceptAnswer (shadow path).
+ * Kept local so Node unit tests can load this module without path aliases.
+ * Signal set mirrors lib/system1/assessment.looksLikeProcessConfusion.
+ */
+function looksLikeAssessmentConfusion(text: string): boolean {
+  const t = text
+    .trim()
+    .toLowerCase()
+    .replace(/[\u2018\u2019\u201b\u2032]/g, "'");
+  if (!t) return false;
+  const signals = [
+    "why are you asking",
+    "why are we",
+    "what is this for",
+    "what's this for",
+    "whats this for",
+    "don't understand why",
+    "do not understand why",
+    "dont understand why",
+    "not sure what this",
+    "not sure why",
+    "what are we doing",
+    "why these questions",
+    "what is the point",
+    "what's the point",
+    "i don't get why",
+    "i dont get why",
+    "confused about this",
+    "don't see the point",
+    "dont see the point",
+    "skip this",
+    "can we just practice",
+    "rather just practice",
+  ];
+  return signals.some((s) => t.includes(s));
+}
+
 /** Lightweight category tagging for the structural data contract. */
 export function inferAssessmentCategories(text: string): AssessmentCategory[] {
   if (isConsentOnlyUtterance(text)) return [];
@@ -285,6 +410,146 @@ export function isAssessmentStructurallyComplete(
     state.substantiveUserAnswers >= ASSESSMENT_MIN_SUBSTANTIVE_ANSWERS &&
     coveredCount(state) >= ASSESSMENT_MIN_COVERED_CATEGORIES
   );
+}
+
+/**
+ * Shadow completion predicate (migration Step 1).
+ * Does not replace isAssessmentStructurallyComplete.
+ */
+export function isAssessmentSlotsComplete(
+  state: AssessmentLifecycleState
+): boolean {
+  if (!state.consented) return false;
+  for (const id of ASSESSMENT_REQUIRED_SLOTS) {
+    const slot = state.slots[id];
+    if (!slot || slot.status !== "filled") return false;
+  }
+  return true;
+}
+
+/** Next eligible interview slot — pure; does not mutate state. */
+export function nextSlot(
+  state: AssessmentLifecycleState
+): AssessmentSlotId | null {
+  if (!state.assessmentMode) return null;
+  if (state.assessmentStatus !== "active") return null;
+  if (!state.consented) return null;
+
+  if (state.currentSlot) {
+    const current = state.slots[state.currentSlot];
+    if (
+      current &&
+      (current.status === "pending" || current.status === "asking")
+    ) {
+      return state.currentSlot;
+    }
+  }
+
+  for (const id of ASSESSMENT_SLOT_ORDER) {
+    const slot = state.slots[id];
+    if (slot && (slot.status === "pending" || slot.status === "asking")) {
+      return id;
+    }
+  }
+  return null;
+}
+
+/**
+ * Pure slot answer intake (shadow path).
+ * Does not write result/covered and does not establish consent.
+ */
+export function acceptAnswer(
+  state: AssessmentLifecycleState,
+  text: string,
+  opts?: { slotId?: AssessmentSlotId }
+): AcceptAnswerResult {
+  const reject = (
+    reason: AcceptAnswerReason,
+    slotId: AssessmentSlotId | null = null
+  ): AcceptAnswerResult => ({
+    ok: false,
+    state,
+    slotId,
+    reason,
+  });
+
+  if (!text.trim()) {
+    return reject("empty", opts?.slotId ?? state.currentSlot);
+  }
+
+  if (
+    !state.assessmentMode ||
+    state.assessmentStatus !== "active" ||
+    state.responsesLocked
+  ) {
+    return reject("not_active", opts?.slotId ?? state.currentSlot);
+  }
+
+  if (!state.consented) {
+    return reject("not_consented", opts?.slotId ?? state.currentSlot);
+  }
+
+  const targetSlotId =
+    opts?.slotId ?? state.currentSlot ?? nextSlot(state);
+  if (!targetSlotId || !state.slots[targetSlotId]) {
+    return reject("no_current_slot", null);
+  }
+
+  if (isConsentOnlyUtterance(text)) {
+    return reject("consent_only", targetSlotId);
+  }
+
+  if (looksLikeAssessmentConfusion(text)) {
+    return reject("confusion", targetSlotId);
+  }
+
+  if (!looksSubstantive(text)) {
+    return reject("not_substantive", targetSlotId);
+  }
+
+  const answer = text.trim();
+  const slots = cloneSlots(state.slots);
+  slots[targetSlotId] = {
+    id: targetSlotId,
+    status: "filled",
+    answer,
+  };
+
+  const filledState: AssessmentLifecycleState = {
+    ...state,
+    slots,
+    currentSlot: targetSlotId,
+  };
+  // Prefer next pending/asking after fill; current filled slot is skipped.
+  const advanced: AssessmentLifecycleState = {
+    ...filledState,
+    currentSlot: nextSlot({ ...filledState, currentSlot: null }),
+  };
+
+  return {
+    ok: true,
+    state: advanced,
+    slotId: targetSlotId,
+    answer,
+  };
+}
+
+/** Mark a slot as currently being asked — pure; unused by reducer in Step 1. */
+export function markSlotAsAsking(
+  state: AssessmentLifecycleState,
+  slotId: AssessmentSlotId
+): AssessmentLifecycleState {
+  if (!state.slots[slotId]) return state;
+  const slots = cloneSlots(state.slots);
+  slots[slotId] = {
+    ...slots[slotId],
+    status: "asking",
+  };
+  return {
+    ...state,
+    slots,
+    currentSlot: slotId,
+  };
 }
 
 function applyCategories(
