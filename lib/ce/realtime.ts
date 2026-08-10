@@ -4,10 +4,14 @@ import {
   FORGE_TURN_MAX_OUTPUT_TOKENS,
 } from "@/lib/coach/philosophy";
 import {
+  buildAssessmentClosingSpeechInstructions,
   buildAssessmentOpeningSpeechInstructions,
   buildAssessmentTurnInstructions,
 } from "./assessment-prompt";
-import { buildSessionUpdateForTranscription } from "./session-config";
+import {
+  buildSessionUpdateDisableAutoResponses,
+  buildSessionUpdateForTranscription,
+} from "./session-config";
 import { outputBudgetForTurn } from "./voice-economics";
 import {
   registerLocalAudioCleanup,
@@ -410,9 +414,13 @@ export function requestOpeningSpeech(
  */
 export function requestHoldTurnResponse(
   connection: RealtimeConnection | null,
-  options?: { mode?: "practice" | "assessment" }
+  options?: { mode?: "practice" | "assessment"; allowAssessment?: boolean }
 ): boolean {
   if (!connection || connection.dc.readyState !== "open") return false;
+  // Assessment mid-turns must be gated by the app lifecycle caller.
+  if (options?.mode === "assessment" && options.allowAssessment === false) {
+    return false;
+  }
   try {
     // Commit any trailing audio. Empty-buffer commit may error server-side —
     // that is benign; prior VAD segments are already conversation items.
@@ -438,6 +446,48 @@ export function requestHoldTurnResponse(
     return true;
   } catch {
     return false;
+  }
+}
+
+/**
+ * Privileged assessment closing turn — exactly one final response, no questions.
+ * Caller must own lifecycle (assessmentStatus=complete) before invoking.
+ */
+export function requestAssessmentClosingSpeech(
+  connection: RealtimeConnection | null
+): boolean {
+  if (!connection || connection.dc.readyState !== "open") return false;
+  try {
+    connection.dc.send(
+      JSON.stringify({
+        type: "response.create",
+        response: {
+          output_modalities: ["audio"],
+          max_output_tokens: outputBudgetForTurn("closing", false),
+          instructions: buildAssessmentClosingSpeechInstructions(),
+        },
+      })
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * After assessment completion: stop hands-free auto response.create so VAD /
+ * speech_started / speech_stopped cannot continue the interview.
+ */
+export function lockAssessmentAutoResponses(
+  connection: RealtimeConnection | null
+): void {
+  if (!connection || connection.dc.readyState !== "open") return;
+  try {
+    connection.dc.send(
+      JSON.stringify(buildSessionUpdateDisableAutoResponses())
+    );
+  } catch {
+    /* ignore */
   }
 }
 

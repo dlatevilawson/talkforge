@@ -212,3 +212,28 @@ export function buildSessionUpdateForTranscription(options?: {
     },
   };
 }
+
+/**
+ * session.update — disable VAD auto response.create after assessment completion.
+ * Preserves instructions; only flips create_response off.
+ */
+export function buildSessionUpdateDisableAutoResponses() {
+  return {
+    type: "session.update" as const,
+    session: {
+      type: "realtime" as const,
+      audio: {
+        input: {
+          turn_detection: {
+            type: "server_vad" as const,
+            create_response: false,
+            interrupt_response: false,
+            threshold: 0.65,
+            prefix_padding_ms: 300,
+            silence_duration_ms: 1200,
+          },
+        },
+      },
+    },
+  };
+}
