@@ -145,9 +145,20 @@ export function isExplicitAssessmentExit(text: string): boolean {
 }
 
 export function isConsentAffirmative(text: string): boolean {
-  const t = text.trim().toLowerCase();
+  const t = text
+    .trim()
+    .toLowerCase()
+    .replace(/[\u2018\u2019\u201b\u2032]/g, "'");
   if (!t) return false;
-  return /^(yes|yeah|yep|sure|ok|okay|go ahead|let'?s go|absolutely|of course)\b/.test(
+  if (
+    /^(yes|yeah|yep|yup|sure|ok|okay|go ahead|let'?s go|absolutely|of course)\b/.test(
+      t
+    )
+  ) {
+    return true;
+  }
+  // Longer confirmations that are still only consent, not diagnostic content.
+  return /^(yeah|yes|yep|sure|ok|okay)[,.]?\s+(sure|okay|ok)?[,.]?\s*(let'?s\s+(do|go|start)|i'?m\s+ready|go\s+ahead)\b/.test(
     t
   );
 }
@@ -158,56 +169,100 @@ export function isConsentDecline(text: string): boolean {
   return /^(no|nope|not now|maybe later|i'?d rather not)\b/.test(t);
 }
 
+/** Consent / filler — must never become primaryGoal or other result fields. */
+export function isConsentOnlyUtterance(text: string): boolean {
+  const t = text
+    .trim()
+    .toLowerCase()
+    .replace(/[\u2018\u2019\u201b\u2032]/g, "'")
+    .replace(/[^\w\s']/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!t) return true;
+  if (isConsentAffirmative(text) && t.split(/\s+/).length <= 8) {
+    // "yeah sure let's do it/this" has no diagnostic signal.
+    if (
+      !/(speak|meeting|work|freeze|rush|practice|minute|presentation|talk|conversation|small talk)/.test(
+        t
+      )
+    ) {
+      return true;
+    }
+  }
+  return /^(yeah|yes|yep|sure|ok|okay|alright|all right)(,| )? ?(sure|okay|ok)? ?(let'?s do (it|this|that))?\.?$/.test(
+    t
+  );
+}
+
 function looksSubstantive(text: string): boolean {
   const t = text.trim();
   if (t.length < 12) return false;
+  if (isConsentOnlyUtterance(t)) return false;
   // One-word / tiny answers don't advance coverage.
   return t.split(/\s+/).length >= 3;
 }
 
 /** Lightweight category tagging for the structural data contract. */
 export function inferAssessmentCategories(text: string): AssessmentCategory[] {
+  if (isConsentOnlyUtterance(text)) return [];
   const t = text.toLowerCase();
   const hits: AssessmentCategory[] = [];
+
+  // Skill / goal first (prefer over identity for "want to get better…").
   if (
-    /(want|goal|hope|trying to|need to|better at|improve|work on)/.test(t)
+    /\b(want to get better|get better at|better at|improve|work on|trying to|need to|goal|small talk|small talks|present|speak)\b/.test(
+      t
+    )
   ) {
     hits.push("primaryGoal");
   }
   if (
-    /(hard|difficult|freeze|struggle|nervous|anxious|avoid|stuck|choke)/.test(
+    /\b(hard|difficult|freeze|struggle|nervous|anxious|avoid|stuck|choke|lose my (words|point))\b/.test(
       t
     )
   ) {
     hits.push("difficultSituations");
   }
   if (
-    /(always|tend to|pattern|keep|usually|habit|whenever)/.test(t)
+    /\b(always|tend to|pattern|usually|habit|whenever|rush|ramble|apologiz|trail off|interrupt)\b/.test(
+      t
+    )
   ) {
     hits.push("communicationPatterns");
   }
   if (
-    /(work|meeting|boss|partner|family|school|interview|presentation|team)/.test(
+    /\b(work|meeting|meetings|boss|partner|family|school|interview|presentation|presentations|team|exec|leadership)\b/.test(
       t
     )
   ) {
     hits.push("realWorldContext");
   }
+  // Word-boundary capacity — do NOT match "everyday" via bare "day".
   if (
-    /(minute|hour|day|week|time|practice|schedule|busy|morning|evening)/.test(
+    /\b(\d+\s*)?(minutes?|hours?|weeks?)\b/.test(t) ||
+    /\b(each day|per day|a day|daily|every day|schedule|practice time|busy mornings?|evenings?)\b/.test(
       t
-    )
+    ) ||
+    /\bpractice\b/.test(t)
   ) {
     hits.push("practiceCapacity");
   }
   if (
-    /(six weeks|able to|comfortably|target|success would|want to get better|sound like|clearer|more direct|hold the floor|finish my point)/.test(
+    /\b(six weeks|comfortably|able to do|success would|sound like|more direct|hold the floor|finish my point)\b/.test(
       t
     )
   ) {
     hits.push("desiredCommunicationIdentity");
   }
   return hits;
+}
+
+/** Values safe to show on the assessment results placeholder. */
+export function isUsableAssessmentResultValue(text: string | null): boolean {
+  if (!text || !text.trim()) return false;
+  if (isConsentOnlyUtterance(text)) return false;
+  if (text.trim().split(/\s+/).length < 3) return false;
+  return true;
 }
 
 function coveredCount(state: AssessmentLifecycleState): number {
@@ -236,18 +291,18 @@ function applyCategories(
   state: AssessmentLifecycleState,
   text: string
 ): AssessmentLifecycleState {
+  if (isConsentOnlyUtterance(text)) return state;
+
   const categories = inferAssessmentCategories(text);
+  // Never dump unmatched filler into the first empty slot (that caused
+  // "Yeah, sure, let's do it" → primaryGoal).
+  if (categories.length === 0) return state;
+
   const covered = { ...state.covered };
   const result = { ...state.result };
   const trimmed = text.trim().slice(0, 240);
 
-  // Always fill the first empty required-ish slots so short-but-useful answers count.
-  const order: AssessmentCategory[] =
-    categories.length > 0
-      ? categories
-      : ASSESSMENT_CATEGORIES.filter((c) => !covered[c]).slice(0, 1);
-
-  for (const cat of order) {
+  for (const cat of categories) {
     if (!result[cat]) {
       result[cat] = trimmed;
       covered[cat] = true;
@@ -309,22 +364,27 @@ export function reduceAssessmentLifecycle(
         if (isConsentDecline(text)) {
           return reduceAssessmentLifecycle(state, { type: "CONSENT_DECLINED" });
         }
-        if (isConsentAffirmative(text) || looksSubstantive(text)) {
-          // Substantive first answer also implies consent to continue.
-          const next = {
-            ...state,
-            consented: true,
-            substantiveUserAnswers: looksSubstantive(text)
-              ? state.substantiveUserAnswers + 1
-              : state.substantiveUserAnswers,
+        if (isConsentOnlyUtterance(text) || isConsentAffirmative(text)) {
+          // Consent only — never write into assessmentResult fields.
+          return {
+            state: { ...state, consented: true },
+            effect: { type: "NONE" },
           };
-          const withCats = looksSubstantive(text)
-            ? applyCategories(next, text)
-            : next;
-          if (isAssessmentStructurallyComplete(withCats)) {
-            return reduceAssessmentLifecycle(withCats, { type: "BEGIN_CLOSING" });
+        }
+        if (looksSubstantive(text)) {
+          // Substantive first answer also implies consent to continue.
+          const next = applyCategories(
+            {
+              ...state,
+              consented: true,
+              substantiveUserAnswers: state.substantiveUserAnswers + 1,
+            },
+            text
+          );
+          if (isAssessmentStructurallyComplete(next)) {
+            return reduceAssessmentLifecycle(next, { type: "BEGIN_CLOSING" });
           }
-          return { state: withCats, effect: { type: "NONE" } };
+          return { state: next, effect: { type: "NONE" } };
         }
         return { state, effect: { type: "NONE" } };
       }

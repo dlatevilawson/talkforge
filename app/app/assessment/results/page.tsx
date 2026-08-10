@@ -5,18 +5,19 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import {
   ASSESSMENT_CATEGORIES,
+  isUsableAssessmentResultValue,
   readAssessmentResultClient,
   type AssessmentCategory,
   type StoredAssessmentResult,
 } from "@/lib/ce/assessment-lifecycle";
 
 const LABELS: Record<AssessmentCategory, string> = {
-  primaryGoal: "Primary goal",
-  difficultSituations: "Difficult situations",
-  communicationPatterns: "Communication patterns",
-  realWorldContext: "Real-world context",
+  primaryGoal: "What to improve",
+  difficultSituations: "Where it gets hard",
+  communicationPatterns: "What tends to happen",
+  realWorldContext: "Real-world setting",
   practiceCapacity: "Practice capacity",
-  desiredCommunicationIdentity: "Desired identity",
+  desiredCommunicationIdentity: "Six-week success",
 };
 
 /**
@@ -35,7 +36,9 @@ function AssessmentResultsBody() {
 
   const incomplete =
     statusParam === "incomplete" || result?.sufficient === false;
-  const filled = ASSESSMENT_CATEGORIES.filter((key) => result?.[key]);
+  const filled = ASSESSMENT_CATEGORIES.filter((key) =>
+    isUsableAssessmentResultValue(result?.[key] ?? null)
+  );
 
   return (
     <main className="relative min-h-[100dvh] overflow-hidden bg-[#070708] text-white">

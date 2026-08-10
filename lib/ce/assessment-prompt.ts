@@ -23,7 +23,7 @@ export const ASSESSMENT_DISENGAGEMENT_CHECK_IN =
  */
 export const ASSESSMENT_ANCHOR_QUESTIONS = [
   "What would you most like to get better at when you speak?",
-  "Where do you notice that most — work, social situations, family, or presentations?",
+  "Where does this show up most often for you?",
   "What usually happens when the conversation gets difficult?",
   "What do you notice yourself doing in those moments that you want to change?",
   "What happened in a recent conversation that didn't go the way you wanted?",
@@ -211,6 +211,7 @@ export function buildAssessmentTurnInstructions(): string {
     `"${ASSESSMENT_ANCHOR_QUESTIONS[0]}"`,
     `"${ASSESSMENT_ANCHOR_QUESTIONS[1]}"`,
     `"${ASSESSMENT_ANCHOR_QUESTIONS[2]}"`,
+    "Prefer one open ask over long multiple-choice menus.",
     "Never invite practice/drills. Do NOT self-close. Keep the turn brief.",
   ].join(" ");
 }
