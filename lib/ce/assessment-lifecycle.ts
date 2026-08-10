@@ -466,3 +466,245 @@ export function readAssessmentResultClient():
     return null;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Response gate — owns create/cancel/ignore around the completion boundary
+// (especially hands-free races). Reducer above owns when assessment completes.
+// ---------------------------------------------------------------------------
+
+export type AssessmentGateFlags = {
+  /** Mid-turn create deferred until founder transcript is reduced. */
+  awaitingTranscriptForTurn: boolean;
+  /** Privileged closing response.create already sent. */
+  closingSent: boolean;
+  /** Waiting for in-flight response.done before sending closing. */
+  pendingClosingAfterDone: boolean;
+  /** Results navigation already performed. */
+  navigated: boolean;
+};
+
+export type AssessmentUserTurnEndDecision =
+  | { action: "ignore_terminal" }
+  | { action: "request_closing" }
+  | { action: "await_transcript" };
+
+export type AssessmentAfterUtteranceDecision =
+  | { action: "none" }
+  | { action: "request_mid_turn" }
+  | { action: "request_closing" };
+
+export type AssessmentVadDecision = "ignore" | "allow";
+
+export type AssessmentResponseDoneDecision =
+  | { action: "none" }
+  | { action: "send_closing" }
+  | { action: "finalize" };
+
+export type AssessmentResponseCreatedDecision =
+  | { action: "allow" }
+  | { action: "cancel_stray" };
+
+export function isAssessmentTerminal(
+  state: AssessmentLifecycleState
+): boolean {
+  return (
+    state.assessmentMode &&
+    (state.responsesLocked ||
+      state.assessmentStatus === "complete" ||
+      state.assessmentStatus === "cancelled")
+  );
+}
+
+/** Hold-release / hands-free speech_stopped while assessment owns the mic. */
+export function decideAssessmentUserTurnEnd(
+  state: AssessmentLifecycleState,
+  flags: Pick<AssessmentGateFlags, "closingSent">
+): AssessmentUserTurnEndDecision {
+  if (!state.assessmentMode) {
+    return { action: "await_transcript" };
+  }
+  if (state.assessmentStatus === "cancelled") {
+    return { action: "ignore_terminal" };
+  }
+  if (
+    state.assessmentStatus === "complete" ||
+    state.responsesLocked ||
+    !canRequestAssessmentModelResponse(state)
+  ) {
+    if (
+      canRequestAssessmentClosingResponse(state) &&
+      !flags.closingSent
+    ) {
+      return { action: "request_closing" };
+    }
+    return { action: "ignore_terminal" };
+  }
+  // Defer create until USER_UTTERANCE is reduced — prevents half mid-turn
+  // then cancel/closing when this utterance structurally completes.
+  return { action: "await_transcript" };
+}
+
+/**
+ * After founder transcript is applied to the lifecycle reducer.
+ * `awaitingTranscriptForTurn` means the client deferred create on turn-end.
+ */
+export function decideAssessmentAfterUserUtterance(
+  state: AssessmentLifecycleState,
+  effect: AssessmentLifecycleEffect,
+  flags: Pick<AssessmentGateFlags, "awaitingTranscriptForTurn" | "closingSent">
+): AssessmentAfterUtteranceDecision {
+  // Lifecycle effects are executed by the session owner; do not double-fire.
+  if (
+    effect.type === "EXIT_TO_COACH" ||
+    effect.type === "REQUEST_FINAL_RESPONSE" ||
+    effect.type === "NAVIGATE_RESULTS"
+  ) {
+    return { action: "none" };
+  }
+
+  if (!flags.awaitingTranscriptForTurn) return { action: "none" };
+
+  if (canRequestAssessmentModelResponse(state)) {
+    return { action: "request_mid_turn" };
+  }
+  if (canRequestAssessmentClosingResponse(state) && !flags.closingSent) {
+    return { action: "request_closing" };
+  }
+  return { action: "none" };
+}
+
+/** speech_started / speech_stopped after structural completion must not reopen. */
+export function decideAssessmentVadEvent(
+  state: AssessmentLifecycleState
+): AssessmentVadDecision {
+  return isAssessmentTerminal(state) ? "ignore" : "allow";
+}
+
+/**
+ * In-flight handling when REQUEST_FINAL_RESPONSE fires.
+ * Prefer waiting for natural done over cancel — avoids half-audio + hitch.
+ */
+export function decideAssessmentClosingStrategy(input: {
+  closingSent: boolean;
+  forgeBusy: boolean;
+}): "noop" | "send_now" | "queue_after_done" {
+  if (input.closingSent) return "noop";
+  if (input.forgeBusy) return "queue_after_done";
+  return "send_now";
+}
+
+export function decideAssessmentResponseDone(
+  state: AssessmentLifecycleState,
+  flags: Pick<
+    AssessmentGateFlags,
+    "closingSent" | "pendingClosingAfterDone" | "navigated"
+  >
+): AssessmentResponseDoneDecision {
+  if (!state.assessmentMode || flags.navigated) return { action: "none" };
+
+  if (flags.pendingClosingAfterDone && !flags.closingSent) {
+    if (canRequestAssessmentClosingResponse(state)) {
+      return { action: "send_closing" };
+    }
+    return { action: "none" };
+  }
+
+  if (
+    flags.closingSent &&
+    state.assessmentStatus === "complete" &&
+    !state.finalResponseDelivered
+  ) {
+    return { action: "finalize" };
+  }
+
+  return { action: "none" };
+}
+
+/**
+ * Stray response.created while locked (hands-free auto-create race before
+ * session.update lands) must be cancelled — except our privileged closing.
+ */
+export function decideAssessmentResponseCreated(
+  state: AssessmentLifecycleState,
+  flags: Pick<AssessmentGateFlags, "closingSent" | "pendingClosingAfterDone">
+): AssessmentResponseCreatedDecision {
+  if (!state.assessmentMode) return { action: "allow" };
+  if (!state.responsesLocked && state.assessmentStatus !== "complete") {
+    return { action: "allow" };
+  }
+  // Our closing create sets closingSent synchronously before response.created.
+  if (flags.closingSent) return { action: "allow" };
+  // Queued closing: absorb/cancel anything else until we send closing.
+  if (flags.pendingClosingAfterDone) return { action: "cancel_stray" };
+  return { action: "cancel_stray" };
+}
+
+/** FINAL_RESPONSE_DONE / navigate must fire once. */
+export function decideAssessmentNavigate(
+  flags: Pick<AssessmentGateFlags, "navigated">,
+  effect: AssessmentLifecycleEffect
+): "navigate" | "none" {
+  if (flags.navigated) return "none";
+  if (effect.type === "NAVIGATE_RESULTS") return "navigate";
+  return "none";
+}
+
+/**
+ * Expected cancel / active-response errors during assessment completion must
+ * never be treated as a reason to show hitch UI.
+ */
+export function assessmentCompletionCancelIsBenign(): true {
+  return true;
+}
+
+/**
+ * Realtime turn_detection for mint / session.update.
+ * Assessment always disables auto create_response so the app owns completion.
+ */
+export function resolveRealtimeTurnDetection(input: {
+  mode?: "practice" | "assessment";
+  handsFree?: boolean;
+}): {
+  type: "semantic_vad" | "server_vad";
+  create_response: boolean;
+  interrupt_response: boolean;
+  eagerness?: "low";
+  threshold?: number;
+  prefix_padding_ms?: number;
+  silence_duration_ms?: number;
+} {
+  if (input.mode === "assessment") {
+    if (input.handsFree) {
+      return {
+        type: "semantic_vad",
+        create_response: false,
+        interrupt_response: false,
+        eagerness: "low",
+      };
+    }
+    return {
+      type: "server_vad",
+      create_response: false,
+      interrupt_response: false,
+      threshold: 0.65,
+      prefix_padding_ms: 300,
+      silence_duration_ms: 1200,
+    };
+  }
+  if (input.handsFree) {
+    return {
+      type: "semantic_vad",
+      create_response: true,
+      interrupt_response: false,
+      eagerness: "low",
+    };
+  }
+  return {
+    type: "server_vad",
+    create_response: false,
+    interrupt_response: false,
+    threshold: 0.65,
+    prefix_padding_ms: 300,
+    silence_duration_ms: 1200,
+  };
+}

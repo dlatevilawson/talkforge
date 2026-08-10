@@ -8,8 +8,13 @@ import PresenceRing, {
 } from "@/app/components/arena/PresenceRing";
 import BecomeProMemberButton from "@/app/components/billing/BecomeProMemberButton";
 import {
-  canRequestAssessmentModelResponse,
   createIdleAssessmentState,
+  decideAssessmentAfterUserUtterance,
+  decideAssessmentClosingStrategy,
+  decideAssessmentResponseCreated,
+  decideAssessmentResponseDone,
+  decideAssessmentUserTurnEnd,
+  decideAssessmentVadEvent,
   forgeTextLooksLikeContentQuestion,
   persistAssessmentResultClient,
   reduceAssessmentLifecycle,
@@ -158,11 +163,16 @@ export default function VoiceArena({
   );
   /** Closing speech was sent — next matching response.done navigates. */
   const assessmentClosingSentRef = useRef(false);
-  /** Wait for in-flight cancel/done before sending the privileged closing. */
+  /** Wait for in-flight done before sending the privileged closing. */
   const assessmentPendingClosingAfterDoneRef = useRef(false);
+  /** Defer mid-turn create until founder transcript is reduced. */
+  const assessmentAwaitingTranscriptTurnRef = useRef(false);
   const assessmentClosingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
+  const assessmentTranscriptTurnTimerRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
   const assessmentNavigatedRef = useRef(false);
 
   const [phase, setPhase] = useState<Phase>("idle");
@@ -213,6 +223,20 @@ export default function VoiceArena({
     setAssessmentStatusLabel(next.assessmentMode ? next.assessmentStatus : null);
   }
 
+  function clearAssessmentTranscriptTurnTimer() {
+    if (assessmentTranscriptTurnTimerRef.current) {
+      clearTimeout(assessmentTranscriptTurnTimerRef.current);
+      assessmentTranscriptTurnTimerRef.current = null;
+    }
+  }
+
+  function muteAssessmentTerminalMic(reason: string) {
+    setMicrophoneEnabled(connectionRef.current, false);
+    setOutboundMicrophoneEnabled(connectionRef.current, false);
+    clearInputAudioBuffer(connectionRef.current);
+    pushEvent(`Assessment mic locked · ${reason}`);
+  }
+
   function sendAssessmentClosingSpeech(reason: string) {
     if (assessmentClosingSentRef.current) return;
     const life = assessmentLifecycleRef.current;
@@ -223,6 +247,8 @@ export default function VoiceArena({
     ) {
       return;
     }
+    lockAssessmentAutoResponses(connectionRef.current);
+    muteAssessmentTerminalMic("closing");
     const sent = requestAssessmentClosingSpeech(connectionRef.current);
     assessmentClosingSentRef.current = sent;
     assessmentPendingClosingAfterDoneRef.current = false;
@@ -239,31 +265,86 @@ export default function VoiceArena({
       clearTimeout(assessmentClosingTimerRef.current);
       assessmentClosingTimerRef.current = null;
     }
+    clearAssessmentTranscriptTurnTimer();
+    assessmentAwaitingTranscriptTurnRef.current = false;
     lockAssessmentAutoResponses(connectionRef.current);
-    cancelForgeResponse(connectionRef.current);
+    muteAssessmentTerminalMic(reason);
 
     const forgeBusy =
       turnStateRef.current === "forge_speaking" ||
       turnStateRef.current === "forge_thinking" ||
       activeResponseIdRef.current != null;
 
-    if (forgeBusy) {
-      // Wait for cancelled mid-turn done, then send the privileged closing.
+    const strategy = decideAssessmentClosingStrategy({
+      closingSent: assessmentClosingSentRef.current,
+      forgeBusy,
+    });
+
+    if (strategy === "queue_after_done") {
+      // Do NOT cancel in-flight audio — avoids half-response + cancel hitch.
       assessmentPendingClosingAfterDoneRef.current = true;
       pushEvent(`Assessment closing queued · ${reason}`);
       assessmentClosingTimerRef.current = setTimeout(() => {
         assessmentClosingTimerRef.current = null;
         if (!mountedRef.current || assessmentClosingSentRef.current) return;
         sendAssessmentClosingSpeech(`${reason}_timeout`);
-      }, 900);
+      }, 1200);
       return;
     }
 
-    assessmentClosingTimerRef.current = setTimeout(() => {
-      assessmentClosingTimerRef.current = null;
+    if (strategy === "send_now") {
+      assessmentClosingTimerRef.current = setTimeout(() => {
+        assessmentClosingTimerRef.current = null;
+        if (!mountedRef.current) return;
+        sendAssessmentClosingSpeech(reason);
+      }, 40);
+    }
+  }
+
+  function armAssessmentClientTurn(reason: string) {
+    const decision = decideAssessmentUserTurnEnd(
+      assessmentLifecycleRef.current,
+      { closingSent: assessmentClosingSentRef.current }
+    );
+    if (decision.action === "ignore_terminal") {
+      muteAssessmentTerminalMic(reason);
+      pushEvent(`Assessment turn ignored · ${reason}`);
+      return;
+    }
+    if (decision.action === "request_closing") {
+      requestAssessmentClosingOnce(reason);
+      return;
+    }
+    assessmentAwaitingTranscriptTurnRef.current = true;
+    clearAssessmentTranscriptTurnTimer();
+    // Transcript usually arrives quickly; fallback keeps session moving if not.
+    assessmentTranscriptTurnTimerRef.current = setTimeout(() => {
+      assessmentTranscriptTurnTimerRef.current = null;
       if (!mountedRef.current) return;
-      sendAssessmentClosingSpeech(reason);
-    }, 40);
+      if (!assessmentAwaitingTranscriptTurnRef.current) return;
+      assessmentAwaitingTranscriptTurnRef.current = false;
+      const life = assessmentLifecycleRef.current;
+      const fallback = decideAssessmentAfterUserUtterance(
+        life,
+        { type: "NONE" },
+        {
+          awaitingTranscriptForTurn: true,
+          closingSent: assessmentClosingSentRef.current,
+        }
+      );
+      if (fallback.action === "request_mid_turn") {
+        const requested = requestHoldTurnResponse(connectionRef.current, {
+          mode: "assessment",
+          allowAssessment: true,
+        });
+        pushEvent(
+          requested
+            ? `Assessment mid-turn · transcript timeout · ${reason}`
+            : `Assessment mid-turn failed · ${reason}`
+        );
+      }
+    }, 2200);
+    pushEvent(`Assessment awaiting transcript · ${reason}`);
   }
 
   function handleAssessmentEffect(effect: AssessmentLifecycleEffect) {
@@ -282,14 +363,15 @@ export default function VoiceArena({
 
   function dispatchAssessmentEvent(
     event: Parameters<typeof reduceAssessmentLifecycle>[1]
-  ) {
-    if (!isAssessment) return;
+  ): AssessmentLifecycleEffect {
+    if (!isAssessment) return { type: "NONE" };
     const { state, effect } = reduceAssessmentLifecycle(
       assessmentLifecycleRef.current,
       event
     );
     syncAssessmentLifecycle(state);
     handleAssessmentEffect(effect);
+    return effect;
   }
 
   async function finalizeAssessmentAndNavigate(
@@ -302,6 +384,8 @@ export default function VoiceArena({
       clearTimeout(assessmentClosingTimerRef.current);
       assessmentClosingTimerRef.current = null;
     }
+    clearAssessmentTranscriptTurnTimer();
+    assessmentAwaitingTranscriptTurnRef.current = false;
 
     const life = assessmentLifecycleRef.current;
     if (outcome === "complete") {
@@ -618,6 +702,32 @@ export default function VoiceArena({
                 typeof (event.response as { id?: unknown }).id === "string"
               ? ((event.response as { id: string }).id)
               : undefined;
+
+        if (isAssessment) {
+          const createdDecision = decideAssessmentResponseCreated(
+            assessmentLifecycleRef.current,
+            {
+              closingSent: assessmentClosingSentRef.current,
+              pendingClosingAfterDone:
+                assessmentPendingClosingAfterDoneRef.current,
+            }
+          );
+          if (createdDecision.action === "cancel_stray") {
+            cancelForgeResponse(connectionRef.current);
+            muteAssessmentTerminalMic("stray_response_created");
+            pushEvent(
+              `Cancelled stray response · ${responseId ?? "unknown"} · assessment locked`
+            );
+            if (
+              !assessmentClosingSentRef.current &&
+              assessmentLifecycleRef.current.assessmentStatus === "complete"
+            ) {
+              requestAssessmentClosingOnce("after_stray_cancel");
+            }
+            return;
+          }
+        }
+
         // Guard duplicate/recursive create for the same active response id.
         if (
           responseId &&
@@ -677,39 +787,35 @@ export default function VoiceArena({
       );
 
       if (isAssessment) {
-        if (
-          assessmentPendingClosingAfterDoneRef.current &&
-          !assessmentClosingSentRef.current
-        ) {
+        const doneDecision = decideAssessmentResponseDone(
+          assessmentLifecycleRef.current,
+          {
+            closingSent: assessmentClosingSentRef.current,
+            pendingClosingAfterDone:
+              assessmentPendingClosingAfterDoneRef.current,
+            navigated: assessmentNavigatedRef.current,
+          }
+        );
+        if (doneDecision.action === "send_closing") {
           if (assessmentClosingTimerRef.current) {
             clearTimeout(assessmentClosingTimerRef.current);
             assessmentClosingTimerRef.current = null;
           }
-          sendAssessmentClosingSpeech("after_cancelled_mid_turn");
+          sendAssessmentClosingSpeech("after_in_flight_done");
           return;
         }
-        // Structural assessment terminal: only the privileged closing counts.
-        if (
-          assessmentClosingSentRef.current &&
-          assessmentLifecycleRef.current.assessmentStatus === "complete" &&
-          !assessmentLifecycleRef.current.finalResponseDelivered
-        ) {
+        if (doneDecision.action === "finalize") {
           dispatchAssessmentEvent({ type: "FINAL_RESPONSE_DONE" });
         }
       }
     }
 
     if (type === "input_audio_buffer.speech_started") {
-      // After assessment completion, VAD must not continue the interview.
       if (
         isAssessment &&
-        (assessmentLifecycleRef.current.responsesLocked ||
-          assessmentLifecycleRef.current.assessmentStatus === "complete" ||
-          assessmentLifecycleRef.current.assessmentStatus === "cancelled")
+        decideAssessmentVadEvent(assessmentLifecycleRef.current) === "ignore"
       ) {
-        setMicrophoneEnabled(connectionRef.current, false);
-        setOutboundMicrophoneEnabled(connectionRef.current, false);
-        clearInputAudioBuffer(connectionRef.current);
+        muteAssessmentTerminalMic("speech_started");
         pushEvent("Ignored speech_started · assessment terminal");
         return;
       }
@@ -753,10 +859,9 @@ export default function VoiceArena({
     if (type === "input_audio_buffer.speech_stopped") {
       if (
         isAssessment &&
-        (assessmentLifecycleRef.current.responsesLocked ||
-          assessmentLifecycleRef.current.assessmentStatus === "complete" ||
-          assessmentLifecycleRef.current.assessmentStatus === "cancelled")
+        decideAssessmentVadEvent(assessmentLifecycleRef.current) === "ignore"
       ) {
+        muteAssessmentTerminalMic("speech_stopped");
         pushEvent("Ignored speech_stopped · assessment terminal");
         return;
       }
@@ -780,6 +885,11 @@ export default function VoiceArena({
       }
       applyTurn({ type: "USER_SPEECH_STOPPED", source: "server_vad" });
       voiceRef.current.onUserSpeechStopped();
+      // Assessment + hands-free: client owns create_response (minted false).
+      // Defer mid-turn until transcript so completion can win.
+      if (isAssessment) {
+        armAssessmentClientTurn("handsfree_speech_stopped");
+      }
     }
 
     if (type === "error") {
@@ -817,10 +927,37 @@ export default function VoiceArena({
       } else if (added.role === "founder") {
         trackUsage("user_speech", added.text);
         if (isAssessment) {
-          dispatchAssessmentEvent({
+          const awaiting = assessmentAwaitingTranscriptTurnRef.current;
+          const effect = dispatchAssessmentEvent({
             type: "USER_UTTERANCE",
             text: added.text,
           });
+          const after = decideAssessmentAfterUserUtterance(
+            assessmentLifecycleRef.current,
+            effect,
+            {
+              awaitingTranscriptForTurn: awaiting,
+              closingSent: assessmentClosingSentRef.current,
+            }
+          );
+          if (awaiting) {
+            assessmentAwaitingTranscriptTurnRef.current = false;
+            clearAssessmentTranscriptTurnTimer();
+          }
+          // REQUEST_FINAL_RESPONSE / exit already handled in dispatch effect.
+          if (after.action === "request_mid_turn") {
+            const requested = requestHoldTurnResponse(connectionRef.current, {
+              mode: "assessment",
+              allowAssessment: true,
+            });
+            pushEvent(
+              requested
+                ? "Assessment mid-turn · after transcript"
+                : "Assessment mid-turn failed · after transcript"
+            );
+          } else if (after.action === "request_closing") {
+            requestAssessmentClosingOnce("after_transcript_complete");
+          }
         }
       }
       pushEvent(
@@ -866,11 +1003,13 @@ export default function VoiceArena({
     ignoreForgeAudioUntilRef.current = 0;
     assessmentClosingSentRef.current = false;
     assessmentPendingClosingAfterDoneRef.current = false;
+    assessmentAwaitingTranscriptTurnRef.current = false;
     assessmentNavigatedRef.current = false;
     if (assessmentClosingTimerRef.current) {
       clearTimeout(assessmentClosingTimerRef.current);
       assessmentClosingTimerRef.current = null;
     }
+    clearAssessmentTranscriptTurnTimer();
     if (isAssessment) {
       syncAssessmentLifecycle(startAssessmentLifecycle());
     } else {
@@ -1133,25 +1272,13 @@ export default function VoiceArena({
       if (!spoke) pushEvent("Hold released · no speech · waiting");
       return;
     }
-    if (
-      isAssessment &&
-      !canRequestAssessmentModelResponse(assessmentLifecycleRef.current)
-    ) {
-      // If structural completion already requested closing, do not spawn mid-turns.
-      if (
-        assessmentLifecycleRef.current.assessmentStatus === "complete" &&
-        assessmentLifecycleRef.current.finalResponseRequested &&
-        !assessmentClosingSentRef.current
-      ) {
-        requestAssessmentClosingOnce("hold_release_after_complete");
-      } else {
-        pushEvent("Hold released · assessment locked · no model turn");
-      }
+    if (isAssessment) {
+      // Defer create until transcript — completion must win over mid-turn.
+      armAssessmentClientTurn("hold_release");
       return;
     }
     const requested = requestHoldTurnResponse(connectionRef.current, {
       mode,
-      allowAssessment: true,
     });
     pushEvent(
       requested
