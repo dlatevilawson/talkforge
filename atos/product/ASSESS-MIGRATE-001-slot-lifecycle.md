@@ -30,7 +30,7 @@ Do **not** change completion, response lock, Forge prompts, or `currentSlot` beh
 | 4 | `applyCategories` no-ops `result`/`covered` | **FROZEN** on `main` |
 | 5 | Completion = required slots filled; caps hard-abort only | **FROZEN** on `main` (#125) |
 | 6 | `AssessmentSnapshot` → sessionStorage → results page | **FROZEN** on `main` (#126) — see below |
-| 7 | Snapshot → `/api/assessment/complete` → Living Profile | **F1=B · F2=A · F3=A pinned** — implement wire only |
+| 7 | Snapshot → `/api/assessment/complete` → Living Profile | **In progress** — F1=B · F2=A · F3=A pinned; snapshot authority wire |
 | 8 | Remove obsolete extractors / cleanup | **LOCKED** — do not begin until Step 7 closed |
 
 ---
@@ -149,7 +149,7 @@ Touch only what the wire requires, typically:
 
 - `app/components/VoiceArena.tsx` (POST body)
 - `app/api/assessment/complete/route.ts` (snapshot authority + mapping)
-- Small pure mapper helper (prefer under `lib/ce/` or `lib/system1/`) + tests
+- Pure mapper on `lib/ce/assessment-lifecycle.ts` (`parseAssessmentSnapshot` / `mapAssessmentSnapshotToLivingProfile`) + tests
 
 Do **not** open profile UI redesign, prompt redesign, or extractor deletion in the same PR.
 

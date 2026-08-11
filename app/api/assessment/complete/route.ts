@@ -2,6 +2,10 @@ import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
 import {
+  mapAssessmentSnapshotToLivingProfile,
+  parseAssessmentSnapshot,
+} from "@/lib/ce/assessment-lifecycle";
+import {
   countConfusionAnswers,
   countTrailingConfusionAnswers,
   filterSubstantiveAnswers,
@@ -21,6 +25,12 @@ type TurnIn = {
   role?: string;
   text?: string;
 };
+
+/**
+ * Transcript extract helpers below are retained for Step 8 cleanup only.
+ * Step 7 LP writes use AssessmentSnapshot authority — do not call extractors
+ * for goals/challenges/strengths when mapping the snapshot.
+ */
 
 function newProvId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -220,8 +230,8 @@ Return ONLY valid JSON:
 }
 
 /**
- * Assessment session end — readiness gate + Living Profile write (test slice).
- * Does not generate a training plan.
+ * Assessment session end — Living Profile write from AssessmentSnapshot (Step 7).
+ * Does not generate a training plan. Transcript turns are evidence refs only.
  */
 export async function POST(req: Request) {
   const gate = await requireApiUser();
@@ -233,6 +243,7 @@ export async function POST(req: Request) {
     const body = (await req.json()) as {
       turns?: TurnIn[];
       practiceSessionId?: string;
+      assessmentSnapshot?: unknown;
     };
 
     const turns = Array.isArray(body.turns) ? body.turns : [];
@@ -245,15 +256,8 @@ export async function POST(req: Request) {
       )
       .map((t) => t.text!.trim());
 
-    const lines = turns
-      .filter((t) => typeof t.text === "string" && t.text.trim())
-      .map((t) => {
-        const role =
-          t.role === "founder" || t.role === "user" ? "You" : "Forge";
-        return `${role}: ${t.text!.trim()}`;
-      });
-
-    const extraction = await extractFromTranscript(lines, userTexts);
+    // Snapshot is LP authority. Missing/invalid → incomplete (no transcript invent).
+    const snapshot = parseAssessmentSnapshot(body.assessmentSnapshot);
     const supabase = await createServerSupabaseClient();
 
     const { data: currentRow, error: loadError } = await supabase
@@ -276,6 +280,9 @@ export async function POST(req: Request) {
     }
 
     const current = mapLivingProfileRow(currentRow);
+    const mapped = mapAssessmentSnapshotToLivingProfile(snapshot, {
+      purposeStatement: current.purposeStatement,
+    });
     const now = new Date().toISOString();
     const evidenceRef =
       typeof body.practiceSessionId === "string" && body.practiceSessionId
@@ -283,13 +290,11 @@ export async function POST(req: Request) {
         : "assessment_session";
 
     const provenance: ProvenanceRecord[] = [...current.provenance];
-    if (extraction.ready) {
+    if (mapped.ready) {
       provenance.unshift({
         id: newProvId(),
         fieldPath: "assessment_snapshot",
-        claim:
-          extraction.corePattern ||
-          "Assessment conversation captured goals and challenges.",
+        claim: mapped.provenanceClaim,
         sourceKind: "session_observation",
         evidenceRefs: [evidenceRef],
         confidence: "medium",
@@ -299,21 +304,19 @@ export async function POST(req: Request) {
       });
     }
 
-    // Incomplete path also covers disengagement abort — never fabricate arrays.
-    const payload = extraction.ready
+    // Incomplete: never fabricate goals/challenges/strengths (OWN-001).
+    // Sufficient F3=A: omit presence_scores so existing scores stay untouched.
+    const payload = mapped.ready
       ? {
-          goals: extraction.goals,
-          strengths: extraction.strengths,
-          challenges: extraction.challenges,
-          presence_scores: extraction.presenceScores,
+          goals: mapped.goals ?? [],
+          challenges: mapped.challenges ?? [],
           profile_source: "assessment" as const,
           provenance,
           version: current.version + 1,
           updated_at: now,
-          purpose_statement:
-            current.purposeStatement.trim() ||
-            extraction.goals[0] ||
-            current.purposeStatement,
+          ...(mapped.purposeStatement != null
+            ? { purpose_statement: mapped.purposeStatement }
+            : {}),
         }
       : {
           profile_source: "incomplete" as const,
@@ -350,17 +353,21 @@ export async function POST(req: Request) {
     }
 
     const profile = mapLivingProfileRow(saved);
+    // Confusion telemetry from turns only — never drives LP field writes.
+    const confusionAnswerCount = countConfusionAnswers(userTexts);
     return NextResponse.json({
-      ready: extraction.ready,
+      ready: mapped.ready,
       profileSource: profile.profileSource,
-      abortedForDisengagement: Boolean(extraction.abortedForDisengagement),
-      confusionAnswerCount: extraction.confusionAnswerCount ?? 0,
+      abortedForDisengagement: false,
+      confusionAnswerCount,
       extraction: {
         goals: profile.goals,
         strengths: profile.strengths,
         challenges: profile.challenges,
         presenceScores: profile.presenceScores,
-        corePattern: extraction.corePattern ?? null,
+        corePattern: mapped.ready
+          ? (mapped.challenges?.[0] ?? null)
+          : null,
       },
       profile,
     });

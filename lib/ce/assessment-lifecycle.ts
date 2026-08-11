@@ -12,9 +12,8 @@
  * slots — not keyword result, not transcript extract.
  *
  * Step 6 is FROZEN (ASSESS-MIGRATE-001 / PR #126 + browser checks).
- * Step 7 = wire that snapshot into Living Profile only — see ASSESS-MIGRATE-001
- * success criteria before coding. Do not change completion / lock / Forge /
- * currentSlot in Steps 7–8.
+ * Step 7 wires AssessmentSnapshot into Living Profile (ASSESS-MIGRATE-001 §D
+ * with F1=B, F2=A, F3=A). Do not change completion / lock / Forge / currentSlot.
  */
 
 export type AssessmentStatus = "idle" | "active" | "complete" | "cancelled";
@@ -1034,6 +1033,150 @@ export function readAssessmentSnapshotClient(): AssessmentSnapshot | null {
   } catch {
     return null;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Step 7 — AssessmentSnapshot → Living Profile mapping (ASSESS-MIGRATE-001 §D)
+// Founder pins: F1=B, F2=A, F3=A. Transcript extract is not authority.
+// ---------------------------------------------------------------------------
+
+/** Challenge slots written as separate challenges[] entries (F2=A). */
+const ASSESSMENT_LP_CHALLENGE_SLOTS: readonly AssessmentSlotId[] = [
+  "where_it_shows_up",
+  "what_goes_wrong",
+  "behavior_to_change",
+  "recent_missed_conversation",
+] as const;
+
+export type AssessmentSnapshotLpMapping = {
+  ready: boolean;
+  profileSource: "assessment" | "incomplete";
+  goals: string[] | null;
+  challenges: string[] | null;
+  /**
+   * F1=B: purpose when current purpose empty + six_week_success filled.
+   * null → omit purpose_statement from the update payload.
+   */
+  purposeStatement: string | null;
+  /** Incomplete → true (clear). Sufficient F3=A → false (leave untouched). */
+  clearPresenceScores: boolean;
+  provenanceClaim: string;
+};
+
+function snapshotSlotAnswer(
+  snapshot: AssessmentSnapshot,
+  id: AssessmentSlotId
+): string | null {
+  const raw = snapshot.answers[id];
+  if (typeof raw !== "string") return null;
+  const trimmed = raw.trim().replace(/\s+/g, " ");
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+/** Validate client snapshot shape — reject rather than invent. */
+export function parseAssessmentSnapshot(
+  raw: unknown
+): AssessmentSnapshot | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  if (o.version !== 1) return null;
+  if (!o.answers || typeof o.answers !== "object" || Array.isArray(o.answers)) {
+    return null;
+  }
+  if (!Array.isArray(o.filledSlotIds)) return null;
+  if (typeof o.sufficient !== "boolean") return null;
+  if (typeof o.consented !== "boolean") return null;
+
+  const answers: Partial<Record<AssessmentSlotId, string>> = {};
+  const src = o.answers as Record<string, unknown>;
+  for (const id of ASSESSMENT_SLOT_ORDER) {
+    const v = src[id];
+    if (typeof v === "string" && v.trim()) {
+      answers[id] = v.trim();
+    }
+  }
+
+  const filledSlotIds = (o.filledSlotIds as unknown[]).filter(
+    (id): id is AssessmentSlotId =>
+      typeof id === "string" &&
+      (ASSESSMENT_SLOT_ORDER as readonly string[]).includes(id)
+  );
+
+  return {
+    version: 1,
+    answers,
+    filledSlotIds,
+    consented: o.consented,
+    sufficient: o.sufficient,
+    practiceSessionId:
+      typeof o.practiceSessionId === "string" || o.practiceSessionId === null
+        ? (o.practiceSessionId as string | null)
+        : null,
+    completedAt:
+      typeof o.completedAt === "string"
+        ? o.completedAt
+        : new Date().toISOString(),
+  };
+}
+
+function snapshotRequiredSlotsFilled(snapshot: AssessmentSnapshot): boolean {
+  for (const id of ASSESSMENT_REQUIRED_SLOTS) {
+    if (!snapshotSlotAnswer(snapshot, id)) return false;
+  }
+  return true;
+}
+
+/** Pure mapper — ASSESS-MIGRATE-001 §D with F1=B, F2=A, F3=A. */
+export function mapAssessmentSnapshotToLivingProfile(
+  snapshot: AssessmentSnapshot | null,
+  current: { purposeStatement: string }
+): AssessmentSnapshotLpMapping {
+  const incomplete = (): AssessmentSnapshotLpMapping => ({
+    ready: false,
+    profileSource: "incomplete",
+    goals: null,
+    challenges: null,
+    purposeStatement: null,
+    clearPresenceScores: true,
+    provenanceClaim:
+      "Assessment ended without a sufficient accepted-slot snapshot.",
+  });
+
+  if (!snapshot) return incomplete();
+  if (!snapshot.sufficient || !snapshotRequiredSlotsFilled(snapshot)) {
+    return incomplete();
+  }
+
+  const skill = snapshotSlotAnswer(snapshot, "skill_to_improve");
+  if (!skill) return incomplete();
+
+  const goals = [skill];
+  const challenges: string[] = [];
+  for (const id of ASSESSMENT_LP_CHALLENGE_SLOTS) {
+    const answer = snapshotSlotAnswer(snapshot, id);
+    if (answer) challenges.push(answer);
+  }
+  if (challenges.length === 0) return incomplete();
+
+  // F1=B: purpose only when empty; never also into goals[].
+  const sixWeek = snapshotSlotAnswer(snapshot, "six_week_success");
+  const purposeEmpty = !current.purposeStatement.trim();
+  const purposeStatement = purposeEmpty && sixWeek ? sixWeek : null;
+
+  const practice = snapshotSlotAnswer(snapshot, "practice_time");
+  const provenanceClaim = practice
+    ? `Assessment snapshot captured training baseline. Practice time: ${practice}`
+    : "Assessment snapshot captured training baseline from accepted slots.";
+
+  return {
+    ready: true,
+    profileSource: "assessment",
+    goals,
+    challenges,
+    purposeStatement,
+    clearPresenceScores: false,
+    provenanceClaim,
+  };
 }
 
 // ---------------------------------------------------------------------------

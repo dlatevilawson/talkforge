@@ -429,16 +429,18 @@ export default function VoiceArena({
     assessmentAwaitingTranscriptTurnRef.current = false;
 
     const life = assessmentLifecycleRef.current;
-    if (outcome === "complete") {
-      const practiceSessionId = practiceSessionRef.current?.id ?? null;
-      // Step 6: results UI reads accepted slots via AssessmentSnapshot.
-      persistAssessmentSnapshotClient(
-        buildAssessmentSnapshot(life, {
-          practiceSessionId,
-          sufficient: true,
-        })
-      );
-      // Legacy keyword result persist kept until Step 7 LP cutover.
+    const practiceSessionId = practiceSessionRef.current?.id ?? null;
+    const assessmentSnapshot =
+      outcome === "complete"
+        ? buildAssessmentSnapshot(life, {
+            practiceSessionId,
+            sufficient: true,
+          })
+        : null;
+    if (assessmentSnapshot) {
+      // Step 6: results UI; Step 7: same object posted for LP write.
+      persistAssessmentSnapshotClient(assessmentSnapshot);
+      // Legacy keyword result persist kept until Step 8 cleanup.
       persistAssessmentResultClient(life.result, {
         practiceSessionId,
         sufficient: true,
@@ -473,14 +475,14 @@ export default function VoiceArena({
     setLiveConnection(null);
     setActiveVoiceSessionId(null);
 
-    if (outcome === "complete" && snapshot.length > 0) {
+    if (outcome === "complete" && assessmentSnapshot) {
       void fetch("/api/assessment/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           turns: snapshot,
-          practiceSessionId: practiceSessionRef.current?.id,
-          assessmentResult: life.result,
+          practiceSessionId,
+          assessmentSnapshot,
         }),
       }).catch((err) => {
         console.warn("[voice] assessment complete persist failed", err);
@@ -1419,31 +1421,28 @@ export default function VoiceArena({
         return;
       }
       const practiceSessionId = practiceSessionRef.current?.id ?? null;
-      // Step 6: persist whatever slots were accepted — never invent answers.
-      persistAssessmentSnapshotClient(
-        buildAssessmentSnapshot(life, {
-          practiceSessionId,
-          sufficient: false,
-        })
-      );
+      // Step 6+7: persist accepted slots only; same snapshot for LP incomplete write.
+      const assessmentSnapshot = buildAssessmentSnapshot(life, {
+        practiceSessionId,
+        sufficient: false,
+      });
+      persistAssessmentSnapshotClient(assessmentSnapshot);
       persistAssessmentResultClient(life.result, {
         practiceSessionId,
         sufficient: false,
       });
       const snapshot = [...turnsRef.current];
-      if (snapshot.length > 0) {
-        void fetch("/api/assessment/complete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            turns: snapshot,
-            practiceSessionId: practiceSessionRef.current?.id,
-            assessmentResult: life.result,
-          }),
-        }).catch((err) => {
-          console.warn("[voice] assessment early-end persist failed", err);
-        });
-      }
+      void fetch("/api/assessment/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          turns: snapshot,
+          practiceSessionId,
+          assessmentSnapshot,
+        }),
+      }).catch((err) => {
+        console.warn("[voice] assessment early-end persist failed", err);
+      });
       assessmentNavigatedRef.current = true;
       clearAssessmentTranscriptTurnTimer();
       voiceRef.current.onSessionEnd();
