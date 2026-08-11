@@ -9,7 +9,12 @@
  * Live completion is slot completeness (Step 5). Answer/question caps are
  * hard-abort only — they must sit above ASSESSMENT_REQUIRED_SLOTS length.
  * AssessmentSnapshot (Step 6) is the client results payload built from accepted
- * slots — not keyword result, not transcript extract. LP/API mapping is Step 7.
+ * slots — not keyword result, not transcript extract.
+ *
+ * Step 6 is FROZEN (ASSESS-MIGRATE-001 / PR #126 + browser checks).
+ * Step 7 = wire that snapshot into Living Profile only — see ASSESS-MIGRATE-001
+ * success criteria before coding. Do not change completion / lock / Forge /
+ * currentSlot in Steps 7–8.
  */
 
 export type AssessmentStatus = "idle" | "active" | "complete" | "cancelled";
