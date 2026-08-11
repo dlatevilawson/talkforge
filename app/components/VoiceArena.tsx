@@ -15,9 +15,11 @@ import {
   decideAssessmentResponseDone,
   decideAssessmentUserTurnEnd,
   decideAssessmentVadEvent,
+  buildAssessmentSnapshot,
   forgeTextLooksLikeContentQuestion,
   looksLikeForgeAssessmentSoftClose,
   persistAssessmentResultClient,
+  persistAssessmentSnapshotClient,
   reduceAssessmentLifecycle,
   resolveAssessmentTurnSlot,
   startAssessmentLifecycle,
@@ -428,8 +430,17 @@ export default function VoiceArena({
 
     const life = assessmentLifecycleRef.current;
     if (outcome === "complete") {
+      const practiceSessionId = practiceSessionRef.current?.id ?? null;
+      // Step 6: results UI reads accepted slots via AssessmentSnapshot.
+      persistAssessmentSnapshotClient(
+        buildAssessmentSnapshot(life, {
+          practiceSessionId,
+          sufficient: true,
+        })
+      );
+      // Legacy keyword result persist kept until Step 7 LP cutover.
       persistAssessmentResultClient(life.result, {
-        practiceSessionId: practiceSessionRef.current?.id ?? null,
+        practiceSessionId,
         sufficient: true,
       });
     }
@@ -1407,8 +1418,16 @@ export default function VoiceArena({
         void finalizeAssessmentAndNavigate("complete");
         return;
       }
+      const practiceSessionId = practiceSessionRef.current?.id ?? null;
+      // Step 6: persist whatever slots were accepted — never invent answers.
+      persistAssessmentSnapshotClient(
+        buildAssessmentSnapshot(life, {
+          practiceSessionId,
+          sufficient: false,
+        })
+      );
       persistAssessmentResultClient(life.result, {
-        practiceSessionId: practiceSessionRef.current?.id ?? null,
+        practiceSessionId,
         sufficient: false,
       });
       const snapshot = [...turnsRef.current];
