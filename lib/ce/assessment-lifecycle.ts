@@ -8,6 +8,8 @@
  * diagnostic values (Step 4). applyCategories no longer writes result/covered.
  * Live completion is slot completeness (Step 5). Answer/question caps are
  * hard-abort only — they must sit above ASSESSMENT_REQUIRED_SLOTS length.
+ * AssessmentSnapshot (Step 6) is the client results payload built from accepted
+ * slots — not keyword result, not transcript extract. LP/API mapping is Step 7.
  */
 
 export type AssessmentStatus = "idle" | "active" | "complete" | "cancelled";
@@ -92,9 +94,9 @@ export type AssessmentLifecycleState = {
   forgeContentQuestionsAsked: number;
   covered: Record<AssessmentCategory, boolean>;
   result: AssessmentResult;
-  /** Shadow slot map — not yet authoritative for results/LP. */
+  /** Accepted slot answers — authoritative for AssessmentSnapshot (Step 6). */
   slots: AssessmentSlotsState;
-  /** Slot currently being asked; null until interview wiring (Step 4). */
+  /** Slot currently being asked; null until interview wiring (Step 3). */
   currentSlot: AssessmentSlotId | null;
   /** True once the app has decided to close and requested the final line. */
   finalResponseRequested: boolean;
@@ -129,6 +131,33 @@ export type AcceptAnswerResult =
 
 export const ASSESSMENT_RESULT_STORAGE_KEY =
   "talkforge.assessmentResult.v1";
+
+/** Client results payload from accepted slots (Step 6) — separate from keyword result. */
+export const ASSESSMENT_SNAPSHOT_STORAGE_KEY =
+  "talkforge.assessmentSnapshot.v1";
+
+/** Member-facing labels for results — keyed by slot id, not legacy categories. */
+export const ASSESSMENT_SLOT_LABELS: Record<AssessmentSlotId, string> = {
+  skill_to_improve: "What to improve",
+  where_it_shows_up: "Where it shows up",
+  what_goes_wrong: "What goes wrong",
+  behavior_to_change: "Behavior to change",
+  recent_missed_conversation: "Recent missed conversation",
+  six_week_success: "Six-week success",
+  practice_time: "Practice time",
+};
+
+export type AssessmentSnapshot = {
+  version: 1;
+  /** Only filled slots — never invented. */
+  answers: Partial<Record<AssessmentSlotId, string>>;
+  filledSlotIds: AssessmentSlotId[];
+  consented: boolean;
+  /** True when required slots were filled at persist time (successful close). */
+  sufficient: boolean;
+  practiceSessionId: string | null;
+  completedAt: string;
+};
 
 export type AssessmentLifecycleEvent =
   | { type: "START" }
@@ -933,6 +962,70 @@ export function readAssessmentResultClient(): StoredAssessmentResult | null {
     const raw = window.sessionStorage.getItem(ASSESSMENT_RESULT_STORAGE_KEY);
     if (!raw) return null;
     return JSON.parse(raw) as StoredAssessmentResult;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Build the Step 6 client snapshot from accepted slots only.
+ * Does not read result/covered or invent answers for unfilled slots.
+ */
+export function buildAssessmentSnapshot(
+  state: AssessmentLifecycleState,
+  meta?: {
+    sufficient?: boolean;
+    practiceSessionId?: string | null;
+    completedAt?: string;
+  }
+): AssessmentSnapshot {
+  const answers: Partial<Record<AssessmentSlotId, string>> = {};
+  const filledSlotIds: AssessmentSlotId[] = [];
+
+  for (const id of ASSESSMENT_SLOT_ORDER) {
+    const slot = state.slots[id];
+    if (slot?.status !== "filled") continue;
+    const answer = slot.answer?.trim() ?? "";
+    if (!answer) continue;
+    answers[id] = answer;
+    filledSlotIds.push(id);
+  }
+
+  return {
+    version: 1,
+    answers,
+    filledSlotIds,
+    consented: state.consented,
+    sufficient: meta?.sufficient ?? isAssessmentSlotsComplete(state),
+    practiceSessionId: meta?.practiceSessionId ?? null,
+    completedAt: meta?.completedAt ?? new Date().toISOString(),
+  };
+}
+
+export function persistAssessmentSnapshotClient(
+  snapshot: AssessmentSnapshot
+): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.setItem(
+      ASSESSMENT_SNAPSHOT_STORAGE_KEY,
+      JSON.stringify(snapshot)
+    );
+  } catch {
+    /* ignore quota / private mode */
+  }
+}
+
+export function readAssessmentSnapshotClient(): AssessmentSnapshot | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(ASSESSMENT_SNAPSHOT_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as AssessmentSnapshot;
+    if (parsed?.version !== 1 || !parsed.answers || !Array.isArray(parsed.filledSlotIds)) {
+      return null;
+    }
+    return parsed;
   } catch {
     return null;
   }
