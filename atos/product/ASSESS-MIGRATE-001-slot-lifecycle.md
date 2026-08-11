@@ -30,7 +30,7 @@ Do **not** change completion, response lock, Forge prompts, or `currentSlot` beh
 | 4 | `applyCategories` no-ops `result`/`covered` | **FROZEN** on `main` |
 | 5 | Completion = required slots filled; caps hard-abort only | **FROZEN** on `main` (#125) |
 | 6 | `AssessmentSnapshot` → sessionStorage → results page | **FROZEN** on `main` (#126) — see below |
-| 7 | Snapshot → `/api/assessment/complete` → Living Profile | **CRITERIA LOCKED** — not started |
+| 7 | Snapshot → `/api/assessment/complete` → Living Profile | **CRITERIA LOCKED** — coding **blocked** until §D.1 forks F1–F3 are Founder-pinned |
 | 8 | Remove obsolete extractors / cleanup | **LOCKED** — do not begin until Step 7 closed |
 
 ---
@@ -93,22 +93,34 @@ Optimistic concurrency (`version` check) remains.
 
 Use **existing** Living Profile fields only. No new LP schema columns in Step 7.
 
+#### D.0 Locked mappings (no fork)
+
 | Slot id | LP write |
 |---|---|
 | `skill_to_improve` | Primary `goals[]` entry (accepted answer text) |
-| `six_week_success` | Additional `goals[]` entry **or** `purpose_statement` **only if** current purpose is empty — pick one rule in implementation and test it; do not write both copies of the same string |
-| `what_goes_wrong` | `challenges[]` |
-| `behavior_to_change` | `challenges[]` |
-| `where_it_shows_up` | Append context into the related challenge string **or** a separate `challenges[]` entry — must remain the accepted answer text, not a model paraphrase |
+| `what_goes_wrong` | `challenges[]` (accepted answer text) |
+| `behavior_to_change` | `challenges[]` (accepted answer text) |
 | `recent_missed_conversation` | `challenges[]` (accepted answer text) |
-| `practice_time` | Provenance / claim text only — **no** new LP column; do not invent a practice-capacity identity field |
+| `practice_time` | Provenance / claim text only — **no** LP column; do not invent a practice-capacity identity field |
 
-**Hard rules for mapping:**
+**Hard rules (locked):**
 
 - Copy **accepted answer strings** (trim only). No LLM rewrite of slot answers into LP fields in Step 7.
 - Empty / unfilled slots contribute nothing.
-- `strengths[]`: leave unchanged unless an accepted slot is later explicitly mapped (none today) — do **not** invent strengths.
-- `presence_scores`: **do not** invent from keywords or transcript in Step 7. Either leave existing scores untouched on successful write, or set `null` on incomplete — choose one and test; no mid-scale fabrication.
+- `strengths[]`: leave unchanged — no slot maps to strengths in Step 7; do **not** invent strengths.
+- Incomplete path (`sufficient: false` / missing-invalid snapshot): `presence_scores` → `null`. Do not invent scores from transcript or keywords.
+
+#### D.1 Blocking Founder forks — UNPINNED
+
+**Gate:** Step 7 coding must **not** start until each fork below has a Founder-chosen option recorded in the **Chosen** column. Agents must **not** default, infer, or “pick one in implementation.”
+
+| ID | Fork | Option A | Option B | Chosen |
+|---|---|---|---|---|
+| **F1** | `six_week_success` destination | Write as an additional `goals[]` entry (accepted answer text). Do **not** also write `purpose_statement` from this slot. | Write to `purpose_statement` **only if** current purpose is empty; otherwise skip. Do **not** also write this string into `goals[]`. | **UNPINNED** |
+| **F2** | `where_it_shows_up` shape | Write as its own separate `challenges[]` entry (accepted answer text). | Append the accepted answer text into a related challenge string (must still be the member’s words, not a paraphrase). | **UNPINNED** |
+| **F3** | `presence_scores` on **sufficient** write | Leave existing `presence_scores` untouched (omit from update payload / do not overwrite). | Clear `presence_scores` to `null` on sufficient assessment write (same as incomplete clearing). | **UNPINNED** |
+
+When pinned, rewrite §D.0 to absorb the chosen options and mark this table **PINNED** with date / Decision ref if any.
 
 ### E. Must not change (non-goals)
 
