@@ -29,7 +29,7 @@ Transcript is **evidence**, never structured truth.
 | 5 | Completion = required slots filled; caps hard-abort only | **FROZEN** on `main` (#125) |
 | 6 | `AssessmentSnapshot` → sessionStorage → results page | **FROZEN** on `main` (#126) |
 | 7 | Snapshot → `/api/assessment/complete` → Living Profile | **FROZEN** on `main` (#128) — F1=B · F2=A · F3=A |
-| 8 | Delete extractors / keyword client persist / obsolete telemetry | **This pass** |
+| 8 | Delete extractors / keyword client persist / obsolete telemetry | **Done on branch** — cleanup only; Steps 5–7 behavior unchanged |
 
 ---
 
