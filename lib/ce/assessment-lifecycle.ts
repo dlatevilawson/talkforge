@@ -5,15 +5,13 @@
  * assessment is complete and locks further model turns.
  *
  * Slot answers (acceptAnswer → slots/currentSlot) are the authoritative structured
- * diagnostic values (Step 4). applyCategories no longer writes result/covered.
- * Live completion is slot completeness (Step 5). Answer/question caps are
- * hard-abort only — they must sit above ASSESSMENT_REQUIRED_SLOTS length.
- * AssessmentSnapshot (Step 6) is the client results payload built from accepted
- * slots — not keyword result, not transcript extract.
+ * diagnostic values. Live completion is slot completeness. Answer/question caps
+ * are hard-abort only — they must sit above ASSESSMENT_REQUIRED_SLOTS length.
+ * AssessmentSnapshot is the client/LP payload from accepted slots.
  *
- * Step 6 is FROZEN (ASSESS-MIGRATE-001 / PR #126 + browser checks).
- * Step 7 wires AssessmentSnapshot into Living Profile (ASSESS-MIGRATE-001 §D
- * with F1=B, F2=A, F3=A). Do not change completion / lock / Forge / currentSlot.
+ * Steps 1–7 FROZEN (ASSESS-MIGRATE-001). Step 8 removes transcript extractors
+ * and keyword AssessmentResult client persist. Do not change completion / lock /
+ * Forge / currentSlot.
  */
 
 export type AssessmentStatus = "idle" | "active" | "complete" | "cancelled";
@@ -133,10 +131,7 @@ export type AcceptAnswerResult =
       reason: AcceptAnswerReason;
     };
 
-export const ASSESSMENT_RESULT_STORAGE_KEY =
-  "talkforge.assessmentResult.v1";
-
-/** Client results payload from accepted slots (Step 6) — separate from keyword result. */
+/** Client results payload from accepted slots (Step 6). */
 export const ASSESSMENT_SNAPSHOT_STORAGE_KEY =
   "talkforge.assessmentSnapshot.v1";
 
@@ -367,61 +362,6 @@ function looksLikeAssessmentConfusion(text: string): boolean {
     "rather just practice",
   ];
   return signals.some((s) => t.includes(s));
-}
-
-/** Lightweight category tagging for the structural data contract. */
-export function inferAssessmentCategories(text: string): AssessmentCategory[] {
-  if (isConsentOnlyUtterance(text)) return [];
-  const t = text.toLowerCase();
-  const hits: AssessmentCategory[] = [];
-
-  // Skill / goal first (prefer over identity for "want to get better…").
-  if (
-    /\b(want to get better|get better at|better at|improve|work on|trying to|need to|goal|small talk|small talks|present|speak)\b/.test(
-      t
-    )
-  ) {
-    hits.push("primaryGoal");
-  }
-  if (
-    /\b(hard|difficult|freeze|struggle|nervous|anxious|avoid|stuck|choke|lose my (words|point))\b/.test(
-      t
-    )
-  ) {
-    hits.push("difficultSituations");
-  }
-  if (
-    /\b(always|tend to|pattern|usually|habit|whenever|rush|ramble|apologiz|trail off|interrupt)\b/.test(
-      t
-    )
-  ) {
-    hits.push("communicationPatterns");
-  }
-  if (
-    /\b(work|meeting|meetings|boss|partner|family|school|interview|presentation|presentations|team|exec|leadership)\b/.test(
-      t
-    )
-  ) {
-    hits.push("realWorldContext");
-  }
-  // Word-boundary capacity — do NOT match "everyday" via bare "day".
-  if (
-    /\b(\d+\s*)?(minutes?|hours?|weeks?)\b/.test(t) ||
-    /\b(each day|per day|a day|daily|every day|schedule|practice time|busy mornings?|evenings?)\b/.test(
-      t
-    ) ||
-    /\bpractice\b/.test(t)
-  ) {
-    hits.push("practiceCapacity");
-  }
-  if (
-    /\b(six weeks|comfortably|able to do|success would|sound like|more direct|hold the floor|finish my point)\b/.test(
-      t
-    )
-  ) {
-    hits.push("desiredCommunicationIdentity");
-  }
-  return hits;
 }
 
 /** Values safe to show on the assessment results placeholder. */
@@ -658,36 +598,23 @@ export function markSlotAsAsking(
 }
 
 /**
- * Legacy keyword tagger — Step 4 no-op for result/covered writes.
- * Kept callable so USER_UTTERANCE wiring stays stable; inferAssessmentCategories
- * remains for tests/telemetry until Step 8 removal.
+ * Accept slot answers on USER_UTTERANCE. Merges only slots/currentSlot.
+ * Never writes legacy result/covered and never invents LP fields.
  */
-function applyCategories(
-  state: AssessmentLifecycleState,
-  _text: string
-): AssessmentLifecycleState {
-  return state;
-}
-
-/**
- * Migration Step 2 — shadow observation only.
- * Runs nextSlot + acceptAnswer beside applyCategories. Merges only
- * slots/currentSlot. Never writes result/covered and never drives completion.
- */
-function observeShadowSlots(
+function observeSlots(
   authoritative: AssessmentLifecycleState,
   text: string
 ): AssessmentLifecycleState {
   const slotId = nextSlot(authoritative);
   if (!slotId) return authoritative;
 
-  const shadow = acceptAnswer(authoritative, text, { slotId });
-  if (!shadow.ok) return authoritative;
+  const accepted = acceptAnswer(authoritative, text, { slotId });
+  if (!accepted.ok) return authoritative;
 
   return {
     ...authoritative,
-    slots: shadow.state.slots,
-    currentSlot: shadow.state.currentSlot,
+    slots: accepted.state.slots,
+    currentSlot: accepted.state.currentSlot,
   };
 }
 
@@ -762,9 +689,7 @@ export function reduceAssessmentLifecycle(
             consented: true,
             substantiveUserAnswers: state.substantiveUserAnswers + 1,
           });
-          const categorized = applyCategories(consented, text);
-          // Slot answers are authoritative; applyCategories is a Step 4 no-op.
-          const next = observeShadowSlots(categorized, text);
+          const next = observeSlots(consented, text);
           return resolveAfterAssessmentProgress(next);
         }
         return { state, effect: { type: "NONE" } };
@@ -774,15 +699,11 @@ export function reduceAssessmentLifecycle(
         return { state, effect: { type: "NONE" } };
       }
 
-      const categorized = applyCategories(
-        {
-          ...state,
-          substantiveUserAnswers: state.substantiveUserAnswers + 1,
-        },
-        text
-      );
-      // Slot answers are authoritative; applyCategories is a Step 4 no-op.
-      const next = observeShadowSlots(categorized, text);
+      const progressed = {
+        ...state,
+        substantiveUserAnswers: state.substantiveUserAnswers + 1,
+      };
+      const next = observeSlots(progressed, text);
       return resolveAfterAssessmentProgress(next);
     }
     case "FORGE_CONTENT_QUESTION_ASKED": {
@@ -931,44 +852,6 @@ export function looksLikeForgeAssessmentSoftClose(text: string): boolean {
     "thats all for now",
   ];
   return signals.some((s) => t.includes(s));
-}
-
-export type StoredAssessmentResult = AssessmentResult & {
-  practiceSessionId?: string | null;
-  completedAt?: string;
-  /** false when member ended early / extraction insufficient */
-  sufficient?: boolean;
-};
-
-export function persistAssessmentResultClient(
-  result: AssessmentResult,
-  meta?: { practiceSessionId?: string | null; sufficient?: boolean }
-): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.sessionStorage.setItem(
-      ASSESSMENT_RESULT_STORAGE_KEY,
-      JSON.stringify({
-        ...result,
-        practiceSessionId: meta?.practiceSessionId ?? null,
-        sufficient: meta?.sufficient !== false,
-        completedAt: new Date().toISOString(),
-      } satisfies StoredAssessmentResult)
-    );
-  } catch {
-    /* ignore quota / private mode */
-  }
-}
-
-export function readAssessmentResultClient(): StoredAssessmentResult | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = window.sessionStorage.getItem(ASSESSMENT_RESULT_STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as StoredAssessmentResult;
-  } catch {
-    return null;
-  }
 }
 
 /**

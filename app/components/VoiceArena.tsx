@@ -18,7 +18,6 @@ import {
   buildAssessmentSnapshot,
   forgeTextLooksLikeContentQuestion,
   looksLikeForgeAssessmentSoftClose,
-  persistAssessmentResultClient,
   persistAssessmentSnapshotClient,
   reduceAssessmentLifecycle,
   resolveAssessmentTurnSlot,
@@ -438,13 +437,8 @@ export default function VoiceArena({
           })
         : null;
     if (assessmentSnapshot) {
-      // Step 6: results UI; Step 7: same object posted for LP write.
+      // Results UI + LP write share this snapshot (Steps 6–7).
       persistAssessmentSnapshotClient(assessmentSnapshot);
-      // Legacy keyword result persist kept until Step 8 cleanup.
-      persistAssessmentResultClient(life.result, {
-        practiceSessionId,
-        sufficient: true,
-      });
     }
 
     const snapshot = [...turnsRef.current];
@@ -1427,10 +1421,6 @@ export default function VoiceArena({
         sufficient: false,
       });
       persistAssessmentSnapshotClient(assessmentSnapshot);
-      persistAssessmentResultClient(life.result, {
-        practiceSessionId,
-        sufficient: false,
-      });
       const snapshot = [...turnsRef.current];
       void fetch("/api/assessment/complete", {
         method: "POST",
