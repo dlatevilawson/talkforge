@@ -4,9 +4,10 @@
  * Structural — not prompt-enforced. The UI/session owner decides when the
  * assessment is complete and locks further model turns.
  *
- * Slot primitives are SHADOW STATE (migration Steps 1–2): USER_UTTERANCE may
- * observe via acceptAnswer into slots/currentSlot, but result/covered/completion
- * remain owned by applyCategories + isAssessmentStructurallyComplete.
+ * Slot answers (acceptAnswer → slots/currentSlot) are the authoritative structured
+ * diagnostic values (Step 4). applyCategories no longer writes result/covered.
+ * Completion still uses isAssessmentStructurallyComplete (soft-coverage drift
+ * accepted until a later step).
  */
 
 export type AssessmentStatus = "idle" | "active" | "complete" | "cancelled";
@@ -587,31 +588,16 @@ export function markSlotAsAsking(
   };
 }
 
+/**
+ * Legacy keyword tagger — Step 4 no-op for result/covered writes.
+ * Kept callable so USER_UTTERANCE wiring stays stable; inferAssessmentCategories
+ * remains for tests/telemetry until Step 8 removal.
+ */
 function applyCategories(
   state: AssessmentLifecycleState,
-  text: string
+  _text: string
 ): AssessmentLifecycleState {
-  if (isConsentOnlyUtterance(text)) return state;
-
-  const categories = inferAssessmentCategories(text);
-  // Never dump unmatched filler into the first empty slot (that caused
-  // "Yeah, sure, let's do it" → primaryGoal).
-  if (categories.length === 0) return state;
-
-  const covered = { ...state.covered };
-  const result = { ...state.result };
-  const trimmed = text.trim().slice(0, 240);
-
-  for (const cat of categories) {
-    if (!result[cat]) {
-      result[cat] = trimmed;
-      covered[cat] = true;
-    } else if (!covered[cat]) {
-      covered[cat] = true;
-    }
-  }
-
-  return { ...state, covered, result };
+  return state;
 }
 
 /**
@@ -708,7 +694,7 @@ export function reduceAssessmentLifecycle(
             substantiveUserAnswers: state.substantiveUserAnswers + 1,
           });
           const categorized = applyCategories(consented, text);
-          // Shadow slots only — applyCategories remains authoritative for result.
+          // Slot answers are authoritative; applyCategories is a Step 4 no-op.
           const next = observeShadowSlots(categorized, text);
           if (isAssessmentStructurallyComplete(next)) {
             return reduceAssessmentLifecycle(next, { type: "BEGIN_CLOSING" });
@@ -729,7 +715,7 @@ export function reduceAssessmentLifecycle(
         },
         text
       );
-      // Shadow slots only — applyCategories remains authoritative for result.
+      // Slot answers are authoritative; applyCategories is a Step 4 no-op.
       const next = observeShadowSlots(categorized, text);
 
       if (isAssessmentStructurallyComplete(next)) {
