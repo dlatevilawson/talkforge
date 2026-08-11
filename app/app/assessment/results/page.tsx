@@ -4,41 +4,37 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import {
-  ASSESSMENT_CATEGORIES,
+  ASSESSMENT_SLOT_LABELS,
+  ASSESSMENT_SLOT_ORDER,
   isUsableAssessmentResultValue,
-  readAssessmentResultClient,
-  type AssessmentCategory,
-  type StoredAssessmentResult,
+  readAssessmentSnapshotClient,
+  type AssessmentSnapshot,
+  type AssessmentSlotId,
 } from "@/lib/ce/assessment-lifecycle";
 
-const LABELS: Record<AssessmentCategory, string> = {
-  primaryGoal: "What to improve",
-  difficultSituations: "Where it gets hard",
-  communicationPatterns: "What tends to happen",
-  realWorldContext: "Real-world setting",
-  practiceCapacity: "Practice capacity",
-  desiredCommunicationIdentity: "Six-week success",
-};
-
 /**
- * Placeholder Assessment Results route.
- * Full Living Profile UI ships later — this only confirms terminal assessment
- * state. Incomplete endings must NOT offer a completed Living Profile CTA.
+ * Assessment Results — renders AssessmentSnapshot from accepted slots (Step 6).
+ * LP write still happens via the existing complete API (Step 7 cutover).
+ * Incomplete endings must NOT offer a completed Living Profile CTA.
  */
 function AssessmentResultsBody() {
   const searchParams = useSearchParams();
   const statusParam = searchParams.get("status");
-  const [result, setResult] = useState<StoredAssessmentResult | null>(null);
+  const [snapshot, setSnapshot] = useState<AssessmentSnapshot | null>(null);
 
   useEffect(() => {
-    setResult(readAssessmentResultClient());
+    setSnapshot(readAssessmentSnapshotClient());
   }, []);
 
   const incomplete =
-    statusParam === "incomplete" || result?.sufficient === false;
-  const filled = ASSESSMENT_CATEGORIES.filter((key) =>
-    isUsableAssessmentResultValue(result?.[key] ?? null)
-  );
+    statusParam === "incomplete" || snapshot?.sufficient === false;
+
+  const filledSlotIds: AssessmentSlotId[] = snapshot
+    ? ASSESSMENT_SLOT_ORDER.filter((id) => {
+        if (!snapshot.filledSlotIds.includes(id)) return false;
+        return isUsableAssessmentResultValue(snapshot.answers[id] ?? null);
+      })
+    : [];
 
   return (
     <main className="relative min-h-[100dvh] overflow-hidden bg-[#070708] text-white">
@@ -68,25 +64,25 @@ function AssessmentResultsBody() {
             : "Forge gathered enough to establish your initial communication baseline. The full Living Profile view arrives in a later step — this page confirms the assessment ended cleanly."}
         </p>
 
-        {!incomplete && result ? (
+        {snapshot && filledSlotIds.length > 0 ? (
           <ul className="mt-10 space-y-5">
-            {filled.length === 0 ? (
-              <li className="text-sm text-white/45">
-                Assessment finished. Detailed fields will appear once the Living
-                Profile view ships.
+            {filledSlotIds.map((id) => (
+              <li key={id}>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                  {ASSESSMENT_SLOT_LABELS[id]}
+                </p>
+                <p className="mt-1 text-sm leading-6 text-white/80">
+                  {snapshot.answers[id]}
+                </p>
               </li>
-            ) : (
-              filled.map((key) => (
-                <li key={key}>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
-                    {LABELS[key]}
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-white/80">
-                    {result[key]}
-                  </p>
-                </li>
-              ))
-            )}
+            ))}
+          </ul>
+        ) : !incomplete && snapshot ? (
+          <ul className="mt-10 space-y-5">
+            <li className="text-sm text-white/45">
+              Assessment finished. Detailed fields will appear once the Living
+              Profile view ships.
+            </li>
           </ul>
         ) : null}
 
