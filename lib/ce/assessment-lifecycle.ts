@@ -4,8 +4,9 @@
  * Structural — not prompt-enforced. The UI/session owner decides when the
  * assessment is complete and locks further model turns.
  *
- * Slot primitives below are SHADOW STATE (migration Step 1): inspectable and
- * unit-tested, but not yet wired into reduceAssessmentLifecycle / persistence.
+ * Slot primitives are SHADOW STATE (migration Steps 1–2): USER_UTTERANCE may
+ * observe via acceptAnswer into slots/currentSlot, but result/covered/completion
+ * remain owned by applyCategories + isAssessmentStructurallyComplete.
  */
 
 export type AssessmentStatus = "idle" | "active" | "complete" | "cancelled";
@@ -579,6 +580,28 @@ function applyCategories(
   return { ...state, covered, result };
 }
 
+/**
+ * Migration Step 2 — shadow observation only.
+ * Runs nextSlot + acceptAnswer beside applyCategories. Merges only
+ * slots/currentSlot. Never writes result/covered and never drives completion.
+ */
+function observeShadowSlots(
+  authoritative: AssessmentLifecycleState,
+  text: string
+): AssessmentLifecycleState {
+  const slotId = nextSlot(authoritative);
+  if (!slotId) return authoritative;
+
+  const shadow = acceptAnswer(authoritative, text, { slotId });
+  if (!shadow.ok) return authoritative;
+
+  return {
+    ...authoritative,
+    slots: shadow.state.slots,
+    currentSlot: shadow.state.currentSlot,
+  };
+}
+
 export function reduceAssessmentLifecycle(
   state: AssessmentLifecycleState,
   event: AssessmentLifecycleEvent
@@ -638,7 +661,7 @@ export function reduceAssessmentLifecycle(
         }
         if (looksSubstantive(text)) {
           // Substantive first answer also implies consent to continue.
-          const next = applyCategories(
+          const categorized = applyCategories(
             {
               ...state,
               consented: true,
@@ -646,6 +669,8 @@ export function reduceAssessmentLifecycle(
             },
             text
           );
+          // Shadow slots only — applyCategories remains authoritative for result.
+          const next = observeShadowSlots(categorized, text);
           if (isAssessmentStructurallyComplete(next)) {
             return reduceAssessmentLifecycle(next, { type: "BEGIN_CLOSING" });
           }
@@ -658,13 +683,15 @@ export function reduceAssessmentLifecycle(
         return { state, effect: { type: "NONE" } };
       }
 
-      const next = applyCategories(
+      const categorized = applyCategories(
         {
           ...state,
           substantiveUserAnswers: state.substantiveUserAnswers + 1,
         },
         text
       );
+      // Shadow slots only — applyCategories remains authoritative for result.
+      const next = observeShadowSlots(categorized, text);
 
       if (isAssessmentStructurallyComplete(next)) {
         return reduceAssessmentLifecycle(next, { type: "BEGIN_CLOSING" });
