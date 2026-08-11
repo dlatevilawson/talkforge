@@ -428,6 +428,16 @@ export function isAssessmentSlotsComplete(
   return true;
 }
 
+/**
+ * Slot Forge should ask on the next mid-turn.
+ * Prefers currentSlot; falls back to nextSlot (e.g. first question after consent).
+ */
+export function resolveAssessmentTurnSlot(
+  state: AssessmentLifecycleState
+): AssessmentSlotId | null {
+  return state.currentSlot ?? nextSlot(state);
+}
+
 /** Next eligible interview slot — pure; does not mutate state. */
 export function nextSlot(
   state: AssessmentLifecycleState

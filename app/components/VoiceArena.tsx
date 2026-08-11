@@ -19,9 +19,11 @@ import {
   looksLikeForgeAssessmentSoftClose,
   persistAssessmentResultClient,
   reduceAssessmentLifecycle,
+  resolveAssessmentTurnSlot,
   startAssessmentLifecycle,
   type AssessmentLifecycleEffect,
   type AssessmentLifecycleState,
+  type AssessmentSlotId,
 } from "@/lib/ce/assessment-lifecycle";
 import {
   applyOutputBudget,
@@ -224,6 +226,11 @@ export default function VoiceArena({
     setAssessmentStatusLabel(next.assessmentMode ? next.assessmentStatus : null);
   }
 
+  /** App-owned slot for the next Forge assessment mid-turn (Step 3). */
+  function assessmentTurnSlot(): AssessmentSlotId | null {
+    return resolveAssessmentTurnSlot(assessmentLifecycleRef.current);
+  }
+
   function clearAssessmentTranscriptTurnTimer() {
     if (assessmentTranscriptTurnTimerRef.current) {
       clearTimeout(assessmentTranscriptTurnTimerRef.current);
@@ -334,13 +341,17 @@ export default function VoiceArena({
         }
       );
       if (fallback.action === "request_mid_turn") {
+        const slot = assessmentTurnSlot();
         const requested = requestHoldTurnResponse(connectionRef.current, {
           mode: "assessment",
           allowAssessment: true,
+          assessmentSlot: slot,
         });
         pushEvent(
           requested
-            ? `Assessment mid-turn · transcript timeout · ${reason}`
+            ? `Assessment mid-turn · transcript timeout · ${reason}${
+                slot ? ` · slot=${slot}` : ""
+              }`
             : `Assessment mid-turn failed · ${reason}`
         );
       }
@@ -981,13 +992,17 @@ export default function VoiceArena({
           }
           // REQUEST_FINAL_RESPONSE / exit already handled in dispatch effect.
           if (after.action === "request_mid_turn") {
+            const slot = assessmentTurnSlot();
             const requested = requestHoldTurnResponse(connectionRef.current, {
               mode: "assessment",
               allowAssessment: true,
+              assessmentSlot: slot,
             });
             pushEvent(
               requested
-                ? "Assessment mid-turn · after transcript"
+                ? `Assessment mid-turn · after transcript${
+                    slot ? ` · slot=${slot}` : ""
+                  }`
                 : "Assessment mid-turn failed · after transcript"
             );
           } else if (after.action === "request_closing") {

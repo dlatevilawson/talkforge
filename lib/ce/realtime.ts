@@ -3,6 +3,7 @@ import {
   buildOpeningSpeechInstructions,
   FORGE_TURN_MAX_OUTPUT_TOKENS,
 } from "@/lib/coach/philosophy";
+import type { AssessmentSlotId } from "./assessment-lifecycle";
 import {
   buildAssessmentClosingSpeechInstructions,
   buildAssessmentOpeningSpeechInstructions,
@@ -414,7 +415,12 @@ export function requestOpeningSpeech(
  */
 export function requestHoldTurnResponse(
   connection: RealtimeConnection | null,
-  options?: { mode?: "practice" | "assessment"; allowAssessment?: boolean }
+  options?: {
+    mode?: "practice" | "assessment";
+    allowAssessment?: boolean;
+    /** App-selected assessment slot for this mid-turn (Step 3). */
+    assessmentSlot?: AssessmentSlotId | null;
+  }
 ): boolean {
   if (!connection || connection.dc.readyState !== "open") return false;
   // Assessment mid-turns must be gated by the app lifecycle caller.
@@ -431,7 +437,7 @@ export function requestHoldTurnResponse(
     }
     const instructions =
       options?.mode === "assessment"
-        ? buildAssessmentTurnInstructions()
+        ? buildAssessmentTurnInstructions(options.assessmentSlot ?? null)
         : buildListenFirstTurnInstructions();
     connection.dc.send(
       JSON.stringify({

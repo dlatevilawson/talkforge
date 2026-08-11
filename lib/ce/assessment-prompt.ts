@@ -6,7 +6,12 @@
  *
  * Hard rule: exactly ONE concrete diagnostic question per Forge turn.
  * Termination is owned by assessment-lifecycle.ts — do not change that here.
+ *
+ * Migration Step 3: the app names the current slot each turn. Forge only
+ * voices that slot — it must not choose which slot comes next.
  */
+
+import type { AssessmentSlotId } from "./assessment-lifecycle";
 
 export const ASSESSMENT_OPENING_LINE =
   "Hey — I'm Forge. Before we build a training plan, I need a quick read on your speaking — a few practical questions. That okay?";
@@ -31,7 +36,10 @@ export const ASSESSMENT_ANCHOR_QUESTIONS = [
   "How much time can you realistically practice each day?",
 ] as const;
 
-/** Diagnostic slots — cover conversationally; skip if already answered. */
+/**
+ * Slot ids (must stay aligned with AssessmentSlotId / ASSESSMENT_SLOT_ORDER).
+ * Catalog only — selection is app-owned, not prompt-owned.
+ */
 export const ASSESSMENT_DIAGNOSTIC_SLOTS = [
   "skill_to_improve",
   "where_it_shows_up",
@@ -40,7 +48,55 @@ export const ASSESSMENT_DIAGNOSTIC_SLOTS = [
   "recent_missed_conversation",
   "six_week_success",
   "practice_time",
-] as const;
+] as const satisfies readonly AssessmentSlotId[];
+
+export type AssessmentSlotTurnMeta = {
+  id: AssessmentSlotId;
+  intent: string;
+  suggestedWording: string;
+};
+
+/** Wording hints for the app-selected slot — Forge adapts, does not choose. */
+export const ASSESSMENT_SLOT_TURN_META: Record<
+  AssessmentSlotId,
+  AssessmentSlotTurnMeta
+> = {
+  skill_to_improve: {
+    id: "skill_to_improve",
+    intent: "identify the main speaking skill they want to improve",
+    suggestedWording: ASSESSMENT_ANCHOR_QUESTIONS[0],
+  },
+  where_it_shows_up: {
+    id: "where_it_shows_up",
+    intent: "identify where this shows up most often",
+    suggestedWording: ASSESSMENT_ANCHOR_QUESTIONS[1],
+  },
+  what_goes_wrong: {
+    id: "what_goes_wrong",
+    intent: "identify what usually goes wrong when it gets difficult",
+    suggestedWording: ASSESSMENT_ANCHOR_QUESTIONS[2],
+  },
+  behavior_to_change: {
+    id: "behavior_to_change",
+    intent: "identify the behavior they notice and want to change",
+    suggestedWording: ASSESSMENT_ANCHOR_QUESTIONS[3],
+  },
+  recent_missed_conversation: {
+    id: "recent_missed_conversation",
+    intent: "get one recent conversation that missed",
+    suggestedWording: ASSESSMENT_ANCHOR_QUESTIONS[4],
+  },
+  six_week_success: {
+    id: "six_week_success",
+    intent: "identify a concrete six-week success",
+    suggestedWording: ASSESSMENT_ANCHOR_QUESTIONS[5],
+  },
+  practice_time: {
+    id: "practice_time",
+    intent: "identify realistic daily practice time",
+    suggestedWording: ASSESSMENT_ANCHOR_QUESTIONS[6],
+  },
+};
 
 /**
  * Count `?` marks in a Forge turn. Mid-assessment content turns must be exactly 1
@@ -116,19 +172,14 @@ export function buildAssessmentSystemInstructions(): string {
     "- NEVER say \"communication behavior\", \"communications behavior\", or clinical/abstract jargon.",
     "- NEVER ask about feelings, emotional states, confidence-as-feeling, or 'where it really counts'.",
     "",
-    "ADAPTIVE DIAGNOSIS (not a rigid script):",
-    "Track which of these you still need. Ask only uncovered slots, one at a time:",
-    "1) skill_to_improve — what to get better at when speaking",
-    "2) where_it_shows_up — work / social / family / presentations / etc.",
-    "3) what_goes_wrong — what happens when the conversation gets difficult",
-    "4) behavior_to_change — what they notice themselves doing that they want to change",
-    "5) recent_missed_conversation — a recent conversation that missed",
-    "6) six_week_success — concrete thing they want to do comfortably in six weeks",
-    "7) practice_time — realistic daily practice time",
-    "If their answer already covers a later slot, skip it. Choose the next missing slot based on what they just said.",
-    "CRITICAL SKIP RULE: If they already named what they do wrong (freeze, rush, ramble, apologize, trail off, lose the point, etc.), treat behavior_to_change (and usually what_goes_wrong) as filled. Do NOT ask \"what do you notice yourself doing\". Next ask a recent missed conversation, six-week success, or practice time.",
+    "APPLICATION OWNS SLOT SELECTION (hard rule):",
+    "- The app names the single diagnostic slot for each mid-turn in response.create instructions.",
+    "- Do NOT choose which slot to ask next.",
+    "- Do NOT skip, reorder, invent, or combine slots.",
+    "- Do NOT decide coverage yourself. Ask ONLY the slot named in the current turn instructions.",
+    "- Known slots the app may assign: skill_to_improve | where_it_shows_up | what_goes_wrong | behavior_to_change | recent_missed_conversation | six_week_success | practice_time.",
     "",
-    "EXAMPLE SINGLE QUESTIONS (use or adapt — never stack two):",
+    "EXAMPLE SINGLE QUESTIONS (wording hints only — app still chooses the slot):",
     `  • "${ASSESSMENT_ANCHOR_QUESTIONS[0]}"`,
     `  • "${ASSESSMENT_ANCHOR_QUESTIONS[1]}"`,
     `  • "${ASSESSMENT_ANCHOR_QUESTIONS[2]}"`,
@@ -148,7 +199,7 @@ export function buildAssessmentSystemInstructions(): string {
     "",
     "AFTER EACH USER ANSWER — STRICT SHAPE:",
     '1) One short ACK only: "Got it." / "Makes sense." / "Okay." / "Alright." (max 4–5 words).',
-    "2) Exactly ONE next diagnostic question (one '?').",
+    "2) Exactly ONE next diagnostic question for the app-named slot (one '?').",
     "3) Stop. Yield the mic.",
     "NEVER repeat, paraphrase, summarize, or echo their answer.",
     'Forbidden: "You said…", "So you\'re dealing with…", "It sounds like…", reflective mirroring.',
@@ -170,7 +221,7 @@ export function buildAssessmentSystemInstructions(): string {
     "Zero questions. No plan/roadmap/drill mentions. Stop.",
     "",
     "NEVER SELF-CLOSE:",
-    'Do not say "that\'s all I need", "pick this up later", or invent an ending. Until the app closes: ACK → one question.',
+    'Do not say "that\'s all I need", "pick this up later", or invent an ending. Until the app closes: ACK → one question for the named slot.',
     "",
     "STYLE: Warm, direct, brief. Coach diagnosing performance. Never invent facts. Never label identity.",
   ].join("\n");
@@ -188,13 +239,31 @@ export function buildAssessmentOpeningSpeechInstructions(): string {
 
 /**
  * Per-turn hold-release instructions for assessment mode.
- * Overrides listen-first REFLECT→PROMPT which was causing answer restatement.
+ * Slot selection is app-owned via `slot` — Forge only voices that slot.
  */
-export function buildAssessmentTurnInstructions(): string {
+export function buildAssessmentTurnInstructions(
+  slot?: AssessmentSlotId | null
+): string {
+  const slotBlock = slot
+    ? [
+        "CURRENT ASSESSMENT SLOT (app-selected — ask ONLY this):",
+        `id: ${slot}`,
+        `intent: ${ASSESSMENT_SLOT_TURN_META[slot].intent}`,
+        `suggested wording: "${ASSESSMENT_SLOT_TURN_META[slot].suggestedWording}"`,
+        "Ask exactly one question for this slot. Adapt wording naturally if needed.",
+        "Do NOT choose another slot. Do NOT skip ahead. Do NOT ask a different topic.",
+      ].join(" ")
+    : [
+        "CURRENT ASSESSMENT SLOT: none provided by the app.",
+        "Do NOT invent a diagnostic slot or choose what to ask next.",
+        "Speak only a brief ACK (≤5 words) and wait.",
+      ].join(" ");
+
   return [
     "ASSESSMENT MODE turn (hold-to-talk release).",
     "You are diagnosing speaking performance for training — not therapy, not coaching practice.",
     "The app owns when the assessment ends.",
+    "The app owns which diagnostic slot to ask — you do not select slots.",
     "The member just answered. Do NOT use reflect→prompt coaching.",
     "If their answer is process confusion/disengagement, do NOT treat it as diagnostic content.",
     `Offer the check-in nearly verbatim: "${ASSESSMENT_DISENGAGEMENT_CHECK_IN}"`,
@@ -202,15 +271,9 @@ export function buildAssessmentTurnInstructions(): string {
     '1) ACK in ≤5 words ("Got it." / "Makes sense." / "Okay." / "Alright.").',
     "2) Exactly ONE concrete diagnostic question — one question mark — plain coach language.",
     "3) Stop. Yield the mic.",
-    "Pick the next uncovered diagnostic slot based on what they just said. Skip slots already answered.",
-    "If they already named the skill, place, what goes wrong, or the behavior, do NOT re-ask that slot — advance to the next missing one.",
-    "CRITICAL: If their last answer already lists behaviors (rush, freeze, apologize, trail off, ramble, lose the point), do NOT ask what they notice themselves doing. Ask a recent missed conversation, six-week success, or practice time instead.",
-    "Slots: skill_to_improve | where_it_shows_up | what_goes_wrong | behavior_to_change | recent_missed_conversation | six_week_success | practice_time.",
+    slotBlock,
     "FORBIDDEN: two questions; 'and where…' stacked asks; 'communication behavior'; feelings; confidence-as-feeling; 'where it really counts'; abstract meaning.",
-    "Good single asks include:",
-    `"${ASSESSMENT_ANCHOR_QUESTIONS[0]}"`,
-    `"${ASSESSMENT_ANCHOR_QUESTIONS[1]}"`,
-    `"${ASSESSMENT_ANCHOR_QUESTIONS[2]}"`,
+    "FORBIDDEN: picking the next uncovered slot yourself; skipping; reordering; inventing slots.",
     "Prefer one open ask over long multiple-choice menus.",
     "Never invite practice/drills. Do NOT self-close. Keep the turn brief.",
   ].join(" ");
