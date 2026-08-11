@@ -4,9 +4,10 @@
  * Structural — not prompt-enforced. The UI/session owner decides when the
  * assessment is complete and locks further model turns.
  *
- * Slot primitives are SHADOW STATE (migration Steps 1–2): USER_UTTERANCE may
- * observe via acceptAnswer into slots/currentSlot, but result/covered/completion
- * remain owned by applyCategories + isAssessmentStructurallyComplete.
+ * Slot answers (acceptAnswer → slots/currentSlot) are the authoritative structured
+ * diagnostic values (Step 4). applyCategories no longer writes result/covered.
+ * Live completion is slot completeness (Step 5). Answer/question caps are
+ * hard-abort only — they must sit above ASSESSMENT_REQUIRED_SLOTS length.
  */
 
 export type AssessmentStatus = "idle" | "active" | "complete" | "cancelled";
@@ -31,11 +32,18 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
   "desiredCommunicationIdentity",
 ];
 
-/** Soft target ~5 minutes; structural caps keep the interview finite. */
+/**
+ * Legacy soft thresholds — retained on isAssessmentStructurallyComplete only.
+ * Live completion no longer uses them (Step 5).
+ */
 export const ASSESSMENT_MIN_SUBSTANTIVE_ANSWERS = 3;
-export const ASSESSMENT_MAX_SUBSTANTIVE_ANSWERS = 5;
 export const ASSESSMENT_MIN_COVERED_CATEGORIES = 2;
-export const ASSESSMENT_MAX_FORGE_CONTENT_QUESTIONS = 4;
+/**
+ * Hard-abort safety ceilings (Step 5). Must exceed required slot count (7) so
+ * normal slot-complete success can happen before abort.
+ */
+export const ASSESSMENT_MAX_SUBSTANTIVE_ANSWERS = 12;
+export const ASSESSMENT_MAX_FORGE_CONTENT_QUESTIONS = 14;
 
 /** App-owned interview slots — single catalog/order (migration Step 1). */
 export type AssessmentSlotId =
@@ -395,6 +403,10 @@ function coveredCount(state: AssessmentLifecycleState): number {
   return ASSESSMENT_CATEGORIES.filter((c) => state.covered[c]).length;
 }
 
+/**
+ * Legacy completion predicate — kept temporarily (Step 5).
+ * Live reducer no longer calls this.
+ */
 export function isAssessmentStructurallyComplete(
   state: AssessmentLifecycleState
 ): boolean {
@@ -413,10 +425,7 @@ export function isAssessmentStructurallyComplete(
   );
 }
 
-/**
- * Shadow completion predicate (migration Step 1).
- * Does not replace isAssessmentStructurallyComplete.
- */
+/** Live completion authority (Step 5): consented + every required slot filled. */
 export function isAssessmentSlotsComplete(
   state: AssessmentLifecycleState
 ): boolean {
@@ -429,13 +438,65 @@ export function isAssessmentSlotsComplete(
 }
 
 /**
+ * Hard-abort safety only — not successful completion.
+ * Caps fire only when required slots are still incomplete.
+ */
+export function isAssessmentHardAbort(state: AssessmentLifecycleState): boolean {
+  if (state.assessmentStatus !== "active" || !state.consented) return false;
+  if (isAssessmentSlotsComplete(state)) return false;
+  return (
+    state.substantiveUserAnswers >= ASSESSMENT_MAX_SUBSTANTIVE_ANSWERS ||
+    state.forgeContentQuestionsAsked >= ASSESSMENT_MAX_FORGE_CONTENT_QUESTIONS
+  );
+}
+
+function resolveAfterAssessmentProgress(
+  state: AssessmentLifecycleState
+): { state: AssessmentLifecycleState; effect: AssessmentLifecycleEffect } {
+  if (isAssessmentSlotsComplete(state)) {
+    return reduceAssessmentLifecycle(state, { type: "BEGIN_CLOSING" });
+  }
+  if (isAssessmentHardAbort(state)) {
+    return reduceAssessmentLifecycle(state, {
+      type: "CANCEL",
+      reason: "safety_cap",
+    });
+  }
+  return { state, effect: { type: "NONE" } };
+}
+
+/**
  * Slot Forge should ask on the next mid-turn.
- * Prefers currentSlot; falls back to nextSlot (e.g. first question after consent).
+ * Returns ONLY lifecycle currentSlot — never selects via nextSlot fallback.
  */
 export function resolveAssessmentTurnSlot(
   state: AssessmentLifecycleState
 ): AssessmentSlotId | null {
-  return state.currentSlot ?? nextSlot(state);
+  return state.currentSlot;
+}
+
+/**
+ * After consent, explicitly establish currentSlot (no implicit Forge fallback).
+ * Uses nextSlot only here — not in resolveAssessmentTurnSlot / turn construction.
+ */
+function establishCurrentSlotAfterConsent(
+  state: AssessmentLifecycleState
+): AssessmentLifecycleState {
+  if (!state.consented || state.assessmentStatus !== "active") return state;
+
+  if (state.currentSlot) {
+    const current = state.slots[state.currentSlot];
+    if (
+      current &&
+      (current.status === "pending" || current.status === "asking")
+    ) {
+      return markSlotAsAsking(state, state.currentSlot);
+    }
+  }
+
+  const slot = nextSlot({ ...state, currentSlot: null });
+  if (!slot) return state;
+  return markSlotAsAsking(state, slot);
 }
 
 /** Next eligible interview slot — pure; does not mutate state. */
@@ -563,31 +624,16 @@ export function markSlotAsAsking(
   };
 }
 
+/**
+ * Legacy keyword tagger — Step 4 no-op for result/covered writes.
+ * Kept callable so USER_UTTERANCE wiring stays stable; inferAssessmentCategories
+ * remains for tests/telemetry until Step 8 removal.
+ */
 function applyCategories(
   state: AssessmentLifecycleState,
-  text: string
+  _text: string
 ): AssessmentLifecycleState {
-  if (isConsentOnlyUtterance(text)) return state;
-
-  const categories = inferAssessmentCategories(text);
-  // Never dump unmatched filler into the first empty slot (that caused
-  // "Yeah, sure, let's do it" → primaryGoal).
-  if (categories.length === 0) return state;
-
-  const covered = { ...state.covered };
-  const result = { ...state.result };
-  const trimmed = text.trim().slice(0, 240);
-
-  for (const cat of categories) {
-    if (!result[cat]) {
-      result[cat] = trimmed;
-      covered[cat] = true;
-    } else if (!covered[cat]) {
-      covered[cat] = true;
-    }
-  }
-
-  return { ...state, covered, result };
+  return state;
 }
 
 /**
@@ -625,7 +671,10 @@ export function reduceAssessmentLifecycle(
         return { state, effect: { type: "NONE" } };
       }
       return {
-        state: { ...state, consented: true },
+        state: establishCurrentSlotAfterConsent({
+          ...state,
+          consented: true,
+        }),
         effect: { type: "NONE" },
       };
     }
@@ -664,27 +713,26 @@ export function reduceAssessmentLifecycle(
         }
         if (isConsentOnlyUtterance(text) || isConsentAffirmative(text)) {
           // Consent only — never write into assessmentResult fields.
+          // Explicitly establish currentSlot for Forge (no resolve fallback).
           return {
-            state: { ...state, consented: true },
+            state: establishCurrentSlotAfterConsent({
+              ...state,
+              consented: true,
+            }),
             effect: { type: "NONE" },
           };
         }
         if (looksSubstantive(text)) {
           // Substantive first answer also implies consent to continue.
-          const categorized = applyCategories(
-            {
-              ...state,
-              consented: true,
-              substantiveUserAnswers: state.substantiveUserAnswers + 1,
-            },
-            text
-          );
-          // Shadow slots only — applyCategories remains authoritative for result.
+          const consented = establishCurrentSlotAfterConsent({
+            ...state,
+            consented: true,
+            substantiveUserAnswers: state.substantiveUserAnswers + 1,
+          });
+          const categorized = applyCategories(consented, text);
+          // Slot answers are authoritative; applyCategories is a Step 4 no-op.
           const next = observeShadowSlots(categorized, text);
-          if (isAssessmentStructurallyComplete(next)) {
-            return reduceAssessmentLifecycle(next, { type: "BEGIN_CLOSING" });
-          }
-          return { state: next, effect: { type: "NONE" } };
+          return resolveAfterAssessmentProgress(next);
         }
         return { state, effect: { type: "NONE" } };
       }
@@ -700,13 +748,9 @@ export function reduceAssessmentLifecycle(
         },
         text
       );
-      // Shadow slots only — applyCategories remains authoritative for result.
+      // Slot answers are authoritative; applyCategories is a Step 4 no-op.
       const next = observeShadowSlots(categorized, text);
-
-      if (isAssessmentStructurallyComplete(next)) {
-        return reduceAssessmentLifecycle(next, { type: "BEGIN_CLOSING" });
-      }
-      return { state: next, effect: { type: "NONE" } };
+      return resolveAfterAssessmentProgress(next);
     }
     case "FORGE_CONTENT_QUESTION_ASKED": {
       if (
@@ -716,12 +760,16 @@ export function reduceAssessmentLifecycle(
       ) {
         return { state, effect: { type: "NONE" } };
       }
+      // Telemetry / hard-abort input only — does not trigger successful close.
       const next = {
         ...state,
         forgeContentQuestionsAsked: state.forgeContentQuestionsAsked + 1,
       };
-      if (isAssessmentStructurallyComplete(next)) {
-        return reduceAssessmentLifecycle(next, { type: "BEGIN_CLOSING" });
+      if (isAssessmentHardAbort(next)) {
+        return reduceAssessmentLifecycle(next, {
+          type: "CANCEL",
+          reason: "safety_cap",
+        });
       }
       return { state: next, effect: { type: "NONE" } };
     }
