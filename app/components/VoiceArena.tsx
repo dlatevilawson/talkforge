@@ -1,11 +1,30 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import PresenceRing, {
   type PresenceRingState,
 } from "@/app/components/arena/PresenceRing";
 import BecomeProMemberButton from "@/app/components/billing/BecomeProMemberButton";
+import {
+  createIdleAssessmentState,
+  decideAssessmentAfterUserUtterance,
+  decideAssessmentClosingStrategy,
+  decideAssessmentResponseCreated,
+  decideAssessmentResponseDone,
+  decideAssessmentUserTurnEnd,
+  decideAssessmentVadEvent,
+  forgeTextLooksLikeContentQuestion,
+  looksLikeForgeAssessmentSoftClose,
+  persistAssessmentResultClient,
+  reduceAssessmentLifecycle,
+  resolveAssessmentTurnSlot,
+  startAssessmentLifecycle,
+  type AssessmentLifecycleEffect,
+  type AssessmentLifecycleState,
+  type AssessmentSlotId,
+} from "@/lib/ce/assessment-lifecycle";
 import {
   applyOutputBudget,
   cancelForgeResponse,
@@ -13,7 +32,9 @@ import {
   connectRealtime,
   disconnectRealtime,
   duckRemoteForgeAudio,
+  lockAssessmentAutoResponses,
   recoverMicrophone,
+  requestAssessmentClosingSpeech,
   requestHoldTurnResponse,
   requestOpeningSpeech,
   resumeRemoteAudio,
@@ -127,6 +148,7 @@ export default function VoiceArena({
   autoStart = false,
   mode = "practice",
 }: VoiceArenaProps) {
+  const router = useRouter();
   const isAssessment = mode === "assessment";
   const connectionRef = useRef<RealtimeConnection | null>(null);
   const turnsRef = useRef<TranscriptTurn[]>([]);
@@ -139,6 +161,22 @@ export default function VoiceArena({
   const lifecycleGenerationRef = useRef(0);
   const autoStartAttemptedRef = useRef(false);
   const beginButtonRef = useRef<HTMLButtonElement>(null);
+  const assessmentLifecycleRef = useRef<AssessmentLifecycleState>(
+    isAssessment ? startAssessmentLifecycle() : createIdleAssessmentState()
+  );
+  /** Closing speech was sent — next matching response.done navigates. */
+  const assessmentClosingSentRef = useRef(false);
+  /** Wait for in-flight done before sending the privileged closing. */
+  const assessmentPendingClosingAfterDoneRef = useRef(false);
+  /** Defer mid-turn create until founder transcript is reduced. */
+  const assessmentAwaitingTranscriptTurnRef = useRef(false);
+  const assessmentClosingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const assessmentTranscriptTurnTimerRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+  const assessmentNavigatedRef = useRef(false);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState("");
@@ -169,6 +207,9 @@ export default function VoiceArena({
   const [isProUser, setIsProUser] = useState(false);
   const [voiceMode, setVoiceMode] = useState<ArenaVoiceMode>("hold");
   const [repsRemaining, setRepsRemaining] = useState<number | null>(null);
+  const [assessmentStatusLabel, setAssessmentStatusLabel] = useState<
+    AssessmentLifecycleState["assessmentStatus"] | null
+  >(isAssessment ? "active" : null);
   const usageIdRef = useRef<string | null>(null);
   const handsFreeRef = useRef(false);
   const phaseRef = useRef<Phase>("idle");
@@ -179,6 +220,271 @@ export default function VoiceArena({
   const pendingBudgetRef = useRef<number | null>(null);
   const [turnState, setTurnState] = useState<TurnState>("listening");
   const handsFree = voiceMode === "handsfree";
+
+  function syncAssessmentLifecycle(next: AssessmentLifecycleState) {
+    assessmentLifecycleRef.current = next;
+    setAssessmentStatusLabel(next.assessmentMode ? next.assessmentStatus : null);
+  }
+
+  /** App-owned slot for the next Forge assessment mid-turn (Step 3). */
+  function assessmentTurnSlot(): AssessmentSlotId | null {
+    return resolveAssessmentTurnSlot(assessmentLifecycleRef.current);
+  }
+
+  function clearAssessmentTranscriptTurnTimer() {
+    if (assessmentTranscriptTurnTimerRef.current) {
+      clearTimeout(assessmentTranscriptTurnTimerRef.current);
+      assessmentTranscriptTurnTimerRef.current = null;
+    }
+  }
+
+  function muteAssessmentTerminalMic(reason: string) {
+    setMicrophoneEnabled(connectionRef.current, false);
+    setOutboundMicrophoneEnabled(connectionRef.current, false);
+    clearInputAudioBuffer(connectionRef.current);
+    pushEvent(`Assessment mic locked · ${reason}`);
+  }
+
+  function sendAssessmentClosingSpeech(reason: string) {
+    if (assessmentClosingSentRef.current) return;
+    const life = assessmentLifecycleRef.current;
+    if (
+      life.assessmentStatus !== "complete" ||
+      !life.finalResponseRequested ||
+      life.finalResponseDelivered
+    ) {
+      return;
+    }
+    lockAssessmentAutoResponses(connectionRef.current);
+    muteAssessmentTerminalMic("closing");
+    const sent = requestAssessmentClosingSpeech(connectionRef.current);
+    assessmentClosingSentRef.current = sent;
+    assessmentPendingClosingAfterDoneRef.current = false;
+    pushEvent(
+      sent
+        ? `Assessment closing · ${reason}`
+        : `Assessment closing failed · ${reason}`
+    );
+  }
+
+  function requestAssessmentClosingOnce(reason: string) {
+    if (assessmentClosingSentRef.current) return;
+    if (assessmentClosingTimerRef.current) {
+      clearTimeout(assessmentClosingTimerRef.current);
+      assessmentClosingTimerRef.current = null;
+    }
+    clearAssessmentTranscriptTurnTimer();
+    assessmentAwaitingTranscriptTurnRef.current = false;
+    lockAssessmentAutoResponses(connectionRef.current);
+    muteAssessmentTerminalMic(reason);
+
+    const forgeBusy =
+      turnStateRef.current === "forge_speaking" ||
+      turnStateRef.current === "forge_thinking" ||
+      activeResponseIdRef.current != null;
+
+    const strategy = decideAssessmentClosingStrategy({
+      closingSent: assessmentClosingSentRef.current,
+      forgeBusy,
+    });
+
+    if (strategy === "queue_after_done") {
+      // Do NOT cancel in-flight audio — avoids half-response + cancel hitch.
+      assessmentPendingClosingAfterDoneRef.current = true;
+      pushEvent(`Assessment closing queued · ${reason}`);
+      assessmentClosingTimerRef.current = setTimeout(() => {
+        assessmentClosingTimerRef.current = null;
+        if (!mountedRef.current || assessmentClosingSentRef.current) return;
+        sendAssessmentClosingSpeech(`${reason}_timeout`);
+      }, 1200);
+      return;
+    }
+
+    if (strategy === "send_now") {
+      assessmentClosingTimerRef.current = setTimeout(() => {
+        assessmentClosingTimerRef.current = null;
+        if (!mountedRef.current) return;
+        sendAssessmentClosingSpeech(reason);
+      }, 40);
+    }
+  }
+
+  function armAssessmentClientTurn(reason: string) {
+    const decision = decideAssessmentUserTurnEnd(
+      assessmentLifecycleRef.current,
+      { closingSent: assessmentClosingSentRef.current }
+    );
+    if (decision.action === "ignore_terminal") {
+      muteAssessmentTerminalMic(reason);
+      pushEvent(`Assessment turn ignored · ${reason}`);
+      return;
+    }
+    if (decision.action === "request_closing") {
+      requestAssessmentClosingOnce(reason);
+      return;
+    }
+    assessmentAwaitingTranscriptTurnRef.current = true;
+    clearAssessmentTranscriptTurnTimer();
+    // Transcript usually arrives quickly; fallback keeps session moving if not.
+    assessmentTranscriptTurnTimerRef.current = setTimeout(() => {
+      assessmentTranscriptTurnTimerRef.current = null;
+      if (!mountedRef.current) return;
+      if (!assessmentAwaitingTranscriptTurnRef.current) return;
+      assessmentAwaitingTranscriptTurnRef.current = false;
+      const life = assessmentLifecycleRef.current;
+      const fallback = decideAssessmentAfterUserUtterance(
+        life,
+        { type: "NONE" },
+        {
+          awaitingTranscriptForTurn: true,
+          closingSent: assessmentClosingSentRef.current,
+        }
+      );
+      if (fallback.action === "request_mid_turn") {
+        const slot = assessmentTurnSlot();
+        const requested = requestHoldTurnResponse(connectionRef.current, {
+          mode: "assessment",
+          allowAssessment: true,
+          assessmentSlot: slot,
+        });
+        pushEvent(
+          requested
+            ? `Assessment mid-turn · transcript timeout · ${reason}${
+                slot ? ` · slot=${slot}` : ""
+              }`
+            : `Assessment mid-turn failed · ${reason}`
+        );
+      }
+    }, 2200);
+    pushEvent(`Assessment awaiting transcript · ${reason}`);
+  }
+
+  function adoptInFlightClosing(reason: string) {
+    clearAssessmentTranscriptTurnTimer();
+    assessmentAwaitingTranscriptTurnRef.current = false;
+    assessmentPendingClosingAfterDoneRef.current = false;
+    if (assessmentClosingTimerRef.current) {
+      clearTimeout(assessmentClosingTimerRef.current);
+      assessmentClosingTimerRef.current = null;
+    }
+    // Forge already spoke a terminal line — do not create a second closing.
+    assessmentClosingSentRef.current = true;
+    lockAssessmentAutoResponses(connectionRef.current);
+    muteAssessmentTerminalMic(reason);
+    pushEvent(`Assessment adopted Forge soft-close · ${reason}`);
+
+    const forgeStillSpeaking =
+      turnStateRef.current === "forge_speaking" ||
+      turnStateRef.current === "forge_thinking" ||
+      activeResponseIdRef.current != null;
+    if (!forgeStillSpeaking) {
+      dispatchAssessmentEvent({ type: "FINAL_RESPONSE_DONE" });
+    }
+  }
+
+  function handleAssessmentEffect(effect: AssessmentLifecycleEffect) {
+    if (effect.type === "REQUEST_FINAL_RESPONSE") {
+      requestAssessmentClosingOnce("structural_complete");
+      return;
+    }
+    if (effect.type === "ADOPT_IN_FLIGHT_CLOSING") {
+      adoptInFlightClosing("forge_soft_close");
+      return;
+    }
+    if (effect.type === "NAVIGATE_RESULTS") {
+      void finalizeAssessmentAndNavigate("complete");
+      return;
+    }
+    if (effect.type === "EXIT_TO_COACH") {
+      void finalizeAssessmentAndNavigate("cancelled");
+    }
+  }
+
+  function dispatchAssessmentEvent(
+    event: Parameters<typeof reduceAssessmentLifecycle>[1]
+  ): AssessmentLifecycleEffect {
+    if (!isAssessment) return { type: "NONE" };
+    const { state, effect } = reduceAssessmentLifecycle(
+      assessmentLifecycleRef.current,
+      event
+    );
+    syncAssessmentLifecycle(state);
+    handleAssessmentEffect(effect);
+    return effect;
+  }
+
+  async function finalizeAssessmentAndNavigate(
+    outcome: "complete" | "cancelled"
+  ) {
+    if (assessmentNavigatedRef.current) return;
+    assessmentNavigatedRef.current = true;
+
+    if (assessmentClosingTimerRef.current) {
+      clearTimeout(assessmentClosingTimerRef.current);
+      assessmentClosingTimerRef.current = null;
+    }
+    clearAssessmentTranscriptTurnTimer();
+    assessmentAwaitingTranscriptTurnRef.current = false;
+
+    const life = assessmentLifecycleRef.current;
+    if (outcome === "complete") {
+      persistAssessmentResultClient(life.result, {
+        practiceSessionId: practiceSessionRef.current?.id ?? null,
+        sufficient: true,
+      });
+    }
+
+    const snapshot = [...turnsRef.current];
+    const id = voiceSessionIdRef.current;
+    if (id && snapshot.length > 0) {
+      saveVoiceTranscript({
+        voiceSessionId: id,
+        realtimeSessionId: realtimeSessionIdRef.current,
+        track,
+        eventTitle,
+        createdAt: createdAtRef.current,
+        turns: snapshot,
+      });
+    }
+
+    voiceRef.current.onSessionEnd();
+    const usageId = usageIdRef.current;
+    usageIdRef.current = null;
+    if (usageId) {
+      void completeVoiceUsageTracking({
+        usageId,
+        practiceSessionId: practiceSessionRef.current?.id ?? null,
+      });
+    }
+    lifecycleGenerationRef.current += 1;
+    disconnectRealtime(connectionRef.current);
+    connectionRef.current = null;
+    setLiveConnection(null);
+    setActiveVoiceSessionId(null);
+
+    if (outcome === "complete" && snapshot.length > 0) {
+      void fetch("/api/assessment/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          turns: snapshot,
+          practiceSessionId: practiceSessionRef.current?.id,
+          assessmentResult: life.result,
+        }),
+      }).catch((err) => {
+        console.warn("[voice] assessment complete persist failed", err);
+      });
+    }
+
+    if (outcome === "cancelled") {
+      pushEvent("Assessment cancelled · returning to Coach Forge");
+      router.replace("/app/practice?start=1");
+      return;
+    }
+
+    pushEvent("Assessment complete · results");
+    router.replace("/app/assessment/results");
+  }
 
   const showDevDiagnostics = process.env.NODE_ENV === "development";
 
@@ -436,6 +742,32 @@ export default function VoiceArena({
                 typeof (event.response as { id?: unknown }).id === "string"
               ? ((event.response as { id: string }).id)
               : undefined;
+
+        if (isAssessment) {
+          const createdDecision = decideAssessmentResponseCreated(
+            assessmentLifecycleRef.current,
+            {
+              closingSent: assessmentClosingSentRef.current,
+              pendingClosingAfterDone:
+                assessmentPendingClosingAfterDoneRef.current,
+            }
+          );
+          if (createdDecision.action === "cancel_stray") {
+            cancelForgeResponse(connectionRef.current);
+            muteAssessmentTerminalMic("stray_response_created");
+            pushEvent(
+              `Cancelled stray response · ${responseId ?? "unknown"} · assessment locked`
+            );
+            if (
+              !assessmentClosingSentRef.current &&
+              assessmentLifecycleRef.current.assessmentStatus === "complete"
+            ) {
+              requestAssessmentClosingOnce("after_stray_cancel");
+            }
+            return;
+          }
+        }
+
         // Guard duplicate/recursive create for the same active response id.
         if (
           responseId &&
@@ -493,9 +825,40 @@ export default function VoiceArena({
       pushEvent(
         `Response done · ${responseId ?? "unknown"} · no auto-restart`
       );
+
+      if (isAssessment) {
+        const doneDecision = decideAssessmentResponseDone(
+          assessmentLifecycleRef.current,
+          {
+            closingSent: assessmentClosingSentRef.current,
+            pendingClosingAfterDone:
+              assessmentPendingClosingAfterDoneRef.current,
+            navigated: assessmentNavigatedRef.current,
+          }
+        );
+        if (doneDecision.action === "send_closing") {
+          if (assessmentClosingTimerRef.current) {
+            clearTimeout(assessmentClosingTimerRef.current);
+            assessmentClosingTimerRef.current = null;
+          }
+          sendAssessmentClosingSpeech("after_in_flight_done");
+          return;
+        }
+        if (doneDecision.action === "finalize") {
+          dispatchAssessmentEvent({ type: "FINAL_RESPONSE_DONE" });
+        }
+      }
     }
 
     if (type === "input_audio_buffer.speech_started") {
+      if (
+        isAssessment &&
+        decideAssessmentVadEvent(assessmentLifecycleRef.current) === "ignore"
+      ) {
+        muteAssessmentTerminalMic("speech_started");
+        pushEvent("Ignored speech_started · assessment terminal");
+        return;
+      }
       // Hold mode: any speech_started while Forge is live is echo — remute.
       if (
         !handsFreeRef.current &&
@@ -534,6 +897,14 @@ export default function VoiceArena({
     }
 
     if (type === "input_audio_buffer.speech_stopped") {
+      if (
+        isAssessment &&
+        decideAssessmentVadEvent(assessmentLifecycleRef.current) === "ignore"
+      ) {
+        muteAssessmentTerminalMic("speech_stopped");
+        pushEvent("Ignored speech_stopped · assessment terminal");
+        return;
+      }
       // Hold mode: do not advance floor ownership from server VAD during Forge.
       if (
         !handsFreeRef.current &&
@@ -554,6 +925,11 @@ export default function VoiceArena({
       }
       applyTurn({ type: "USER_SPEECH_STOPPED", source: "server_vad" });
       voiceRef.current.onUserSpeechStopped();
+      // Assessment + hands-free: client owns create_response (minted false).
+      // Defer mid-turn until transcript so completion can win.
+      if (isAssessment) {
+        armAssessmentClientTurn("handsfree_speech_stopped");
+      }
     }
 
     if (type === "error") {
@@ -580,8 +956,59 @@ export default function VoiceArena({
       persistTurns(next);
       if (added.role === "forge") {
         trackUsage("assistant_text", added.text);
+        if (isAssessment) {
+          if (looksLikeForgeAssessmentSoftClose(added.text)) {
+            dispatchAssessmentEvent({
+              type: "FORGE_SOFT_CLOSE",
+              text: added.text,
+            });
+          } else if (
+            assessmentLifecycleRef.current.assessmentStatus === "active" &&
+            assessmentLifecycleRef.current.consented &&
+            forgeTextLooksLikeContentQuestion(added.text)
+          ) {
+            dispatchAssessmentEvent({ type: "FORGE_CONTENT_QUESTION_ASKED" });
+          }
+        }
       } else if (added.role === "founder") {
         trackUsage("user_speech", added.text);
+        if (isAssessment) {
+          const awaiting = assessmentAwaitingTranscriptTurnRef.current;
+          const effect = dispatchAssessmentEvent({
+            type: "USER_UTTERANCE",
+            text: added.text,
+          });
+          const after = decideAssessmentAfterUserUtterance(
+            assessmentLifecycleRef.current,
+            effect,
+            {
+              awaitingTranscriptForTurn: awaiting,
+              closingSent: assessmentClosingSentRef.current,
+            }
+          );
+          if (awaiting) {
+            assessmentAwaitingTranscriptTurnRef.current = false;
+            clearAssessmentTranscriptTurnTimer();
+          }
+          // REQUEST_FINAL_RESPONSE / exit already handled in dispatch effect.
+          if (after.action === "request_mid_turn") {
+            const slot = assessmentTurnSlot();
+            const requested = requestHoldTurnResponse(connectionRef.current, {
+              mode: "assessment",
+              allowAssessment: true,
+              assessmentSlot: slot,
+            });
+            pushEvent(
+              requested
+                ? `Assessment mid-turn · after transcript${
+                    slot ? ` · slot=${slot}` : ""
+                  }`
+                : "Assessment mid-turn failed · after transcript"
+            );
+          } else if (after.action === "request_closing") {
+            requestAssessmentClosingOnce("after_transcript_complete");
+          }
+        }
       }
       pushEvent(
         `Transcript · ${added.role} #${added.turnIndex}: "${added.text.slice(0, 48)}${
@@ -624,6 +1051,20 @@ export default function VoiceArena({
     activeResponseIdRef.current = null;
     pendingBudgetRef.current = null;
     ignoreForgeAudioUntilRef.current = 0;
+    assessmentClosingSentRef.current = false;
+    assessmentPendingClosingAfterDoneRef.current = false;
+    assessmentAwaitingTranscriptTurnRef.current = false;
+    assessmentNavigatedRef.current = false;
+    if (assessmentClosingTimerRef.current) {
+      clearTimeout(assessmentClosingTimerRef.current);
+      assessmentClosingTimerRef.current = null;
+    }
+    clearAssessmentTranscriptTurnTimer();
+    if (isAssessment) {
+      syncAssessmentLifecycle(startAssessmentLifecycle());
+    } else {
+      syncAssessmentLifecycle(createIdleAssessmentState());
+    }
     setPhase("minting");
     pushEvent("Minting session…");
 
@@ -857,7 +1298,23 @@ export default function VoiceArena({
     pushEvent("Microphone still unavailable");
   }
 
+  function assessmentUiTerminal(): boolean {
+    if (!isAssessment) return false;
+    const life = assessmentLifecycleRef.current;
+    return (
+      life.responsesLocked ||
+      life.assessmentStatus === "complete" ||
+      life.assessmentStatus === "cancelled" ||
+      assessmentClosingSentRef.current ||
+      assessmentNavigatedRef.current
+    );
+  }
+
   function handleSpeakDown() {
+    if (assessmentUiTerminal()) {
+      pushEvent("Hold ignored · assessment terminal");
+      return;
+    }
     // Forge talks uninterrupted until he finishes — then hold opens the mic.
     if (
       phase === "speaking" ||
@@ -874,11 +1331,21 @@ export default function VoiceArena({
   }
 
   function handleSpeakUp() {
+    if (assessmentUiTerminal()) {
+      voice.stopHoldToTalk();
+      pushEvent("Hold released · assessment terminal · no model turn");
+      return;
+    }
     const { spoke } = voice.stopHoldToTalk();
     // Hold-to-talk: Forge responds only after release — never mid-pause.
     // create_response is false in session config for this reason.
     if (!spoke || !connectionRef.current) {
       if (!spoke) pushEvent("Hold released · no speech · waiting");
+      return;
+    }
+    if (isAssessment) {
+      // Defer create until transcript — completion must win over mid-turn.
+      armAssessmentClientTurn("hold_release");
       return;
     }
     const requested = requestHoldTurnResponse(connectionRef.current, {
@@ -929,6 +1396,56 @@ export default function VoiceArena({
   }
 
   async function handleStop() {
+    // Assessment: never leave members on a practice-style wrap that offers a
+    // Living Profile when the interview did not structurally complete.
+    if (isAssessment) {
+      if (assessmentNavigatedRef.current) return;
+      const life = assessmentLifecycleRef.current;
+      const structurallyDone =
+        life.assessmentStatus === "complete" && life.finalResponseRequested;
+      if (structurallyDone) {
+        void finalizeAssessmentAndNavigate("complete");
+        return;
+      }
+      persistAssessmentResultClient(life.result, {
+        practiceSessionId: practiceSessionRef.current?.id ?? null,
+        sufficient: false,
+      });
+      const snapshot = [...turnsRef.current];
+      if (snapshot.length > 0) {
+        void fetch("/api/assessment/complete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            turns: snapshot,
+            practiceSessionId: practiceSessionRef.current?.id,
+            assessmentResult: life.result,
+          }),
+        }).catch((err) => {
+          console.warn("[voice] assessment early-end persist failed", err);
+        });
+      }
+      assessmentNavigatedRef.current = true;
+      clearAssessmentTranscriptTurnTimer();
+      voiceRef.current.onSessionEnd();
+      const usageId = usageIdRef.current;
+      usageIdRef.current = null;
+      if (usageId) {
+        void completeVoiceUsageTracking({
+          usageId,
+          practiceSessionId: practiceSessionRef.current?.id ?? null,
+        });
+      }
+      lifecycleGenerationRef.current += 1;
+      disconnectRealtime(connectionRef.current);
+      connectionRef.current = null;
+      setLiveConnection(null);
+      setActiveVoiceSessionId(null);
+      pushEvent("Assessment ended early · incomplete results");
+      router.replace("/app/assessment/results?status=incomplete");
+      return;
+    }
+
     // Snapshot transcript locally only — do not race completePracticeSession
     // with an in-flight persistActiveSession upsert.
     const id = voiceSessionIdRef.current;
@@ -965,85 +1482,15 @@ export default function VoiceArena({
     setAssessmentWrap(null);
 
     let wrap: Momentum = {
-      strength: isAssessment
-        ? "Thanks for sharing — Forge has what it needs to put this together."
-        : "You showed up and practiced — that already builds readiness.",
-      improve: isAssessment
-        ? "If anything felt unfinished, you can always talk with Forge again."
-        : "Next time, say one full thought so we can coach something specific.",
-      nextAction: isAssessment
-        ? "Open your Living Profile to see the current-state summary."
-        : "Try one clearer opening line in your next real conversation.",
+      strength:
+        "You showed up and practiced — that already builds readiness.",
+      improve:
+        "Next time, say one full thought so we can coach something specific.",
+      nextAction:
+        "Try one clearer opening line in your next real conversation.",
     };
 
-    if (isAssessment) {
-      try {
-        const res = await fetch("/api/assessment/complete", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            turns: snapshot,
-            practiceSessionId: practiceSessionRef.current?.id,
-          }),
-        });
-        const data = (await res.json()) as {
-          ready?: boolean;
-          profileSource?: string | null;
-          abortedForDisengagement?: boolean;
-          extraction?: {
-            goals?: string[];
-            strengths?: string[];
-            challenges?: string[];
-            presenceScores?: PresenceScores | null;
-            corePattern?: string | null;
-          };
-          error?: string;
-        };
-        if (!res.ok) {
-          throw new Error(data.error || "Assessment save failed.");
-        }
-        const ready = Boolean(data.ready);
-        const aborted = Boolean(data.abortedForDisengagement);
-        setAssessmentWrap({
-          ready,
-          profileSource: data.profileSource ?? null,
-          goals: data.extraction?.goals ?? [],
-          strengths: data.extraction?.strengths ?? [],
-          challenges: data.extraction?.challenges ?? [],
-          presenceScores: data.extraction?.presenceScores ?? null,
-          corePattern: data.extraction?.corePattern ?? null,
-        });
-        wrap = {
-          strength: ready
-            ? "I've got a good picture of what's going on."
-            : aborted
-              ? "No worries — we won’t force a profile from a confused pass."
-              : "We didn’t capture enough yet to write a full profile.",
-          improve: ready
-            ? data.extraction?.corePattern ||
-              "Open your Living Profile to review goals and challenges."
-            : aborted
-              ? "You can talk with Forge openly, or try the assessment again later."
-              : "Try the assessment again when you have a few minutes to answer more fully.",
-          nextAction: ready
-            ? "Open your Living Profile to see the current-state summary."
-            : "Return home whenever you’re ready to continue.",
-        };
-        setMomentum(wrap);
-      } catch (err) {
-        console.warn("[voice] assessment complete failed", err);
-        setAssessmentWrap({
-          ready: false,
-          profileSource: "incomplete",
-          goals: [],
-          strengths: [],
-          challenges: [],
-          presenceScores: null,
-          corePattern: null,
-        });
-        setMomentum(wrap);
-      }
-    } else {
+    {
       try {
         const res = await fetch("/api/session-momentum", {
           method: "POST",
@@ -1142,6 +1589,11 @@ export default function VoiceArena({
               ? "connecting"
               : "idle";
 
+  const assessmentTerminalUi =
+    isAssessment &&
+    (assessmentStatusLabel === "complete" ||
+      assessmentStatusLabel === "cancelled");
+
   const presenceLabel =
     phase === "idle"
       ? undefined
@@ -1151,23 +1603,34 @@ export default function VoiceArena({
           ? "Rep Complete"
           : phase === "error"
             ? "Connection lost"
-            : handsFree
-              ? voice.handsFreeMuted
-                ? "Mic muted"
-                : voice.handsFreeLabel ?? "Speak naturally"
-              : phase === "speaking"
-                ? "Forge speaking"
-                : micLive
-                  ? "Listening"
-                  : "Your turn";
+            : assessmentTerminalUi
+              ? assessmentStatusLabel === "cancelled"
+                ? "Assessment ended"
+                : "Finishing assessment"
+              : handsFree
+                ? voice.handsFreeMuted
+                  ? "Mic muted"
+                  : voice.handsFreeLabel ?? "Speak naturally"
+                : phase === "speaking"
+                  ? "Forge speaking"
+                  : micLive
+                    ? "Listening"
+                    : "Your turn";
 
-  const statusBadge = handsFree
-    ? "PRO HANDS-FREE"
-    : isProUser
-      ? "PRO · HOLD TO SPEAK"
-      : repsRemaining != null
-        ? `${repsRemaining} REP${repsRemaining === 1 ? "" : "S"} LEFT`
-        : "HOLD TO SPEAK";
+  // Assessment must never show practice "REPS LEFT" chrome.
+  const statusBadge = isAssessment
+    ? assessmentStatusLabel === "complete"
+      ? "ASSESSMENT · COMPLETE"
+      : assessmentStatusLabel === "cancelled"
+        ? "ASSESSMENT · EXITED"
+        : "ASSESSMENT"
+    : handsFree
+      ? "PRO HANDS-FREE"
+      : isProUser
+        ? "PRO · HOLD TO SPEAK"
+        : repsRemaining != null
+          ? `${repsRemaining} REP${repsRemaining === 1 ? "" : "S"} LEFT`
+          : "HOLD TO SPEAK";
 
   return (
     <main className="relative min-h-[100dvh] overflow-hidden bg-[#000000] text-white">
@@ -1377,12 +1840,35 @@ export default function VoiceArena({
                     </div>
                   ) : null}
 
-                  <Link
-                    href="/app/profile"
-                    className="mt-10 rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
-                  >
-                    Open Living Profile
-                  </Link>
+                  {assessmentWrap?.ready ? (
+                    <Link
+                      href="/app/profile"
+                      className="mt-10 rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                    >
+                      Open Living Profile
+                    </Link>
+                  ) : (
+                    <div className="mt-10 flex w-full max-w-sm flex-col gap-3">
+                      <Link
+                        href="/app"
+                        className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                      >
+                        Back to home
+                      </Link>
+                      <Link
+                        href="/app/practice?start=1&mode=assessment"
+                        className="rounded-full border border-white/10 px-8 py-3.5 text-sm text-white/70 transition hover:bg-white/10"
+                      >
+                        Try assessment again
+                      </Link>
+                      <Link
+                        href="/app/practice?start=1"
+                        className="rounded-full border border-white/10 px-8 py-3.5 text-sm text-white/55 transition hover:bg-white/10"
+                      >
+                        Talk to Coach Forge
+                      </Link>
+                    </div>
+                  )}
                 </>
               ) : (
                 <>
@@ -1572,7 +2058,8 @@ export default function VoiceArena({
                           !inSession ||
                           phase === "minting" ||
                           phase === "connecting" ||
-                          micMode !== "microphone"
+                          micMode !== "microphone" ||
+                          assessmentTerminalUi
                         }
                         className="rounded-full border border-white/12 px-4 py-2 text-xs font-medium uppercase tracking-[0.12em] text-white/70 transition hover:bg-white/5 disabled:opacity-35"
                       >
@@ -1588,7 +2075,8 @@ export default function VoiceArena({
                           phase === "minting" ||
                           phase === "connecting" ||
                           phase === "speaking" ||
-                          micMode !== "microphone"
+                          micMode !== "microphone" ||
+                          assessmentTerminalUi
                         }
                         onPointerDown={(event) => {
                           event.currentTarget.setPointerCapture(event.pointerId);
@@ -1626,7 +2114,11 @@ export default function VoiceArena({
                             : "bg-white text-black hover:bg-white/90"
                         }`}
                       >
-                        {micLive ? "Listening" : "Hold to speak"}
+                        {assessmentTerminalUi
+                          ? "Assessment ending"
+                          : micLive
+                            ? "Listening"
+                            : "Hold to speak"}
                       </button>
                       {!isProUser ? (
                         <Link

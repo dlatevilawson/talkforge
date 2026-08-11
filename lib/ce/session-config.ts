@@ -13,6 +13,7 @@ import {
   outputBudgetForTurn,
   type VoiceTurnKind,
 } from "@/lib/ce/voice-economics";
+import { resolveRealtimeTurnDetection } from "@/lib/ce/assessment-lifecycle";
 import { buildAssessmentSystemInstructions } from "@/lib/ce/assessment-prompt";
 
 /** OpenAI Realtime model for CE-M1+. */
@@ -145,22 +146,11 @@ export function buildClientSecretRequest(input?: {
   // Hands-free (gated): semantic_vad; client owns barge-in yield.
   // Hold-to-talk: create_response OFF — mid-hold thinking pauses must NOT
   // spawn Forge. Client calls response.create only when Hold is released.
-  const turnDetection = input?.handsFree
-    ? {
-        type: "semantic_vad" as const,
-        create_response: true,
-        interrupt_response: false,
-        eagerness: "low" as const,
-      }
-    : {
-        type: "server_vad" as const,
-        create_response: false,
-        interrupt_response: false,
-        threshold: 0.65,
-        prefix_padding_ms: 300,
-        // Longer silence before segmenting — members pause while explaining.
-        silence_duration_ms: 1200,
-      };
+  // Assessment: create_response always OFF (see resolveRealtimeTurnDetection).
+  const turnDetection = resolveRealtimeTurnDetection({
+    mode: input?.mode,
+    handsFree: input?.handsFree,
+  });
 
   const maxTokens = outputBudgetForTurn(
     input?.turnKind ?? "normal",
@@ -206,6 +196,31 @@ export function buildSessionUpdateForTranscription(options?: {
           transcription: {
             model: CE_TRANSCRIBE_MODEL,
             language: "en",
+          },
+        },
+      },
+    },
+  };
+}
+
+/**
+ * session.update — disable VAD auto response.create after assessment completion.
+ * Preserves instructions; only flips create_response off.
+ */
+export function buildSessionUpdateDisableAutoResponses() {
+  return {
+    type: "session.update" as const,
+    session: {
+      type: "realtime" as const,
+      audio: {
+        input: {
+          turn_detection: {
+            type: "server_vad" as const,
+            create_response: false,
+            interrupt_response: false,
+            threshold: 0.65,
+            prefix_padding_ms: 300,
+            silence_duration_ms: 1200,
           },
         },
       },
