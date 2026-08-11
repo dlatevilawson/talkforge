@@ -63,6 +63,8 @@ Do **not** reopen Step 6 unless a Founder-visible regression hits one of those t
 
 **One job:** wire the **same persisted `AssessmentSnapshot`** into the Living Profile write path.
 
+**Coding gate:** Do not implement Step 7 until §D.1 forks **F1**, **F2**, and **F3** each have a Founder **Chosen** value. Do not invent defaults.
+
 ### A. Authority
 
 | Source | Role after Step 7 |
