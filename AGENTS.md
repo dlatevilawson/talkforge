@@ -33,6 +33,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | [REMEDIATE-001](atos/product/REMEDIATE-001-architecture-remediation.md) | Remediation report |
 | [OWN-001](atos/product/OWN-001-identity-ownership-matrix.md) | Identity / evidence ownership matrix |
 | [FREEZE-001](atos/product/FREEZE-001-identity-pr-hold.md) | Identity PR hold |
+| [ASSESS-MIGRATE-001](atos/product/ASSESS-MIGRATE-001-slot-lifecycle.md) | Assessment slot migration — Steps 1–6 **FROZEN**; Step 7 criteria locked |
 | [SYS1-001](atos/product/SYS1-001-system-1-foundation.md) | System 1 foundation |
 | [SYS2-001](atos/product/SYS2-001-system-2-experience.md) | System 2 experience |
 | [POM-001](atos/product/POM-001-personal-operating-model.md) | Personal Operating Model |
