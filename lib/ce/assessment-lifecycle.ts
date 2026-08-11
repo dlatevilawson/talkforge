@@ -430,12 +430,36 @@ export function isAssessmentSlotsComplete(
 
 /**
  * Slot Forge should ask on the next mid-turn.
- * Prefers currentSlot; falls back to nextSlot (e.g. first question after consent).
+ * Returns ONLY lifecycle currentSlot — never selects via nextSlot fallback.
  */
 export function resolveAssessmentTurnSlot(
   state: AssessmentLifecycleState
 ): AssessmentSlotId | null {
-  return state.currentSlot ?? nextSlot(state);
+  return state.currentSlot;
+}
+
+/**
+ * After consent, explicitly establish currentSlot (no implicit Forge fallback).
+ * Uses nextSlot only here — not in resolveAssessmentTurnSlot / turn construction.
+ */
+function establishCurrentSlotAfterConsent(
+  state: AssessmentLifecycleState
+): AssessmentLifecycleState {
+  if (!state.consented || state.assessmentStatus !== "active") return state;
+
+  if (state.currentSlot) {
+    const current = state.slots[state.currentSlot];
+    if (
+      current &&
+      (current.status === "pending" || current.status === "asking")
+    ) {
+      return markSlotAsAsking(state, state.currentSlot);
+    }
+  }
+
+  const slot = nextSlot({ ...state, currentSlot: null });
+  if (!slot) return state;
+  return markSlotAsAsking(state, slot);
 }
 
 /** Next eligible interview slot — pure; does not mutate state. */
@@ -625,7 +649,10 @@ export function reduceAssessmentLifecycle(
         return { state, effect: { type: "NONE" } };
       }
       return {
-        state: { ...state, consented: true },
+        state: establishCurrentSlotAfterConsent({
+          ...state,
+          consented: true,
+        }),
         effect: { type: "NONE" },
       };
     }
@@ -664,21 +691,23 @@ export function reduceAssessmentLifecycle(
         }
         if (isConsentOnlyUtterance(text) || isConsentAffirmative(text)) {
           // Consent only — never write into assessmentResult fields.
+          // Explicitly establish currentSlot for Forge (no resolve fallback).
           return {
-            state: { ...state, consented: true },
+            state: establishCurrentSlotAfterConsent({
+              ...state,
+              consented: true,
+            }),
             effect: { type: "NONE" },
           };
         }
         if (looksSubstantive(text)) {
           // Substantive first answer also implies consent to continue.
-          const categorized = applyCategories(
-            {
-              ...state,
-              consented: true,
-              substantiveUserAnswers: state.substantiveUserAnswers + 1,
-            },
-            text
-          );
+          const consented = establishCurrentSlotAfterConsent({
+            ...state,
+            consented: true,
+            substantiveUserAnswers: state.substantiveUserAnswers + 1,
+          });
+          const categorized = applyCategories(consented, text);
           // Shadow slots only — applyCategories remains authoritative for result.
           const next = observeShadowSlots(categorized, text);
           if (isAssessmentStructurallyComplete(next)) {
