@@ -6,8 +6,8 @@
  *
  * Slot answers (acceptAnswer → slots/currentSlot) are the authoritative structured
  * diagnostic values (Step 4). applyCategories no longer writes result/covered.
- * Completion still uses isAssessmentStructurallyComplete (soft-coverage drift
- * accepted until a later step).
+ * Live completion is slot completeness (Step 5). Answer/question caps are
+ * hard-abort only — they must sit above ASSESSMENT_REQUIRED_SLOTS length.
  */
 
 export type AssessmentStatus = "idle" | "active" | "complete" | "cancelled";
@@ -32,11 +32,18 @@ export const ASSESSMENT_CATEGORIES: AssessmentCategory[] = [
   "desiredCommunicationIdentity",
 ];
 
-/** Soft target ~5 minutes; structural caps keep the interview finite. */
+/**
+ * Legacy soft thresholds — retained on isAssessmentStructurallyComplete only.
+ * Live completion no longer uses them (Step 5).
+ */
 export const ASSESSMENT_MIN_SUBSTANTIVE_ANSWERS = 3;
-export const ASSESSMENT_MAX_SUBSTANTIVE_ANSWERS = 5;
 export const ASSESSMENT_MIN_COVERED_CATEGORIES = 2;
-export const ASSESSMENT_MAX_FORGE_CONTENT_QUESTIONS = 4;
+/**
+ * Hard-abort safety ceilings (Step 5). Must exceed required slot count (7) so
+ * normal slot-complete success can happen before abort.
+ */
+export const ASSESSMENT_MAX_SUBSTANTIVE_ANSWERS = 12;
+export const ASSESSMENT_MAX_FORGE_CONTENT_QUESTIONS = 14;
 
 /** App-owned interview slots — single catalog/order (migration Step 1). */
 export type AssessmentSlotId =
@@ -396,6 +403,10 @@ function coveredCount(state: AssessmentLifecycleState): number {
   return ASSESSMENT_CATEGORIES.filter((c) => state.covered[c]).length;
 }
 
+/**
+ * Legacy completion predicate — kept temporarily (Step 5).
+ * Live reducer no longer calls this.
+ */
 export function isAssessmentStructurallyComplete(
   state: AssessmentLifecycleState
 ): boolean {
@@ -414,10 +425,7 @@ export function isAssessmentStructurallyComplete(
   );
 }
 
-/**
- * Shadow completion predicate (migration Step 1).
- * Does not replace isAssessmentStructurallyComplete.
- */
+/** Live completion authority (Step 5): consented + every required slot filled. */
 export function isAssessmentSlotsComplete(
   state: AssessmentLifecycleState
 ): boolean {
@@ -427,6 +435,34 @@ export function isAssessmentSlotsComplete(
     if (!slot || slot.status !== "filled") return false;
   }
   return true;
+}
+
+/**
+ * Hard-abort safety only — not successful completion.
+ * Caps fire only when required slots are still incomplete.
+ */
+export function isAssessmentHardAbort(state: AssessmentLifecycleState): boolean {
+  if (state.assessmentStatus !== "active" || !state.consented) return false;
+  if (isAssessmentSlotsComplete(state)) return false;
+  return (
+    state.substantiveUserAnswers >= ASSESSMENT_MAX_SUBSTANTIVE_ANSWERS ||
+    state.forgeContentQuestionsAsked >= ASSESSMENT_MAX_FORGE_CONTENT_QUESTIONS
+  );
+}
+
+function resolveAfterAssessmentProgress(
+  state: AssessmentLifecycleState
+): { state: AssessmentLifecycleState; effect: AssessmentLifecycleEffect } {
+  if (isAssessmentSlotsComplete(state)) {
+    return reduceAssessmentLifecycle(state, { type: "BEGIN_CLOSING" });
+  }
+  if (isAssessmentHardAbort(state)) {
+    return reduceAssessmentLifecycle(state, {
+      type: "CANCEL",
+      reason: "safety_cap",
+    });
+  }
+  return { state, effect: { type: "NONE" } };
 }
 
 /**
@@ -696,10 +732,7 @@ export function reduceAssessmentLifecycle(
           const categorized = applyCategories(consented, text);
           // Slot answers are authoritative; applyCategories is a Step 4 no-op.
           const next = observeShadowSlots(categorized, text);
-          if (isAssessmentStructurallyComplete(next)) {
-            return reduceAssessmentLifecycle(next, { type: "BEGIN_CLOSING" });
-          }
-          return { state: next, effect: { type: "NONE" } };
+          return resolveAfterAssessmentProgress(next);
         }
         return { state, effect: { type: "NONE" } };
       }
@@ -717,11 +750,7 @@ export function reduceAssessmentLifecycle(
       );
       // Slot answers are authoritative; applyCategories is a Step 4 no-op.
       const next = observeShadowSlots(categorized, text);
-
-      if (isAssessmentStructurallyComplete(next)) {
-        return reduceAssessmentLifecycle(next, { type: "BEGIN_CLOSING" });
-      }
-      return { state: next, effect: { type: "NONE" } };
+      return resolveAfterAssessmentProgress(next);
     }
     case "FORGE_CONTENT_QUESTION_ASKED": {
       if (
@@ -731,12 +760,16 @@ export function reduceAssessmentLifecycle(
       ) {
         return { state, effect: { type: "NONE" } };
       }
+      // Telemetry / hard-abort input only — does not trigger successful close.
       const next = {
         ...state,
         forgeContentQuestionsAsked: state.forgeContentQuestionsAsked + 1,
       };
-      if (isAssessmentStructurallyComplete(next)) {
-        return reduceAssessmentLifecycle(next, { type: "BEGIN_CLOSING" });
+      if (isAssessmentHardAbort(next)) {
+        return reduceAssessmentLifecycle(next, {
+          type: "CANCEL",
+          reason: "safety_cap",
+        });
       }
       return { state: next, effect: { type: "NONE" } };
     }
