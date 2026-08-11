@@ -30,7 +30,7 @@ Do **not** change completion, response lock, Forge prompts, or `currentSlot` beh
 | 4 | `applyCategories` no-ops `result`/`covered` | **FROZEN** on `main` |
 | 5 | Completion = required slots filled; caps hard-abort only | **FROZEN** on `main` (#125) |
 | 6 | `AssessmentSnapshot` → sessionStorage → results page | **FROZEN** on `main` (#126) — see below |
-| 7 | Snapshot → `/api/assessment/complete` → Living Profile | **CRITERIA LOCKED** — coding **blocked** until §D.1 forks F1–F3 are Founder-pinned |
+| 7 | Snapshot → `/api/assessment/complete` → Living Profile | **F1=B · F2=A · F3=A pinned** — implement wire only |
 | 8 | Remove obsolete extractors / cleanup | **LOCKED** — do not begin until Step 7 closed |
 
 ---
@@ -63,7 +63,7 @@ Do **not** reopen Step 6 unless a Founder-visible regression hits one of those t
 
 **One job:** wire the **same persisted `AssessmentSnapshot`** into the Living Profile write path.
 
-**Coding gate:** Do not implement Step 7 until §D.1 forks **F1**, **F2**, and **F3** each have a Founder **Chosen** value. Do not invent defaults.
+**Coding gate:** §D.1 forks are Founder-pinned (**F1=B**, **F2=A**, **F3=A**, 2026-08-11). Step 7 may implement the snapshot→LP wire only — no other behavior changes.
 
 ### A. Authority
 
@@ -95,13 +95,15 @@ Optimistic concurrency (`version` check) remains.
 
 Use **existing** Living Profile fields only. No new LP schema columns in Step 7.
 
-#### D.0 Locked mappings (no fork)
+#### D.0 Locked mappings (includes Founder-pinned forks)
 
 | Slot id | LP write |
 |---|---|
 | `skill_to_improve` | Primary `goals[]` entry (accepted answer text) |
+| `six_week_success` | **F1=B:** write to `purpose_statement` **only if** current purpose is empty; otherwise skip. Do **not** write this string into `goals[]`. |
 | `what_goes_wrong` | `challenges[]` (accepted answer text) |
 | `behavior_to_change` | `challenges[]` (accepted answer text) |
+| `where_it_shows_up` | **F2=A:** its own separate `challenges[]` entry (accepted answer text) |
 | `recent_missed_conversation` | `challenges[]` (accepted answer text) |
 | `practice_time` | Provenance / claim text only — **no** LP column; do not invent a practice-capacity identity field |
 
@@ -111,18 +113,15 @@ Use **existing** Living Profile fields only. No new LP schema columns in Step 7.
 - Empty / unfilled slots contribute nothing.
 - `strengths[]`: leave unchanged — no slot maps to strengths in Step 7; do **not** invent strengths.
 - Incomplete path (`sufficient: false` / missing-invalid snapshot): `presence_scores` → `null`. Do not invent scores from transcript or keywords.
+- Sufficient path: **F3=A** — leave existing `presence_scores` untouched (omit from update payload / do not overwrite).
 
-#### D.1 Blocking Founder forks — UNPINNED
-
-**Gate:** Step 7 coding must **not** start until each fork below has a Founder-chosen option recorded in the **Chosen** column. Agents must **not** default, infer, or “pick one in implementation.”
+#### D.1 Founder forks — PINNED (2026-08-11)
 
 | ID | Fork | Option A | Option B | Chosen |
 |---|---|---|---|---|
-| **F1** | `six_week_success` destination | Write as an additional `goals[]` entry (accepted answer text). Do **not** also write `purpose_statement` from this slot. | Write to `purpose_statement` **only if** current purpose is empty; otherwise skip. Do **not** also write this string into `goals[]`. | **UNPINNED** |
-| **F2** | `where_it_shows_up` shape | Write as its own separate `challenges[]` entry (accepted answer text). | Append the accepted answer text into a related challenge string (must still be the member’s words, not a paraphrase). | **UNPINNED** |
-| **F3** | `presence_scores` on **sufficient** write | Leave existing `presence_scores` untouched (omit from update payload / do not overwrite). | Clear `presence_scores` to `null` on sufficient assessment write (same as incomplete clearing). | **UNPINNED** |
-
-When pinned, rewrite §D.0 to absorb the chosen options and mark this table **PINNED** with date / Decision ref if any.
+| **F1** | `six_week_success` destination | Write as an additional `goals[]` entry (accepted answer text). Do **not** also write `purpose_statement` from this slot. | Write to `purpose_statement` **only if** current purpose is empty; otherwise skip. Do **not** also write this string into `goals[]`. | **B** |
+| **F2** | `where_it_shows_up` shape | Write as its own separate `challenges[]` entry (accepted answer text). | Append the accepted answer text into a related challenge string (must still be the member’s words, not a paraphrase). | **A** |
+| **F3** | `presence_scores` on **sufficient** write | Leave existing `presence_scores` untouched (omit from update payload / do not overwrite). | Clear `presence_scores` to `null` on sufficient assessment write (same as incomplete clearing). | **A** |
 
 ### E. Must not change (non-goals)
 
