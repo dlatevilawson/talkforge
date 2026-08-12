@@ -10,9 +10,16 @@
  * AssessmentSnapshot is the client/LP payload from accepted slots.
  *
  * Steps 1–7 FROZEN (ASSESS-MIGRATE-001). Step 8 removes transcript extractors
- * and keyword AssessmentResult client persist. Do not change completion / lock /
- * Forge / currentSlot.
+ * and keyword AssessmentResult client persist.
+ *
+ * Coach V2: acceptAnswer still owns fill/advance, but rejects vague/ambiguous
+ * answers so currentSlot stays put for one clarifying turn (no second SM).
  */
+
+import {
+  isAssessmentAnswerSufficient,
+  synthesizeProfilePhrase,
+} from "./assessment-answer-quality.ts";
 
 export type AssessmentStatus = "idle" | "active" | "complete" | "cancelled";
 
@@ -46,8 +53,9 @@ export const ASSESSMENT_MIN_COVERED_CATEGORIES = 2;
  * Hard-abort safety ceilings (Step 5). Must exceed required slot count (7) so
  * normal slot-complete success can happen before abort.
  */
-export const ASSESSMENT_MAX_SUBSTANTIVE_ANSWERS = 12;
-export const ASSESSMENT_MAX_FORGE_CONTENT_QUESTIONS = 14;
+/** Allow a few clarifying re-asks before hard-abort (Coach V2). */
+export const ASSESSMENT_MAX_SUBSTANTIVE_ANSWERS = 14;
+export const ASSESSMENT_MAX_FORGE_CONTENT_QUESTIONS = 18;
 
 /** App-owned interview slots — single catalog/order (migration Step 1). */
 export type AssessmentSlotId =
@@ -114,6 +122,7 @@ export type AcceptAnswerReason =
   | "no_current_slot"
   | "consent_only"
   | "not_substantive"
+  | "not_sufficient"
   | "confusion"
   | "empty";
 
@@ -550,6 +559,12 @@ export function acceptAnswer(
 
   if (!looksSubstantive(text)) {
     return reject("not_substantive", targetSlotId);
+  }
+
+  // Coach V2: vague / ambiguous / off-topic do not fill or advance currentSlot.
+  // Forge keeps the same destination and asks one simpler clarifying question.
+  if (!isAssessmentAnswerSufficient(targetSlotId, text)) {
+    return reject("not_sufficient", targetSlotId);
   }
 
   const answer = text.trim();
@@ -1033,18 +1048,22 @@ export function mapAssessmentSnapshotToLivingProfile(
   const skill = snapshotSlotAnswer(snapshot, "skill_to_improve");
   if (!skill) return incomplete();
 
-  const goals = [skill];
+  // Coach V2: polish phrasing for LP — never invent facts beyond accepted answers.
+  const goals = [synthesizeProfilePhrase(skill, "goal")];
   const challenges: string[] = [];
   for (const id of ASSESSMENT_LP_CHALLENGE_SLOTS) {
     const answer = snapshotSlotAnswer(snapshot, id);
-    if (answer) challenges.push(answer);
+    if (answer) challenges.push(synthesizeProfilePhrase(answer, "challenge"));
   }
   if (challenges.length === 0) return incomplete();
 
   // F1=B: purpose only when empty; never also into goals[].
   const sixWeek = snapshotSlotAnswer(snapshot, "six_week_success");
   const purposeEmpty = !current.purposeStatement.trim();
-  const purposeStatement = purposeEmpty && sixWeek ? sixWeek : null;
+  const purposeStatement =
+    purposeEmpty && sixWeek
+      ? synthesizeProfilePhrase(sixWeek, "purpose")
+      : null;
 
   const practice = snapshotSlotAnswer(snapshot, "practice_time");
   const provenanceClaim = practice
