@@ -14,6 +14,8 @@
  * Forge / currentSlot.
  */
 
+import { isGenericAssessmentSlotAnswer } from "./assessment-generic-answers.ts";
+
 export type AssessmentStatus = "idle" | "active" | "complete" | "cancelled";
 
 export type AssessmentResult = {
@@ -114,6 +116,7 @@ export type AcceptAnswerReason =
   | "no_current_slot"
   | "consent_only"
   | "not_substantive"
+  | "not_sufficient"
   | "confusion"
   | "empty";
 
@@ -550,6 +553,12 @@ export function acceptAnswer(
 
   if (!looksSubstantive(text)) {
     return reject("not_substantive", targetSlotId);
+  }
+
+  // Generic-but-long answers must not fill/advance — keep currentSlot for one
+  // concrete follow-up (first-user assessment quality).
+  if (isGenericAssessmentSlotAnswer(targetSlotId, text)) {
+    return reject("not_sufficient", targetSlotId);
   }
 
   const answer = text.trim();
