@@ -64,7 +64,62 @@ function AssessmentResultsBody() {
             : "Forge gathered enough to establish your initial communication baseline. The full Living Profile view arrives in a later step — this page confirms the assessment ended cleanly."}
         </p>
 
-        {snapshot && filledSlotIds.length > 0 ? (
+        {snapshot?.diagnosis && !incomplete ? (
+          <ul className="mt-10 space-y-5">
+            <li>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                Primary friction
+              </p>
+              <p className="mt-1 text-sm leading-6 text-white/80">
+                {snapshot.diagnosis.primaryBottleneck}
+              </p>
+            </li>
+            <li>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                Where it shows up
+              </p>
+              <p className="mt-1 text-sm leading-6 text-white/80">
+                {snapshot.diagnosis.contexts}
+              </p>
+            </li>
+            {snapshot.diagnosis.supportingPatterns[0] ? (
+              <li>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                  Pattern observed
+                </p>
+                <p className="mt-1 text-sm leading-6 text-white/80">
+                  {snapshot.diagnosis.supportingPatterns[0]}
+                </p>
+              </li>
+            ) : null}
+            <li>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                Evidence
+              </p>
+              <p className="mt-1 text-sm leading-6 text-white/80">
+                {snapshot.diagnosis.evidence}
+              </p>
+            </li>
+            <li>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                Six-week target
+              </p>
+              <p className="mt-1 text-sm leading-6 text-white/80">
+                {snapshot.diagnosis.desiredOutcome}
+              </p>
+            </li>
+            {snapshot.diagnosis.practiceCommitment ? (
+              <li>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                  Practice commitment
+                </p>
+                <p className="mt-1 text-sm leading-6 text-white/80">
+                  {snapshot.diagnosis.practiceCommitment}
+                </p>
+              </li>
+            ) : null}
+          </ul>
+        ) : snapshot && filledSlotIds.length > 0 ? (
           <ul className="mt-10 space-y-5">
             {filledSlotIds.map((id) => (
               <li key={id}>
