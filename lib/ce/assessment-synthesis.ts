@@ -108,8 +108,13 @@ export type GenuineEvidenceCoverage = {
   requiredCoverage: boolean;
   /** PATH 1: concrete example + ≥1 discriminating item. */
   path1: boolean;
-  /** PATH 2: ≥2 independent discriminating items, same leading mechanism, margin. */
+  /**
+   * PATH 2: ≥2 discriminating observations from ≥2 distinct accepted user turns
+   * (multi-signal matches inside one utterance count as one).
+   */
   path2: boolean;
+  /** Distinct user turns contributing Path-2 discriminating observations. */
+  path2ObservationCount: number;
   diagnosticConfidence: DiagnosticConfidence;
   supportMargin: number;
   discriminatingEvidenceCount: number;
@@ -494,6 +499,47 @@ export function extractDiscriminatingEvidence(
       continue;
     }
     unique.push({ ...item, mechanisms: [...item.mechanisms] });
+  }
+  return unique;
+}
+
+/**
+ * Path-2 observations: at most one per distinct accepted user turn (slot).
+ * Multiple discriminator matches inside one utterance collapse to one.
+ * Cross-turn paraphrases collapse to one. Derived (non-turn) items excluded.
+ * Scoring may still use finer-grained extractDiscriminatingEvidence items.
+ */
+export function path2TurnObservations(
+  items: DiscriminatingEvidenceItem[]
+): DiscriminatingEvidenceItem[] {
+  const bySlot = new Map<string, DiscriminatingEvidenceItem>();
+  for (const item of items) {
+    if (item.slotId === "derived") continue;
+    const existing = bySlot.get(item.slotId);
+    if (!existing) {
+      bySlot.set(item.slotId, {
+        ...item,
+        mechanisms: [...item.mechanisms],
+      });
+      continue;
+    }
+    for (const m of item.mechanisms) {
+      if (!existing.mechanisms.includes(m)) existing.mechanisms.push(m);
+    }
+  }
+
+  const unique: DiscriminatingEvidenceItem[] = [];
+  for (const item of bySlot.values()) {
+    const dup = unique.find((u) =>
+      fingerprintsNearDuplicate(u.fingerprint, item.fingerprint)
+    );
+    if (dup) {
+      for (const m of item.mechanisms) {
+        if (!dup.mechanisms.includes(m)) dup.mechanisms.push(m);
+      }
+      continue;
+    }
+    unique.push(item);
   }
   return unique;
 }
@@ -1263,11 +1309,13 @@ export function assessGenuineEvidenceCoverage(
     leadingMechanismOk &&
     !uncertainty;
 
-  // PATH 2 — no recalled example: ≥2 independent discriminating items,
+  // PATH 2 — no recalled example: ≥2 discriminating observations from
+  // ≥2 distinct accepted user turns (one utterance = at most one observation),
   // same leading mechanism, meaningful margin over next plausible mechanism.
+  const path2Observations = path2TurnObservations(discriminating);
   const path2 =
     !example &&
-    discriminating.length >= 2 &&
+    path2Observations.length >= 2 &&
     leadingMechanismOk &&
     leadingWeight >= 2 &&
     margin >= 1 &&
@@ -1296,6 +1344,7 @@ export function assessGenuineEvidenceCoverage(
     requiredCoverage,
     path1,
     path2,
+    path2ObservationCount: path2Observations.length,
     diagnosticConfidence,
     supportMargin: margin,
     discriminatingEvidenceCount: discriminating.length,
