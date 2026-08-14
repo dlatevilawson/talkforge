@@ -90,6 +90,35 @@ export function buildTrainingScenarios(
   diagnosis: AssessmentDiagnosis | null | undefined
 ): TrainingScenario[] {
   if (!diagnosis) return [];
+  // Do not specialize scenarios until diagnosis is evidence-supported.
+  if (diagnosis.diagnosticConfidence === "low") return [];
+  if (diagnosis.diagnosticConfidence === "provisional") {
+    if (
+      !diagnosis.uncertainty ||
+      (diagnosis.discriminatingEvidenceCount ?? 0) === 0
+    ) {
+      return [];
+    }
+    const refs = refsFromDiagnosis(diagnosis).filter(
+      (r) =>
+        !/^small talk$/i.test(r.trim()) &&
+        !/mechanism still being clarified/i.test(r)
+    );
+    if (refs.length === 0) return [];
+    return [
+      {
+        title: "Clarify the speaking bottleneck",
+        mission:
+          "Use one discriminating contrast drill before specializing. Avoid unrelated specialty targets.",
+        evidenceRefs: refs,
+        trainingImplicationId: "clarify_mechanism",
+        mechanismId: null,
+      },
+    ];
+  }
+  if (diagnosis.diagnosticConfidence && diagnosis.diagnosticConfidence !== "supported") {
+    return [];
+  }
 
   const refs = refsFromDiagnosis(diagnosis);
   if (refs.length === 0 && diagnosis.trainingImplications.length === 0) {

@@ -74,6 +74,27 @@ export type AssessmentDiagnosis = {
   trainingImplications: TrainingImplication[];
   uncertainty: string | null;
   competingMechanisms: MechanismCandidate[];
+
+  /**
+   * Discriminating-evidence confidence for early completion.
+   * - low: no real discrimination
+   * - provisional: some signal, not enough to close
+   * - supported: PATH 1 or PATH 2 met with margin
+   */
+  diagnosticConfidence: DiagnosticConfidence;
+  /** Leading support weight minus next plausible competitor (unique discriminating items). */
+  supportMargin: number;
+  discriminatingEvidenceCount: number;
+};
+
+export type DiagnosticConfidence = "low" | "provisional" | "supported";
+
+export type DiscriminatingEvidenceItem = {
+  text: string;
+  fingerprint: string;
+  mechanisms: AssessmentMechanismId[];
+  patternId: string;
+  slotId: AssessmentSlotId | "derived";
 };
 
 export type GenuineEvidenceCoverage = {
@@ -83,7 +104,16 @@ export type GenuineEvidenceCoverage = {
   outcome: boolean;
   practice: boolean;
   example: boolean;
-  /** True only when required genuine dimensions are covered by USER evidence. */
+  /** Required A coverage (bottleneck + context + outcome + practice). */
+  requiredCoverage: boolean;
+  /** PATH 1: concrete example + ≥1 discriminating item. */
+  path1: boolean;
+  /** PATH 2: ≥2 independent discriminating items, same leading mechanism, margin. */
+  path2: boolean;
+  diagnosticConfidence: DiagnosticConfidence;
+  supportMargin: number;
+  discriminatingEvidenceCount: number;
+  /** True only when required coverage AND (path1|path2) with supported confidence. */
   sufficient: boolean;
 };
 
@@ -251,6 +281,268 @@ function isAspirationOnly(evidence: Partial<Record<AssessmentSlotId, string>>): 
   return aspirationOnly && !hasDeeper;
 }
 
+const FINGERPRINT_STOP = new Set([
+  "the",
+  "and",
+  "or",
+  "but",
+  "for",
+  "with",
+  "that",
+  "this",
+  "when",
+  "what",
+  "have",
+  "has",
+  "had",
+  "was",
+  "were",
+  "are",
+  "from",
+  "into",
+  "just",
+  "very",
+  "really",
+  "like",
+  "about",
+  "than",
+  "then",
+  "them",
+  "they",
+  "their",
+  "there",
+  "been",
+  "being",
+  "because",
+]);
+
+/** Stable token fingerprint for paraphrase dedupe. */
+export function evidenceFingerprint(text: string): string {
+  return norm(text)
+    .replace(/[^\w\s']/g, " ")
+    .split(/\s+/)
+    .filter((w) => w.length > 2 && !FINGERPRINT_STOP.has(w))
+    .sort()
+    .slice(0, 10)
+    .join(" ");
+}
+
+function fingerprintsNearDuplicate(a: string, b: string): boolean {
+  if (!a || !b) return false;
+  if (a === b) return true;
+  const as = new Set(a.split(" ").filter(Boolean));
+  const bs = new Set(b.split(" ").filter(Boolean));
+  if (as.size === 0 || bs.size === 0) return false;
+  let overlap = 0;
+  for (const x of as) if (bs.has(x)) overlap += 1;
+  const union = new Set([...as, ...bs]).size;
+  return union > 0 && overlap / union >= 0.55;
+}
+
+type DiscriminatorPattern = {
+  id: string;
+  re: RegExp;
+  mechanisms: AssessmentMechanismId[];
+};
+
+/** Patterns that discriminate between competing mechanisms (not generic goals). */
+const DISCRIMINATOR_PATTERNS: DiscriminatorPattern[] = [
+  {
+    id: "retrieval_clear_thought",
+    re: /\b(know what i (mean|want to say)|idea is clear|thought is clear).{0,60}\b(words|wording|can'?t find|cannot find|disappear|won'?t come|don'?t come)\b|\b(words (disappear|don'?t come|won'?t come|will not come)|can'?t find the words|cannot find the words)\b/,
+    mechanisms: ["verbal_retrieval"],
+  },
+  {
+    id: "writing_easier_than_speaking",
+    re: /\b(writ(e|ing)|prepare[sd]?|notes|script).{0,50}\b(easier|better|help|fine)|speaking.{0,40}(harder|harder than|more (hard|difficult))/,
+    mechanisms: ["verbal_retrieval"],
+  },
+  {
+    id: "idea_generation_overwhelm",
+    re: /\b(too many (thoughts|ideas)|don'?t know where to start|pieces competing|all at once|thought itself (hasn'?t|has not) formed|no clear (thought|point) yet)\b/,
+    mechanisms: ["thought_organization"],
+  },
+  {
+    id: "pressure_authority_freeze",
+    re: /\b((mind )?goes blank|freeze|freezing|blank).{0,50}\b(boss|manager|authority|put on the spot|watched)|(boss|manager|authority).{0,50}\b(blank|freeze|ask)/,
+    mechanisms: ["freeze_under_pressure"],
+  },
+  {
+    id: "baseline_ok_with_safe_others",
+    re: /\b(with )?(friends|friend|partner|family|someone i know).{0,40}\b(fine|okay|ok|easy|comfortable|usually fine)|(fine|okay|comfortable|easy).{0,40}\b(friends|friend|partner|family)/,
+    mechanisms: ["freeze_under_pressure"],
+  },
+  {
+    id: "group_entry_timing",
+    re: /\b(topic (has )?moved|miss(ed)? (the )?(opening|turn|pause)|by the time.{0,40}(moved|pause|gone)|pause.{0,30}moved|think of something.{0,40}(too late|moved))\b/,
+    mechanisms: ["group_timing_lag"],
+  },
+  {
+    id: "over_explain_fear_detail",
+    re: /\b(every detail|afraid.{0,40}(leave|understand|miss|out)|worried (they|people) won'?t understand|start from the beginning|add(ing)? (too much )?context because)\b/,
+    mechanisms: ["over_explaining"],
+  },
+  {
+    id: "over_explain_ramble",
+    re: /\b(ramble|rambling|over.?explain|too much (detail|background)|can'?t get to the point|bury(ing)? the (point|ask))\b/,
+    mechanisms: ["over_explaining"],
+  },
+  {
+    id: "small_talk_initiation_open",
+    re: /\b(can'?t find an opening|don'?t know how to (start|join)|opening line|join(ing)? (in|small talk))\b/,
+    mechanisms: ["small_talk_initiation"],
+  },
+];
+
+function isNonDiscriminatingText(text: string): boolean {
+  const t = norm(text);
+  if (!t || isInteractionSignalOnly(t)) return true;
+  if (
+    /^(i want to )?(get )?better at small talk\.?$/.test(t) ||
+    /^small talk\.?$/.test(t)
+  ) {
+    return true;
+  }
+  if (
+    /\b(communicate better|speak better|be more confident|be a better communicator)\b/.test(
+      t
+    ) &&
+    !/\b(words|freeze|blank|ramble|thoughts|boss|manager|group|detail)\b/.test(t)
+  ) {
+    return true;
+  }
+  // Practice duration alone never discriminates.
+  if (
+    /^\s*(\d+\s*(min|mins|minute|minutes|hour|hours)|about \d+|ten minutes|fifteen minutes).*$/.test(
+      t
+    ) &&
+    !/\b(words|freeze|blank|thought|boss|group|detail)\b/.test(t)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Extract unique discriminating observations from USER evidence only.
+ * Paraphrases / restatements collapse to one item via fingerprint overlap.
+ */
+export function extractDiscriminatingEvidence(
+  evidence: Partial<Record<AssessmentSlotId, string>>
+): DiscriminatingEvidenceItem[] {
+  const slotOrder: AssessmentSlotId[] = [
+    "skill_to_improve",
+    "where_it_shows_up",
+    "what_goes_wrong",
+    "behavior_to_change",
+    "recent_missed_conversation",
+    "six_week_success",
+  ];
+  // practice_time intentionally excluded — never discriminating.
+
+  const raw: DiscriminatingEvidenceItem[] = [];
+  for (const slotId of slotOrder) {
+    const text = evidence[slotId]?.trim();
+    if (!text || isNonDiscriminatingText(text)) continue;
+    const t = norm(text);
+    for (const pattern of DISCRIMINATOR_PATTERNS) {
+      if (!pattern.re.test(t)) continue;
+      raw.push({
+        text,
+        fingerprint: evidenceFingerprint(text),
+        mechanisms: [...pattern.mechanisms],
+        patternId: pattern.id,
+        slotId,
+      });
+    }
+  }
+
+  // Derived writing contrast across joined evidence.
+  const joined = norm(joinedEvidence(evidence));
+  if (
+    /\b(know what i (mean|want to say)|words (don'?t|won'?t) come|can'?t find the words)\b/.test(
+      joined
+    ) &&
+    /\b(writ(e|ing)|prepare[sd]?|notes|script).{0,50}\b(easier|better|help|fine)\b/.test(
+      joined
+    )
+  ) {
+    raw.push({
+      text: "Writing or preparing first is easier than speaking on the spot",
+      fingerprint: evidenceFingerprint(
+        "writing preparing easier speaking spot words"
+      ),
+      mechanisms: ["verbal_retrieval"],
+      patternId: "writing_easier_than_speaking",
+      slotId: "derived",
+    });
+  }
+
+  // Dedupe near-paraphrases (count once).
+  const unique: DiscriminatingEvidenceItem[] = [];
+  for (const item of raw) {
+    const dup = unique.find(
+      (u) =>
+        u.patternId === item.patternId ||
+        fingerprintsNearDuplicate(u.fingerprint, item.fingerprint)
+    );
+    if (dup) {
+      // Merge mechanism tags onto existing observation.
+      for (const m of item.mechanisms) {
+        if (!dup.mechanisms.includes(m)) dup.mechanisms.push(m);
+      }
+      continue;
+    }
+    unique.push({ ...item, mechanisms: [...item.mechanisms] });
+  }
+  return unique;
+}
+
+/** Unique discriminating weight per mechanism (paraphrases already collapsed). */
+export function mechanismSupportWeights(
+  items: DiscriminatingEvidenceItem[]
+): Partial<Record<AssessmentMechanismId, number>> {
+  const weights: Partial<Record<AssessmentMechanismId, number>> = {};
+  for (const item of items) {
+    for (const m of item.mechanisms) {
+      weights[m] = (weights[m] ?? 0) + 1;
+    }
+  }
+  return weights;
+}
+
+export function supportMarginFromWeights(
+  weights: Partial<Record<AssessmentMechanismId, number>>
+): {
+  leadingId: AssessmentMechanismId | null;
+  leadingWeight: number;
+  secondWeight: number;
+  margin: number;
+} {
+  const ranked = (Object.entries(weights) as [AssessmentMechanismId, number][])
+    .filter(([, w]) => w > 0)
+    .sort((a, b) => b[1] - a[1]);
+  if (ranked.length === 0) {
+    return { leadingId: null, leadingWeight: 0, secondWeight: 0, margin: 0 };
+  }
+  const leadingWeight = ranked[0][1];
+  const secondWeight = ranked[1]?.[1] ?? 0;
+  return {
+    leadingId: ranked[0][0],
+    leadingWeight,
+    secondWeight,
+    margin: leadingWeight - secondWeight,
+  };
+}
+
+/**
+ * Meaningful outrank: leading has ≥1 more unique discriminating observation
+ * than the next plausible mechanism (ties / near-ties stay uncertain).
+ */
+function meaningfullyOutranks(margin: number, leadingWeight: number): boolean {
+  return leadingWeight >= 1 && margin >= 1;
+}
+
 /** Score mechanism candidates from accepted evidence (support / refute / unresolved). */
 export function scoreMechanismCandidates(
   evidence: Partial<Record<AssessmentSlotId, string>>,
@@ -258,6 +550,8 @@ export function scoreMechanismCandidates(
 ): MechanismCandidate[] {
   const t = norm(joinedEvidence(evidence));
   const snippets = facts.map((f) => f.text);
+  const discriminating = extractDiscriminatingEvidence(evidence);
+  const weights = mechanismSupportWeights(discriminating);
 
   const candidate = (
     id: AssessmentMechanismId,
@@ -269,37 +563,54 @@ export function scoreMechanismCandidates(
     const refutingEvidence = refuteRe
       ? snippets.filter((s) => refuteRe.test(norm(s)))
       : [];
+    const discWeight = weights[id] ?? 0;
     const tested =
       Boolean(testedRe && testedRe.test(t)) ||
-      facts.some((f) => f.kind === "contrast" && supportRe.test(norm(f.text)));
+      facts.some((f) => f.kind === "contrast" && supportRe.test(norm(f.text))) ||
+      discWeight >= 2;
 
-    if (supportingEvidence.length === 0 && refutingEvidence.length === 0) {
+    if (
+      supportingEvidence.length === 0 &&
+      refutingEvidence.length === 0 &&
+      discWeight === 0
+    ) {
       return null;
     }
 
     let status: MechanismEvidenceStatus = "unresolved";
-    if (refutingEvidence.length > 0 && supportingEvidence.length === 0) {
+    if (refutingEvidence.length > 0 && supportingEvidence.length === 0 && discWeight === 0) {
       status = "refuted";
-    } else if (supportingEvidence.length > 0 && refutingEvidence.length === 0) {
-      status = tested || supportingEvidence.length >= 1 ? "supported" : "unresolved";
-      // Weak single aspiration mention without mechanism detail stays unresolved.
+    } else if (refutingEvidence.length > 0 && discWeight === 0 && supportingEvidence.length > 0) {
+      status = "unresolved";
+    } else if (supportingEvidence.length > 0 || discWeight > 0) {
+      // One weak keyword hit must NEVER become supported.
+      if (tested || discWeight >= 2) {
+        status = "supported";
+      } else if (discWeight === 1 && testedRe && testedRe.test(t)) {
+        status = "supported";
+      } else {
+        status = "unresolved";
+      }
       if (
         id === "small_talk_initiation" &&
         isAspirationOnly(evidence) &&
-        supportingEvidence.length <= 1
+        discWeight < 2
       ) {
         status = "unresolved";
       }
-    } else if (supportingEvidence.length > 0 && refutingEvidence.length > 0) {
-      status = "unresolved";
     }
 
     return {
       id,
       status,
-      supportingEvidence,
+      supportingEvidence:
+        supportingEvidence.length > 0
+          ? supportingEvidence
+          : discriminating
+              .filter((d) => d.mechanisms.includes(id))
+              .map((d) => d.text),
       refutingEvidence,
-      tested: tested || (status === "supported" && supportingEvidence.length >= 2),
+      tested: tested || status === "supported",
     };
   };
 
@@ -309,13 +620,13 @@ export function scoreMechanismCandidates(
     "verbal_retrieval",
     /\b(can'?t find the words|cannot find the words|words (disappear|don'?t|do not|won'?t|will not) come|know what i (mean|want to say)|word.?finding|can'?t get the words|words slow)\b/,
     /\b(no idea what to say|mind (is )?blank of ideas|don'?t have (any )?ideas|thought itself feels scrambled|too many (thoughts|ideas) and no core)\b/,
-    /\b(writ(e|ing)|prepare[sd]?|notes|script).{0,40}\b(better|easier|help)|know what i (mean|want).{0,40}words\b/
+    /\b(writ(e|ing)|prepare[sd]?|notes|script).{0,40}\b(better|easier|help|fine)|know what i (mean|want).{0,40}words\b/
   );
   if (retrieval) out.push(retrieval);
 
   const ideaGen = candidate(
     "thought_organization",
-    /\b(too many (thoughts|ideas)|jumbled|scrambled|organize|organis|scattered|all at once|don'?t know what i think|idea.?generation|no clear thought)\b/,
+    /\b(too many (thoughts|ideas)|jumbled|scrambled|organize|organis|scattered|all at once|don'?t know what i think|idea.?generation|no clear thought|don'?t know where to start)\b/,
     /\b(know what i (mean|want to say)|idea is clear|thought is clear|words (don'?t|won'?t) come)\b/,
     /\b(blank|scrambled|too many thoughts|words).{0,30}\b(or|vs|versus)\b/
   );
@@ -323,7 +634,7 @@ export function scoreMechanismCandidates(
 
   const overExplain = candidate(
     "over_explaining",
-    /\b(ramble|rambling|over.?explain|too much (detail|background)|go on (and on|too long)|can'?t get to the point|bury(ing)? the (point|ask))\b/
+    /\b(ramble|rambling|over.?explain|too much (detail|background|context)|go on (and on|too long)|can'?t get to the point|bury(ing)? the (point|ask)|every detail|afraid.{0,30}(leave|understand)|start from the beginning)\b/
   );
   if (overExplain) out.push(overExplain);
 
@@ -335,13 +646,13 @@ export function scoreMechanismCandidates(
 
   const groupTiming = candidate(
     "group_timing_lag",
-    /\b(too late|topic (has )?moved|miss(ed)? (my )?turn|after(wards)?|group conversation|join(ing)? (in|the) (group|conversation)|timing)\b/
+    /\b(too late|topic (has )?moved|miss(ed)? (my |the )?(turn|opening|pause)|after(wards)?|group conversation|by the time|timing)\b/
   );
   if (groupTiming) out.push(groupTiming);
 
   const smallTalk = candidate(
     "small_talk_initiation",
-    /\b(small talk|join(ing)? in|start(ing)? (a )?conversation|opening line|hallway)\b/
+    /\b(small talk|join(ing)? in|start(ing)? (a )?conversation|opening line|hallway|don'?t know how to (start|join))\b/
   );
   if (smallTalk) out.push(smallTalk);
 
@@ -375,18 +686,43 @@ export function scoreMechanismCandidates(
   );
   if (audience) out.push(audience);
 
-  // If retrieval support includes writing-helps contrast, refute pure idea-generation.
-  if (retrieval && /\bwrit(e|ing)|prepare[sd]?|notes|script\b/.test(t)) {
+  // Writing-helps contrast → retrieval supported, idea-generation refuted.
+  if (
+    /\b(writ(e|ing)|prepare[sd]?|notes|script).{0,50}\b(easier|better|help|fine)\b/.test(
+      t
+    ) &&
+    /\b(know what i (mean|want)|words (don'?t|won'?t) come|can'?t find the words)\b/.test(
+      t
+    )
+  ) {
+    const ret = out.find((c) => c.id === "verbal_retrieval");
     const idea = out.find((c) => c.id === "thought_organization");
-    if (idea && idea.status !== "supported") {
+    if (ret) {
+      ret.tested = true;
+      ret.status = "supported";
+    }
+    if (idea) {
       idea.status = "refuted";
       idea.refutingEvidence = [
         ...idea.refutingEvidence,
         "Writing/preparing first improves delivery — points to retrieval, not missing ideas",
       ];
     }
-    retrieval.tested = true;
-    retrieval.status = "supported";
+  }
+
+  // Authority freeze + fine with friends → pressure supported; bare blank stays unresolved.
+  if (
+    /\b(boss|manager|authority|put on the spot)\b/.test(t) &&
+    /\b(blank|freeze)\b/.test(t) &&
+    /\b(friends?|family|partner).{0,40}\b(fine|okay|ok|comfortable|easy)|fine.{0,40}friends?\b/.test(
+      t
+    )
+  ) {
+    const fr = out.find((c) => c.id === "freeze_under_pressure");
+    if (fr) {
+      fr.tested = true;
+      fr.status = "supported";
+    }
   }
 
   // Ambiguous retrieval vs idea-generation: both plausible, neither uniquely tested.
@@ -402,6 +738,45 @@ export function scoreMechanismCandidates(
   ) {
     ret.status = "unresolved";
     idea.status = "unresolved";
+  }
+
+  // Bare "mind goes blank" without authority/context contrast → unresolved freeze.
+  if (
+    freeze &&
+    freeze.status === "supported" &&
+    !freeze.tested &&
+    (weights.freeze_under_pressure ?? 0) < 2 &&
+    !/\b(boss|manager|authority|friends?|put on the spot)\b/.test(t)
+  ) {
+    freeze.status = "unresolved";
+    freeze.tested = false;
+  }
+
+  // Promote single inherently discriminating observation when it uniquely leads.
+  const { leadingId, leadingWeight, secondWeight, margin } =
+    supportMarginFromWeights(weights);
+  for (const c of out) {
+    if (c.status === "refuted") continue;
+    const w = weights[c.id] ?? 0;
+    if (c.tested || w >= 2) {
+      c.status = "supported";
+      c.tested = true;
+      continue;
+    }
+    if (
+      w >= 1 &&
+      c.id === leadingId &&
+      meaningfullyOutranks(margin, leadingWeight) &&
+      secondWeight === 0
+    ) {
+      c.status = "supported";
+      c.tested = true;
+      continue;
+    }
+    if (w >= 1 || c.supportingEvidence.length > 0) {
+      // Keep unresolved unless already tested/supported above.
+      if (!c.tested) c.status = "unresolved";
+    }
   }
 
   return out;
@@ -439,31 +814,79 @@ function mechanismLabel(id: AssessmentMechanismId | null): string {
 }
 
 function selectPrimaryMechanism(
-  candidates: MechanismCandidate[]
+  candidates: MechanismCandidate[],
+  weights: Partial<Record<AssessmentMechanismId, number>>,
+  joinedNorm = ""
 ): {
   mechanismId: AssessmentMechanismId | null;
   uncertainty: string | null;
   competing: MechanismCandidate[];
+  supportMargin: number;
 } {
+  const { leadingId, leadingWeight, secondWeight, margin } =
+    supportMarginFromWeights(weights);
   const supported = candidates.filter((c) => c.status === "supported");
   const unresolved = candidates.filter((c) => c.status === "unresolved");
 
-  if (supported.length === 1) {
+  if (
+    /\b(not sure which|i'?m not sure which|sometimes.{0,60}sometimes)\b/.test(
+      joinedNorm
+    )
+  ) {
+    return {
+      mechanismId: null,
+      uncertainty:
+        "Evidence does not yet distinguish competing mechanisms (e.g. retrieval vs idea-generation); ask one discriminating question before diagnosing.",
+      competing: candidates,
+      supportMargin: margin,
+    };
+  }
+
+  // Ties / near-ties: preserve uncertainty — do not invent a single root.
+  if (leadingId && secondWeight > 0 && margin < 1) {
+    return {
+      mechanismId: null,
+      uncertainty: `Competing mechanisms remain plausible (${[
+        leadingId,
+        ...Object.keys(weights).filter((k) => k !== leadingId && (weights[k as AssessmentMechanismId] ?? 0) > 0),
+      ].join(", ")}); not distinguished yet.`,
+      competing: candidates,
+      supportMargin: margin,
+    };
+  }
+
+  if (supported.length === 1 && meaningfullyOutranks(margin, leadingWeight)) {
     return {
       mechanismId: supported[0].id,
       uncertainty: null,
       competing: candidates,
+      supportMargin: margin,
     };
   }
 
+  if (supported.length === 1 && supported[0].tested && leadingId === supported[0].id) {
+    // Tested contrast can support even with margin 0 if competitor was refuted.
+    const rivals = candidates.filter(
+      (c) => c.id !== supported[0].id && c.status !== "refuted"
+    );
+    if (rivals.every((r) => r.status !== "supported")) {
+      return {
+        mechanismId: supported[0].id,
+        uncertainty: null,
+        competing: candidates,
+        supportMargin: Math.max(margin, 1),
+      };
+    }
+  }
+
   if (supported.length > 1) {
-    // Prefer tested support.
     const tested = supported.filter((c) => c.tested);
-    if (tested.length === 1) {
+    if (tested.length === 1 && meaningfullyOutranks(margin, leadingWeight)) {
       return {
         mechanismId: tested[0].id,
         uncertainty: null,
         competing: candidates,
+        supportMargin: margin,
       };
     }
     return {
@@ -472,10 +895,10 @@ function selectPrimaryMechanism(
         .map((c) => c.id)
         .join(", ")}); not distinguished yet.`,
       competing: candidates,
+      supportMargin: margin,
     };
   }
 
-  // Retrieval vs idea-generation both unresolved → explicit uncertainty.
   const ret = unresolved.find((c) => c.id === "verbal_retrieval");
   const idea = unresolved.find((c) => c.id === "thought_organization");
   if (ret && idea) {
@@ -484,15 +907,20 @@ function selectPrimaryMechanism(
       uncertainty:
         "Evidence does not yet distinguish word retrieval from idea-generation difficulty.",
       competing: candidates,
+      supportMargin: margin,
     };
   }
 
-  if (unresolved.length === 1 && unresolved[0].supportingEvidence.length >= 2) {
+  if (
+    leadingId &&
+    meaningfullyOutranks(margin, leadingWeight) &&
+    leadingWeight >= 2
+  ) {
     return {
-      mechanismId: unresolved[0].id,
-      uncertainty:
-        "Leading hypothesis only — distinguishing test still incomplete.",
+      mechanismId: leadingId,
+      uncertainty: null,
       competing: candidates,
+      supportMargin: margin,
     };
   }
 
@@ -501,8 +929,9 @@ function selectPrimaryMechanism(
       mechanismId: null,
       uncertainty: `Mechanism still uncertain (${unresolved
         .map((c) => c.id)
-        .join(", ")}).`,
+        .join(", ")}). Ask one discriminating question before diagnosing.`,
       competing: candidates,
+      supportMargin: margin,
     };
   }
 
@@ -511,6 +940,7 @@ function selectPrimaryMechanism(
     uncertainty:
       "Insufficient accepted evidence to name a root mechanism yet.",
     competing: candidates,
+    supportMargin: margin,
   };
 }
 
@@ -763,29 +1193,36 @@ function buildTrainingImplications(
   return hit ? [hit] : [];
 }
 
-/** Genuine evidence coverage from USER answers only. */
+/** Genuine evidence coverage from USER answers only — discriminating gate. */
 export function assessGenuineEvidenceCoverage(
   evidence: Partial<Record<AssessmentSlotId, string>>
 ): GenuineEvidenceCoverage {
   const t = norm(joinedEvidence(evidence));
   const facts = extractAcceptedEvidenceFacts(evidence);
+  const discriminating = extractDiscriminatingEvidence(evidence);
+  const weights = mechanismSupportWeights(discriminating);
+  const { leadingId, leadingWeight, secondWeight, margin } =
+    supportMarginFromWeights(weights);
   const candidates = scoreMechanismCandidates(evidence, facts);
+  const { mechanismId, uncertainty } = selectPrimaryMechanism(
+    candidates,
+    weights,
+    t
+  );
+
   const hasSupportedOrStrong =
     candidates.some((c) => c.status === "supported") ||
-    candidates.some(
-      (c) => c.status === "unresolved" && c.supportingEvidence.length >= 1
-    ) ||
+    discriminating.length > 0 ||
     Boolean(evidence.what_goes_wrong?.trim()) ||
     Boolean(evidence.behavior_to_change?.trim());
 
-  // Aspiration alone (e.g. "get better at small talk") is NOT bottleneck evidence.
   const bottleneckOk =
     hasSupportedOrStrong &&
     !isAspirationOnly(evidence) &&
     (hasMechanismSignal(t) ||
       Boolean(evidence.what_goes_wrong) ||
       Boolean(evidence.behavior_to_change) ||
-      candidates.some((c) => c.status === "supported"));
+      discriminating.length > 0);
 
   const context =
     hasContext(t) ||
@@ -794,7 +1231,7 @@ export function assessGenuineEvidenceCoverage(
     hasMechanismSignal(t) ||
     Boolean(evidence.what_goes_wrong) ||
     Boolean(evidence.behavior_to_change) ||
-    candidates.some((c) => c.supportingEvidence.length > 0);
+    discriminating.length > 0;
   const outcome =
     hasOutcome(t) ||
     Boolean(evidence.six_week_success && evidence.six_week_success.trim().length >= 12);
@@ -811,10 +1248,43 @@ export function assessGenuineEvidenceCoverage(
           hasContext(norm(evidence.recent_missed_conversation)))
     );
 
-  const exampleOk = example || (bottleneckOk && context && pattern && hasContext(t));
+  // Required coverage A — no example waiver here.
+  const requiredCoverage = bottleneckOk && context && outcome && practice;
+
+  const leadingOutranks = meaningfullyOutranks(margin, leadingWeight);
+  const leadingMechanismOk = Boolean(
+    mechanismId && leadingId && mechanismId === leadingId && leadingOutranks
+  );
+
+  // PATH 1 — concrete lived example + ≥1 discriminating item + leading mechanism.
+  const path1 =
+    example &&
+    discriminating.length >= 1 &&
+    leadingMechanismOk &&
+    !uncertainty;
+
+  // PATH 2 — no recalled example: ≥2 independent discriminating items,
+  // same leading mechanism, meaningful margin over next plausible mechanism.
+  const path2 =
+    !example &&
+    discriminating.length >= 2 &&
+    leadingMechanismOk &&
+    leadingWeight >= 2 &&
+    margin >= 1 &&
+    !uncertainty;
+
+  let diagnosticConfidence: DiagnosticConfidence = "low";
+  if (path1 || path2) {
+    diagnosticConfidence = "supported";
+  } else if (discriminating.length >= 1 || candidates.some((c) => c.status !== "refuted" && (weights[c.id] ?? 0) > 0)) {
+    diagnosticConfidence = "provisional";
+  }
 
   const sufficient =
-    bottleneckOk && context && pattern && outcome && practice && exampleOk;
+    requiredCoverage &&
+    (path1 || path2) &&
+    diagnosticConfidence === "supported" &&
+    mechanismId != null;
 
   return {
     bottleneck: bottleneckOk,
@@ -822,7 +1292,13 @@ export function assessGenuineEvidenceCoverage(
     pattern,
     outcome,
     practice,
-    example: exampleOk,
+    example,
+    requiredCoverage,
+    path1,
+    path2,
+    diagnosticConfidence,
+    supportMargin: margin,
+    discriminatingEvidenceCount: discriminating.length,
     sufficient,
   };
 }
@@ -838,21 +1314,28 @@ export function synthesizeDiagnosis(
 
   const t = norm(joinedEvidence(cleaned));
   const facts = extractAcceptedEvidenceFacts(cleaned);
+  const discriminating = extractDiscriminatingEvidence(cleaned);
+  const weights = mechanismSupportWeights(discriminating);
   const competingMechanisms = scoreMechanismCandidates(cleaned, facts);
-  const { mechanismId, uncertainty, competing } = selectPrimaryMechanism(
-    competingMechanisms
-  );
+  const { mechanismId, uncertainty, competing, supportMargin } =
+    selectPrimaryMechanism(competingMechanisms, weights, t);
   const coverage = assessGenuineEvidenceCoverage(cleaned);
 
-  let confidence = 0.2;
-  if (coverage.bottleneck) confidence += 0.15;
+  let confidence = 0.15;
+  if (coverage.bottleneck) confidence += 0.1;
   if (coverage.context) confidence += 0.1;
-  if (coverage.pattern) confidence += 0.1;
-  if (coverage.example) confidence += 0.15;
   if (coverage.outcome) confidence += 0.1;
-  if (coverage.practice) confidence += 0.1;
-  if (mechanismId) confidence += 0.1;
-  if (uncertainty) confidence = Math.min(confidence, 0.55);
+  if (coverage.practice) confidence += 0.05;
+  if (coverage.example) confidence += 0.1;
+  confidence += Math.min(0.3, discriminating.length * 0.12);
+  confidence += Math.min(0.15, supportMargin * 0.1);
+  if (mechanismId && coverage.diagnosticConfidence === "supported") {
+    confidence += 0.15;
+  }
+  if (uncertainty || coverage.diagnosticConfidence !== "supported") {
+    confidence = Math.min(confidence, 0.55);
+  }
+  // Synthesized fields never exist in `cleaned` — confidence cannot rise from them.
   confidence = Math.min(0.95, confidence);
 
   const contexts = inferContext(t, cleaned);
@@ -866,14 +1349,11 @@ export function synthesizeDiagnosis(
   const evidenceLine = inferEvidenceLine(cleaned, t);
   const desiredOutcome = inferOutcome(cleaned, mechanismId);
   const practiceCommitment = inferPractice(cleaned);
-  const trainingImplications = buildTrainingImplications(
-    mechanismId,
-    cleaned,
-    contexts,
-    uncertainty
-  );
+  const trainingImplications =
+    coverage.diagnosticConfidence === "supported" && mechanismId
+      ? buildTrainingImplications(mechanismId, cleaned, contexts, null)
+      : buildTrainingImplications(mechanismId, cleaned, contexts, uncertainty);
 
-  // Aspiration-only small talk must never become the diagnosis claim.
   let primaryBottleneck = focusArea;
   if (
     /\b^small talk$\b/i.test(primaryBottleneck.trim()) ||
@@ -906,9 +1386,18 @@ export function synthesizeDiagnosis(
     keyEnvironments: contexts || "Everyday conversation",
     rootPattern,
     dailyCommitment: practiceCommitment,
-    trainingImplications,
-    uncertainty,
+    trainingImplications:
+      coverage.diagnosticConfidence === "supported"
+        ? trainingImplications
+        : uncertainty
+          ? buildTrainingImplications(null, cleaned, contexts, uncertainty)
+          : trainingImplications,
+    uncertainty:
+      coverage.diagnosticConfidence === "supported" ? null : uncertainty,
     competingMechanisms: competing,
+    diagnosticConfidence: coverage.diagnosticConfidence,
+    supportMargin,
+    discriminatingEvidenceCount: discriminating.length,
   };
 }
 
@@ -991,6 +1480,7 @@ export function canCompleteWithDiagnosticEvidence(
   const evidence = collectUserEvidence(state.slots);
   const coverage = assessGenuineEvidenceCoverage(evidence);
   if (!coverage.sufficient) return false;
+  if (coverage.diagnosticConfidence !== "supported") return false;
   // Practice commitment must exist as user evidence (never synthesized into existence).
   return Boolean(evidence.practice_time && hasPractice(norm(evidence.practice_time)));
 }
