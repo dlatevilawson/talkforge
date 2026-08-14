@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | **Document ID** | IV-INDEX |
-| **Version** | 1.10.0 |
+| **Version** | 1.11.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
-| **Updated** | 2026-08-07 |
-| **Entry count** | 70 |
+| **Updated** | 2026-08-14 |
+| **Entry count** | 71 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
@@ -99,7 +99,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-UX-008](ux-ideas/IV-UX-008-machine-behavior-language.md) | Machine Behavior Language | In Development | Critical | High | `ux-ideas/IV-UX-008-machine-behavior-language.md` |
 | [IV-UX-009](ux-ideas/IV-UX-009-optional-visual-training-focus.md) | Optional visual training focus (Machines picker) | In Development | Critical | High | `ux-ideas/IV-UX-009-optional-visual-training-focus.md` |
 
-## AI Ideas (7)
+## AI Ideas (8)
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
@@ -110,6 +110,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-AI-005](ai-ideas/IV-AI-005-mission-fields.md) | Mission fields: Objective · Modality · Why now · Evidence · Purpose · Intensity · CTA | Reviewing | Important | Medium | `ai-ideas/IV-AI-005-mission-fields.md` |
 | [IV-AI-006](ai-ideas/IV-AI-006-coach-forge-excellence.md) | Coach Forge Communication Excellence Assessment | In Development | Critical | High | `ai-ideas/IV-AI-006-coach-forge-excellence.md` |
 | [IV-AI-007](ai-ideas/IV-AI-007-coach-forge-first-principle.md) | Coach Forge First Principle — Understand before you coach | In Development | Critical | High | `ai-ideas/IV-AI-007-coach-forge-first-principle.md` |
+| [IV-AI-008](ai-ideas/IV-AI-008-atlas-awareness-steward.md) | Atlas Awareness Steward — first to know, not the fixer | Inbox | Critical | High | `ai-ideas/IV-AI-008-atlas-awareness-steward.md` |
 
 ## Research Ideas (4)
 
@@ -189,6 +190,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-AI-002](ai-ideas/IV-AI-002-mentor-pacing.md) | Mentor pacing — understand before coaching | In Development | AI Ideas |
 | [IV-AI-006](ai-ideas/IV-AI-006-coach-forge-excellence.md) | Coach Forge Communication Excellence Assessment | In Development | AI Ideas |
 | [IV-AI-007](ai-ideas/IV-AI-007-coach-forge-first-principle.md) | Coach Forge First Principle — Understand before you coach | In Development | AI Ideas |
+| [IV-AI-008](ai-ideas/IV-AI-008-atlas-awareness-steward.md) | Atlas Awareness Steward — first to know, not the fixer | Inbox | AI Ideas |
 | [IV-PROD-008](product-ideas/IV-PROD-008-billing-membership.md) | Billing & Membership Platform (Free / Pro) | In Development | Product Ideas |
 | [IV-RES-004](research-ideas/IV-RES-004-transfer-outside-app.md) | Transfer outside the app is the scoreboard | Researching | Research Ideas |
 | [IV-FUT-003](future-ideas/IV-FUT-003-multi-year-mentor.md) | Multi-year mentor relationship vision | Future | Future Ideas |
