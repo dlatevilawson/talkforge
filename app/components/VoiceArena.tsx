@@ -2055,14 +2055,14 @@ export default function VoiceArena({
             </>
           ) : (
             <>
-              <div className="flex min-h-0 w-full max-w-lg flex-1 flex-col">
+              <div className="flex min-h-0 w-full max-w-lg flex-1 flex-col text-left">
                 <ArenaConversation
                   turns={turns}
                   liveForgeText={liveForgeDraft}
                   liveUserText={liveUserDraft}
                 />
 
-                <div className="shrink-0 pt-3">
+                <div className="shrink-0 pt-3 text-center">
                   <p className="text-center text-sm font-medium tracking-wide text-[#D4AF37]/85">
                     {presenceLabel}
                   </p>
