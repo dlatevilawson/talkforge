@@ -420,6 +420,11 @@ export function requestHoldTurnResponse(
     allowAssessment?: boolean;
     /** App-selected assessment slot for this mid-turn (Step 3). */
     assessmentSlot?: AssessmentSlotId | null;
+    /**
+     * Most recent user utterance for ephemeral difficulty routing.
+     * Not persisted — used only to descend/raise the question ladder.
+     */
+    lastUserText?: string | null;
   }
 ): boolean {
   if (!connection || connection.dc.readyState !== "open") return false;
@@ -437,7 +442,9 @@ export function requestHoldTurnResponse(
     }
     const instructions =
       options?.mode === "assessment"
-        ? buildAssessmentTurnInstructions(options.assessmentSlot ?? null)
+        ? buildAssessmentTurnInstructions(options.assessmentSlot ?? null, {
+            lastUserText: options.lastUserText ?? null,
+          })
         : buildListenFirstTurnInstructions();
     connection.dc.send(
       JSON.stringify({

@@ -350,10 +350,14 @@ export default function VoiceArena({
       );
       if (fallback.action === "request_mid_turn") {
         const slot = assessmentTurnSlot();
+        const lastUserText =
+          [...turnsRef.current].reverse().find((t) => t.role === "founder")
+            ?.text ?? null;
         const requested = requestHoldTurnResponse(connectionRef.current, {
           mode: "assessment",
           allowAssessment: true,
           assessmentSlot: slot,
+          lastUserText,
         });
         pushEvent(
           requested
@@ -1032,6 +1036,7 @@ export default function VoiceArena({
               mode: "assessment",
               allowAssessment: true,
               assessmentSlot: slot,
+              lastUserText: added.text,
             });
             pushEvent(
               requested
