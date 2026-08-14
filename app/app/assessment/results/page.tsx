@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import {
   ASSESSMENT_SLOT_LABELS,
   ASSESSMENT_SLOT_ORDER,
@@ -11,9 +11,13 @@ import {
   type AssessmentSnapshot,
   type AssessmentSlotId,
 } from "@/lib/ce/assessment-lifecycle";
+import {
+  buildTrainingScenarios,
+  trainingScenarioPracticeHref,
+} from "@/lib/ce/assessment-training-scenarios";
 
 /**
- * Assessment Results — renders AssessmentSnapshot from accepted slots (Step 6).
+ * Assessment Results — diagnostic integrity fields when diagnosis exists.
  * LP write still happens via the existing complete API (Step 7 cutover).
  * Incomplete endings must NOT offer a completed Living Profile CTA.
  */
@@ -35,6 +39,19 @@ function AssessmentResultsBody() {
         return isUsableAssessmentResultValue(snapshot.answers[id] ?? null);
       })
     : [];
+
+  const scenarios = useMemo(
+    () =>
+      !incomplete && snapshot?.diagnosis
+        ? buildTrainingScenarios(snapshot.diagnosis)
+        : [],
+    [incomplete, snapshot]
+  );
+
+  const practiceHref =
+    scenarios.length > 0
+      ? trainingScenarioPracticeHref(scenarios)
+      : "/app/practice?start=1";
 
   return (
     <main className="relative min-h-[100dvh] overflow-hidden bg-[#070708] text-white">
@@ -61,10 +78,62 @@ function AssessmentResultsBody() {
         <p className="mt-4 max-w-md text-base leading-7 text-white/55">
           {incomplete
             ? "Forge didn’t gather enough to write your initial communication baseline. No Living Profile was created from this pass."
-            : "Forge gathered enough to establish your initial communication baseline. The full Living Profile view arrives in a later step — this page confirms the assessment ended cleanly."}
+            : "Forge gathered enough to establish your initial communication baseline. Training recommendations below come from your diagnosis — not a generic catalog."}
         </p>
 
-        {snapshot && filledSlotIds.length > 0 ? (
+        {snapshot?.diagnosis && !incomplete ? (
+          <ul className="mt-10 space-y-5">
+            <li>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                Focus Area
+              </p>
+              <p className="mt-1 text-sm leading-6 text-white/80">
+                {snapshot.diagnosis.focusArea ||
+                  snapshot.diagnosis.primaryBottleneck}
+              </p>
+            </li>
+            <li>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                Key Environments
+              </p>
+              <p className="mt-1 text-sm leading-6 text-white/80">
+                {snapshot.diagnosis.keyEnvironments ||
+                  snapshot.diagnosis.contexts}
+              </p>
+            </li>
+            <li>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                Root Bottleneck / Pattern
+              </p>
+              <p className="mt-1 text-sm leading-6 text-white/80">
+                {snapshot.diagnosis.rootPattern ||
+                  snapshot.diagnosis.supportingPatterns[0]}
+              </p>
+            </li>
+            {snapshot.diagnosis.uncertainty ? (
+              <li>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                  Still clarifying
+                </p>
+                <p className="mt-1 text-sm leading-6 text-white/80">
+                  {snapshot.diagnosis.uncertainty}
+                </p>
+              </li>
+            ) : null}
+            {(snapshot.diagnosis.dailyCommitment ||
+              snapshot.diagnosis.practiceCommitment) ? (
+              <li>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+                  Daily Commitment
+                </p>
+                <p className="mt-1 text-sm leading-6 text-white/80">
+                  {snapshot.diagnosis.dailyCommitment ||
+                    snapshot.diagnosis.practiceCommitment}
+                </p>
+              </li>
+            ) : null}
+          </ul>
+        ) : snapshot && filledSlotIds.length > 0 ? (
           <ul className="mt-10 space-y-5">
             {filledSlotIds.map((id) => (
               <li key={id}>
@@ -86,6 +155,20 @@ function AssessmentResultsBody() {
           </ul>
         ) : null}
 
+        {scenarios.length > 0 && !incomplete ? (
+          <div className="mt-10 space-y-4">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">
+              Recommended training
+            </p>
+            {scenarios.map((s) => (
+              <div key={s.title + (s.trainingImplicationId ?? "")}>
+                <p className="text-sm font-medium text-white/90">{s.title}</p>
+                <p className="mt-1 text-sm leading-6 text-white/55">{s.mission}</p>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
         <div className="mt-auto flex flex-col gap-3 pt-12 sm:flex-row sm:flex-wrap">
           <Link
             href="/app"
@@ -102,10 +185,10 @@ function AssessmentResultsBody() {
             </Link>
           ) : null}
           <Link
-            href="/app/practice?start=1"
+            href={practiceHref}
             className="inline-flex items-center justify-center rounded-full border border-white/15 px-8 py-3.5 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:text-white"
           >
-            Talk to Coach Forge
+            {scenarios.length > 0 ? "Start recommended training" : "Talk to Coach Forge"}
           </Link>
         </div>
       </div>

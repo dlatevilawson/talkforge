@@ -15,6 +15,24 @@
  */
 
 import { isGenericAssessmentSlotAnswer } from "./assessment-generic-answers.ts";
+import {
+  applyCompatibilityProjection,
+  canCompleteWithDiagnosticEvidence,
+  collectUserEvidence,
+  formatDiagnosisForProfile,
+  synthesizeDiagnosis,
+  type AssessmentAnswerSource,
+  type AssessmentDiagnosis,
+} from "./assessment-synthesis.ts";
+
+export type { AssessmentAnswerSource, AssessmentDiagnosis };
+export {
+  applyCompatibilityProjection,
+  canCompleteWithDiagnosticEvidence,
+  collectUserEvidence,
+  formatDiagnosisForProfile,
+  synthesizeDiagnosis,
+};
 
 export type AssessmentStatus = "idle" | "active" | "complete" | "cancelled";
 
@@ -72,6 +90,11 @@ export type AssessmentSlotRecord = {
   status: AssessmentSlotStatus;
   /** Accepted answer only — never consent/filler. */
   answer: string | null;
+  /**
+   * user = real accepted evidence.
+   * synthesized = compatibility projection only — never use as evidence.
+   */
+  source?: AssessmentAnswerSource;
 };
 
 export type AssessmentSlotsState = Record<AssessmentSlotId, AssessmentSlotRecord>;
@@ -151,9 +174,16 @@ export const ASSESSMENT_SLOT_LABELS: Record<AssessmentSlotId, string> = {
 
 export type AssessmentSnapshot = {
   version: 1;
-  /** Only filled slots — never invented. */
+  /** Filled slots — user answers and/or compatibility projections. */
   answers: Partial<Record<AssessmentSlotId, string>>;
   filledSlotIds: AssessmentSlotId[];
+  /**
+   * Marks which answers are real user evidence vs synthesized compatibility.
+   * Missing keys default to "user" for backward compatibility.
+   */
+  answerSources?: Partial<Record<AssessmentSlotId, AssessmentAnswerSource>>;
+  /** Diagnostic synthesis for results / LP (from user evidence only). */
+  diagnosis?: AssessmentDiagnosis;
   consented: boolean;
   /** True when required slots were filled at persist time (successful close). */
   sufficient: boolean;
@@ -429,16 +459,22 @@ export function isAssessmentHardAbort(state: AssessmentLifecycleState): boolean 
 function resolveAfterAssessmentProgress(
   state: AssessmentLifecycleState
 ): { state: AssessmentLifecycleState; effect: AssessmentLifecycleEffect } {
-  if (isAssessmentSlotsComplete(state)) {
-    return reduceAssessmentLifecycle(state, { type: "BEGIN_CLOSING" });
+  // Option A: when genuine user evidence is sufficient, project missing
+  // compatibility fields (synthesized), then use existing 7-slot completion.
+  let next = state;
+  if (canCompleteWithDiagnosticEvidence(next)) {
+    next = applyCompatibilityProjection(next);
   }
-  if (isAssessmentHardAbort(state)) {
-    return reduceAssessmentLifecycle(state, {
+  if (isAssessmentSlotsComplete(next)) {
+    return reduceAssessmentLifecycle(next, { type: "BEGIN_CLOSING" });
+  }
+  if (isAssessmentHardAbort(next)) {
+    return reduceAssessmentLifecycle(next, {
       type: "CANCEL",
       reason: "safety_cap",
     });
   }
-  return { state, effect: { type: "NONE" } };
+  return { state: next, effect: { type: "NONE" } };
 }
 
 /**
@@ -567,6 +603,7 @@ export function acceptAnswer(
     id: targetSlotId,
     status: "filled",
     answer,
+    source: "user",
   };
 
   const filledState: AssessmentLifecycleState = {
@@ -876,6 +913,8 @@ export function buildAssessmentSnapshot(
   }
 ): AssessmentSnapshot {
   const answers: Partial<Record<AssessmentSlotId, string>> = {};
+  const answerSources: Partial<Record<AssessmentSlotId, AssessmentAnswerSource>> =
+    {};
   const filledSlotIds: AssessmentSlotId[] = [];
 
   for (const id of ASSESSMENT_SLOT_ORDER) {
@@ -884,13 +923,22 @@ export function buildAssessmentSnapshot(
     const answer = slot.answer?.trim() ?? "";
     if (!answer) continue;
     answers[id] = answer;
+    answerSources[id] = slot.source === "synthesized" ? "synthesized" : "user";
     filledSlotIds.push(id);
   }
+
+  const userEvidence = collectUserEvidence(state.slots);
+  const diagnosis =
+    Object.keys(userEvidence).length > 0
+      ? synthesizeDiagnosis(userEvidence)
+      : undefined;
 
   return {
     version: 1,
     answers,
     filledSlotIds,
+    answerSources,
+    diagnosis,
     consented: state.consented,
     sufficient: meta?.sufficient ?? isAssessmentSlotsComplete(state),
     practiceSessionId: meta?.practiceSessionId ?? null,
@@ -994,10 +1042,28 @@ export function parseAssessmentSnapshot(
       (ASSESSMENT_SLOT_ORDER as readonly string[]).includes(id)
   );
 
+  const answerSources: Partial<Record<AssessmentSlotId, AssessmentAnswerSource>> =
+    {};
+  if (o.answerSources && typeof o.answerSources === "object") {
+    const src = o.answerSources as Record<string, unknown>;
+    for (const id of ASSESSMENT_SLOT_ORDER) {
+      const v = src[id];
+      if (v === "user" || v === "synthesized") answerSources[id] = v;
+    }
+  }
+
+  let diagnosis: AssessmentDiagnosis | undefined;
+  if (o.diagnosis && typeof o.diagnosis === "object") {
+    diagnosis = o.diagnosis as AssessmentDiagnosis;
+  }
+
   return {
     version: 1,
     answers,
     filledSlotIds,
+    answerSources:
+      Object.keys(answerSources).length > 0 ? answerSources : undefined,
+    diagnosis,
     consented: o.consented,
     sufficient: o.sufficient,
     practiceSessionId:
@@ -1039,35 +1105,48 @@ export function mapAssessmentSnapshotToLivingProfile(
     return incomplete();
   }
 
-  const skill = snapshotSlotAnswer(snapshot, "skill_to_improve");
-  if (!skill) return incomplete();
-
-  const goals = [skill];
-  const challenges: string[] = [];
-  for (const id of ASSESSMENT_LP_CHALLENGE_SLOTS) {
+  // Rebuild user-only evidence — never treat synthesized compatibility as evidence.
+  const userEvidence: Partial<Record<AssessmentSlotId, string>> = {};
+  for (const id of ASSESSMENT_SLOT_ORDER) {
     const answer = snapshotSlotAnswer(snapshot, id);
-    if (answer) challenges.push(answer);
+    if (!answer) continue;
+    const source = snapshot.answerSources?.[id] ?? "user";
+    if (source === "synthesized") continue;
+    userEvidence[id] = answer;
   }
-  if (challenges.length === 0) return incomplete();
 
-  // F1=B: purpose only when empty; never also into goals[].
-  const sixWeek = snapshotSlotAnswer(snapshot, "six_week_success");
+  const diagnosis =
+    snapshot.diagnosis ??
+    (Object.keys(userEvidence).length > 0
+      ? synthesizeDiagnosis(userEvidence)
+      : null);
+  if (!diagnosis?.primaryBottleneck) return incomplete();
+
+  const formatted = formatDiagnosisForProfile(diagnosis);
+  if (formatted.challenges.length === 0) {
+    // Fallback: legacy challenge slots from user evidence only.
+    for (const id of ASSESSMENT_LP_CHALLENGE_SLOTS) {
+      const answer = userEvidence[id];
+      if (answer) formatted.challenges.push(answer);
+    }
+  }
+  if (formatted.challenges.length === 0) return incomplete();
+
+  // F1=B: purpose only when empty; prefer synthesized desired outcome from user evidence.
   const purposeEmpty = !current.purposeStatement.trim();
-  const purposeStatement = purposeEmpty && sixWeek ? sixWeek : null;
-
-  const practice = snapshotSlotAnswer(snapshot, "practice_time");
-  const provenanceClaim = practice
-    ? `Assessment snapshot captured training baseline. Practice time: ${practice}`
-    : "Assessment snapshot captured training baseline from accepted slots.";
+  const purposeStatement =
+    purposeEmpty && formatted.purposeStatement
+      ? formatted.purposeStatement
+      : null;
 
   return {
     ready: true,
     profileSource: "assessment",
-    goals,
-    challenges,
+    goals: formatted.goals,
+    challenges: formatted.challenges,
     purposeStatement,
     clearPresenceScores: false,
-    provenanceClaim,
+    provenanceClaim: formatted.provenanceClaim,
   };
 }
 
