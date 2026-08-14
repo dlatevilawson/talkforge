@@ -227,7 +227,7 @@ function ContinuityHomeInner() {
               Coach Forge
             </p>
             <p className="mt-3 text-lg text-zinc-300">
-              Joining your Training Room…
+              Joining TalkForge Arena…
             </p>
           </div>
         </div>

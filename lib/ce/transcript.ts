@@ -151,6 +151,49 @@ export function applyRealtimeTranscriptEvent(
   return { turns, added: null };
 }
 
+/** Live partial transcript from Realtime delta events (UI only — not persisted). */
+export function extractLiveTranscriptDelta(
+  event: Record<string, unknown>
+): { role: TranscriptRole; delta: string; done: boolean } | null {
+  const type = typeof event.type === "string" ? event.type : "";
+  if (!type) return null;
+
+  if (
+    type === "response.output_audio_transcript.done" ||
+    type === "response.audio_transcript.done"
+  ) {
+    return { role: "forge", delta: "", done: true };
+  }
+  if (type === "conversation.item.input_audio_transcription.completed") {
+    return { role: "founder", delta: "", done: true };
+  }
+
+  const deltaRaw =
+    typeof event.delta === "string"
+      ? event.delta
+      : typeof event.transcript === "string"
+        ? event.transcript
+        : "";
+
+  if (
+    type === "response.output_audio_transcript.delta" ||
+    type === "response.audio_transcript.delta"
+  ) {
+    if (!deltaRaw) return null;
+    return { role: "forge", delta: deltaRaw, done: false };
+  }
+
+  if (
+    type === "conversation.item.input_audio_transcription.delta" ||
+    type === "conversation.item.input_audio_transcription.partial"
+  ) {
+    if (!deltaRaw) return null;
+    return { role: "founder", delta: deltaRaw, done: false };
+  }
+
+  return null;
+}
+
 function extractTranscriptText(event: Record<string, unknown>): string {
   if (typeof event.transcript === "string" && event.transcript.trim()) {
     return event.transcript.trim();
