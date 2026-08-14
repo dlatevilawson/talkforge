@@ -33,12 +33,28 @@ const REAL_MOMENT =
 
 /** Phrases that must never count alone as diagnostic evidence. */
 const UNIVERSAL_VAGUE =
-  /\b(i don'?t know|i do not know|not sure|no idea|communicate better|be a better communicator|speak better|talk better|be more confident|be confident|more confidence|not knowing what to say|don'?t know what to say|do not know what to say|bad at communication|bad at communicating|communication in general|better (at )?communication)\b/i;
+  /\b(i don'?t know|i do not know|i can'?t remember|i cannot remember|can'?t remember|cannot remember|not sure|no idea|communicate better|be a better communicator|speak better|talk better|be more confident|be confident|more confidence|not knowing what to say|don'?t know what to say|do not know what to say|bad at communication|bad at communicating|communication in general|better (at )?communication|get better at small talk|better at small talk)\b/i;
 
 function isMostlyUniversalVague(t: string): boolean {
   if (!UNIVERSAL_VAGUE.test(t)) return false;
-  // Allow if the same answer also carries a specific mechanism/context.
+  // Allow if the same answer also carries a specific mechanism/context —
+  // but bare failed-recall / don't-know phrases stay rejected.
+  if (
+    /^(i don'?t know|i do not know|i can'?t remember|i cannot remember|not sure|no idea)\b/.test(
+      t
+    ) &&
+    t.split(/\s+/).length <= 8
+  ) {
+    return true;
+  }
   if (SPECIFIC_SKILL.test(t) || CONTEXT_PERSON_OR_PLACE.test(t) || REAL_MOMENT.test(t)) {
+    // "get better at small talk" alone still vague even though SPECIFIC_SKILL matches small talk
+    if (
+      /^(i (just )?want to |i'?d like to )?(get )?better at small talk\.?$/.test(t) ||
+      /^small talk\.?$/.test(t)
+    ) {
+      return true;
+    }
     return false;
   }
   return true;
@@ -55,6 +71,14 @@ export function isGenericAssessmentSlotAnswer(
 
   switch (slotId) {
     case "skill_to_improve": {
+      if (
+        /^(i (just )?want to |i'?d like to )?(get )?better at small talk\.?$/.test(
+          t
+        ) ||
+        /^small talk\.?$/.test(t)
+      ) {
+        return true;
+      }
       if (SPECIFIC_SKILL.test(t)) return false;
       if (
         /\b(i just want to |i want to |i'?d like to )?(communicate better|be a better communicator|get better at (speaking|talking|communication)|speak better|talk better)\b/.test(
@@ -102,6 +126,15 @@ export function isGenericAssessmentSlotAnswer(
       return false;
     }
     case "recent_missed_conversation": {
+      if (
+        /\b(i can'?t remember|i cannot remember|can'?t remember|cannot remember|i don'?t remember|i do not remember)\b/.test(
+          t
+        ) &&
+        !REAL_MOMENT.test(t) &&
+        !CONTEXT_PERSON_OR_PLACE.test(t)
+      ) {
+        return true;
+      }
       if (REAL_MOMENT.test(t) || CONTEXT_PERSON_OR_PLACE.test(t)) return false;
       if (
         /\b(couldn'?t get my point across|could not get my point across|didn'?t get my point across|can'?t get my point across|not knowing what to say)\b/.test(
