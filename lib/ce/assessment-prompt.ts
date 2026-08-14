@@ -10,7 +10,14 @@
 
 import type { AssessmentSlotId } from "./assessment-lifecycle";
 
-/** Accessible opening — recognition-friendly, not jargon, not permission ask. */
+/** Spoken self-intro before the first diagnostic question. */
+export const ASSESSMENT_INTRODUCTION =
+  "Hi, I'm Forge, your communication coach. I'm going to ask you a few questions to understand what happens when communication gets difficult for you. There are no right answers — just answer however you can, and I'll adapt the questions as we go.";
+
+/**
+ * First diagnostic probe after the introduction (Processing & Retrieval, open recall).
+ * Kept as ASSESSMENT_OPENING_LINE for compatibility with existing tests/call sites.
+ */
 export const ASSESSMENT_OPENING_LINE =
   "When you're trying to explain something out loud, what usually happens?";
 
@@ -20,12 +27,104 @@ export const ASSESSMENT_CLOSING_LINE =
 export const ASSESSMENT_DISENGAGEMENT_CHECK_IN =
   "Sounds like these questions aren’t landing — want me to explain what this is for, or stop here for now?";
 
+/** Internal diagnostic dimensions — not a mandatory four-question script. */
+export type DiagnosticGateway =
+  | "processing_retrieval"
+  | "pressure_tension"
+  | "structure_brevity"
+  | "audience_adaptation";
+
+export type QuestionDifficulty =
+  | "open_recall"
+  | "concrete_recall"
+  | "recognition"
+  | "forced_comparison";
+
+export const QUESTION_DIFFICULTY_LADDER = [
+  "open_recall",
+  "concrete_recall",
+  "recognition",
+  "forced_comparison",
+] as const satisfies readonly QuestionDifficulty[];
+
+export type GatewayLadderPrompts = {
+  id: DiagnosticGateway;
+  label: string;
+  goal: string;
+  open_recall: string;
+  concrete_recall: string;
+  recognition: string;
+  forced_comparison: string;
+};
+
+/**
+ * Canonical probes per gateway × difficulty.
+ * Wording may vary in speech; the progression must not.
+ */
+export const ASSESSMENT_GATEWAY_LADDERS: Record<
+  DiagnosticGateway,
+  GatewayLadderPrompts
+> = {
+  processing_retrieval: {
+    id: "processing_retrieval",
+    label: "Processing & Retrieval",
+    goal: "Distinguish verbal retrieval/formulation from idea-generation uncertainty.",
+    open_recall:
+      "When you're trying to explain something out loud, what usually happens?",
+    concrete_recall:
+      "Think about the last time you had to explain something at work. What happened when you started talking?",
+    recognition:
+      "Which sounds closer: you know what you want to say but can't find the words, or you're not sure what you want to say yet?",
+    forced_comparison:
+      "If you could write the answer first, would explaining it usually become easier — yes or no?",
+  },
+  pressure_tension: {
+    id: "pressure_tension",
+    label: "Pressure & Tension",
+    goal: "Understand inhibition, freezing, rushing, over-explaining, defensive behavior.",
+    open_recall:
+      "When a conversation gets tense or someone pushes back on you unexpectedly, what is your default reaction in that exact moment?",
+    concrete_recall:
+      "Think about the last time someone pushed back on you. What did you do in that moment?",
+    recognition:
+      "Which is closer: you freeze and go quiet, or you rush / over-explain to get through it?",
+    forced_comparison:
+      "Does that reaction show up mostly when you feel watched or challenged — yes or no?",
+  },
+  structure_brevity: {
+    id: "structure_brevity",
+    label: "Structure & Brevity",
+    goal: "Understand organization, compression, sequencing, and point-first communication.",
+    open_recall:
+      "If you have to give someone a big update or explain a complicated situation, where do you usually start?",
+    concrete_recall:
+      "Think about the last long update you gave. Where did you actually begin?",
+    recognition:
+      "Which sounds closer: you bury the point under background, or you jump in without a clear structure?",
+    forced_comparison:
+      "If you had to lead with one sentence first, would that usually feel hard — yes or no?",
+  },
+  audience_adaptation: {
+    id: "audience_adaptation",
+    label: "Audience Adaptation",
+    goal: "Understand audience adaptation and context-specific communication changes.",
+    open_recall:
+      "How much do you change the way you talk depending on who you’re talking to — like a close peer versus a boss or authority figure?",
+    concrete_recall:
+      "Think about the last time you talked to a boss or authority figure. How was that different from talking with a peer?",
+    recognition:
+      "Which is closer: you shrink or filter more with authority, or you talk basically the same with everyone?",
+    forced_comparison:
+      "Is the harder part mostly who you're talking to, rather than finding the words — yes or no?",
+  },
+};
+
 /**
  * Optional wording hints by compatibility destination — NOT a mandatory script.
  * Prefer diagnosis-driven questions from the conversation.
  */
 export const ASSESSMENT_ANCHOR_QUESTIONS = [
-  "When you're trying to explain something out loud, what usually happens?",
+  ASSESSMENT_GATEWAY_LADDERS.processing_retrieval.open_recall,
   "Who are you usually talking to when this gets hard?",
   "When it breaks down, is it more that you know what you mean but can't find the words, or that the thought itself feels scrambled?",
   "What do you notice yourself doing in those moments that you want to change?",
@@ -48,6 +147,8 @@ export type AssessmentSlotTurnMeta = {
   id: AssessmentSlotId;
   intent: string;
   suggestedWording: string;
+  /** Default gateway when this destination is active. */
+  defaultGateway: DiagnosticGateway;
 };
 
 export const ASSESSMENT_SLOT_TURN_META: Record<
@@ -58,38 +159,197 @@ export const ASSESSMENT_SLOT_TURN_META: Record<
     id: "skill_to_improve",
     intent: "compatibility target: primary speaking friction / goal",
     suggestedWording: ASSESSMENT_ANCHOR_QUESTIONS[0],
+    defaultGateway: "processing_retrieval",
   },
   where_it_shows_up: {
     id: "where_it_shows_up",
     intent: "compatibility target: real person / situation context",
     suggestedWording: ASSESSMENT_ANCHOR_QUESTIONS[1],
+    defaultGateway: "audience_adaptation",
   },
   what_goes_wrong: {
     id: "what_goes_wrong",
     intent: "compatibility target: failure pattern / mechanism",
     suggestedWording: ASSESSMENT_ANCHOR_QUESTIONS[2],
+    defaultGateway: "processing_retrieval",
   },
   behavior_to_change: {
     id: "behavior_to_change",
     intent: "compatibility target: observable behavior to change",
     suggestedWording: ASSESSMENT_ANCHOR_QUESTIONS[3],
+    defaultGateway: "pressure_tension",
   },
   recent_missed_conversation: {
     id: "recent_missed_conversation",
     intent: "compatibility target: one concrete example",
     suggestedWording: ASSESSMENT_ANCHOR_QUESTIONS[4],
+    defaultGateway: "processing_retrieval",
   },
   six_week_success: {
     id: "six_week_success",
     intent: "compatibility target: desired outcome",
     suggestedWording: ASSESSMENT_ANCHOR_QUESTIONS[5],
+    defaultGateway: "processing_retrieval",
   },
   practice_time: {
     id: "practice_time",
     intent: "compatibility target: realistic practice commitment",
     suggestedWording: ASSESSMENT_ANCHOR_QUESTIONS[6],
+    defaultGateway: "processing_retrieval",
   },
 };
+
+export type AssessmentTurnInstructionOptions = {
+  /** Most recent user utterance (accepted or rejected). Ephemeral — not persisted. */
+  lastUserText?: string | null;
+  /** Optional prior difficulty estimate; otherwise inferred from lastUserText. */
+  priorDifficulty?: QuestionDifficulty | null;
+  /** Optional active gateway; otherwise derived from slot default. */
+  activeGateway?: DiagnosticGateway | null;
+};
+
+function normSignalText(text: string): string {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/[\u2018\u2019\u201b\u2032]/g, "'")
+    .replace(/[^\w\s']/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Interaction signal: failed recall / don't-know / vague — NOT diagnostic evidence.
+ * Used only to lower question difficulty on the same gateway.
+ */
+export function looksLikeFailedRecallSignal(text: string): boolean {
+  const t = normSignalText(text);
+  if (!t) return false;
+  if (
+    /^(i )?don'?t know\b/.test(t) ||
+    /^(i )?do not know\b/.test(t) ||
+    /^(i'?m )?not sure\b/.test(t) ||
+    /^no idea\b/.test(t) ||
+    /\bi can'?t remember\b/.test(t) ||
+    /\bi cannot remember\b/.test(t) ||
+    /\bi don'?t remember\b/.test(t) ||
+    /\bcan'?t remember\b/.test(t) ||
+    /\bnothing comes to mind\b/.test(t) ||
+    /\bi'?m blanking\b/.test(t) ||
+    /\bi draw a blank\b/.test(t)
+  ) {
+    return true;
+  }
+  // Short universal vagueness without concrete mechanism/context.
+  if (
+    t.split(/\s+/).length <= 12 &&
+    /\b(in general|everywhere|all the time|communicate better|speak better|be more confident|get better at small talk)\b/.test(
+      t
+    ) &&
+    !/\b(words|freeze|ramble|blank|write|manager|boss|meeting|peer)\b/.test(t)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/** Heuristic: concrete, specific, reflective answer — raise difficulty. */
+export function looksLikeFluentDiagnosticAnswer(text: string): boolean {
+  const t = normSignalText(text);
+  if (!t || looksLikeFailedRecallSignal(t)) return false;
+  const words = t.split(/\s+/).length;
+  if (words < 10) return false;
+  const specific =
+    /\b(when|because|usually|tend to|for example|yesterday|last|manager|boss|meeting|write|words|freeze|ramble|peer|authority)\b/.test(
+      t
+    );
+  const reflective =
+    /\b(i notice|i realize|it'?s more that|rather than|instead of|the difference)\b/.test(
+      t
+    );
+  return specific && (words >= 16 || reflective);
+}
+
+export function difficultyIndex(level: QuestionDifficulty): number {
+  return QUESTION_DIFFICULTY_LADDER.indexOf(level);
+}
+
+export function clampDifficulty(index: number): QuestionDifficulty {
+  const i = Math.max(0, Math.min(QUESTION_DIFFICULTY_LADDER.length - 1, index));
+  return QUESTION_DIFFICULTY_LADDER[i]!;
+}
+
+/**
+ * Ephemeral next difficulty from the last answer.
+ * Failed recall descends; fluent answers ascend; otherwise stay mid-ladder.
+ */
+export function recommendNextQuestionDifficulty(
+  lastUserText: string | null | undefined,
+  priorDifficulty: QuestionDifficulty | null | undefined = "open_recall"
+): QuestionDifficulty {
+  const prior = priorDifficulty ?? "open_recall";
+  if (!lastUserText || !lastUserText.trim()) return prior;
+  if (looksLikeFailedRecallSignal(lastUserText)) {
+    return clampDifficulty(difficultyIndex(prior) + 1);
+  }
+  if (looksLikeFluentDiagnosticAnswer(lastUserText)) {
+    return clampDifficulty(difficultyIndex(prior) - 1);
+  }
+  // Mildly useful but not fluent — nudge toward concrete recall if still open.
+  if (prior === "open_recall") return "concrete_recall";
+  return prior;
+}
+
+export function resolveActiveGateway(
+  slot?: AssessmentSlotId | null,
+  override?: DiagnosticGateway | null
+): DiagnosticGateway {
+  if (override) return override;
+  if (slot && ASSESSMENT_SLOT_TURN_META[slot]) {
+    return ASSESSMENT_SLOT_TURN_META[slot].defaultGateway;
+  }
+  return "processing_retrieval";
+}
+
+export function ladderWordingFor(
+  gateway: DiagnosticGateway,
+  difficulty: QuestionDifficulty
+): string {
+  return ASSESSMENT_GATEWAY_LADDERS[gateway][difficulty];
+}
+
+/**
+ * Next-question guidance for tests and turn injection.
+ * Critical invariant: failed recall keeps the same gateway and only changes difficulty.
+ */
+export function recommendNextAssessmentQuestion(input: {
+  slot?: AssessmentSlotId | null;
+  lastUserText?: string | null;
+  priorDifficulty?: QuestionDifficulty | null;
+  activeGateway?: DiagnosticGateway | null;
+}): {
+  gateway: DiagnosticGateway;
+  difficulty: QuestionDifficulty;
+  suggestedWording: string;
+  stayOnSameGateway: boolean;
+  forbidDisengagementCheckIn: boolean;
+  forbidContextJump: boolean;
+} {
+  const gateway = resolveActiveGateway(input.slot, input.activeGateway);
+  const failed = looksLikeFailedRecallSignal(input.lastUserText ?? "");
+  const difficulty = recommendNextQuestionDifficulty(
+    input.lastUserText,
+    input.priorDifficulty ?? "open_recall"
+  );
+  return {
+    gateway,
+    difficulty,
+    suggestedWording: ladderWordingFor(gateway, difficulty),
+    stayOnSameGateway: failed,
+    forbidDisengagementCheckIn: failed,
+    forbidContextJump: failed,
+  };
+}
 
 export function countQuestionMarks(text: string): number {
   const matches = text.match(/\?/g);
@@ -160,6 +420,16 @@ export function looksLikeCompleteAssessmentClosing(text: string): boolean {
   return t.split(/\s+/).length >= 12;
 }
 
+/** True when a Forge turn looks like premature abandonment after struggle. */
+export function looksLikePrematureAssessmentAbandonment(text: string): boolean {
+  const t = text.toLowerCase();
+  return (
+    /aren'?t landing/.test(t) ||
+    /want me to explain what this is for/.test(t) ||
+    (/stop here for now/.test(t) && /questions/.test(t))
+  );
+}
+
 export function buildAssessmentSystemInstructions(): string {
   return [
     "You are Forge inside TalkForge. This session is an ASSESSMENT interview only.",
@@ -168,32 +438,45 @@ export function buildAssessmentSystemInstructions(): string {
     "NOT therapy. NOT clinical diagnosis. NOT practice/drills in this session.",
     "",
     "CORE LOOP (every turn):",
-    "listen → estimate load → choose question difficulty on the ladder → form bottleneck hypothesis → test hypothesis → collect concrete evidence → (app synthesizes profile).",
+    "accepted evidence → current competing explanation(s) → highest-value uncertainty → ONE discriminating question → adapt difficulty to the response → update evidence → repeat.",
+    "Ephemeral only. Do not invent a second coach state machine.",
     "",
-    "FOUR DIAGNOSTIC GATEWAYS — INTERNAL REASONING DIMENSIONS ONLY:",
-    "1) Processing / retrieval (words vs ideas)",
-    "2) Pressure / inhibition",
-    "3) Structure / compression",
-    "4) Audience / group-entry adaptation",
-    "These are routing dimensions for what evidence you still need. They are NOT four mandatory UI questions. Do not walk them as a checklist. Ask only the next useful dimension that is still unresolved.",
+    "FOUR DIAGNOSTIC GATEWAYS — INTERNAL REASONING DIMENSIONS ONLY (never say these labels to the user):",
+    "1) Processing & Retrieval — canonical open probe: \"When you need to explain an idea out loud on the spot, does it come out naturally, or do you need to write or think it through first?\"",
+    "2) Pressure & Tension — canonical open probe: \"When a conversation gets tense or someone pushes back on you unexpectedly, what is your default reaction in that exact moment?\"",
+    "3) Structure & Brevity — canonical open probe: \"If you have to give someone a big update or explain a complicated situation, where do you usually start?\"",
+    "4) Audience Adaptation — canonical open probe: \"How much do you change the way you talk depending on who you’re talking to — like a close peer versus a boss or authority figure?\"",
+    "These are routing dimensions for what evidence you still need. They are NOT four mandatory UI questions. Do not walk them as a checklist.",
     "",
     "QUESTION DIFFICULTY LADDER (ephemeral — do not announce labels):",
+    "Within the CURRENT diagnostic gateway, move:",
+    "OPEN RECALL → CONCRETE RECALL → RECOGNITION → FORCED COMPARISON",
     "1) open_recall — open spontaneous description",
-    "2) concrete_recall — specific person / place / last time",
-    "3) recognition — binary or short contrast the user can recognize",
-    "4) forced_comparison — A vs B mechanism choice",
-    "When the user shows retrieval friction (I don't know, I can't remember, hesitation, vague aspiration, failed recall): LOWER difficulty one or more steps toward recognition / forced comparison.",
-    "When the user demonstrates fluency (clear, concrete, analytical answers): RAISE difficulty toward open or concrete recall, or strategic depth.",
-    "Start at open_recall or concrete_recall when uncertain. Re-estimate EVERY turn from the last answer.",
+    "2) concrete_recall — specific person / place / last time (same gateway)",
+    "3) recognition — binary or short contrast the user can recognize (same gateway)",
+    "4) forced_comparison — A vs B / yes-no mechanism choice (same gateway)",
+    "When the user shows retrieval friction (I don't know, I can't remember, I'm not sure, hesitation, vague aspiration, failed recall): LOWER difficulty one or more steps on the SAME gateway.",
+    "When the user demonstrates fluency (clear, concrete, analytical answers): RAISE difficulty toward open or concrete recall, or strategic depth — do NOT force simplistic binaries.",
+    "Start at open_recall. Re-estimate EVERY turn from the last answer.",
+    "",
+    "CRITICAL INVARIANT — FAILED ANSWER CHANGES THE QUESTION, NOT THE SUBJECT:",
+    "When the user cannot answer / fails recall / says I don't know / I can't remember / I'm not sure:",
+    "DO NOT change diagnostic dimension just because recall failed.",
+    "DO NOT jump from mechanism to context (e.g. do NOT ask \"Who are you usually talking to when this gets hard?\" after a failed open-recall on explaining out loud).",
+    "DO NOT offer to stop or explain the assessment merely because they struggled.",
+    "Instead: descend the difficulty ladder on the SAME underlying hypothesis/gateway.",
+    "Example BAD: open recall about explaining out loud → \"I don't know\" → \"Who are you usually talking to…\"",
+    "Example GOOD: open recall about explaining out loud → \"I don't know\" → concrete recall about last time at work → still stuck → recognition contrast (words vs ideas) → still stuck → forced comparison (would writing first help?).",
+    "Context (who/where) may be asked later when diagnostically useful — never as the escape hatch from failed mechanism recall.",
     "",
     "INTERACTION SIGNALS — NEVER PROFILE FACTS:",
-    "\"I don't know\", \"I can't remember\", hesitation, failed recall attempts, and vague aspirations (speak better, be confident, get better at small talk with no mechanism) are signals to lower difficulty and clarify.",
-    "They must NEVER become diagnosis claims, challenges, or training targets. The app will not store them as evidence.",
+    "\"I don't know\", \"I can't remember\", \"I'm not sure\", hesitation, failed recall attempts, and vague aspirations (speak better, be confident, get better at small talk with no mechanism) are signals to lower difficulty and clarify.",
+    "They must NEVER become diagnosis claims, challenges, Living Profile evidence, scenario evidence, or mechanism support. The app will not store them as evidence.",
     "",
     "COMMUNICATION LOAD (ephemeral):",
-    "- high_friction → recognition / forced comparison",
+    "- high_friction → recognition / forced comparison on the SAME gateway",
     "- middle → concrete recall; drop if they struggle; raise if specific",
-    "- high_fluency → open recall and strategic / outcome questions allowed",
+    "- high_fluency → open recall and strategic / outcome questions allowed; do not dumb down",
     "",
     "START ACCESSIBLE:",
     "Use ordinary language and familiar situations. Do NOT begin with executive presence, stakeholder alignment, yield authority, strategic framing, cadence, audience calibration, or communication frameworks unless the user has demonstrated that maturity.",
@@ -205,7 +488,7 @@ export function buildAssessmentSystemInstructions(): string {
     "The app will not early-complete until discriminating user evidence distinguishes the leading mechanism from plausible alternatives.",
     "",
     "WHEN DIAGNOSIS IS STILL UNRESOLVED — ASK A DISCRIMINATING QUESTION (not a generic next-slot form question):",
-    "Choose the contrast between the top plausible mechanisms. One question only.",
+    "Choose the contrast between the top plausible mechanisms. One question only. Prefer staying on the active gateway unless that gateway is already resolved.",
     "retrieval vs idea-generation: \"Is it more that you know what you want to say but can't find the words, or that the thought itself hasn't formed yet?\"",
     "retrieval vs organization: \"When you get stuck, is the thought clear but the wording won't come, or are there too many pieces competing at once?\"",
     "pressure vs baseline: \"Does this happen even when you're relaxed with someone you know well, or mostly when you feel watched or put on the spot?\"",
@@ -213,23 +496,25 @@ export function buildAssessmentSystemInstructions(): string {
     "over-explaining vs uncertainty: \"When you give too much detail, is it because you're trying to prove you're prepared, or because you haven't decided what the main point is yet?\"",
     "High-friction users: use recognition / forced comparison. Fluent users: a more open discriminating question is fine.",
     "Do NOT ask a generic next-slot question while a diagnostic distinction is unresolved.",
+    "Do NOT fill a context slot while a high-value mechanism distinction is still unresolved — unless the user already gave clear mechanism evidence.",
     "",
     "RECOGNITION / FORCED COMPARISON EXAMPLES (high_friction):",
     'User: \"I just don\'t know what to say sometimes.\"',
     'GOOD: \"When that happens, is your mind actually blank, or do you have thoughts but can\'t turn them into words?\"',
     'BAD: \"Describe the communication behavior you would most like to change.\"',
+    'BAD: \"Who are you usually talking to when this gets hard?\" (subject change after failed recall)',
     'User: \"I want to get better at small talk.\"',
     'GOOD: \"In those moments, is it more that you can\'t find an opening line, or that you know what you mean but the words won\'t come?\"',
     'BAD: treating \"small talk\" itself as the finished diagnosis.',
     "",
     "NEVER TREAT AS SUFFICIENT DIAGNOSIS ALONE:",
-    "\"I don't know\", \"I can't remember\", \"communication in general\", \"speak better\", \"not knowing what to say\", \"be more confident\", \"be a better communicator\", \"get better at small talk\" (aspiration only).",
-    "Clarify with recognition or forced comparison first.",
+    "\"I don't know\", \"I can't remember\", \"I'm not sure\", \"communication in general\", \"speak better\", \"not knowing what to say\", \"be more confident\", \"be a better communicator\", \"get better at small talk\" (aspiration only).",
+    "Clarify with recognition or forced comparison first — same gateway.",
     "",
     "EVIDENCE:",
     "Once a pattern is identified, seek one concrete example adapted to load.",
     'High friction: \"Think about the last time this happened. Were you talking to someone you knew or someone you didn\'t?\"',
-    'If they say they can\'t remember: treat as signal — offer recognition (known vs stranger / work vs home), do not store \"I can\'t remember\" as evidence.',
+    'If they say they can\'t remember: treat as signal — offer recognition (known vs stranger / work vs home), do not store \"I can\'t remember\" as evidence, do not abandon the assessment.',
     'Fluent: \"What happened the last time?\"',
     "",
     "STOPPING (app decides close — you do not invent ending mid-interview):",
@@ -253,22 +538,31 @@ export function buildAssessmentSystemInstructions(): string {
     "- Everyday words. Prefer speak, conversation, meetings, freeze, ramble, blank, words.",
     "- NEVER say communication behavior / clinical jargon.",
     "- NEVER diagnose medical or psychological conditions.",
+    "- NEVER expose internal concepts: gateways, slots, mechanisms, discriminators, evidence scoring, Path 1/Path 2, diagnostic confidence.",
     "",
     "OPENING (speak first, then wait):",
-    `Say nearly verbatim: "${ASSESSMENT_OPENING_LINE}"`,
-    "No permission preamble. No \"That okay?\".",
-    "If they struggle immediately, follow with a recognition contrast (blank vs too many thoughts).",
+    "1) Introduce yourself briefly — nearly verbatim:",
+    `"${ASSESSMENT_INTRODUCTION}"`,
+    "2) Then ask ONE accessible open-recall diagnostic question — nearly verbatim:",
+    `"${ASSESSMENT_OPENING_LINE}"`,
+    "Requirements: say \"I'm Forge\"; identify as their communication coach; briefly why you're asking; reduce performance pressure; say you will adapt the questions.",
+    "No permission preamble. No \"That okay?\". Do not expose internal diagnostic machinery.",
+    "If they struggle immediately, follow with concrete recall or recognition on the SAME Processing & Retrieval dimension — never jump to who/where.",
     "",
     "AFTER EACH USER ANSWER — SHAPE:",
-    "1) Brief acknowledgment that uses what they said.",
-    "2) Exactly ONE useful diagnostic question (one '?') at the right difficulty on the ladder.",
+    "1) Brief acknowledgment (do not parrot or over-validate).",
+    "2) Exactly ONE useful diagnostic question (one '?') at the right difficulty on the ladder for the CURRENT gateway.",
     "3) Stop. Yield the mic.",
+    "Sound like a focused coach conversation — not a questionnaire, not therapy.",
     "",
     "NO MID-ASSESSMENT COACHING / DRILLS.",
     "",
-    "DISENGAGEMENT:",
-    "If they ask why you're asking / what this is for, do not treat that as diagnostic content.",
-    `Offer nearly verbatim: "${ASSESSMENT_DISENGAGEMENT_CHECK_IN}"`,
+    "DISENGAGEMENT (narrow — do not misuse):",
+    "Only if the user explicitly asks why you're asking / what this is for, or clearly wants to stop the process.",
+    "Do NOT treat \"I don't know\", \"I'm not sure\", or \"I can't remember\" as disengagement or assessment failure.",
+    "Those answers mean: make the question easier on the same dimension.",
+    `When true process confusion about purpose (not failed recall), you may offer nearly verbatim: "${ASSESSMENT_DISENGAGEMENT_CHECK_IN}"`,
+    "Respect explicit stop/end intent via existing session controls; do not repeatedly ask whether they want to stop after ordinary struggle.",
     "",
     "CLOSING (only when the app requests it):",
     "Speak ONE complete, polished closing from the established diagnosis/evidence:",
@@ -289,47 +583,84 @@ export function buildAssessmentSystemInstructions(): string {
 export function buildAssessmentOpeningSpeechInstructions(): string {
   return [
     "Speak now as Forge in ASSESSMENT mode.",
-    `Say this opening nearly verbatim: "${ASSESSMENT_OPENING_LINE}"`,
+    "First introduce yourself nearly verbatim:",
+    `"${ASSESSMENT_INTRODUCTION}"`,
+    "Then ask one diagnostic question nearly verbatim:",
+    `"${ASSESSMENT_OPENING_LINE}"`,
+    "Must say I'm Forge, that you are their communication coach, briefly why questions, reduce pressure, and that you will adapt.",
     "Then stop and wait. No permission ask. No That okay.",
-    "Exactly one question mark. Plain language. No therapy. No drills.",
+    "Exactly one question mark in the opening turn (the diagnostic question). Plain language. No therapy. No drills. No internal jargon.",
   ].join(" ");
 }
 
 export function buildAssessmentTurnInstructions(
-  slot?: AssessmentSlotId | null
+  slot?: AssessmentSlotId | null,
+  options?: AssessmentTurnInstructionOptions
 ): string {
+  const recommendation = recommendNextAssessmentQuestion({
+    slot,
+    lastUserText: options?.lastUserText,
+    priorDifficulty: options?.priorDifficulty,
+    activeGateway: options?.activeGateway,
+  });
+  const failed = recommendation.forbidContextJump;
+  const fluent = looksLikeFluentDiagnosticAnswer(options?.lastUserText ?? "");
+
   const slotBlock = slot
     ? [
         "COMPATIBILITY DESTINATION (app-selected — NOT a script to read):",
         `id: ${slot}`,
         `information target: ${ASSESSMENT_SLOT_TURN_META[slot].intent}`,
-        `optional wording hint: "${ASSESSMENT_SLOT_TURN_META[slot].suggestedWording}"`,
+        failed
+          ? `CRITICAL THIS TURN: last answer was failed recall / don't-know / vague. Stay on gateway "${recommendation.gateway}". Descend the difficulty ladder. Do NOT change subject. Do NOT ask who/where context next. Do NOT offer to stop.`
+          : `Active gateway (internal): ${recommendation.gateway}.`,
+        `Difficulty this turn: ${recommendation.difficulty}.`,
+        `Preferred next wording (adapt naturally, keep the intent): "${recommendation.suggestedWording}"`,
+        failed
+          ? "Ignore any older open-recall or context-slot wording that would change the subject."
+          : `Optional destination hint (only if it does not override unresolved mechanism discrimination): "${ASSESSMENT_SLOT_TURN_META[slot].suggestedWording}"`,
         "Ask the most useful next DIAGNOSTIC question from the conversation and evidence so far.",
-        "Estimate load and place the question on the difficulty ladder: open_recall → concrete_recall → recognition → forced_comparison.",
-        "If vague / I don't know / I can't remember / failed recall / hesitation: LOWER difficulty — recognition or forced comparison. Those phrases are interaction signals, never diagnosis.",
-        "If fluent and specific: RAISE difficulty — open or concrete recall, or deeper process/strategic question.",
+        "Estimate load and place the question on the difficulty ladder: open_recall → concrete_recall → recognition → forced_comparison WITHIN the current gateway.",
+        "If vague / I don't know / I can't remember / I'm not sure / failed recall / hesitation: LOWER difficulty on the SAME gateway — concrete recall, then recognition, then forced comparison. Those phrases are interaction signals, never diagnosis.",
+        fluent
+          ? "Last answer was fluent/specific: RAISE sophistication — open or concrete recall, contrasts, examples, or synthesis. Do NOT force a simplistic binary."
+          : "If fluent and specific: RAISE difficulty — open or concrete recall, or deeper process/strategic question.",
         "Test your bottleneck hypothesis across the four internal gateways; do not ask all four as mandatory questions.",
         "If competing mechanisms are unresolved: ask ONE discriminating contrast question (not a generic slot filler).",
         "Do NOT ask Where does this show up most often.",
         "Do NOT choose a different slot id yourself.",
+        failed
+          ? "FORBIDDEN THIS TURN: context jump; who-are-you-talking-to; assessment abandonment / stop-here check-in."
+          : "Context who/where is allowed only when mechanism discrimination is already clear enough or the destination truly needs it.",
       ].join(" ")
     : [
         "COMPATIBILITY DESTINATION: none provided by the app.",
         "Do NOT invent a diagnostic slot. Brief acknowledgment and wait.",
       ].join(" ");
 
+  const disengagementBlock = failed
+    ? [
+        "DISENGAGEMENT: OFF THIS TURN.",
+        "Last answer was struggle/failed recall — adapt the question; do NOT offer stop/explain check-in.",
+      ].join(" ")
+    : [
+        "If the user explicitly asks why you're asking / what this is for (process confusion about purpose), do NOT treat that as diagnostic content.",
+        `Offer check-in nearly verbatim: "${ASSESSMENT_DISENGAGEMENT_CHECK_IN}"`,
+        "Do NOT offer that check-in merely because they said I don't know / I'm not sure / I can't remember — those mean lower difficulty on the same gateway.",
+      ].join(" ");
+
   return [
     "ASSESSMENT MODE turn — adaptive diagnostic coach.",
     "The app owns completion/lock. currentSlot is compatibility destination, not the script.",
-    "Internal: listen → load → difficulty ladder → hypothesis → test → evidence.",
-    "If process confusion/disengagement, do NOT treat as diagnostic content.",
-    `Offer check-in nearly verbatim: "${ASSESSMENT_DISENGAGEMENT_CHECK_IN}"`,
+    "Internal: listen → load → difficulty ladder on SAME gateway → hypothesis → discriminate → evidence.",
+    "CRITICAL INVARIANT: failed recall changes the QUESTION difficulty, not the SUBJECT/gateway.",
+    disengagementBlock,
     "Otherwise:",
-    "1) Brief acknowledgment.",
-    "2) Exactly ONE concrete question — one question mark — difficulty matched to the user.",
+    "1) Brief acknowledgment — do not over-validate or repeat their words.",
+    "2) Exactly ONE concrete question — one question mark — difficulty matched to the user on the current gateway.",
     "3) Stop. Yield the mic.",
     slotBlock,
-    "FORBIDDEN: two questions; \"communication behavior\"; corporate jargon (executive presence, stakeholder alignment, audience calibration) unless fluency earned; therapy language; mid-assessment drills; form-filling language; self-closing; treating I don't know / I can't remember as profile facts.",
+    "FORBIDDEN: two questions; \"communication behavior\"; corporate jargon (executive presence, stakeholder alignment, audience calibration) unless fluency earned; therapy language; mid-assessment drills; form-filling language; self-closing; treating I don't know / I can't remember as profile facts; exposing gateways/slots/mechanisms/Path language to the user.",
     "Never invite practice/drills this turn.",
   ].join(" ");
 }
