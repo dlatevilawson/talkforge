@@ -194,6 +194,9 @@ export default function VoiceArena({
   const [turns, setTurns] = useState<TranscriptTurn[]>([]);
   const [liveForgeDraft, setLiveForgeDraft] = useState("");
   const [liveUserDraft, setLiveUserDraft] = useState("");
+  /** Keep joining chrome visible briefly so autoStart never flashes Hold-to-speak. */
+  const [joinGateHold, setJoinGateHold] = useState(false);
+  const joinGateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [liveConnection, setLiveConnection] =
     useState<RealtimeConnection | null>(null);
   const [momentum, setMomentum] = useState<Momentum | null>(null);
@@ -614,6 +617,10 @@ export default function VoiceArena({
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
+      if (joinGateTimerRef.current) {
+        clearTimeout(joinGateTimerRef.current);
+        joinGateTimerRef.current = null;
+      }
       lifecycleGenerationRef.current += 1;
       const usageId = usageIdRef.current;
       usageIdRef.current = null;
@@ -1060,6 +1067,14 @@ export default function VoiceArena({
     turnsRef.current = [];
     setLiveForgeDraft("");
     setLiveUserDraft("");
+    setJoinGateHold(true);
+    if (joinGateTimerRef.current) {
+      clearTimeout(joinGateTimerRef.current);
+    }
+    joinGateTimerRef.current = setTimeout(() => {
+      joinGateTimerRef.current = null;
+      setJoinGateHold(false);
+    }, 900);
     setLiveConnection(null);
     setEvents([]);
     setMomentum(null);
@@ -1591,6 +1606,7 @@ export default function VoiceArena({
   }
 
   const isJoining =
+    joinGateHold ||
     phase === "minting" ||
     phase === "connecting" ||
     (autoStart && phase === "idle" && !error);
@@ -2055,7 +2071,7 @@ export default function VoiceArena({
             </>
           ) : (
             <>
-              <div className="flex min-h-0 w-full max-w-lg flex-1 flex-col text-left">
+              <div className="flex min-h-0 w-full max-w-2xl flex-1 flex-col text-left">
                 <ArenaConversation
                   turns={turns}
                   liveForgeText={liveForgeDraft}
