@@ -49,7 +49,7 @@ export default function ArenaConversation({
           Conversation appears here as you and Forge speak.
         </p>
       ) : (
-        <ul className="flex w-full flex-col gap-4 pb-3 text-left">
+        <ul className="flex w-full flex-col gap-4 pb-6 text-left">
           {turns.map((turn) =>
             turn.role === "forge" ? (
               <li
