@@ -522,6 +522,13 @@ export function buildAssessmentModeObjective(): string {
     "APPLICATION OWNS SLOT SELECTION / TERMINATION / PERSISTENCE (mode capability — Core already forbids writing identity).",
     "COMPATIBILITY DESTINATION ids are observation targets only — not conversational scripts.",
     "",
+    "CLOSE-PATH PACING (critical — stop endless micro-probes):",
+    "Once the primary bottleneck/mechanism is clear enough (you could state it in one sentence), STOP mining more phrase examples, last-time incidents, or micro-details.",
+    "Failed recall on a micro-detail after the mechanism is already clear → move on. Do NOT keep digging for the same example.",
+    "Prioritize remaining gaps the app still needs: desired outcome, then a realistic practice commitment (how much time they can practice).",
+    "When the observation target is six_week_success or practice_time: ask ONLY that — not another mechanism probe.",
+    "The app will request closing when evidence is enough. You do not invent completion — but you must not block it with endless depth questions.",
+    "",
     "ONE QUESTION PER TURN — HARD RULE (when seeking diagnostic evidence): Exactly one question mark; never bundle two asks.",
     "",
     "CONVERSATIONAL JUDGMENT: acknowledge, clarify, teach lightly, challenge, or pace as a skilled coach would — serving diagnostic understanding. No mid-assessment drills. No sticky ack→question templates.",
@@ -538,6 +545,7 @@ export function buildAssessmentModeObjective(): string {
     "If they struggle immediately: same Processing & Retrieval dimension, easier ask — never jump to who/where.",
     "",
     "AFTER EACH USER ANSWER: use coach judgment. When seeking evidence: one diagnostic question matched to load on the current gateway, then yield.",
+    "If mechanism is already clear: prefer outcome/practice gaps over another gateway probe.",
     "",
     "NO MID-ASSESSMENT COACHING / DRILLS. Practice comes after the app completes.",
     "",
@@ -604,6 +612,8 @@ export function buildAssessmentTurnInstructions(
   });
   const failed = recommendation.forbidContextJump;
   const fluent = looksLikeFluentDiagnosticAnswer(options?.lastUserText ?? "");
+  const closingGapSlot =
+    slot === "practice_time" || slot === "six_week_success";
 
   const coachLead = [
     "You are Coach Forge. Understand before you ask.",
@@ -611,60 +621,81 @@ export function buildAssessmentTurnInstructions(
     "Choose acknowledgment, clarification, light teaching/challenge, or a discriminating question as a skilled coach would — serving diagnostic understanding.",
   ].join(" ");
 
-  const observationBlock = slot
+  const observationBlock = !slot
     ? [
-        "APP OBSERVATION TARGET (compatibility destination — NOT your script):",
-        `COMPATIBILITY DESTINATION id: ${slot}`,
-        `information the app hopes to learn eventually: ${ASSESSMENT_SLOT_TURN_META[slot].intent}`,
-        "Lead with coach judgment and unresolved hypothesis — do not read this destination as the next question.",
-        failed
-          ? `CRITICAL THIS TURN: last answer was failed recall / don't-know / vague. Stay on gateway "${recommendation.gateway}". Descend the difficulty ladder. Do NOT change subject. Do NOT ask who/where context next. Do NOT offer to stop.`
-          : `Active gateway (internal soft hint): ${recommendation.gateway}.`,
-        `Difficulty guidance this turn (soft — Forge chooses wording): ${recommendation.difficulty}.`,
-        failed
-          ? "Ignore any older open-recall or context-slot wording that would change the subject. Soft probe examples exist internally; do not treat them as required speech."
-          : "Optional destination info is observation-only — never a sticky preferred-next-wording script.",
-        "Estimate load and place cognitive burden on the difficulty ladder: open_recall → concrete_recall → recognition → forced_comparison WITHIN the current gateway.",
-        "If vague / I don't know / I can't remember / I'm not sure / failed recall / hesitation: LOWER difficulty on the SAME gateway. Those phrases are interaction signals, never diagnosis.",
-        fluent
-          ? "Last answer was fluent/specific: RAISE sophistication — open or concrete recall, contrasts, examples, or synthesis. Do NOT force a simplistic binary."
-          : "If fluent and specific: RAISE difficulty — open or concrete recall, or deeper process/strategic question.",
-        "Test your bottleneck hypothesis across the four internal gateways; do not ask all four as mandatory questions.",
-        "If competing mechanisms are unresolved: prefer ONE discriminating contrast question (not a generic slot filler).",
-        "Do NOT ask Where does this show up most often as a form filler.",
-        "Do NOT choose a different slot id yourself.",
-        failed
-          ? "FORBIDDEN THIS TURN: context jump; who-are-you-talking-to; assessment abandonment / stop-here check-in."
-          : "Context who/where is allowed only when mechanism discrimination is already clear enough or diagnostically useful.",
-      ].join(" ")
-    : [
         "APP OBSERVATION TARGET: none provided by the app.",
         "COMPATIBILITY DESTINATION: none provided by the app.",
         "Do NOT invent a diagnostic slot. Brief acknowledgment and wait.",
-      ].join(" ");
+      ].join(" ")
+    : closingGapSlot
+      ? [
+          "APP OBSERVATION TARGET (compatibility destination — NOT your script):",
+          `COMPATIBILITY DESTINATION id: ${slot}`,
+          `information the app needs now: ${ASSESSMENT_SLOT_TURN_META[slot].intent}`,
+          "CLOSE-PATH TURN: mechanism diagnosis is clear enough for the app. Do NOT mine another phrase example, last-time incident, or gateway probe.",
+          slot === "practice_time"
+            ? "Ask ONE question that surfaces a realistic practice commitment — how much time they can practice (minutes/day or similar). Soft and concrete. Then yield."
+            : "Ask ONE question about the outcome they want in the next weeks if this friction eased. Soft and concrete. Then yield.",
+          failed
+            ? "Last answer was vague/don't-know: simplify the SAME close-path ask (e.g. offer a simple time range for practice) — do NOT restart mechanism probing."
+            : "Brief acknowledgment is fine — then the one close-path question.",
+          "Do NOT choose a different slot id yourself. Do NOT self-close.",
+        ].join(" ")
+      : [
+          "APP OBSERVATION TARGET (compatibility destination — NOT your script):",
+          `COMPATIBILITY DESTINATION id: ${slot}`,
+          `information the app hopes to learn eventually: ${ASSESSMENT_SLOT_TURN_META[slot].intent}`,
+          "Lead with coach judgment and unresolved hypothesis — do not read this destination as the next question.",
+          failed
+            ? `CRITICAL THIS TURN: last answer was failed recall / don't-know / vague. Stay on gateway "${recommendation.gateway}". Descend the difficulty ladder. Do NOT change subject. Do NOT ask who/where context next. Do NOT offer to stop.`
+            : `Active gateway (internal soft hint): ${recommendation.gateway}.`,
+          `Difficulty guidance this turn (soft — Forge chooses wording): ${recommendation.difficulty}.`,
+          failed
+            ? "Ignore any older open-recall or context-slot wording that would change the subject. Soft probe examples exist internally; do not treat them as required speech."
+            : "Optional destination info is observation-only — never a sticky preferred-next-wording script.",
+          "Estimate load and place cognitive burden on the difficulty ladder: open_recall → concrete_recall → recognition → forced_comparison WITHIN the current gateway.",
+          "If vague / I don't know / I can't remember / I'm not sure / failed recall / hesitation: LOWER difficulty on the SAME gateway. Those phrases are interaction signals, never diagnosis.",
+          fluent
+            ? "Last answer was fluent/specific: RAISE sophistication — open or concrete recall, contrasts, examples, or synthesis. Do NOT force a simplistic binary."
+            : "If fluent and specific: RAISE difficulty — open or concrete recall, or deeper process/strategic question.",
+          "Test your bottleneck hypothesis across the four internal gateways; do not ask all four as mandatory questions.",
+          "If competing mechanisms are unresolved: prefer ONE discriminating contrast question (not a generic slot filler).",
+          "Once the bottleneck is clear enough in one sentence: stop micro-probing examples/phrases — the app will steer toward outcome/practice next.",
+          "Do NOT ask Where does this show up most often as a form filler.",
+          "Do NOT choose a different slot id yourself.",
+          failed
+            ? "FORBIDDEN THIS TURN: context jump; who-are-you-talking-to; assessment abandonment / stop-here check-in."
+            : "Context who/where is allowed only when mechanism discrimination is already clear enough or diagnostically useful.",
+        ].join(" ");
 
   const disengagementBlock = failed
     ? [
         "DISENGAGEMENT: OFF THIS TURN.",
-        "Last answer was struggle/failed recall — adapt the question; do NOT offer stop/explain check-in.",
+        closingGapSlot
+          ? "Last answer was struggle — simplify the close-path question; do NOT offer stop/explain check-in; do NOT restart mechanism probes."
+          : "Last answer was struggle/failed recall — adapt the question; do NOT offer stop/explain check-in.",
       ].join(" ")
     : [
         "If the user explicitly asks why you're asking / what this is for (process confusion about purpose), do NOT treat that as diagnostic content.",
         "Briefly re-orient to purpose or offer a stop choice in your own words — do not sticky-script a check-in.",
-        "Do NOT offer stop/explain merely because they said I don't know / I'm not sure / I can't remember — those mean lower difficulty on the same gateway.",
+        "Do NOT offer stop/explain merely because they said I don't know / I'm not sure / I can't remember — those mean lower difficulty on the same gateway (or a simpler close-path ask).",
       ].join(" ");
 
   return [
     coachLead,
     "ASSESSMENT MODE turn — coach-led diagnostic discovery.",
     "The app owns completion/lock/persistence. currentSlot is an observation target, not the script.",
-    "Internal: listen → understand → difficulty guidance on SAME gateway → hypothesis → discriminate.",
-    "CRITICAL INVARIANT: failed recall changes the QUESTION difficulty, not the SUBJECT/gateway.",
+    closingGapSlot
+      ? "Internal: mechanism is clear enough — gather the remaining close-path gap, then yield. App decides when to close."
+      : "Internal: listen → understand → difficulty guidance on SAME gateway → hypothesis → discriminate. Stop micro-probing once mechanism is clear.",
+    closingGapSlot
+      ? "CRITICAL: do not restart gateway mining on a close-path turn."
+      : "CRITICAL INVARIANT: failed recall changes the QUESTION difficulty, not the SUBJECT/gateway — unless mechanism is already clear enough that the app moved you to outcome/practice.",
     disengagementBlock,
-    "When seeking more diagnostic evidence: Exactly ONE concrete question — one question mark — difficulty matched to the user on the current gateway. Then yield.",
+    "When seeking more diagnostic evidence: Exactly ONE concrete question — one question mark — then yield.",
     "You may briefly acknowledge, clarify, teach lightly, or challenge when it serves understanding — never drills, never therapy, never a sticky ack→question template.",
     observationBlock,
-    "FORBIDDEN: two questions; \"communication behavior\"; corporate jargon (executive presence, stakeholder alignment, audience calibration) unless fluency earned; therapy language; mid-assessment drills; form-filling language; self-closing; treating I don't know / I can't remember as profile facts; exposing gateways/slots/mechanisms/Path language to the user; sticky preferred-next-wording overrides.",
+    "FORBIDDEN: two questions; \"communication behavior\"; corporate jargon (executive presence, stakeholder alignment, audience calibration) unless fluency earned; therapy language; mid-assessment drills; form-filling language; self-closing; treating I don't know / I can't remember as profile facts; exposing gateways/slots/mechanisms/Path language to the user; sticky preferred-next-wording overrides; endless micro-example mining after the bottleneck is clear.",
     "Never invite practice/drills this turn.",
   ].join(" ");
 }
