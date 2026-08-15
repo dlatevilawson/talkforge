@@ -1727,7 +1727,7 @@ export default function VoiceArena({
           )}
         </header>
 
-        <section className="flex min-h-0 flex-1 flex-col items-center pt-4 text-center sm:pt-6">
+        <section className="relative flex min-h-0 flex-1 flex-col items-center pt-4 text-center sm:pt-6">
           {isJoining ? (
             <>
               <div className="flex flex-1 flex-col items-center justify-center pb-16">
@@ -2076,202 +2076,210 @@ export default function VoiceArena({
             </>
           ) : (
             <>
-              <div className="flex min-h-0 w-full max-w-2xl flex-1 flex-col text-left">
+              {/* Conversation scrolls; speak dock is pinned to the Arena shell. */}
+              <div className="flex min-h-0 w-full max-w-2xl flex-1 flex-col text-left pb-[11.5rem] sm:pb-[12.5rem]">
                 <ArenaConversation
                   turns={turns}
                   liveForgeText={liveForgeDraft}
                   liveUserText={liveUserDraft}
                 />
+              </div>
 
-                <div className="shrink-0 border-t border-[#D4AF37]/10 bg-gradient-to-t from-black via-black/95 to-transparent pt-3 text-center">
-                  <p className="text-center text-[11px] font-medium uppercase tracking-[0.18em] text-[#D4AF37]/80">
-                    {presenceLabel}
-                  </p>
-
-                  {error && (
-                    <p
-                      className="mt-3 max-w-md text-sm text-red-300"
-                      role="alert"
-                    >
-                      {error}
+              {/* Shell-pinned speak dock — never scrolls away with messages. */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30">
+                <div className="pointer-events-auto mx-auto w-full max-w-3xl px-5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom)+0.85rem))] sm:px-8">
+                  <div className="border-t border-[#D4AF37]/10 bg-gradient-to-t from-black via-black/98 to-black/80 pt-3 text-center backdrop-blur-md">
+                    <p className="text-center text-[11px] font-medium uppercase tracking-[0.18em] text-[#D4AF37]/80">
+                      {presenceLabel}
                     </p>
-                  )}
 
-                  {remoteAudioBlocked ? (
-                    <button
-                      type="button"
-                      onClick={() => void handleResumeRemoteAudio()}
-                      className="mt-3 rounded-full border border-[#D4AF37]/30 px-5 py-2.5 text-sm text-[#e7d6b1] transition hover:bg-[#D4AF37]/10"
-                    >
-                      Hear Coach Forge
-                    </button>
-                  ) : null}
-
-                  {micMode === "silent_fallback" && (
-                    <div className="mx-auto mt-3 max-w-md">
-                      <p className="text-sm text-amber-200/80">
-                        {micFallbackReason === "permission_denied"
-                          ? "Microphone access wasn’t granted. You can keep listening, then allow access in your browser and try again."
-                          : micFallbackReason === "device_busy"
-                            ? "Your microphone is being used elsewhere. You can keep listening, then close the other app and try again."
-                            : micFallbackReason === "unsupported"
-                              ? "This browser can’t reach a microphone here. You can keep listening or try a supported browser."
-                              : "No microphone is available on this device right now. You can keep listening, connect one, and try again."}
+                    {error && (
+                      <p
+                        className="mx-auto mt-3 max-w-md text-sm text-red-300"
+                        role="alert"
+                      >
+                        {error}
                       </p>
-                      {micFallbackReason !== "unsupported" && (
-                        <button
-                          type="button"
-                          onClick={() => void handleRecoverMicrophone()}
-                          disabled={micRecoveryPending}
-                          className="mt-3 rounded-full border border-amber-200/25 px-5 py-2.5 text-sm text-amber-100 transition hover:bg-amber-100/10 disabled:opacity-50"
-                        >
-                          {micRecoveryPending
-                            ? "Checking microphone…"
-                            : micFallbackReason === "permission_denied"
-                              ? "Allow microphone"
-                              : "Try microphone again"}
-                        </button>
-                      )}
-                    </div>
-                  )}
+                    )}
 
-                  <div className="mt-4 w-full pb-[max(1.75rem,calc(env(safe-area-inset-bottom)+1.25rem))]">
-                    <div className="rounded-[1.35rem] border border-[#D4AF37]/18 bg-[#0c0c0d]/92 px-3.5 py-3.5 shadow-[0_-12px_40px_rgba(0,0,0,0.55)] backdrop-blur-xl sm:px-4">
-                      {handsFree ? (
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#D4AF37]/90">
-                            Hands-Free · Speak Naturally
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => voice.toggleHandsFreeMute()}
-                              disabled={
-                                !sessionReady ||
-                                micMode !== "microphone" ||
-                                assessmentTerminalUi
-                              }
-                              className="rounded-full border border-[#D4AF37]/22 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#e8d5a3]/85 transition hover:border-[#D4AF37]/4 hover:bg-[#D4AF37]/08 disabled:opacity-35"
-                            >
-                              {voice.handsFreeMuted ? "Unmute Mic" : "Mute Mic"}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => void handleStop()}
-                              className="rounded-full border border-white/12 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/55 transition hover:border-white/25 hover:bg-white/5 hover:text-white/80"
-                            >
-                              Stop
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-2.5">
-                          <div className="flex w-full items-center gap-2.5">
-                            <button
-                              type="button"
-                              disabled={
-                                !sessionReady ||
-                                phase === "speaking" ||
-                                micMode !== "microphone" ||
-                                assessmentTerminalUi
-                              }
-                              onPointerDown={(event) => {
-                                event.currentTarget.setPointerCapture(
-                                  event.pointerId
-                                );
-                                handleSpeakDown();
-                              }}
-                              onPointerUp={(event) => {
-                                if (
-                                  event.currentTarget.hasPointerCapture(
-                                    event.pointerId
-                                  )
-                                ) {
-                                  event.currentTarget.releasePointerCapture(
-                                    event.pointerId
-                                  );
-                                }
-                                handleSpeakUp();
-                              }}
-                              onPointerCancel={handleSpeakUp}
-                              onKeyDown={(event) => {
-                                if (
-                                  !event.repeat &&
-                                  (event.key === " " || event.key === "Enter")
-                                ) {
-                                  event.preventDefault();
-                                  handleSpeakDown();
-                                }
-                              }}
-                              onKeyUp={(event) => {
-                                if (
-                                  event.key === " " ||
-                                  event.key === "Enter"
-                                ) {
-                                  event.preventDefault();
-                                  handleSpeakUp();
-                                }
-                              }}
-                              className={`relative flex min-h-[3.25rem] flex-1 items-center justify-center gap-2.5 rounded-full border px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.2em] transition duration-200 select-none touch-none disabled:opacity-35 ${
-                                micLive
-                                  ? "border-[#D4AF37] bg-[#D4AF37] text-black shadow-[0_0_36px_rgba(212,175,55,0.28)]"
-                                  : "border-[#D4AF37]/32 bg-[linear-gradient(180deg,rgba(212,175,55,0.1),rgba(12,12,13,0.92))] text-[#e8d5a3] hover:border-[#D4AF37]/55 hover:bg-[#D4AF37]/12 active:scale-[0.99]"
-                              }`}
-                            >
-                              <span
-                                className={`inline-flex h-2 w-2 shrink-0 rounded-full ${
-                                  micLive
-                                    ? "animate-pulse bg-black/70"
-                                    : "bg-[#D4AF37]/75 shadow-[0_0_10px_rgba(212,175,55,0.55)]"
-                                }`}
-                                aria-hidden
-                              />
-                              {assessmentTerminalUi
-                                ? "Assessment ending"
-                                : micLive
-                                  ? "Listening…"
-                                  : "Hold to speak"}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => void handleStop()}
-                              className="inline-flex min-h-[3.25rem] shrink-0 items-center justify-center rounded-full border border-white/12 px-4 py-3.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/50 transition hover:border-white/22 hover:bg-white/[0.04] hover:text-white/75"
-                            >
-                              Stop
-                            </button>
-                          </div>
-                          {!isProUser ? (
-                            <Link
-                              href="/membership"
-                              className="text-[10px] uppercase tracking-[0.14em] text-[#D4AF37]/55 transition hover:text-[#D4AF37]/85"
-                            >
-                              Unlock Hands-Free with Pro →
-                            </Link>
-                          ) : (
-                            <p className="text-[10px] uppercase tracking-[0.14em] text-white/28">
-                              Press and hold · release to send
-                            </p>
-                          )}
-                        </div>
-                      )}
+                    {remoteAudioBlocked ? (
+                      <button
+                        type="button"
+                        onClick={() => void handleResumeRemoteAudio()}
+                        className="mt-3 rounded-full border border-[#D4AF37]/30 px-5 py-2.5 text-sm text-[#e7d6b1] transition hover:bg-[#D4AF37]/10"
+                      >
+                        Hear Coach Forge
+                      </button>
+                    ) : null}
 
-                      {phase === "error" ? (
-                        <div className="mt-3 flex justify-center gap-3">
+                    {micMode === "silent_fallback" && (
+                      <div className="mx-auto mt-3 max-w-md">
+                        <p className="text-sm text-amber-200/80">
+                          {micFallbackReason === "permission_denied"
+                            ? "Microphone access wasn’t granted. You can keep listening, then allow access in your browser and try again."
+                            : micFallbackReason === "device_busy"
+                              ? "Your microphone is being used elsewhere. You can keep listening, then close the other app and try again."
+                              : micFallbackReason === "unsupported"
+                                ? "This browser can’t reach a microphone here. You can keep listening or try a supported browser."
+                                : "No microphone is available on this device right now. You can keep listening, connect one, and try again."}
+                        </p>
+                        {micFallbackReason !== "unsupported" && (
                           <button
                             type="button"
-                            onClick={handleStart}
-                            className="text-xs text-white/40 transition hover:text-white/70"
+                            onClick={() => void handleRecoverMicrophone()}
+                            disabled={micRecoveryPending}
+                            className="mt-3 rounded-full border border-amber-200/25 px-5 py-2.5 text-sm text-amber-100 transition hover:bg-amber-100/10 disabled:opacity-50"
                           >
-                            Restart
+                            {micRecoveryPending
+                              ? "Checking microphone…"
+                              : micFallbackReason === "permission_denied"
+                                ? "Allow microphone"
+                                : "Try microphone again"}
                           </button>
-                          <Link
-                            href="/app"
-                            className="text-xs text-white/40 transition hover:text-white/70"
-                          >
-                            Back to home
-                          </Link>
-                        </div>
-                      ) : null}
+                        )}
+                      </div>
+                    )}
+
+                    <div className="mt-3 w-full">
+                      <div className="rounded-[1.35rem] border border-[#D4AF37]/18 bg-[#0c0c0d]/95 px-3.5 py-3.5 shadow-[0_-12px_40px_rgba(0,0,0,0.55)] backdrop-blur-xl sm:px-4">
+                        {handsFree ? (
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#D4AF37]/90">
+                              Hands-Free · Speak Naturally
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => voice.toggleHandsFreeMute()}
+                                disabled={
+                                  !sessionReady ||
+                                  micMode !== "microphone" ||
+                                  assessmentTerminalUi
+                                }
+                                className="rounded-full border border-[#D4AF37]/22 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#e8d5a3]/85 transition hover:border-[#D4AF37]/4 hover:bg-[#D4AF37]/08 disabled:opacity-35"
+                              >
+                                {voice.handsFreeMuted
+                                  ? "Unmute Mic"
+                                  : "Mute Mic"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => void handleStop()}
+                                className="rounded-full border border-white/12 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/55 transition hover:border-white/25 hover:bg-white/5 hover:text-white/80"
+                              >
+                                Stop
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-2.5">
+                            <div className="flex w-full items-center gap-2.5">
+                              <button
+                                type="button"
+                                disabled={
+                                  !sessionReady ||
+                                  phase === "speaking" ||
+                                  micMode !== "microphone" ||
+                                  assessmentTerminalUi
+                                }
+                                onPointerDown={(event) => {
+                                  event.currentTarget.setPointerCapture(
+                                    event.pointerId
+                                  );
+                                  handleSpeakDown();
+                                }}
+                                onPointerUp={(event) => {
+                                  if (
+                                    event.currentTarget.hasPointerCapture(
+                                      event.pointerId
+                                    )
+                                  ) {
+                                    event.currentTarget.releasePointerCapture(
+                                      event.pointerId
+                                    );
+                                  }
+                                  handleSpeakUp();
+                                }}
+                                onPointerCancel={handleSpeakUp}
+                                onKeyDown={(event) => {
+                                  if (
+                                    !event.repeat &&
+                                    (event.key === " " || event.key === "Enter")
+                                  ) {
+                                    event.preventDefault();
+                                    handleSpeakDown();
+                                  }
+                                }}
+                                onKeyUp={(event) => {
+                                  if (
+                                    event.key === " " ||
+                                    event.key === "Enter"
+                                  ) {
+                                    event.preventDefault();
+                                    handleSpeakUp();
+                                  }
+                                }}
+                                className={`relative flex min-h-[3.25rem] flex-1 items-center justify-center gap-2.5 rounded-full border px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.2em] transition duration-200 select-none touch-none disabled:opacity-35 ${
+                                  micLive
+                                    ? "border-[#D4AF37] bg-[#D4AF37] text-black shadow-[0_0_36px_rgba(212,175,55,0.28)]"
+                                    : "border-[#D4AF37]/32 bg-[linear-gradient(180deg,rgba(212,175,55,0.1),rgba(12,12,13,0.92))] text-[#e8d5a3] hover:border-[#D4AF37]/55 hover:bg-[#D4AF37]/12 active:scale-[0.99]"
+                                }`}
+                              >
+                                <span
+                                  className={`inline-flex h-2 w-2 shrink-0 rounded-full ${
+                                    micLive
+                                      ? "animate-pulse bg-black/70"
+                                      : "bg-[#D4AF37]/75 shadow-[0_0_10px_rgba(212,175,55,0.55)]"
+                                  }`}
+                                  aria-hidden
+                                />
+                                {assessmentTerminalUi
+                                  ? "Assessment ending"
+                                  : micLive
+                                    ? "Listening…"
+                                    : "Hold to speak"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => void handleStop()}
+                                className="inline-flex min-h-[3.25rem] shrink-0 items-center justify-center rounded-full border border-white/12 px-4 py-3.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/50 transition hover:border-white/22 hover:bg-white/[0.04] hover:text-white/75"
+                              >
+                                Stop
+                              </button>
+                            </div>
+                            {!isProUser ? (
+                              <Link
+                                href="/membership"
+                                className="text-[10px] uppercase tracking-[0.14em] text-[#D4AF37]/55 transition hover:text-[#D4AF37]/85"
+                              >
+                                Unlock Hands-Free with Pro →
+                              </Link>
+                            ) : (
+                              <p className="text-[10px] uppercase tracking-[0.14em] text-white/28">
+                                Press and hold · release to send
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        {phase === "error" ? (
+                          <div className="mt-3 flex justify-center gap-3">
+                            <button
+                              type="button"
+                              onClick={handleStart}
+                              className="text-xs text-white/40 transition hover:text-white/70"
+                            >
+                              Restart
+                            </button>
+                            <Link
+                              href="/app"
+                              className="text-xs text-white/40 transition hover:text-white/70"
+                            >
+                              Back to home
+                            </Link>
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </div>

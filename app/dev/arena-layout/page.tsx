@@ -80,36 +80,41 @@ export default function ArenaLayoutPreviewPage() {
           </button>
         </header>
 
-        <section className="flex min-h-0 flex-1 flex-col items-center pt-4 text-center">
-          <div className="flex min-h-0 w-full max-w-2xl flex-1 flex-col text-left">
+        <section className="relative flex min-h-0 flex-1 flex-col items-center pt-4 text-center">
+          <div className="flex min-h-0 w-full max-w-2xl flex-1 flex-col text-left pb-[11.5rem] sm:pb-[12.5rem]">
             <ArenaConversation turns={turns} />
-            <div className="shrink-0 border-t border-[#D4AF37]/10 bg-gradient-to-t from-black via-black/95 to-transparent pt-3 text-center">
-              <p className="text-center text-[11px] font-medium uppercase tracking-[0.18em] text-[#D4AF37]/80">
-                Your turn
-              </p>
-              <div className="mt-4 w-full pb-[max(1.75rem,calc(env(safe-area-inset-bottom)+1.25rem))]">
-                <div className="rounded-[1.35rem] border border-[#D4AF37]/18 bg-[#0c0c0d]/92 px-3.5 py-3.5 shadow-[0_-12px_40px_rgba(0,0,0,0.55)] backdrop-blur-xl sm:px-4">
-                  <div className="flex w-full items-center gap-2.5">
-                    <button
-                      type="button"
-                      className="relative flex min-h-[3.25rem] flex-1 items-center justify-center gap-2.5 rounded-full border border-[#D4AF37]/32 bg-[linear-gradient(180deg,rgba(212,175,55,0.1),rgba(12,12,13,0.92))] px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#e8d5a3]"
-                    >
-                      <span
-                        className="inline-flex h-2 w-2 shrink-0 rounded-full bg-[#D4AF37]/75 shadow-[0_0_10px_rgba(212,175,55,0.55)]"
-                        aria-hidden
-                      />
-                      Hold to speak
-                    </button>
-                    <button
-                      type="button"
-                      className="inline-flex min-h-[3.25rem] shrink-0 items-center justify-center rounded-full border border-white/12 px-4 py-3.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/50"
-                    >
-                      Stop
-                    </button>
+          </div>
+
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30">
+            <div className="pointer-events-auto mx-auto w-full max-w-3xl px-5 pb-[max(1.25rem,calc(env(safe-area-inset-bottom)+0.85rem))] sm:px-8">
+              <div className="border-t border-[#D4AF37]/10 bg-gradient-to-t from-black via-black/98 to-black/80 pt-3 text-center backdrop-blur-md">
+                <p className="text-center text-[11px] font-medium uppercase tracking-[0.18em] text-[#D4AF37]/80">
+                  Your turn
+                </p>
+                <div className="mt-3 w-full">
+                  <div className="rounded-[1.35rem] border border-[#D4AF37]/18 bg-[#0c0c0d]/95 px-3.5 py-3.5 shadow-[0_-12px_40px_rgba(0,0,0,0.55)] backdrop-blur-xl sm:px-4">
+                    <div className="flex w-full items-center gap-2.5">
+                      <button
+                        type="button"
+                        className="relative flex min-h-[3.25rem] flex-1 items-center justify-center gap-2.5 rounded-full border border-[#D4AF37]/32 bg-[linear-gradient(180deg,rgba(212,175,55,0.1),rgba(12,12,13,0.92))] px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#e8d5a3]"
+                      >
+                        <span
+                          className="inline-flex h-2 w-2 shrink-0 rounded-full bg-[#D4AF37]/75 shadow-[0_0_10px_rgba(212,175,55,0.55)]"
+                          aria-hidden
+                        />
+                        Hold to speak
+                      </button>
+                      <button
+                        type="button"
+                        className="inline-flex min-h-[3.25rem] shrink-0 items-center justify-center rounded-full border border-white/12 px-4 py-3.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/50"
+                      >
+                        Stop
+                      </button>
+                    </div>
+                    <p className="mt-2.5 text-[10px] uppercase tracking-[0.14em] text-white/28">
+                      Press and hold · release to send
+                    </p>
                   </div>
-                  <p className="mt-2.5 text-[10px] uppercase tracking-[0.14em] text-white/28">
-                    Press and hold · release to send
-                  </p>
                 </div>
               </div>
             </div>
