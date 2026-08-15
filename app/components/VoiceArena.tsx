@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import PresenceRing, {
   type PresenceRingState,
 } from "@/app/components/arena/PresenceRing";
+import ArenaConversation from "@/app/components/arena/ArenaConversation";
 import BecomeProMemberButton from "@/app/components/billing/BecomeProMemberButton";
 import {
   createIdleAssessmentState,
@@ -56,6 +57,7 @@ import {
 import type { PresenceScores } from "@/lib/system1/assessment";
 import {
   applyRealtimeTranscriptEvent,
+  extractLiveTranscriptDelta,
   type TranscriptTurn,
 } from "@/lib/ce/transcript";
 import {
@@ -190,6 +192,11 @@ export default function VoiceArena({
     useState<MicFallbackReason | null>(null);
   const [micRecoveryPending, setMicRecoveryPending] = useState(false);
   const [turns, setTurns] = useState<TranscriptTurn[]>([]);
+  const [liveForgeDraft, setLiveForgeDraft] = useState("");
+  const [liveUserDraft, setLiveUserDraft] = useState("");
+  /** Keep joining chrome visible briefly so autoStart never flashes Hold-to-speak. */
+  const [joinGateHold, setJoinGateHold] = useState(false);
+  const joinGateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [liveConnection, setLiveConnection] =
     useState<RealtimeConnection | null>(null);
   const [momentum, setMomentum] = useState<Momentum | null>(null);
@@ -343,10 +350,14 @@ export default function VoiceArena({
       );
       if (fallback.action === "request_mid_turn") {
         const slot = assessmentTurnSlot();
+        const lastUserText =
+          [...turnsRef.current].reverse().find((t) => t.role === "founder")
+            ?.text ?? null;
         const requested = requestHoldTurnResponse(connectionRef.current, {
           mode: "assessment",
           allowAssessment: true,
           assessmentSlot: slot,
+          lastUserText,
         });
         pushEvent(
           requested
@@ -610,6 +621,10 @@ export default function VoiceArena({
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
+      if (joinGateTimerRef.current) {
+        clearTimeout(joinGateTimerRef.current);
+        joinGateTimerRef.current = null;
+      }
       lifecycleGenerationRef.current += 1;
       const usageId = usageIdRef.current;
       usageIdRef.current = null;
@@ -716,6 +731,21 @@ export default function VoiceArena({
 
   function handleServerEvent(event: Record<string, unknown>) {
     const type = typeof event.type === "string" ? event.type : "event";
+
+    const live = extractLiveTranscriptDelta(event);
+    if (live) {
+      if (live.done) {
+        if (live.role === "forge") setLiveForgeDraft("");
+        else setLiveUserDraft("");
+      } else if (live.role === "forge") {
+        setLiveForgeDraft((prev) => prev + live.delta);
+      } else {
+        // Partial user transcripts may be cumulative snapshots or deltas.
+        setLiveUserDraft((prev) =>
+          live.delta.startsWith(prev) ? live.delta : prev + live.delta
+        );
+      }
+    }
 
     // Only Forge OUTPUT events own the speaking phase — never input mic/"audio" events.
     if (
@@ -962,6 +992,7 @@ export default function VoiceArena({
       setTurns(next);
       persistTurns(next);
       if (added.role === "forge") {
+        setLiveForgeDraft("");
         trackUsage("assistant_text", added.text);
         if (isAssessment) {
           if (looksLikeForgeAssessmentSoftClose(added.text)) {
@@ -978,6 +1009,7 @@ export default function VoiceArena({
           }
         }
       } else if (added.role === "founder") {
+        setLiveUserDraft("");
         trackUsage("user_speech", added.text);
         if (isAssessment) {
           const awaiting = assessmentAwaitingTranscriptTurnRef.current;
@@ -1004,6 +1036,7 @@ export default function VoiceArena({
               mode: "assessment",
               allowAssessment: true,
               assessmentSlot: slot,
+              lastUserText: added.text,
             });
             pushEvent(
               requested
@@ -1037,6 +1070,16 @@ export default function VoiceArena({
     setMicRecoveryPending(false);
     setTurns([]);
     turnsRef.current = [];
+    setLiveForgeDraft("");
+    setLiveUserDraft("");
+    setJoinGateHold(true);
+    if (joinGateTimerRef.current) {
+      clearTimeout(joinGateTimerRef.current);
+    }
+    joinGateTimerRef.current = setTimeout(() => {
+      joinGateTimerRef.current = null;
+      setJoinGateHold(false);
+    }, 900);
     setLiveConnection(null);
     setEvents([]);
     setMomentum(null);
@@ -1178,7 +1221,7 @@ export default function VoiceArena({
           pushEvent(`Peer: ${state}`);
           if (state === "failed") {
             setError(
-              "The Training Room lost its connection. Restart when you’re ready."
+              "TalkForge Arena lost its connection. Restart when you’re ready."
             );
             setPhase("error");
           }
@@ -1567,16 +1610,19 @@ export default function VoiceArena({
     setMomentumLoading(false);
   }
 
-  const busy =
-    phase === "minting" || phase === "connecting" || phase === "speaking";
-  const inSession =
+  const isJoining =
+    joinGateHold ||
+    phase === "minting" ||
+    phase === "connecting" ||
+    (autoStart && phase === "idle" && !error);
+  const sessionReady =
     phase === "speaking" ||
     phase === "listening" ||
     phase === "connected" ||
-    phase === "connecting" ||
-    phase === "minting";
+    phase === "error";
+  const inSession =
+    sessionReady || phase === "connecting" || phase === "minting";
 
-  const lastForge = [...turns].reverse().find((t) => t.role === "forge");
   const micLive = voice.micLive;
 
   const ringState: PresenceRingState =
@@ -1593,7 +1639,7 @@ export default function VoiceArena({
               (handsFree &&
                 (turnState === "user_speaking" || turnState === "interrupted"))
             ? "listening"
-            : phase === "minting" || phase === "connecting"
+            : phase === "minting" || phase === "connecting" || isJoining
               ? "connecting"
               : "idle";
 
@@ -1603,10 +1649,10 @@ export default function VoiceArena({
       assessmentStatusLabel === "cancelled");
 
   const presenceLabel =
-    phase === "idle"
+    phase === "idle" && !isJoining
       ? undefined
-      : phase === "minting" || phase === "connecting"
-        ? "Connecting"
+      : isJoining
+        ? "Joining Arena"
         : phase === "momentum"
           ? "Rep Complete"
           : phase === "error"
@@ -1631,14 +1677,18 @@ export default function VoiceArena({
       ? "ASSESSMENT · COMPLETE"
       : assessmentStatusLabel === "cancelled"
         ? "ASSESSMENT · EXITED"
-        : "ASSESSMENT"
-    : handsFree
-      ? "PRO HANDS-FREE"
-      : isProUser
-        ? "PRO · HOLD TO SPEAK"
-        : repsRemaining != null
-          ? `${repsRemaining} REP${repsRemaining === 1 ? "" : "S"} LEFT`
-          : "HOLD TO SPEAK";
+        : isJoining
+          ? "JOINING"
+          : "ASSESSMENT"
+    : isJoining
+      ? "JOINING"
+      : handsFree
+        ? "PRO HANDS-FREE"
+        : isProUser
+          ? "PRO · HOLD TO SPEAK"
+          : repsRemaining != null
+            ? `${repsRemaining} REP${repsRemaining === 1 ? "" : "S"} LEFT`
+            : "HOLD TO SPEAK";
 
   return (
     <main className="relative min-h-[100dvh] overflow-hidden bg-[#000000] text-white">
@@ -1677,8 +1727,38 @@ export default function VoiceArena({
           )}
         </header>
 
-        <section className="flex flex-1 flex-col items-center pb-6 pt-10 text-center">
-          {phase === "idle" ? (
+        <section className="flex min-h-0 flex-1 flex-col items-center pb-6 pt-6 text-center sm:pt-10">
+          {isJoining ? (
+            <>
+              <div className="flex flex-1 flex-col items-center justify-center pb-16">
+                <PresenceRing state="connecting" label={undefined} />
+                <p className="mt-8 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/70">
+                  Coach Forge
+                </p>
+                <p className="mt-4 max-w-md text-lg text-white/70 sm:text-xl">
+                  {phase === "connecting"
+                    ? "Connecting securely…"
+                    : "Joining TalkForge Arena…"}
+                </p>
+                <p className="mt-3 max-w-sm text-sm leading-6 text-white/40">
+                  {isAssessment
+                    ? "Setting up your diagnostic conversation."
+                    : "Preparing your coaching room."}
+                </p>
+              </div>
+              {/* Keep Begin in the tree for autoStart click bootstrap. */}
+              {phase === "idle" ? (
+                <button
+                  ref={beginButtonRef}
+                  type="button"
+                  onClick={handleStart}
+                  className="sr-only"
+                >
+                  Begin
+                </button>
+              ) : null}
+            </>
+          ) : phase === "idle" ? (
             <>
               <PresenceRing state="idle" />
               <p className="mt-8 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/70">
@@ -1996,171 +2076,196 @@ export default function VoiceArena({
             </>
           ) : (
             <>
-              <PresenceRing
-                state={ringState}
-                level={voice.level}
-                label={presenceLabel}
-              />
+              <div className="flex min-h-0 w-full max-w-2xl flex-1 flex-col text-left">
+                <ArenaConversation
+                  turns={turns}
+                  liveForgeText={liveForgeDraft}
+                  liveUserText={liveUserDraft}
+                />
 
-              {lastForge && phase !== "speaking" ? (
-                <p className="mt-10 max-w-lg text-base leading-7 text-white/55 line-clamp-3">
-                  {lastForge.text}
-                </p>
-              ) : null}
-
-              {error && (
-                <p className="mt-6 max-w-md text-sm text-red-300" role="alert">
-                  {error}
-                </p>
-              )}
-
-              {remoteAudioBlocked ? (
-                <button
-                  type="button"
-                  onClick={() => void handleResumeRemoteAudio()}
-                  className="mt-5 rounded-full border border-[#D4AF37]/30 px-5 py-2.5 text-sm text-[#e7d6b1] transition hover:bg-[#D4AF37]/10"
-                >
-                  Hear Coach Forge
-                </button>
-              ) : null}
-
-              {micMode === "silent_fallback" && (
-                <div className="mt-6 max-w-md">
-                  <p className="text-sm text-amber-200/80">
-                    {micFallbackReason === "permission_denied"
-                      ? "Microphone access wasn’t granted. You can keep listening, then allow access in your browser and try again."
-                      : micFallbackReason === "device_busy"
-                        ? "Your microphone is being used elsewhere. You can keep listening, then close the other app and try again."
-                        : micFallbackReason === "unsupported"
-                          ? "This browser can’t reach a microphone here. You can keep listening or try a supported browser."
-                          : "No microphone is available on this device right now. You can keep listening, connect one, and try again."}
+                <div className="shrink-0 pt-3 text-center">
+                  <p className="text-center text-sm font-medium tracking-wide text-[#D4AF37]/85">
+                    {presenceLabel}
                   </p>
-                  {micFallbackReason !== "unsupported" && (
+
+                  {error && (
+                    <p
+                      className="mt-4 max-w-md text-sm text-red-300"
+                      role="alert"
+                    >
+                      {error}
+                    </p>
+                  )}
+
+                  {remoteAudioBlocked ? (
                     <button
                       type="button"
-                      onClick={() => void handleRecoverMicrophone()}
-                      disabled={micRecoveryPending}
-                      className="mt-3 rounded-full border border-amber-200/25 px-5 py-2.5 text-sm text-amber-100 transition hover:bg-amber-100/10 disabled:opacity-50"
+                      onClick={() => void handleResumeRemoteAudio()}
+                      className="mt-4 rounded-full border border-[#D4AF37]/30 px-5 py-2.5 text-sm text-[#e7d6b1] transition hover:bg-[#D4AF37]/10"
                     >
-                      {micRecoveryPending
-                        ? "Checking microphone…"
-                        : micFallbackReason === "permission_denied"
-                          ? "Allow microphone"
-                          : "Try microphone again"}
+                      Hear Coach Forge
                     </button>
-                  )}
-                </div>
-              )}
+                  ) : null}
 
-              <div className="mt-auto w-full max-w-lg pt-12">
-                <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 px-4 py-4 backdrop-blur-lg sm:px-5">
-                  {handsFree ? (
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <p className="text-sm text-[#D4AF37]/90">
-                        Hands-Free Active — Speak Naturally
+                  {micMode === "silent_fallback" && (
+                    <div className="mt-4 max-w-md">
+                      <p className="text-sm text-amber-200/80">
+                        {micFallbackReason === "permission_denied"
+                          ? "Microphone access wasn’t granted. You can keep listening, then allow access in your browser and try again."
+                          : micFallbackReason === "device_busy"
+                            ? "Your microphone is being used elsewhere. You can keep listening, then close the other app and try again."
+                            : micFallbackReason === "unsupported"
+                              ? "This browser can’t reach a microphone here. You can keep listening or try a supported browser."
+                              : "No microphone is available on this device right now. You can keep listening, connect one, and try again."}
                       </p>
-                      <button
-                        type="button"
-                        onClick={() => voice.toggleHandsFreeMute()}
-                        disabled={
-                          !inSession ||
-                          phase === "minting" ||
-                          phase === "connecting" ||
-                          micMode !== "microphone" ||
-                          assessmentTerminalUi
-                        }
-                        className="rounded-full border border-white/12 px-4 py-2 text-xs font-medium uppercase tracking-[0.12em] text-white/70 transition hover:bg-white/5 disabled:opacity-35"
-                      >
-                        {voice.handsFreeMuted ? "Unmute Mic" : "Mute Mic"}
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-3">
-                      <button
-                        type="button"
-                        disabled={
-                          !inSession ||
-                          phase === "minting" ||
-                          phase === "connecting" ||
-                          phase === "speaking" ||
-                          micMode !== "microphone" ||
-                          assessmentTerminalUi
-                        }
-                        onPointerDown={(event) => {
-                          event.currentTarget.setPointerCapture(event.pointerId);
-                          handleSpeakDown();
-                        }}
-                        onPointerUp={(event) => {
-                          if (
-                            event.currentTarget.hasPointerCapture(event.pointerId)
-                          ) {
-                            event.currentTarget.releasePointerCapture(
-                              event.pointerId
-                            );
-                          }
-                          handleSpeakUp();
-                        }}
-                        onPointerCancel={handleSpeakUp}
-                        onKeyDown={(event) => {
-                          if (
-                            !event.repeat &&
-                            (event.key === " " || event.key === "Enter")
-                          ) {
-                            event.preventDefault();
-                            handleSpeakDown();
-                          }
-                        }}
-                        onKeyUp={(event) => {
-                          if (event.key === " " || event.key === "Enter") {
-                            event.preventDefault();
-                            handleSpeakUp();
-                          }
-                        }}
-                        className={`min-w-[12rem] rounded-full px-10 py-3.5 text-sm font-semibold transition disabled:opacity-35 ${
-                          micLive
-                            ? "bg-[#D4AF37] text-black"
-                            : "bg-white text-black hover:bg-white/90"
-                        }`}
-                      >
-                        {assessmentTerminalUi
-                          ? "Assessment ending"
-                          : micLive
-                            ? "Listening"
-                            : "Hold to speak"}
-                      </button>
-                      {!isProUser ? (
-                        <Link
-                          href="/membership"
-                          className="text-xs text-[#D4AF37]/75 transition hover:text-[#D4AF37]"
+                      {micFallbackReason !== "unsupported" && (
+                        <button
+                          type="button"
+                          onClick={() => void handleRecoverMicrophone()}
+                          disabled={micRecoveryPending}
+                          className="mt-3 rounded-full border border-amber-200/25 px-5 py-2.5 text-sm text-amber-100 transition hover:bg-amber-100/10 disabled:opacity-50"
                         >
-                          Unlock Hands-Free Streaming with Pro →
-                        </Link>
-                      ) : (
-                        <p className="text-xs text-white/35">
-                          Hold to speak — stable coaching mode
-                        </p>
+                          {micRecoveryPending
+                            ? "Checking microphone…"
+                            : micFallbackReason === "permission_denied"
+                              ? "Allow microphone"
+                              : "Try microphone again"}
+                        </button>
                       )}
                     </div>
                   )}
 
-                  {/* Restart only when the realtime session truly cannot recover. */}
-                  {phase === "error" ? (
-                    <div className="mt-3 flex justify-center gap-3">
-                      <button
-                        type="button"
-                        onClick={handleStart}
-                        className="text-xs text-white/40 transition hover:text-white/70"
-                      >
-                        Restart
-                      </button>
-                      <Link
-                        href="/app"
-                        className="text-xs text-white/40 transition hover:text-white/70"
-                      >
-                        Back to home
-                      </Link>
+                  <div className="mt-5 w-full pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+                    <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 px-4 py-4 backdrop-blur-lg sm:px-5">
+                      {handsFree ? (
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <p className="text-sm text-[#D4AF37]/90">
+                            Hands-Free Active — Speak Naturally
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => voice.toggleHandsFreeMute()}
+                              disabled={
+                                !sessionReady ||
+                                micMode !== "microphone" ||
+                                assessmentTerminalUi
+                              }
+                              className="rounded-full border border-white/12 px-4 py-2 text-xs font-medium uppercase tracking-[0.12em] text-white/70 transition hover:bg-white/5 disabled:opacity-35"
+                            >
+                              {voice.handsFreeMuted ? "Unmute Mic" : "Mute Mic"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => void handleStop()}
+                              className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-black transition hover:bg-white/90"
+                            >
+                              Stop
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="flex w-full flex-wrap items-center justify-center gap-3">
+                            <button
+                              type="button"
+                              disabled={
+                                !sessionReady ||
+                                phase === "speaking" ||
+                                micMode !== "microphone" ||
+                                assessmentTerminalUi
+                              }
+                              onPointerDown={(event) => {
+                                event.currentTarget.setPointerCapture(
+                                  event.pointerId
+                                );
+                                handleSpeakDown();
+                              }}
+                              onPointerUp={(event) => {
+                                if (
+                                  event.currentTarget.hasPointerCapture(
+                                    event.pointerId
+                                  )
+                                ) {
+                                  event.currentTarget.releasePointerCapture(
+                                    event.pointerId
+                                  );
+                                }
+                                handleSpeakUp();
+                              }}
+                              onPointerCancel={handleSpeakUp}
+                              onKeyDown={(event) => {
+                                if (
+                                  !event.repeat &&
+                                  (event.key === " " || event.key === "Enter")
+                                ) {
+                                  event.preventDefault();
+                                  handleSpeakDown();
+                                }
+                              }}
+                              onKeyUp={(event) => {
+                                if (
+                                  event.key === " " ||
+                                  event.key === "Enter"
+                                ) {
+                                  event.preventDefault();
+                                  handleSpeakUp();
+                                }
+                              }}
+                              className={`min-w-[11rem] rounded-full px-10 py-3.5 text-sm font-semibold transition disabled:opacity-35 ${
+                                micLive
+                                  ? "bg-[#D4AF37] text-black"
+                                  : "bg-white text-black hover:bg-white/90"
+                              }`}
+                            >
+                              {assessmentTerminalUi
+                                ? "Assessment ending"
+                                : micLive
+                                  ? "Listening"
+                                  : "Hold to speak"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => void handleStop()}
+                              className="rounded-full bg-white px-5 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                            >
+                              Stop
+                            </button>
+                          </div>
+                          {!isProUser ? (
+                            <Link
+                              href="/membership"
+                              className="text-xs text-[#D4AF37]/75 transition hover:text-[#D4AF37]"
+                            >
+                              Unlock Hands-Free Streaming with Pro →
+                            </Link>
+                          ) : (
+                            <p className="text-xs text-white/35">
+                              Hold to speak — stable coaching mode
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {phase === "error" ? (
+                        <div className="mt-3 flex justify-center gap-3">
+                          <button
+                            type="button"
+                            onClick={handleStart}
+                            className="text-xs text-white/40 transition hover:text-white/70"
+                          >
+                            Restart
+                          </button>
+                          <Link
+                            href="/app"
+                            className="text-xs text-white/40 transition hover:text-white/70"
+                          >
+                            Back to home
+                          </Link>
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
+                  </div>
                 </div>
               </div>
             </>

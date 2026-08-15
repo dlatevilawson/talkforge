@@ -27,7 +27,7 @@ export const CE_TRANSCRIBE_MODEL = "gpt-4o-mini-transcribe";
 
 export type CeTrack = ForgeEvent["track"] | "hello";
 
-/** Session mode — assessment uses a discovery interview prompt. */
+/** Session mode — assessment keeps the coach brain; app observes/persists. */
 export type CeSessionMode = "practice" | "assessment";
 
 export const CE_TRACK_TITLES: Record<CeTrack, string> = {
@@ -40,6 +40,7 @@ export const CE_TRACK_TITLES: Record<CeTrack, string> = {
 /**
  * Forge voice presence instructions.
  * Mentor pacing + CFX-001 excellence first; interviewer role-play second.
+ * Assessment mode keeps the same coach brain and overlays diagnostic purpose.
  * Never invent identity labels (FLA-001).
  */
 export function buildSystemInstructions(input?: {
@@ -51,7 +52,9 @@ export function buildSystemInstructions(input?: {
   mode?: CeSessionMode;
 }): string {
   if (input?.mode === "assessment") {
-    return buildAssessmentSystemInstructions();
+    return buildAssessmentSystemInstructions({
+      memoryBlock: input.memory ? formatCoachMemoryBlock(input.memory) : null,
+    });
   }
 
   const track = input?.track ?? "system_design";

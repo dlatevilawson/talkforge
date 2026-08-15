@@ -325,7 +325,7 @@ export default function ProfilePage() {
               Coach Forge
             </p>
             <p className="mt-3 text-lg text-zinc-300">
-              Setting your focus and joining Training Room…
+              Setting your focus and joining TalkForge Arena…
             </p>
           </div>
         </div>
