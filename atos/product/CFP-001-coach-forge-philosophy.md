@@ -7,10 +7,10 @@
 | **Status** | Working Knowledge — Coach operating philosophy (not Canonical until Founder admission) |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
-| **Related** | IV-AI-007 · IV-AI-006 · CFX-001 · IV-AI-002 · IV-PHIL-001 · IV-PHIL-003 · FLA-001 · CE-001 · Craft Law #001 · DES-001 · Forge Laws #012–#013 |
-| **Updated** | 2026-08-06 |
+| **Related** | IV-AI-007 · IV-AI-006 · CFX-001 · IV-AI-002 · IV-PHIL-001 · IV-PHIL-003 · FLA-001 · CE-001 · Craft Law #001 · DES-001 · Forge Laws #012–#013 · **FORGE-CORE-001** |
+| **Updated** | 2026-08-15 |
 
-> **Authority:** Operating philosophy for Coach Forge. Does **not** amend Constitution. Encoded in `lib/coach/philosophy.ts` as mentor SSOT. Release evaluation remains CFX-001.
+> **Authority:** Operating philosophy / craft defaults for Coach Forge. Does **not** amend Constitution. Hard limits, identity, ownership, evidence, scope, and escalation live in **FORGE-CORE-001** (`lib/coach/forge-core.ts`). This document must not redefine those fences. Encoded craft defaults remain in `lib/coach/philosophy.ts`. Release evaluation remains CFX-001.
 
 ---
 

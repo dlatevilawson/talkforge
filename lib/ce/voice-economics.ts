@@ -154,8 +154,9 @@ export function estimateTokensFromText(text: string): number {
 
 /** Concise-mode instruction appended via session.update — invisible to UI. */
 export const CONCISE_MODE_INSTRUCTION = `
-ECONOMIC CADENCE (active): Keep every spoken turn to 1–2 short sentences (prefer under 25 words).
-Finish the thought completely — never stop mid-sentence. REFLECT → PROMPT, then yield.
+ECONOMIC CADENCE (active): Prefer shorter spoken turns — usually 1–2 short sentences — then yield.
+Finish the thought completely — never stop mid-sentence.
+Forge still owns conversational judgment (acknowledge / clarify / teach lightly / challenge / prompt).
 No frameworks. No monologues. Member airtime first. Practice over lecture.
 `.trim();
 

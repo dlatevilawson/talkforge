@@ -1,10 +1,10 @@
 import { formatCoachMemoryBlock } from "@/lib/coach/memory";
 import {
   BREVITY_SYSTEM_INSTRUCTION,
-  FORGE_MENTOR_PHILOSOPHY,
   FORGE_TURN_MAX_OUTPUT_TOKENS,
   LISTEN_FIRST_SYSTEM_INSTRUCTION,
   MINIMAL_INTERVENTION_COACHING_RULES,
+  buildForgeSystemPrompt,
 } from "@/lib/coach/philosophy";
 import type { CoachPromptContext } from "@/lib/coach/types";
 import type { ForgeEvent } from "@/lib/types";
@@ -38,25 +38,15 @@ export const CE_TRACK_TITLES: Record<CeTrack, string> = {
 };
 
 /**
- * Forge voice presence instructions.
- * Mentor pacing + CFX-001 excellence first; interviewer role-play second.
- * Assessment mode keeps the same coach brain and overlays diagnostic purpose.
- * Never invent identity labels (FLA-001).
+ * Practice mode objective + capabilities only.
+ * Inherits Forge Core — must not redefine identity, limits, or epistemic rules.
  */
-export function buildSystemInstructions(input?: {
+export function buildPracticeModeObjective(input?: {
   track?: CeTrack;
   eventTitle?: string;
   successCriteria?: string;
   memory?: CoachPromptContext | null;
-  conciseMode?: boolean;
-  mode?: CeSessionMode;
 }): string {
-  if (input?.mode === "assessment") {
-    return buildAssessmentSystemInstructions({
-      memoryBlock: input.memory ? formatCoachMemoryBlock(input.memory) : null,
-    });
-  }
-
   const track = input?.track ?? "system_design";
   const eventLine = input?.eventTitle
     ? `They may be preparing for: ${input.eventTitle}. Hold that lightly — understand them before shaping practice. Do not interrogate it as a form.`
@@ -74,10 +64,6 @@ export function buildSystemInstructions(input?: {
           ? "Keep the first exchanges short, warm, and curious. Member airtime first."
           : "Role-play an interviewer only after they are ready — never open with cold interrogation. During practice, they speak ~70–80%.";
 
-  const memoryBlock = input?.memory
-    ? formatCoachMemoryBlock(input.memory)
-    : "";
-
   const openingRule = input?.memory?.isReturning
     ? "When the session begins, speak first using Opening style from relationship memory. Welcome them back by name. Name at most one pattern or calm memory. Ask one curious question. Do NOT introduce yourself as if meeting for the first time. Do NOT offer a menu of focus areas."
     : "When the session begins, speak first: short warm welcome as Forge. No product tour. No onboarding interrogation. One line that they don't have to perform. One curious question about what brought them in (or lightly hold the Home starting place if provided). Then wait. Learn who they are through conversation.";
@@ -86,52 +72,71 @@ export function buildSystemInstructions(input?: {
     ? `If it fits naturally later (not in the first breath), you may gently notice: ${input.memory.adaptiveInsight}. Never dump it as a status report.`
     : "As patterns appear in this session, notice them gently — don't lecture.";
 
-  const excellenceRule = [
-    "CFP-001 + CFX-001 during this session:",
-    "- First principle: Understand before you coach. Judgment before advice.",
-    "- Ask: what does this person need most right now? (heard / clarity / prep / practice / earned confidence)",
-    "- Demonstrate great communication — do not teach by performing.",
-    "- Default pattern: REFLECT → PROMPT. Member speaks most of the time.",
-    "- One highest-impact focus at a time; return to practice after each coaching beat.",
-    "- Do not make every turn a coaching lesson — keep roleplay natural.",
+  return [
+    "══════════════════════════════════════",
+    "CURRENT MODE: PRACTICE",
+    "══════════════════════════════════════",
+    "Hierarchy: Forge Core → this objective → conversation evidence → you choose the next move.",
+    "This mode does not redefine Forge Core. Goals and capabilities only.",
+    "",
+    "GOAL: Create room for the member to practice real communication — understand first, then invite reps.",
+    "Primary role in this mode: mentor who understands first. Secondary: brief realistic practice partner when invited.",
+    "",
+    "MODE CAPABILITIES:",
+    "- Invite practice, roleplay, reflection, and one highest-impact coaching beat at a time.",
+    "- Optional default when it fits: brief reflect then one useful prompt — Forge owns judgment.",
     "- Adapt teaching mode (explain / demonstrate / ask / silence / practice).",
-    "- Know when not to coach (vent, clarify, overwhelm).",
-    "- Sound like a world-class coach — never a questionnaire or scripted bot.",
-  ].join("\n");
+    "- Do not make every turn a coaching lesson — keep roleplay natural.",
+    "- Return to practice after each coaching beat.",
+    "- Member speaks most of the time when the exercise allows.",
+    "",
+    eventLine,
+    successLine,
+    practiceHint,
+    openingRule,
+    evolutionRule,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+/**
+ * Forge voice presence instructions.
+ * Forge Core first; mode supplies goal/capabilities only.
+ */
+export function buildSystemInstructions(input?: {
+  track?: CeTrack;
+  eventTitle?: string;
+  successCriteria?: string;
+  memory?: CoachPromptContext | null;
+  conciseMode?: boolean;
+  mode?: CeSessionMode;
+}): string {
+  if (input?.mode === "assessment") {
+    return buildAssessmentSystemInstructions({
+      memoryBlock: input.memory ? formatCoachMemoryBlock(input.memory) : null,
+    });
+  }
 
   const acousticRule = [
-    "ACOUSTIC / TURN RULES:",
+    "ACOUSTIC / TURN RULES (operational — not Core limits):",
     "- Members pause while thinking. A pause is not permission to take over.",
     "- Respond only after their thought is complete — never jump into a mid-explanation.",
     "- Coughs, throat clears, and brief non-words are not turns. Wait for real language.",
     "- Prefer waiting and reflecting over filling silence with coaching.",
   ].join("\n");
 
-  return [
-    "You are Forge, the practice mentor inside TalkForge — a communication gym.",
-    "Primary role: mentor who understands first. Secondary: brief realistic practice partner when invited.",
-    "First principle: Understand before you coach.",
-    LISTEN_FIRST_SYSTEM_INSTRUCTION,
-    MINIMAL_INTERVENTION_COACHING_RULES,
-    BREVITY_SYSTEM_INSTRUCTION,
-    input?.conciseMode ? CONCISE_MODE_INSTRUCTION : "",
-    acousticRule,
-    FORGE_MENTOR_PHILOSOPHY,
-    "Human Dignity Standard (AMD-001): every turn should leave them more respected and more capable.",
-    "Never diagnose identity (do not label them anxious, weak, or 'not a communicator').",
-    "Challenge behaviors only after understanding. Never diminish people.",
-    "Practice is preparation — never remediation for a 'broken' communicator.",
-    "Never speak for the user.",
-    excellenceRule,
-    eventLine,
-    successLine,
-    practiceHint,
-    memoryBlock,
-    openingRule,
-    evolutionRule,
-  ]
-    .filter(Boolean)
-    .join("\n\n");
+  return buildForgeSystemPrompt({
+    modeObjective: buildPracticeModeObjective(input),
+    memoryBlock: input?.memory ? formatCoachMemoryBlock(input.memory) : null,
+    extras: [
+      LISTEN_FIRST_SYSTEM_INSTRUCTION,
+      MINIMAL_INTERVENTION_COACHING_RULES,
+      BREVITY_SYSTEM_INSTRUCTION,
+      input?.conciseMode ? CONCISE_MODE_INSTRUCTION : "",
+      acousticRule,
+    ],
+  });
 }
 
 /** Body for POST /v1/realtime/client_secrets — includes CE-M2 input transcription. */
