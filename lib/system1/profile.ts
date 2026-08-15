@@ -6,8 +6,8 @@ import {
   canWriteLivingProfileField,
   type LivingProfile,
   type ProvenanceRecord,
-} from "@/lib/system1/types";
-import type { IdentityEvidenceProposal } from "@/lib/system1/proposals";
+} from "./types.ts";
+import type { IdentityEvidenceProposal } from "./proposals.ts";
 
 export function emptyLivingProfile(
   userId: string,
@@ -25,6 +25,8 @@ export function emptyLivingProfile(
     preferredCoachingStyle: "",
     matteringConversationIds: [],
     provenance: [],
+    evidenceLedger: [],
+    profileInsights: [],
     presenceScores: null,
     goals: [],
     strengths: [],

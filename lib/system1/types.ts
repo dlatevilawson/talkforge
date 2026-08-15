@@ -8,7 +8,9 @@
  * Only member declaration + Intelligence Engine (with evidence) may write.
  */
 
-import type { PresenceScores, ProfileSource } from "./assessment";
+import type { PresenceScores, ProfileSource } from "./assessment.ts";
+import type { ProfileEvidenceRecord } from "./profile-evidence.ts";
+import type { ProfileInsight } from "./profile-intelligence.ts";
 
 /** Provenance for any Living Profile claim (Law #014). */
 export type EvidenceSourceKind =
@@ -112,6 +114,17 @@ export type LivingProfile = {
   matteringConversationIds: string[];
   /** Provenance ledger for profile claims */
   provenance: ProvenanceRecord[];
+  /**
+   * Observable evidence ledger (Phase 1). Not identity.
+   * Interaction signals allowed; synthesized claims forbidden.
+   * Persistence of this field may require a future DB migration.
+   */
+  evidenceLedger: ProfileEvidenceRecord[];
+  /**
+   * Derived profile insights (Phase 1). Separate from evidence;
+   * must never re-enter the evidence ledger.
+   */
+  profileInsights: ProfileInsight[];
   /** Assessment test slice — inferred 1–10 scores (null if incomplete/unscored). */
   presenceScores: PresenceScores | null;
   /** Assessment test slice — goals surfaced in conversation. */
