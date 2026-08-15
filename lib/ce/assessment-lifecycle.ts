@@ -17,6 +17,7 @@
 import { isGenericAssessmentSlotAnswer } from "./assessment-generic-answers.ts";
 import {
   applyCompatibilityProjection,
+  assessGenuineEvidenceCoverage,
   canCompleteWithDiagnosticEvidence,
   collectUserEvidence,
   formatDiagnosisForProfile,
@@ -456,12 +457,70 @@ export function isAssessmentHardAbort(state: AssessmentLifecycleState): boolean 
   );
 }
 
+/**
+ * When mechanism evidence is clear enough, steer currentSlot toward remaining
+ * completion gaps (outcome → practice) so the app can close.
+ * Prevents endless micro-probing on earlier slots while practice_time stays empty.
+ * App owns slot selection; Forge owns wording for the observation target.
+ */
+export function maybeAdvanceTowardClosingGaps(
+  state: AssessmentLifecycleState
+): AssessmentLifecycleState {
+  if (
+    !state.assessmentMode ||
+    state.assessmentStatus !== "active" ||
+    !state.consented ||
+    state.responsesLocked
+  ) {
+    return state;
+  }
+
+  const practiceStatus = state.slots.practice_time?.status;
+  const outcomeStatus = state.slots.six_week_success?.status;
+  if (practiceStatus === "filled" && outcomeStatus === "filled") {
+    return state;
+  }
+
+  const evidence = collectUserEvidence(state.slots);
+  const coverage = assessGenuineEvidenceCoverage(evidence);
+
+  const mechanismClearEnough =
+    coverage.diagnosticConfidence === "supported" ||
+    (coverage.bottleneck &&
+      coverage.pattern &&
+      (coverage.discriminatingEvidenceCount >= 1 ||
+        coverage.path2ObservationCount >= 1 ||
+        state.substantiveUserAnswers >= 4));
+
+  if (!mechanismClearEnough) return state;
+
+  let target: AssessmentSlotId | null = null;
+  if (practiceStatus !== "filled") {
+    if (outcomeStatus !== "filled" && !coverage.outcome) {
+      target = "six_week_success";
+    } else {
+      target = "practice_time";
+    }
+  } else if (outcomeStatus !== "filled" && !coverage.outcome) {
+    target = "six_week_success";
+  }
+
+  if (!target) return state;
+  if (
+    state.currentSlot === target &&
+    state.slots[target]?.status === "asking"
+  ) {
+    return state;
+  }
+  return markSlotAsAsking(state, target);
+}
+
 function resolveAfterAssessmentProgress(
   state: AssessmentLifecycleState
 ): { state: AssessmentLifecycleState; effect: AssessmentLifecycleEffect } {
   // Option A: when genuine user evidence is sufficient, project missing
   // compatibility fields (synthesized), then use existing 7-slot completion.
-  let next = state;
+  let next = maybeAdvanceTowardClosingGaps(state);
   if (canCompleteWithDiagnosticEvidence(next)) {
     next = applyCompatibilityProjection(next);
   }
