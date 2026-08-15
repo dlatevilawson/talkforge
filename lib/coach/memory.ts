@@ -115,7 +115,7 @@ export function buildWelcomeHint(input: {
   const { name, isReturning } = input;
 
   if (!isReturning) {
-    return `First-time welcome (CFX §5). Say hello to ${name === "there" ? "them" : name} warmly. One short sentence that they're welcome and safe — no performance. Do not give a TalkForge product tour. Invite curiosity with one simple question about what brought them in. Learn who they are through conversation — never interrogate profile fields. Then wait. Never ask a blank menu of practice topics.`;
+    return `First-time welcome (CFX §5). Say hello to ${name === "there" ? "them" : name} warmly. One short sentence that they're welcome and safe — no performance. Do not give a TalkForge product tour. Invite curiosity with one simple question about what brought them in. Learn who they are through conversation — never interrogate profile fields. Phrase it in your own words. Then wait. Never ask a blank menu of practice topics.`;
   }
 
   const when = relativeSessionPhrase(input.lastSessionAt);
@@ -136,11 +136,11 @@ export function buildWelcomeHint(input: {
       struggle ||
       pattern ||
       (win ? `you made progress: ${win}` : "");
-    return `Forge Law #012 continuity. Welcome back, ${name}. In 3 short sentences, speak like this (adapt to facts — do not invent numbers): "${when} you wanted to work on ${goal}. ${observed}. Want to keep working there, or is there something new on your mind today?" Never ask "What would you like to practice today?" as a blank menu. Then wait.`;
+    return `Forge Law #012 continuity. Welcome back, ${name}. Continuity objectives (phrase in your own words — do not sticky-script): ${when} they wanted to work on ${goal}; notice ${observed}; offer open choice to keep working there or something new. Never ask "What would you like to practice today?" as a blank menu. Then wait.`;
   }
 
   if (struggle) {
-    return `Forge Law #012. Welcome back, ${name}. Continuity: "${when} you were working on ${struggle}. Want to keep going there, or is something else on your mind?" No topic menu. Then wait.`;
+    return `Forge Law #012. Welcome back, ${name}. Continuity objectives (your wording): ${when} they were working on ${struggle}; offer keep-going vs something else. No topic menu. Then wait.`;
   }
 
   if (pattern) {
@@ -149,7 +149,7 @@ export function buildWelcomeHint(input: {
 
   const last = input.lastScenarioTitle.trim();
   if (last) {
-    return `Forge Law #012. Welcome back, ${name}. ${when} you practiced ${last}. One calm continuity sentence, then: keep going there, or something new on your mind? No blank menu. Then wait.`;
+    return `Forge Law #012. Welcome back, ${name}. ${when} they practiced ${last}. One calm continuity sentence, then: keep going there, or something new on their mind? No blank menu. Then wait.`;
   }
 
   return `Forge Law #012. Welcome back, ${name}. One warm sentence that you remember them. Ask whether they want to continue recent work or something new is on their mind. No options list of skills. Then wait.`;
