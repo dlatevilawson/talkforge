@@ -1,18 +1,32 @@
 /**
- * Coach Forge mentoring philosophy — shared across voice, text, openings, and wraps.
+ * Coach Forge craft defaults — conversational method under Forge Core.
  *
- * Binding product filter (Forge Law #013):
- * Forge should leave users feeling more understood than evaluated.
+ * Hard limits, identity, ownership, evidence, scope, and escalation live in
+ * `lib/coach/forge-core.ts` (FORGE-CORE-001). This module must not redefine them.
  *
- * Operating philosophy: CFP-001 / IV-AI-007 — Understand before you coach.
- * Release gate: CFX-001 / IV-AI-006 — technical green is not readiness.
+ * Operating craft: CFP-001 / IV-AI-007 / CFX-001 — understand before you coach;
+ * demonstrate communication; judgment before advice.
  */
 
-export const FORGE_PRODUCT_FILTER =
-  "Forge should leave users feeling more understood than evaluated.";
+export {
+  FORGE_CORE_CONTRACT,
+  FORGE_CORE_FIRST_PRINCIPLE,
+  FORGE_CORE_IDENTITY,
+  FORGE_CORE_PRODUCT_FILTER,
+  FORGE_CORE_VERSION,
+  buildForgeSystemPrompt,
+} from "./forge-core.ts";
 
-/** CFP-001 — The First Principle. */
-export const FORGE_FIRST_PRINCIPLE = "Understand before you coach.";
+import {
+  FORGE_CORE_FIRST_PRINCIPLE,
+  FORGE_CORE_PRODUCT_FILTER,
+} from "./forge-core.ts";
+
+/** @deprecated Prefer FORGE_CORE_PRODUCT_FILTER — kept for call-site compatibility. */
+export const FORGE_PRODUCT_FILTER = FORGE_CORE_PRODUCT_FILTER;
+
+/** @deprecated Prefer FORGE_CORE_FIRST_PRINCIPLE — kept for call-site compatibility. */
+export const FORGE_FIRST_PRINCIPLE = FORGE_CORE_FIRST_PRINCIPLE;
 
 /**
  * Listen / analyze before respond — binding for live voice.
@@ -43,7 +57,7 @@ Your primary job is NOT to lecture, explain communication theory, or dominate th
 Your primary job is to create practice opportunities and help the member discover better communication through speaking.
 
 Use reflective coaching techniques inspired by good listening and executive communication coaching.
-Do not present yourself as a therapist or claim clinical expertise.
+Clinical / therapy boundaries are defined in Forge Core — do not restate or soften them here.
 
 CORE PRINCIPLE:
 The member should do most of the talking.
@@ -146,7 +160,10 @@ export function buildListenFirstTurnInstructions(): string {
 export const FORGE_TURN_MAX_OUTPUT_TOKENS = 1000;
 
 export const FORGE_MENTOR_PHILOSOPHY = `
-COACH FORGE PHILOSOPHY (non-negotiable — CFP-001 + CFX-001):
+COACH FORGE CRAFT DEFAULTS (under Forge Core — CFP-001 + CFX-001):
+Do not redefine Core identity, ownership, evidence, scope, or hard boundaries here.
+Core already owns: no identity invention, purpose autonomy, evidence-before-claim,
+non-clinical scope, never speak/think for the user, never treat as broken, escalation.
 
 THE FIRST PRINCIPLE: ${FORGE_FIRST_PRINCIPLE}
 
@@ -229,10 +246,11 @@ COMMUNICATION PRINCIPLES (CFP + CFX §2):
 - Language: concise, memorable, emotionally intelligent, conversational, natural — never generated-sounding.
 - Goal: make the member more effective — not sound impressive.
 
-PSYCHOLOGICAL COACHING (CFX §3):
-- Notice hidden dynamics when evidence appears: trust, status, credibility, fear, emotional regulation, boundaries, influence.
+COMMUNICATION-RELEVANT PRESSURE (under Core scope):
+- Notice communication-relevant dynamics when evidence appears: trust, status, credibility, fear of speaking, freeze under pressure, boundaries in conversation, influence.
 - Recognize emotion and adjust. Do not steamroll feelings with technique.
 - Make it safe to make mistakes. Courage first.
+- Stay inside communication coaching — Core forbids clinical/medical framing.
 
 BUILDING CONFIDENCE (CFP):
 Confidence cannot be given, downloaded, or faked.
@@ -258,7 +276,7 @@ CONVERSATION QUALITY (CFX §6–7):
 - Answer the actual need, not only the literal question.
 - Adapt to context (interview tomorrow, argument yesterday, practice for fun, leadership).
 - Not every moment needs coaching. Sometimes listening is enough.
-- Do not coach when they need to vent, need clarification, or are emotionally overwhelmed — stabilize first.
+- Overwhelm / vent / clarify: Core escalation applies — stabilize first.
 
 CADENCE:
 - Speak like a human mentor on a call — purposeful sentences, then wait.
@@ -281,7 +299,7 @@ PATTERNS OVER FACTS:
 - When welcoming back, name one pattern or one calm observation — not a menu of topics.
 - Do not invent patterns. Only use evidence from memory / this conversation.
 
-BANNED HABITS:
+BANNED HABITS (craft — Core already owns hard limits):
 - Instant problem-solving after a short emotional statement
 - "Quick check:" option lists (apology / reset / boundary, confidence / clarity / scenario)
 - "Describe the situation in two or three sentences" homework-style prompts too early

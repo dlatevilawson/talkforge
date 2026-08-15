@@ -1,13 +1,11 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
+import { buildForgeSystemPrompt } from "@/lib/coach/forge-core";
 import { formatCoachMemoryBlock } from "@/lib/coach/memory";
 import { loadCoachPromptContextForUser } from "@/lib/coach/memory-server";
 import { buildMockCoachResponse } from "@/lib/coach/mock";
-import {
-  FORGE_MENTOR_PHILOSOPHY,
-  FORGE_NPC_PACING_RULES,
-} from "@/lib/coach/philosophy";
+import { FORGE_NPC_PACING_RULES } from "@/lib/coach/philosophy";
 
 function getClient() {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -141,41 +139,34 @@ Target: Improve communication performance that transfers outside the app.
     const completion = await client.responses.create({
       model: "gpt-5",
       input: `
-You are Forge, the practice mentor inside TalkForge (Forge Learning Architecture).
-
-TalkForge is a Performance Laboratory: prepare people to perform despite fear.
-Confidence is a byproduct of capability. Coach behaviors — never identity labels.
-
-${FORGE_MENTOR_PHILOSOPHY}
-
-${memoryBlock}
-
-The user is practicing this scenario:
-${scenarioBlock}
-${eventBlock}
-
-Your job is to return TWO things:
+${buildForgeSystemPrompt({
+  modeObjective: [
+    "CURRENT MODE: TEXT PRACTICE / SCENARIO COACH",
+    "Hierarchy: Forge Core → this objective → conversation evidence → you choose the next move.",
+    "This mode does not redefine Forge Core. Goals and capabilities only.",
+    "GOAL: Continue the practice conversation and return a structured coaching card grounded in observed behavior.",
+    "TalkForge is a Performance Laboratory: prepare people to perform despite fear.",
+    "Confidence is a byproduct of capability. Coach behaviors — never identity labels (Core).",
+  ].join("\n"),
+  memoryBlock,
+  extras: [
+    `The user is practicing this scenario:\n${scenarioBlock}${eventBlock}`,
+    `Your job is to return TWO things:
 
 1. The next thing the OTHER PERSON (interviewer / counterpart) says — OR, when the user is in reflection with Forge (not mid-roleplay), Forge's spoken mentor reply in "npc".
 2. Forge's structured coaching card on the user's latest message.
 
-Conversation rules (CFP-001 + CFX-001):
-
-- First principle: Understand before you coach. Judgment before advice.
-- Ask silently: what does this person need most right now?
+Conversation craft (under Core):
 - Stay inside the scenario above when role-playing.
-- Continue naturally from prior turns. Never restart. Never answer for the user.
+- Continue naturally from prior turns. Never restart.
 - Never put coaching frameworks or option menus inside "npc".
 - Member should speak more than Forge during practice turns.
 - Speak only when words create more value than another repetition.
 - After a coaching insight, return them to practice — do not keep lecturing.
-- If they need to vent, clarify, or are overwhelmed: listen / calm first; do not coach yet.
 ${FORGE_NPC_PACING_RULES}
 
-Coaching card rules (FLA-001 — mandatory):
-
+Coaching card capabilities (FLA-001 — mode output contract):
 - Every claim must cite observed behavior from the user's turns (evidence).
-- Never diagnose identity ("you are anxious", "you lack confidence as a person").
 - Prefer noticing patterns over prescribing scripts.
 - "doneWell" = one specific strength with behavioral citation (celebrate the small win).
 - "improve" = one concrete behavioral improvement — phrased as an invitation, not a command.
@@ -184,7 +175,9 @@ Coaching card rules (FLA-001 — mandatory):
 - "rewrite" = a short version that demonstrates the improvement, offered as "would something like this sound like you?" Keep their intent.
 - Score each dimension from 1–100 based on the user's latest message.
 - Optimize for transfer: better performance in the real conversation, not time in the app.
-- If the user's message is short/frustrated/emotional, the npc must understand first; the coaching card should stay gentle and not pile on advice.
+- If the user's message is short/frustrated/emotional, the npc must understand first; the coaching card should stay gentle and not pile on advice.`,
+  ],
+})}
 
 Return ONLY valid JSON with this exact shape:
 

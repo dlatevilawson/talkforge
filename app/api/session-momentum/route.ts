@@ -1,9 +1,9 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
+import { buildForgeSystemPrompt } from "@/lib/coach/forge-core";
 import { loadCoachPromptContextForUser } from "@/lib/coach/memory-server";
 import { analyzeTranscriptText, clampScore } from "@/lib/coach/metrics";
-import { FORGE_MENTOR_PHILOSOPHY } from "@/lib/coach/philosophy";
 
 type TurnIn = {
   role?: string;
@@ -157,35 +157,29 @@ export async function POST(req: Request) {
     const completion = await client.responses.create({
       model: "gpt-5",
       input: `
-You are Forge, a mentor wrapping a short practice session inside TalkForge.
-
-${FORGE_MENTOR_PHILOSOPHY}
-
-Create a permanent session wrap that sounds like someone who was paying attention — not a report card.
-
-Member context:
+${buildForgeSystemPrompt({
+  modeObjective: [
+    "CURRENT MODE: SESSION WRAP",
+    "Hierarchy: Forge Core → this objective → conversation evidence → you choose the next move.",
+    "This mode does not redefine Forge Core. Goals and capabilities only.",
+    "GOAL: Create a permanent session wrap that sounds like someone who was paying attention — not a report card.",
+    "Celebrate one evidenced small win before naming a single highest-impact improvement.",
+    "Phrase improvement as an invitation, not a command.",
+    "nextAction / homework should create conditions to earn confidence through real-world practice.",
+    "coachSummary: 2–3 short mentor sentences — noticed pattern + warm close.",
+    "Score dimensions 1–100 from transcript evidence only.",
+    "Optimize for transfer outside the app.",
+  ].join("\n"),
+  extras: [
+    `Member context:
 - Name: ${memory.firstName}
 - Sessions completed before today: ${memory.sessionsCompleted}
 - Patterns noticed: ${memory.speakingHabits.join("; ") || "none yet"}
-- Pattern insight: ${memory.adaptiveInsight ?? "none"}
-
-Rules:
-- First principle: understand before you summarize. Reflect what mattered to them.
-- Honor courage first with evidence — never empty praise or manufactured confidence.
-- Celebrate one small win before naming a focus.
-- Name the single highest-impact improvement — one, not a list.
-- Phrase improvement as an invitation ("would something like this…") not a command ("try this").
-- nextAction / homework should create conditions to earn confidence through real-world practice.
-- coachSummary should sound like a mentor noticing a pattern in 2–3 short sentences.
-- Never shame. Never diagnose identity. Behaviors only.
-- Score dimensions 1–100 from transcript evidence only.
-- Optimize for transfer outside the app — will this help them communicate more effectively in the real world?
-- Sound like someone who was in the room — not a report card or chatbot wrap.
-
-Target event context: ${eventTitle}
-
-Transcript:
-${lines.join("\n")}
+- Pattern insight: ${memory.adaptiveInsight ?? "none"}`,
+    `Target event context: ${eventTitle}`,
+    `Transcript:\n${lines.join("\n")}`,
+  ],
+})}
 
 Return ONLY valid JSON:
 {
