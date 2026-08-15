@@ -16,6 +16,8 @@ type Props = {
  * Live conversation surface — Grok-like clarity:
  * Forge text open on the left; finalized user turns in dark bubbles on the right;
  * live partials in muted italics.
+ *
+ * Scrolls inside its own pane so the Hold-to-speak dock stays pinned below.
  */
 export default function ArenaConversation({
   turns,
@@ -28,9 +30,9 @@ export default function ArenaConversation({
   const userLive = liveUserText?.trim() ?? "";
 
   useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    scroller.scrollTop = scroller.scrollHeight;
   }, [turns.length, forgeLive, userLive]);
 
   const empty = turns.length === 0 && !forgeLive && !userLive;
@@ -47,7 +49,7 @@ export default function ArenaConversation({
           Conversation appears here as you and Forge speak.
         </p>
       ) : (
-        <ul className="flex w-full flex-col gap-4 pb-4 text-left">
+        <ul className="flex w-full flex-col gap-4 pb-3 text-left">
           {turns.map((turn) =>
             turn.role === "forge" ? (
               <li

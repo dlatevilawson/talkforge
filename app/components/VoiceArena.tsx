@@ -1691,7 +1691,7 @@ export default function VoiceArena({
             : "HOLD TO SPEAK";
 
   return (
-    <main className="relative min-h-[100dvh] overflow-hidden bg-[#000000] text-white">
+    <main className="relative h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#000000] text-white">
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_28%,rgba(212,175,55,0.12),transparent_52%)]"
         aria-hidden
@@ -1701,8 +1701,8 @@ export default function VoiceArena({
         aria-hidden
       />
 
-      <div className="relative mx-auto flex min-h-[100dvh] max-w-3xl flex-col px-5 pb-8 pt-[max(1.25rem,env(safe-area-inset-top))] sm:px-8">
-        <header className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+      <div className="relative mx-auto flex h-[100dvh] max-h-[100dvh] w-full max-w-3xl flex-col overflow-hidden px-5 pt-[max(1.25rem,env(safe-area-inset-top))] sm:px-8">
+        <header className="grid shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-2">
           <Link
             href="/app"
             className="justify-self-start text-[10px] font-semibold uppercase tracking-[0.22em] text-[#D4AF37]/70 transition hover:text-[#D4AF37]"
@@ -1727,7 +1727,7 @@ export default function VoiceArena({
           )}
         </header>
 
-        <section className="flex min-h-0 flex-1 flex-col items-center pb-6 pt-6 text-center sm:pt-10">
+        <section className="flex min-h-0 flex-1 flex-col items-center pt-4 text-center sm:pt-6">
           {isJoining ? (
             <>
               <div className="flex flex-1 flex-col items-center justify-center pb-16">
@@ -2083,14 +2083,14 @@ export default function VoiceArena({
                   liveUserText={liveUserDraft}
                 />
 
-                <div className="shrink-0 pt-3 text-center">
-                  <p className="text-center text-sm font-medium tracking-wide text-[#D4AF37]/85">
+                <div className="shrink-0 border-t border-[#D4AF37]/10 bg-gradient-to-t from-black via-black/95 to-transparent pt-3 text-center">
+                  <p className="text-center text-[11px] font-medium uppercase tracking-[0.18em] text-[#D4AF37]/80">
                     {presenceLabel}
                   </p>
 
                   {error && (
                     <p
-                      className="mt-4 max-w-md text-sm text-red-300"
+                      className="mt-3 max-w-md text-sm text-red-300"
                       role="alert"
                     >
                       {error}
@@ -2101,14 +2101,14 @@ export default function VoiceArena({
                     <button
                       type="button"
                       onClick={() => void handleResumeRemoteAudio()}
-                      className="mt-4 rounded-full border border-[#D4AF37]/30 px-5 py-2.5 text-sm text-[#e7d6b1] transition hover:bg-[#D4AF37]/10"
+                      className="mt-3 rounded-full border border-[#D4AF37]/30 px-5 py-2.5 text-sm text-[#e7d6b1] transition hover:bg-[#D4AF37]/10"
                     >
                       Hear Coach Forge
                     </button>
                   ) : null}
 
                   {micMode === "silent_fallback" && (
-                    <div className="mt-4 max-w-md">
+                    <div className="mx-auto mt-3 max-w-md">
                       <p className="text-sm text-amber-200/80">
                         {micFallbackReason === "permission_denied"
                           ? "Microphone access wasn’t granted. You can keep listening, then allow access in your browser and try again."
@@ -2135,12 +2135,12 @@ export default function VoiceArena({
                     </div>
                   )}
 
-                  <div className="mt-5 w-full pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-                    <div className="rounded-2xl border border-neutral-800 bg-neutral-900/40 px-4 py-4 backdrop-blur-lg sm:px-5">
+                  <div className="mt-4 w-full pb-[max(1.25rem,calc(env(safe-area-inset-bottom)+0.75rem))]">
+                    <div className="rounded-[1.35rem] border border-[#D4AF37]/18 bg-[#0c0c0d]/92 px-3.5 py-3.5 shadow-[0_-12px_40px_rgba(0,0,0,0.55)] backdrop-blur-xl sm:px-4">
                       {handsFree ? (
                         <div className="flex flex-wrap items-center justify-between gap-3">
-                          <p className="text-sm text-[#D4AF37]/90">
-                            Hands-Free Active — Speak Naturally
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#D4AF37]/90">
+                            Hands-Free · Speak Naturally
                           </p>
                           <div className="flex items-center gap-2">
                             <button
@@ -2151,22 +2151,22 @@ export default function VoiceArena({
                                 micMode !== "microphone" ||
                                 assessmentTerminalUi
                               }
-                              className="rounded-full border border-white/12 px-4 py-2 text-xs font-medium uppercase tracking-[0.12em] text-white/70 transition hover:bg-white/5 disabled:opacity-35"
+                              className="rounded-full border border-[#D4AF37]/22 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#e8d5a3]/85 transition hover:border-[#D4AF37]/4 hover:bg-[#D4AF37]/08 disabled:opacity-35"
                             >
                               {voice.handsFreeMuted ? "Unmute Mic" : "Mute Mic"}
                             </button>
                             <button
                               type="button"
                               onClick={() => void handleStop()}
-                              className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-black transition hover:bg-white/90"
+                              className="rounded-full border border-white/12 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/55 transition hover:border-white/25 hover:bg-white/5 hover:text-white/80"
                             >
                               Stop
                             </button>
                           </div>
                         </div>
                       ) : (
-                        <div className="flex flex-col items-center gap-3">
-                          <div className="flex w-full flex-wrap items-center justify-center gap-3">
+                        <div className="flex flex-col items-center gap-2.5">
+                          <div className="flex w-full items-center gap-2.5">
                             <button
                               type="button"
                               disabled={
@@ -2212,22 +2212,30 @@ export default function VoiceArena({
                                   handleSpeakUp();
                                 }
                               }}
-                              className={`min-w-[11rem] rounded-full px-10 py-3.5 text-sm font-semibold transition disabled:opacity-35 ${
+                              className={`relative flex min-h-[3.25rem] flex-1 items-center justify-center gap-2.5 rounded-full border px-5 py-3.5 text-[11px] font-semibold uppercase tracking-[0.2em] transition duration-200 select-none touch-none disabled:opacity-35 ${
                                 micLive
-                                  ? "bg-[#D4AF37] text-black"
-                                  : "bg-white text-black hover:bg-white/90"
+                                  ? "border-[#D4AF37] bg-[#D4AF37] text-black shadow-[0_0_36px_rgba(212,175,55,0.28)]"
+                                  : "border-[#D4AF37]/32 bg-[linear-gradient(180deg,rgba(212,175,55,0.1),rgba(12,12,13,0.92))] text-[#e8d5a3] hover:border-[#D4AF37]/55 hover:bg-[#D4AF37]/12 active:scale-[0.99]"
                               }`}
                             >
+                              <span
+                                className={`inline-flex h-2 w-2 shrink-0 rounded-full ${
+                                  micLive
+                                    ? "animate-pulse bg-black/70"
+                                    : "bg-[#D4AF37]/75 shadow-[0_0_10px_rgba(212,175,55,0.55)]"
+                                }`}
+                                aria-hidden
+                              />
                               {assessmentTerminalUi
                                 ? "Assessment ending"
                                 : micLive
-                                  ? "Listening"
+                                  ? "Listening…"
                                   : "Hold to speak"}
                             </button>
                             <button
                               type="button"
                               onClick={() => void handleStop()}
-                              className="rounded-full bg-white px-5 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                              className="inline-flex min-h-[3.25rem] shrink-0 items-center justify-center rounded-full border border-white/12 px-4 py-3.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/50 transition hover:border-white/22 hover:bg-white/[0.04] hover:text-white/75"
                             >
                               Stop
                             </button>
@@ -2235,13 +2243,13 @@ export default function VoiceArena({
                           {!isProUser ? (
                             <Link
                               href="/membership"
-                              className="text-xs text-[#D4AF37]/75 transition hover:text-[#D4AF37]"
+                              className="text-[10px] uppercase tracking-[0.14em] text-[#D4AF37]/55 transition hover:text-[#D4AF37]/85"
                             >
-                              Unlock Hands-Free Streaming with Pro →
+                              Unlock Hands-Free with Pro →
                             </Link>
                           ) : (
-                            <p className="text-xs text-white/35">
-                              Hold to speak — stable coaching mode
+                            <p className="text-[10px] uppercase tracking-[0.14em] text-white/28">
+                              Press and hold · release to send
                             </p>
                           )}
                         </div>
@@ -2273,7 +2281,7 @@ export default function VoiceArena({
         </section>
 
         {showDevDiagnostics && (
-          <footer className="pb-2">
+          <footer className="shrink-0 pb-2">
             <button
               type="button"
               onClick={() => setShowDiagnostics((v) => !v)}
