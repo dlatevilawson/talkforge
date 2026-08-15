@@ -2135,7 +2135,7 @@ export default function VoiceArena({
                     </div>
                   )}
 
-                  <div className="mt-4 w-full pb-[max(1.25rem,calc(env(safe-area-inset-bottom)+0.75rem))]">
+                  <div className="mt-4 w-full pb-[max(1.75rem,calc(env(safe-area-inset-bottom)+1.25rem))]">
                     <div className="rounded-[1.35rem] border border-[#D4AF37]/18 bg-[#0c0c0d]/92 px-3.5 py-3.5 shadow-[0_-12px_40px_rgba(0,0,0,0.55)] backdrop-blur-xl sm:px-4">
                       {handsFree ? (
                         <div className="flex flex-wrap items-center justify-between gap-3">
