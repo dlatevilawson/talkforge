@@ -12,39 +12,46 @@ import type { TranscriptTurn } from "@/lib/ce/transcript";
 export default function ArenaLayoutPreviewPage() {
   const [turns, setTurns] = useState<TranscriptTurn[]>([
     {
-      turnIndex: 1,
+      turnIndex: 0,
       role: "forge",
       text: "When you're trying to explain something out loud, what usually happens?",
       finalizedAt: "2026-08-15T00:00:01.000Z",
+      sourceEvent: "preview",
+    },
+    {
+      turnIndex: 1,
+      role: "founder",
+      text: "I know what I want to say, but the words don't come quickly when I feel watched.",
+      finalizedAt: "2026-08-15T00:00:02.000Z",
+      sourceEvent: "preview",
     },
     {
       turnIndex: 2,
-      role: "user",
-      text: "I know what I want to say, but the words don't come quickly when I feel watched.",
-      finalizedAt: "2026-08-15T00:00:02.000Z",
-    },
-    {
-      turnIndex: 3,
       role: "forge",
       text: "Is it more that you know the point but can't find the wording, or that the thought itself hasn't formed yet?",
       finalizedAt: "2026-08-15T00:00:03.000Z",
+      sourceEvent: "preview",
     },
   ]);
 
   function addMessage() {
-    const n = turns.length + 1;
-    setTurns((prev) => [
-      ...prev,
-      {
-        turnIndex: n,
-        role: n % 2 === 0 ? "user" : "forge",
-        text:
-          n % 2 === 0
-            ? `User reply ${n}: another concrete detail about speaking under pressure in meetings.`
-            : `Forge follow-up ${n}: one discriminating question about what happens in that exact moment.`,
-        finalizedAt: new Date().toISOString(),
-      },
-    ]);
+    setTurns((prev) => {
+      const n = prev.length;
+      const role = n % 2 === 0 ? ("founder" as const) : ("forge" as const);
+      return [
+        ...prev,
+        {
+          turnIndex: n,
+          role,
+          text:
+            role === "founder"
+              ? `User reply ${n + 1}: another concrete detail about speaking under pressure in meetings.`
+              : `Forge follow-up ${n + 1}: one discriminating question about what happens in that exact moment.`,
+          finalizedAt: new Date().toISOString(),
+          sourceEvent: "preview",
+        },
+      ];
+    });
   }
 
   return (
