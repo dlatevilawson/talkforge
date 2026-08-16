@@ -25,17 +25,31 @@ Authorized by [BUILD-SYS1-001](../../atos/product/BUILD-SYS1-001.md).
 
 Table `living_profiles` is deployed through the ordered path in
 `supabase/migrations/manifest.json`. `supabase/schema.sql` is review-only.
-Storage: `getLivingProfile` / `saveLivingProfile` (soft-fail if unmigrated).
 
-`evidenceLedger` / `profileInsights` are Phase 1 TypeScript fields. Mapping
-defaults missing DB columns to `[]`. A future migration may persist them as
-JSON columns — not required for this foundation slice.
+| Column | Role |
+|---|---|
+| `evidence_ledger` (jsonb, default `[]`) | System 1 observable evidence — **not** identity |
+| `profile_insights` (jsonb, default `[]`) | System 1 derived insights — never re-enter evidence |
+
+**Writers:** System 1 helpers only (`system1IntelligenceDbPayload` /
+`saveLivingProfileSystem1Intelligence`). Member PUT uses
+`memberLivingProfileDbPayload`, which **omits** these columns so updates cannot
+overwrite intelligence. Assessment routes must not write them either.
+
+**OD-9 migration path (when querying/auditing needs normalization):**
+
+1. Add `profile_evidence` / `profile_insight_rows` tables.
+2. Dual-write from System 1 writers behind a flag.
+3. Backfill from JSONB.
+4. Flip reads to SQL; keep System 1 as the only mutation API.
+5. Deprecate JSONB columns after verification.
+
+Mapping still defaults missing/null columns to `[]` for pre-migration soft-fail.
 
 ## Next implementation slices
 
-1. Apply `living_profiles` migration in production (if still pending).
-2. Persist evidence ledger + profile insights (DB columns).
-3. Assistant Coach discovery flow writing evidence (not Forge).
-4. Gradually bridge assessment-synthesis onto System 1 helpers.
-5. Unify profile UI onto one surface.
-6. Intelligence confirmation flow for pending provenance proposals.
+1. Apply `20260816_living_profile_evidence_insights.sql` in production.
+2. Assistant Coach discovery flow writing evidence via System 1 (Phase 4B.2+).
+3. Gradually bridge assessment-synthesis onto System 1 helpers.
+4. Unify profile UI onto one surface.
+5. Intelligence confirmation flow for pending provenance proposals.

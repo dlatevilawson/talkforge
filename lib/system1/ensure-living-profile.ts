@@ -13,9 +13,6 @@ import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { mapLivingProfileRow, type LivingProfileRow } from "./persistence";
 import type { LivingProfile, ProvenanceRecord } from "./types";
 
-const LP_SELECT =
-  "user_id, version, display_name, preferred_nickname, purpose_statement, personal_principles, seasons, coaching_intensity, preferred_coaching_style, mattering_conversation_ids, provenance, presence_scores, goals, strengths, challenges, profile_source, updated_at";
-
 export type EnsureLivingProfileResult = {
   profile: LivingProfile | null;
   tableReady: boolean;
@@ -71,7 +68,7 @@ export async function ensurePersistedLivingProfile(
 ): Promise<EnsureLivingProfileResult> {
   const { data, error } = await supabase
     .from("living_profiles")
-    .select(LP_SELECT)
+    .select("*")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -103,6 +100,8 @@ export async function ensurePersistedLivingProfile(
   const now = new Date().toISOString();
   const provenance = bootstrapProvenance(displayName, now);
 
+  // Omit evidence_ledger / profile_insights: DB defaults apply after 4B.1
+  // migration; pre-migration inserts still succeed without those columns.
   const { data: inserted, error: insertError } = await supabase
     .from("living_profiles")
     .insert({
@@ -119,7 +118,7 @@ export async function ensurePersistedLivingProfile(
       provenance,
       updated_at: now,
     })
-    .select(LP_SELECT)
+    .select("*")
     .single();
 
   if (insertError) {
@@ -130,7 +129,7 @@ export async function ensurePersistedLivingProfile(
     if (insertError.code === "23505") {
       const { data: raced, error: raceError } = await supabase
         .from("living_profiles")
-        .select(LP_SELECT)
+        .select("*")
         .eq("user_id", user.id)
         .maybeSingle();
       if (raceError) throw new Error(raceError.message);
