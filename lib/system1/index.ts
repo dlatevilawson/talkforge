@@ -44,3 +44,33 @@ export {
   normalizeStringList,
   PRESENCE_SCORE_KEYS,
 } from "./assessment";
+
+export type {
+  AddProfileEvidenceInput,
+  ProfileEvidenceCategory,
+  ProfileEvidenceConfidence,
+  ProfileEvidenceRecord,
+  ProfileEvidenceSourceType,
+} from "./profile-evidence";
+export {
+  addProfileEvidence,
+  assertEvidenceNotSynthesized,
+  createProfileEvidence,
+  evidenceForInsightDerivation,
+  isFactCategory,
+  looksLikeInteractionSignal,
+} from "./profile-evidence";
+
+export type {
+  CoachContext,
+  ProfileInsight,
+  ProfileInsightConfidence,
+  ProfileInsightKind,
+  ProfileInsightStatus,
+} from "./profile-intelligence";
+export {
+  addEvidenceToLivingProfile,
+  applyDerivedInsightsToLivingProfile,
+  buildCoachContext,
+  deriveProfileInsights,
+} from "./profile-intelligence";
