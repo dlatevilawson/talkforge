@@ -70,6 +70,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-PROD-006](product-ideas/IV-PROD-006-generation-4-coaching.md) | Generation-4 coaching — remember who you’re becoming | Approved | Critical | Medium | `product-ideas/IV-PROD-006-generation-4-coaching.md` |
 | [IV-PROD-007](product-ideas/IV-PROD-007-marketing-brain.md) | Marketing Brain (direct-response front door) | In Development | Critical | High | `product-ideas/IV-PROD-007-marketing-brain.md` |
 | [IV-PROD-008](product-ideas/IV-PROD-008-billing-membership.md) | Billing & Membership Platform (Free / Pro) | In Development | Critical | High | `product-ideas/IV-PROD-008-billing-membership.md` |
+| [IV-PROD-009](product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md) | First-user Assistant Coach journey (pre-account value) | Building | Critical | High | `product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md` |
 
 ## Features (9)
 
@@ -190,6 +191,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-AI-006](ai-ideas/IV-AI-006-coach-forge-excellence.md) | Coach Forge Communication Excellence Assessment | In Development | AI Ideas |
 | [IV-AI-007](ai-ideas/IV-AI-007-coach-forge-first-principle.md) | Coach Forge First Principle — Understand before you coach | In Development | AI Ideas |
 | [IV-PROD-008](product-ideas/IV-PROD-008-billing-membership.md) | Billing & Membership Platform (Free / Pro) | In Development | Product Ideas |
+| [IV-PROD-009](product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md) | First-user Assistant Coach journey (pre-account value) | Building | Product Ideas |
 | [IV-RES-004](research-ideas/IV-RES-004-transfer-outside-app.md) | Transfer outside the app is the scoreboard | Researching | Research Ideas |
 | [IV-FUT-003](future-ideas/IV-FUT-003-multi-year-mentor.md) | Multi-year mentor relationship vision | Future | Future Ideas |
 | [IV-REJ-001](rejected-ideas/IV-REJ-001-optimize-engagement.md) | Optimize for engagement / time-in-app | Rejected | Rejected Ideas |

@@ -22,9 +22,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | [CXA-001](atos/product/CXA-001-chief-experience-architect-charter.md) | Chief Experience Architect — Canonical member experience doctrine |
 | [AUDIT-001](atos/product/AUDIT-001-architecture-readiness.md) | Architecture Readiness Audit (baseline NO-GO) |
 | [AUDIT-001.1](atos/product/AUDIT-001.1-architecture-reaudit.md) | Re-audit — **NO-GO** unconstrained · **CONDITIONAL GO** SYS1/SYS2 |
-| [AUDIT-001.2](atos/product/AUDIT-001.2-conditional-go-reaudit.md) | Conditional GO re-audit — **GO** prod migration/hardening · **NO-GO** features |
+| [AUDIT-001.2](atos/product/AUDIT-001.2-conditional-go-reaudit.md) | Conditional GO re-audit — **GO** prod migration/hardening · **NO-GO** features (**Decision 059 carve-out:** AC first-user track) |
 | [REMEDIATE-002](atos/product/REMEDIATE-002-conditional-go.md) | Conditional GO implementation report |
-| [EXEC-VERIFY-001](atos/product/EXEC-VERIFY-001-final-architecture-certification.md) | Final architecture certification — **NO-GO** feature development |
+| [EXEC-VERIFY-001](atos/product/EXEC-VERIFY-001-final-architecture-certification.md) | Final architecture certification — **NO-GO** general features · **Decision 059** AC journey carve-out |
+| [AC-JOURNEY-001](atos/product/AC-JOURNEY-001-first-user-architecture.md) | First-user Assistant Coach journey (OD-0…10 decided) |
+| [PHASE4B-AC](atos/product/PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md) | Phase 4B migration/API/security slice sequence |
 | [HARDEN-001](atos/product/HARDEN-001-final-architecture-hardening.md) | Phases 1–3 certification — **Frozen Historical** |
 | [HARDEN-002](atos/product/HARDEN-002-identity-integrity.md) | Phase 4 identity integrity — **Frozen Historical** |
 | [HARDEN-003](atos/product/HARDEN-003-data-lifecycle-integrity.md) | Phase 5 data lifecycle integrity — **Frozen Historical** |
@@ -59,8 +61,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Phase 3 code follows BUILD-SYS1 → SYS2 → CE → UX dependencies.
 - **Dual ship test:** Craft Law #001 + Design Principle #001 (both must pass).
 - **Experience authority (Decision 058 / CXA-001):** CXA owns member experience standards and may require redesign; Founder retains final production approval. Homepage hierarchy is adaptive priority. Outcomes are training intentions, never transformation guarantees. Undefined progress metrics must not ship.
-- **Remediation (Decision 053 + AUDIT-001.2):** LP UI and System 2 contracts are implemented. Only production migration verification / controlled hardening may proceed. **NO-GO** for feature expansion and held identity PR merges. Respect FREEZE-001 / OWN-001 / Forge Laws #014–#017.
-- **Certification (EXEC-VERIFY-001):** **NO-GO** for feature development. Do not lift FREEZE-001 or add product capability until required security, SSOT, readiness-route, data-lifecycle, and registry fixes are re-certified.
+- **Remediation (Decision 053 + AUDIT-001.2):** LP UI and System 2 contracts are implemented. Production migration verification / controlled hardening remain in scope. **NO-GO** for unrelated feature expansion and held identity PR merges. Respect FREEZE-001 / OWN-001 / Forge Laws #014–#017.
+- **Certification (EXEC-VERIFY-001):** Baseline remains **NO-GO** for general feature development. **Carve-out (Decision 059 / OD-0):** Assistant Coach first-user architecture may proceed via Phase 4B slices in [PHASE4B-AC-IMPLEMENTATION-SEQUENCE](atos/product/PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md). Do not lift FREEZE-001 for held identity PRs. Do not treat this as a general feature GO.
+- **Assistant Coach first-user track (Decision 059):** Pre-account Assistant Coach → semantic value gate → claim → Forge. Signed HttpOnly cookie + server anon session (no guest revival). 14-day anon TTL. Hard gate after meaningful value. AC primary landing CTA; Assessment demoted from default FTUE but kept. Soft email verify for Coach continuity. JSONB evidence/insights with System 1 sole writer + future normalized migration path. Gate copy not finalized in architecture PRs. Turn safety cap configurable; conversion is semantic.
 - **Checkpoint immutability:** HARDEN-001 through HARDEN-005 are frozen historical certifications. Every later hardening phase requires a separate Founder-approved checkpoint document; do not append implementation evidence to a frozen checkpoint.
 - **Database deployment SSOT:** Only the ordered paths in `supabase/migrations/manifest.json` are deployable. `supabase/schema.sql` is a non-deployable reference snapshot.
 - **Guest migration authorization:** HARDEN-005 retires privileged cloud guest reassignment while preserving same-device local migration. `npm run guest-migration:check` enforces this boundary. Archive recovery is prohibited without a separate Founder-approved proof-of-possession checkpoint.
@@ -70,4 +73,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Do **not** treat Idea Vault entries, agent drafts, or shipped features as Canonical without Founder admission.
 - Every new idea enters the Idea Vault **before** discussion continues elsewhere.
 - Do **not** add Idea Vault metadata fields without a Founder Decision.
-- Do **not** ship new product features that are not documented, categorized, blind-spot reviewed, and roadmap-linked — except continuation of already-ratified tracks (e.g. CE-001 under RES-013).
+- Do **not** ship new product features that are not documented, categorized, blind-spot reviewed, and roadmap-linked — except continuation of already-ratified tracks (e.g. CE-001 under RES-013; Assistant Coach first-user Phase 4B under Decision 059 / IV-PROD-009).

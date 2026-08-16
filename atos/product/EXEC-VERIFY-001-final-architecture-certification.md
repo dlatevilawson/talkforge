@@ -16,6 +16,8 @@
 
 # **NO-GO for feature development.**
 
+> **Amendment (Decision 059, 2026-08-16):** This certification’s general **NO-GO** remains. Founder Decision 059 **explicitly supersedes** it **only** for the Assistant Coach first-user architecture (Phase 4B slices). It is not a general lift of feature GO or FREEZE-001.
+
 TalkForge has a strong doctrine and a materially improved implementation substrate. The intended architecture is legible:
 
 ```
@@ -260,9 +262,11 @@ No circular TypeScript dependency was observed in the bounded System1/System2 an
 
 # **NO-GO**
 
-TalkForge is **not certified** to transition into feature development. The architecture is coherent enough to support a narrowly scoped hardening sprint, but not strong enough to safely absorb new products, missions, or identity changes.
+TalkForge is **not certified** to transition into **general** feature development. The architecture is coherent enough to support a narrowly scoped hardening sprint, but not strong enough to safely absorb unbounded new products, missions, or identity changes.
 
-The next work is the ten required fixes above. Re-certify only after production migration evidence, route-level readiness enforcement, data lifecycle repair, security closure, and documentation integrity are demonstrated.
+The next work for certification closure remains the required fixes above. Re-certify general feature GO only after production migration evidence, route-level readiness enforcement, data lifecycle repair, security closure, and documentation integrity are demonstrated.
+
+**Decision 059 carve-out:** Assistant Coach first-user Phase 4B may proceed under Founder authorization without treating this document as a blanket feature GO.
 
 ---
 
