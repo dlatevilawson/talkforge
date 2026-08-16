@@ -7,8 +7,8 @@ import type {
   LivingProfile,
   PersonalPrinciple,
   ProvenanceRecord,
-} from "@/lib/system1/types";
-import { canWriteLivingProfileField } from "@/lib/system1/types";
+} from "./types.ts";
+import { canWriteLivingProfileField } from "./types.ts";
 
 export type MemberLivingProfileInput = {
   displayName?: string;

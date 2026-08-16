@@ -142,6 +142,8 @@ create table if not exists public.living_profiles (
   preferred_coaching_style text not null default '',
   mattering_conversation_ids text[] not null default '{}',
   provenance jsonb not null default '[]'::jsonb,
+  evidence_ledger jsonb not null default '[]'::jsonb,
+  profile_insights jsonb not null default '[]'::jsonb,
   presence_scores jsonb,
   goals text[] not null default '{}',
   strengths text[] not null default '{}',
@@ -158,6 +160,10 @@ create table if not exists public.living_profiles (
 
 comment on column public.living_profiles.version is
   'Optimistic-concurrency token; compare current value and increment on each write.';
+comment on column public.living_profiles.evidence_ledger is
+  'System 1 observable evidence ledger (JSONB). Not identity. Written only via System 1 helpers. OD-9: normalize later via dual-write/backfill if querying/auditing requires it.';
+comment on column public.living_profiles.profile_insights is
+  'System 1 derived profile insights (JSONB). Must never re-enter evidence_ledger. OD-9: normalize later with the same dual-write path when needed.';
 comment on column public.living_profiles.presence_scores is
   'Inferred 1–10 skill scores from assessment conversation (test slice).';
 comment on column public.living_profiles.profile_source is

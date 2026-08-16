@@ -5,7 +5,7 @@ import { emptyLivingProfile } from "@/lib/system1/profile";
 import { ensurePersistedLivingProfile } from "@/lib/system1/ensure-living-profile";
 import { applyMemberLivingProfileUpdate } from "@/lib/system1/member-writes";
 import { attachLegacyCoachMemoryEvidence } from "@/lib/system1/migrate-from-coach-memory";
-import { mapLivingProfileRow } from "@/lib/system1/persistence";
+import { mapLivingProfileRow, memberLivingProfileDbPayload } from "@/lib/system1/persistence";
 import type { LivingProfile } from "@/lib/system1/types";
 import type { CoachMemory } from "@/lib/coach/types";
 
@@ -54,18 +54,7 @@ async function saveMemberLivingProfile(
   profile: LivingProfile,
   expectedVersion: number
 ): Promise<MemberSaveResult> {
-  const payload = {
-    display_name: profile.displayName,
-    preferred_nickname: profile.preferredNickname,
-    purpose_statement: profile.purposeStatement,
-    personal_principles: profile.personalPrinciples,
-    seasons: profile.seasons,
-    coaching_intensity: profile.coachingIntensity,
-    preferred_coaching_style: profile.preferredCoachingStyle,
-    mattering_conversation_ids: profile.matteringConversationIds,
-    provenance: profile.provenance,
-    updated_at: profile.updatedAt,
-  };
+  const payload = memberLivingProfileDbPayload(profile);
 
   const query =
     expectedVersion === 0

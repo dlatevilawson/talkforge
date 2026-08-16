@@ -14,7 +14,7 @@ import type {
   GrowthSummary,
   SessionReport,
 } from "@/lib/coach/types";
-import { mapLivingProfileRow } from "@/lib/system1/persistence";
+import { mapLivingProfileRow, system1IntelligenceDbPayload } from "@/lib/system1/persistence";
 import type { LivingProfile } from "@/lib/system1/types";
 import type {
   ConversationTurn,
@@ -709,6 +709,63 @@ export async function saveLivingProfileProvenance(
   if (!data) {
     throw new LivingProfileConflictError();
   }
+}
+
+/**
+ * Persist System 1 evidence ledger + profile insights only.
+ * Does not write identity fields (purpose, principles, seasons, etc.).
+ * Call only after System 1 validation/derivation — never raw model output.
+ */
+export async function saveLivingProfileSystem1Intelligence(
+  profile: Pick<
+    LivingProfile,
+    "userId" | "version" | "evidenceLedger" | "profileInsights" | "updatedAt"
+  >
+): Promise<LivingProfile | null> {
+  if (profile.version < 1) {
+    throw new LivingProfileConflictError();
+  }
+
+  const supabase = requireSupabase();
+  const intelligence = system1IntelligenceDbPayload(profile);
+
+  const payload = {
+    ...intelligence,
+    version: profile.version + 1,
+    updated_at: profile.updatedAt,
+  };
+
+  const { data, error } = await supabase
+    .from("living_profiles")
+    .update(payload)
+    .eq("user_id", profile.userId)
+    .eq("version", profile.version)
+    .select("*")
+    .maybeSingle();
+
+  if (error) {
+    if (
+      error.message.includes("living_profiles") ||
+      error.message.includes("evidence_ledger") ||
+      error.message.includes("profile_insights") ||
+      error.code === "PGRST204" ||
+      error.code === "PGRST205" ||
+      error.code === "42703"
+    ) {
+      console.warn(
+        "[system1] living_profiles intelligence columns unavailable:",
+        error.message
+      );
+      return null;
+    }
+    throw new Error(
+      `Failed to save living profile intelligence: ${error.message}`
+    );
+  }
+  if (!data) {
+    throw new LivingProfileConflictError();
+  }
+  return mapLivingProfile(data);
 }
 
 export async function getGrowthSummary(userId: string): Promise<GrowthSummary> {

@@ -1,3 +1,12 @@
+/**
+ * Living Profile row mapping — single persistence shape (no second profile model).
+ *
+ * Phase 4B.1 (Decision 059 / OD-9): `evidence_ledger` + `profile_insights` are
+ * persisted JSONB columns. System 1 remains the sole writer/authority for those
+ * fields. Member / Assessment write paths must not accept client-supplied
+ * evidence or insights. Validation and derivation stay in profile-evidence /
+ * profile-intelligence — persistence only stores what System 1 already produced.
+ */
 import {
   normalizePresenceScores,
   normalizeStringList,
@@ -19,9 +28,7 @@ export type LivingProfileRow = {
   preferred_coaching_style?: string | null;
   mattering_conversation_ids?: string[] | null;
   provenance?: LivingProfile["provenance"] | null;
-  /** Optional until DB migration — defaults to []. */
   evidence_ledger?: ProfileEvidenceRecord[] | null;
-  /** Optional until DB migration — defaults to []. */
   profile_insights?: ProfileInsight[] | null;
   presence_scores?: LivingProfile["presenceScores"] | null;
   goals?: string[] | null;
@@ -30,6 +37,10 @@ export type LivingProfileRow = {
   profile_source?: string | null;
   updated_at?: string | null;
 };
+
+/** Canonical select list including Phase 4B.1 intelligence columns. */
+export const LIVING_PROFILE_SELECT =
+  "user_id, version, display_name, preferred_nickname, purpose_statement, personal_principles, seasons, coaching_intensity, preferred_coaching_style, mattering_conversation_ids, provenance, evidence_ledger, profile_insights, presence_scores, goals, strengths, challenges, profile_source, updated_at";
 
 function mapProfileSource(value: unknown): ProfileSource | null {
   if (
@@ -73,4 +84,81 @@ export function mapLivingProfileRow(row: LivingProfileRow): LivingProfile {
     profileSource: mapProfileSource(row.profile_source),
     updatedAt: row.updated_at ?? new Date().toISOString(),
   };
+}
+
+/**
+ * Member-authorized DB payload. Intentionally omits evidence_ledger and
+ * profile_insights so member PUT cannot overwrite System 1 intelligence
+ * (columns left unchanged on UPDATE; DB defaults apply on INSERT).
+ */
+export function memberLivingProfileDbPayload(profile: LivingProfile): {
+  display_name: string;
+  preferred_nickname: string;
+  purpose_statement: string;
+  personal_principles: LivingProfile["personalPrinciples"];
+  seasons: LivingProfile["seasons"];
+  coaching_intensity: LivingProfile["coachingIntensity"];
+  preferred_coaching_style: string;
+  mattering_conversation_ids: string[];
+  provenance: LivingProfile["provenance"];
+  updated_at: string;
+} {
+  return {
+    display_name: profile.displayName,
+    preferred_nickname: profile.preferredNickname,
+    purpose_statement: profile.purposeStatement,
+    personal_principles: profile.personalPrinciples,
+    seasons: profile.seasons,
+    coaching_intensity: profile.coachingIntensity,
+    preferred_coaching_style: profile.preferredCoachingStyle,
+    mattering_conversation_ids: profile.matteringConversationIds,
+    provenance: profile.provenance,
+    updated_at: profile.updatedAt,
+  };
+}
+
+/**
+ * System 1–only intelligence columns. Callers must produce these via
+ * profile-evidence / profile-intelligence helpers — never raw model JSON.
+ */
+export function system1IntelligenceDbPayload(
+  profile: Pick<LivingProfile, "evidenceLedger" | "profileInsights">
+): {
+  evidence_ledger: ProfileEvidenceRecord[];
+  profile_insights: ProfileInsight[];
+} {
+  return {
+    evidence_ledger: profile.evidenceLedger ?? [],
+    profile_insights: profile.profileInsights ?? [],
+  };
+}
+
+/** Full row shape for round-trip tests and System 1 persistence helpers. */
+export function livingProfileToRow(profile: LivingProfile): LivingProfileRow {
+  return {
+    user_id: profile.userId,
+    version: profile.version,
+    display_name: profile.displayName,
+    preferred_nickname: profile.preferredNickname,
+    purpose_statement: profile.purposeStatement,
+    personal_principles: profile.personalPrinciples,
+    seasons: profile.seasons,
+    coaching_intensity: profile.coachingIntensity,
+    preferred_coaching_style: profile.preferredCoachingStyle,
+    mattering_conversation_ids: profile.matteringConversationIds,
+    provenance: profile.provenance,
+    evidence_ledger: profile.evidenceLedger ?? [],
+    profile_insights: profile.profileInsights ?? [],
+    presence_scores: profile.presenceScores,
+    goals: profile.goals,
+    strengths: profile.strengths,
+    challenges: profile.challenges,
+    profile_source: profile.profileSource,
+    updated_at: profile.updatedAt,
+  };
+}
+
+/** Serialize then map — must preserve evidence/insights without re-deriving. */
+export function roundTripLivingProfile(profile: LivingProfile): LivingProfile {
+  return mapLivingProfileRow(livingProfileToRow(profile));
 }

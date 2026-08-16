@@ -29,6 +29,15 @@ export type { MemberLivingProfileInput } from "./member-writes";
 export { applyMemberLivingProfileUpdate } from "./member-writes";
 export type { LegacyEvidenceMigrationResult } from "./migrate-from-coach-memory";
 export { attachLegacyCoachMemoryEvidence } from "./migrate-from-coach-memory";
+export type { LivingProfileRow } from "./persistence";
+export {
+  LIVING_PROFILE_SELECT,
+  livingProfileToRow,
+  mapLivingProfileRow,
+  memberLivingProfileDbPayload,
+  roundTripLivingProfile,
+  system1IntelligenceDbPayload,
+} from "./persistence";
 export type {
   AssessmentExtraction,
   PresenceScores,

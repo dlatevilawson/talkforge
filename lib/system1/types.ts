@@ -115,14 +115,15 @@ export type LivingProfile = {
   /** Provenance ledger for profile claims */
   provenance: ProvenanceRecord[];
   /**
-   * Observable evidence ledger (Phase 1). Not identity.
-   * Interaction signals allowed; synthesized claims forbidden.
-   * Persistence of this field may require a future DB migration.
+   * Observable evidence ledger (Phase 1 + 4B.1 JSONB persistence).
+   * Not identity. Interaction signals allowed; synthesized claims forbidden.
+   * System 1 is the sole writer/authority (Decision 059 / OD-9).
    */
   evidenceLedger: ProfileEvidenceRecord[];
   /**
-   * Derived profile insights (Phase 1). Separate from evidence;
-   * must never re-enter the evidence ledger.
+   * Derived profile insights (Phase 1 + 4B.1 JSONB persistence).
+   * Separate from evidence; must never re-enter the evidence ledger.
+   * System 1 is the sole writer/authority (Decision 059 / OD-9).
    */
   profileInsights: ProfileInsight[];
   /** Assessment test slice — inferred 1–10 scores (null if incomplete/unscored). */
