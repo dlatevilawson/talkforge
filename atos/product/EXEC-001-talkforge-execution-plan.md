@@ -126,7 +126,9 @@ The company operating system is **Approved**. Phase 3 product implementation con
 
 ## Immediate next step (agents)
 
-Company OS is **Approved**. Final certification ([EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md)) is **NO-GO** for feature development. Only the report's required hardening fixes may proceed; no held identity PR merge. Respect [FREEZE-001](FREEZE-001-identity-pr-hold.md) and [OWN-001](OWN-001-identity-ownership-matrix.md).
+Company OS is **Approved**. [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) remains **NO-GO** for **general** feature development. Hardening fixes may continue; no held identity PR merge under [FREEZE-001](FREEZE-001-identity-pr-hold.md).
+
+**Decision 059 carve-out:** Implement Assistant Coach first-user Phase 4B in **small slices** per [PHASE4B-AC-IMPLEMENTATION-SEQUENCE](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md) (next code slice: **4B.1** LP JSONB). Respect [OWN-001](OWN-001-identity-ownership-matrix.md); do not resurrect guests ([HARDEN-005](HARDEN-005-guest-migration-authorization.md)).
 
 
 ---
@@ -158,3 +160,4 @@ Company OS is **Approved**. Final certification ([EXEC-VERIFY-001](EXEC-VERIFY-0
 | 2.1.0 | 2026-08-02 | Overall Founder Assessment: APPROVE (Decision 051); merge with main Step 2 freeze |
 | 2.2.0 | 2026-08-02 | Admitted CRAFT-LAW-001 + DES-001 (Decision 052) |
 | 2.3.0 | 2026-08-02 | AUDIT-001 Architecture Readiness Audit — NO-GO; Remediation Freeze (Decision 053) |
+| 2.4.0 | 2026-08-16 | Decision 059 — AC first-user GO carve-out; Phase 4B sequence |

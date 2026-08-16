@@ -66,4 +66,12 @@ This is an architecture fidelity audit. It is not a feature, performance, UX, or
 
 # **NO-GO for feature expansion or held identity-PR merges.**
 
-The codebase now enforces the frozen architecture materially rather than merely documenting it. The only unresolved correctness risk is operational: the Living Profile migration must be applied and verified in the production database before the SSOT is considered live.
+The codebase now enforces the frozen architecture materially rather than merely documenting it. The only unresolved correctness risk is operational: The Living Profile migration must be applied and verified in the production database before the SSOT is considered live.
+
+---
+
+## Amendment — Decision 059 (2026-08-16)
+
+**Historical verdict above is preserved.** Decision 059 does **not** rewrite AUDIT-001.2.
+
+**Carve-out only:** The feature-expansion **NO-GO** is **explicitly superseded for the Assistant Coach first-user architecture track** (IV-PROD-009 / AC-JOURNEY-001 / Phase 4B slices). Unrelated feature expansion and held identity-PR merges remain **NO-GO**. FREEZE-001 and OWN-001 stand. See `PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md`.

@@ -90,6 +90,7 @@ Authoritative — {state}
 | 050 | Authorize Steps 3–18 continuum | See Decision 050 |
 | 052 | Admit Craft Law #001 + Design Principle #001 | Canonical |
 | 058 / CXA-001 | Admit Chief Experience Architect Charter | Canonical |
+| 059 / AC-JOURNEY-GO-001 | Authorize AC first-user architecture; supersede feature NO-GO for this track only | Authoritative |
 
 Full history: `atlas/decisions.md`.
 
@@ -111,3 +112,4 @@ Full history: `atlas/decisions.md`.
 |---|---|---|
 | 1.0.0 | 2026-08-02 | EXEC-001 Step 3 — Decision Ledger formalized |
 | 1.1.0 | 2026-08-04 | Indexed Decision 058 / CXA-001 constitutional admission |
+| 1.2.0 | 2026-08-16 | Indexed Decision 059 / AC first-user GO carve-out (OD-0…10) |

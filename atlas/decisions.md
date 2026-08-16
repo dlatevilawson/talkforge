@@ -980,6 +980,102 @@ Authoritative — ✅ Admitted 2026-08-04
 
 ---
 
+# Decision 059
+
+Decision Alias:
+AC-JOURNEY-GO-001
+
+Title:
+Authorize Assistant Coach first-user architecture (pre-account value → claim → Forge) and supersede the feature NO-GO for this track only.
+
+Reason:
+
+Founder open decisions OD-0 through OD-10 resolve Phase 4A (`AC-JOURNEY-001`). Visitors must experience Assistant Coach and receive meaningful understanding before account creation. Authentication attaches ownership and persistence; it must not gate first value. Forge remains account-gated coaching. The prior AUDIT-001.2 / EXEC-VERIFY-001 / Decision 053 feature-development NO-GO remains in force for unrelated product expansion and held identity PRs, but is explicitly carved out for this Assistant Coach first-user track.
+
+Alternatives Considered:
+
+Keep global feature NO-GO and delay AC journey — rejected; blocks the ratified conversion architecture.
+
+Soft continue-anonymously forever after the save gate — rejected; continuing indefinitely requires an account (hard gate after meaningful value).
+
+Immediate account gate before any Coach value — rejected; contradicts value-before-auth.
+
+Resurrect retired cloud guest / `guest_*` identity (HARDEN-005) — rejected; use signed HttpOnly cookie + server-side anonymous session instead.
+
+Dual equal landing CTAs (Coach + Assessment/signup) — rejected; Assistant Coach is the primary landing CTA.
+
+Delete Assessment now — rejected; demote from default FTUE; keep available until AC is proven in production.
+
+Hard email verification before claim/resume — rejected unless a later security Decision proves absolute necessity; prefer soft verify so value → account → continuation is not interrupted.
+
+Normalized evidence tables in the first cut — deferred; JSONB ledger + profile insights on Living Profile is acceptable initially if System 1 remains sole writer/authority, with an explicit migration path to normalized evidence later.
+
+Finalize gate marketing copy in the architecture PR — rejected; copy is product/UI work and will be tested later.
+
+Treat turn count (e.g. ten) as the conversion gate — rejected; ten turns is a configurable safety/economic limit only. Conversion remains semantic (`hasExperiencedValue`).
+
+Blind Spots:
+
+Anonymous conversational data retention vs recovery (mitigated by 14-day TTL).
+
+Abuse of unpaid anon turns (mitigated by semantic hard gate after value + configurable turn safety/economic cap).
+
+Claim merge races and double-claim (requires idempotent claim API).
+
+Onboarding skip may miss account-required fields (collect only missing required account info).
+
+JSONB evidence may hinder audit/query later (documented migration path required in Phase 4B).
+
+Risks:
+
+Agents may misread this Decision as a general lift of FREEZE-001 or unrestricted feature GO — it is not. Scope is Assistant Coach first-user journey only.
+
+Soft email verification may increase abuse surface — contain with rate limits, TTL, Forge still behind account (+ existing `/app` verify gate may remain until separately revised).
+
+Primary CTA shift may reduce Assessment discovery during transition — Assessment remains reachable elsewhere.
+
+Final Decision:
+
+**GO** for the Assistant Coach first-user architecture described in `AC-JOURNEY-001`, under Founder decisions:
+
+| ID | Binding answer |
+|---|---|
+| **OD-0** | **GO.** Explicitly supersedes the old feature **NO-GO for this specific Assistant Coach first-user architecture track only.** Unrelated feature expansion and held identity PR merges remain **NO-GO** (FREEZE-001 / OWN-001 stand). |
+| **OD-1** | **Hard gate after meaningful value**, not immediately. Anonymous users may experience Assistant Coach; **continuing indefinitely requires an account.** |
+| **OD-2** | **14-day** anonymous session TTL. |
+| **OD-3** | **Signed HttpOnly cookie + server-side anonymous session.** Do **not** resurrect the retired guest-user architecture. |
+| **OD-4** | **Forge requires account/claim.** Anonymous users experience Assistant Coach only — not the full persistent coaching product. |
+| **OD-5** | Assistant Coach is the **primary landing CTA.** Do not keep two equal competing onboarding CTAs. Assessment may remain accessible elsewhere during transition. |
+| **OD-6** | **Do not delete Assessment** yet. Remove it as the default FTUE. Keep available until Assistant Coach is proven in production. |
+| **OD-7** | **Skip redundant onboarding after claim.** If Assistant Coach already learned something, do not ask again. Collect only missing account-required information. |
+| **OD-8** | Prefer **soft email verification** for continuity unless a later Decision proves the existing security architecture absolutely requires verify-first. Do not interrupt value → account → continuation unnecessarily. `/coach` resume after claim must not hard-block on verify. Existing `/app` verify behavior may remain until separately revised. |
+| **OD-9** | Initial **JSONB** `evidence_ledger` + `profile_insights` on Living Profile is approved **if System 1 remains the only writer/authority.** Design an explicit migration path toward normalized evidence if querying/auditing becomes important. |
+| **OD-10** | **Do not finalize gate copy** in architecture PRs. Treat copy as product/UI work; test later. |
+
+**Turn economics:** A configurable turn safety/economic limit (default **10**) may stop or throttle anonymous abuse. It is **not** the conversion gate. Conversion eligibility remains semantic (`hasExperiencedValue` per `AC-JOURNEY-001` §E).
+
+**Implementation law:** Phase 4B ships as **small reviewable slices** per `PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md` — not one monster change. Intelligence (`lib/assistant-coach`) stays identity-agnostic; auth changes ownership/persistence only. OWN-001: experiences never write identity/purpose as identity authority.
+
+Future Review Date:
+
+After first production slice of anonymous Coach + claim is live; reassess Assessment retirement and normalized-evidence migration then.
+
+Volumes:
+
+`atos/product/AC-JOURNEY-001-first-user-architecture.md`
+`atos/product/PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md`
+`atos/knowledge/working/idea-vault/product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md`
+`atos/product/AUDIT-001.2-conditional-go-reaudit.md`
+`atos/product/EXEC-VERIFY-001-final-architecture-certification.md`
+`atos/product/OWN-001-identity-ownership-matrix.md`
+`atos/product/FREEZE-001-identity-pr-hold.md`
+`atos/product/HARDEN-005-guest-migration-authorization.md`
+
+Status:
+Authoritative — ✅ Decided 2026-08-16 (Founder OD-0…OD-10)
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
