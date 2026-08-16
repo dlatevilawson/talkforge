@@ -169,6 +169,63 @@ comment on column public.living_profiles.presence_scores is
 comment on column public.living_profiles.profile_source is
   'How the current snapshot was captured: quick_pick | assessment | incomplete.';
 
+-- Assistant Coach anonymous session plane (Phase 4B.2) — server/service_role only.
+create table if not exists public.assistant_coach_sessions (
+  id uuid primary key default gen_random_uuid(),
+  anon_key_hash text,
+  user_id uuid references public.profiles (id) on delete set null,
+  status text not null default 'active'
+    check (status in ('active', 'gated', 'claimed', 'expired', 'handed_off')),
+  turn_count integer not null default 0
+    check (turn_count >= 0),
+  has_experienced_value boolean not null default false,
+  expires_at timestamptz not null default (now() + interval '14 days'),
+  claimed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint assistant_coach_sessions_claimed_requires_user
+    check (
+      status <> 'claimed'
+      or (user_id is not null and claimed_at is not null)
+    )
+);
+
+create index if not exists assistant_coach_sessions_expires_at_idx
+  on public.assistant_coach_sessions (expires_at);
+create index if not exists assistant_coach_sessions_user_id_idx
+  on public.assistant_coach_sessions (user_id);
+create unique index if not exists assistant_coach_sessions_anon_key_hash_active_uidx
+  on public.assistant_coach_sessions (anon_key_hash)
+  where anon_key_hash is not null
+    and status in ('active', 'gated');
+
+create table if not exists public.assistant_coach_messages (
+  id uuid primary key default gen_random_uuid(),
+  session_id uuid not null
+    references public.assistant_coach_sessions (id) on delete cascade,
+  turn_index integer not null
+    check (turn_index >= 0),
+  role text not null
+    check (role in ('user', 'assistant')),
+  content text not null default '',
+  model_meta jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  constraint assistant_coach_messages_session_turn_role_uidx
+    unique (session_id, turn_index, role)
+);
+
+create index if not exists assistant_coach_messages_session_id_idx
+  on public.assistant_coach_messages (session_id, turn_index);
+
+create table if not exists public.assistant_coach_profile_drafts (
+  session_id uuid primary key
+    references public.assistant_coach_sessions (id) on delete cascade,
+  profile_json jsonb not null default '{}'::jsonb,
+  version bigint not null default 1
+    check (version >= 1),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.reflections (
   session_id text primary key references public.practice_sessions (id) on delete cascade,
   user_id uuid not null references public.profiles (id) on delete cascade,
@@ -457,6 +514,9 @@ alter table public.session_reports enable row level security;
 alter table public.coach_memory enable row level security;
 alter table public.living_profiles enable row level security;
 alter table public.member_subscriptions enable row level security;
+alter table public.assistant_coach_sessions enable row level security;
+alter table public.assistant_coach_messages enable row level security;
+alter table public.assistant_coach_profile_drafts enable row level security;
 alter table public.founder_notes enable row level security;
 alter table public.founder_briefs enable row level security;
 alter table public.waitlist_members enable row level security;
@@ -475,6 +535,26 @@ drop trigger if exists member_subscriptions_set_updated_at on public.member_subs
 create trigger member_subscriptions_set_updated_at
   before update on public.member_subscriptions
   for each row execute function public.set_updated_at();
+
+drop trigger if exists assistant_coach_sessions_set_updated_at
+  on public.assistant_coach_sessions;
+create trigger assistant_coach_sessions_set_updated_at
+  before update on public.assistant_coach_sessions
+  for each row execute function public.set_updated_at();
+
+drop trigger if exists assistant_coach_profile_drafts_set_updated_at
+  on public.assistant_coach_profile_drafts;
+create trigger assistant_coach_profile_drafts_set_updated_at
+  before update on public.assistant_coach_profile_drafts
+  for each row execute function public.set_updated_at();
+
+-- Assistant Coach anon plane: no anon/authenticated policies (service_role only).
+revoke all on table public.assistant_coach_sessions from anon, authenticated;
+revoke all on table public.assistant_coach_messages from anon, authenticated;
+revoke all on table public.assistant_coach_profile_drafts from anon, authenticated;
+grant all on table public.assistant_coach_sessions to service_role;
+grant all on table public.assistant_coach_messages to service_role;
+grant all on table public.assistant_coach_profile_drafts to service_role;
 
 -- Drop legacy open policies if present
 drop policy if exists "profiles_anon_all" on public.profiles;
