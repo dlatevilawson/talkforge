@@ -510,6 +510,7 @@ $function$;
 revoke all on function public.reset_my_talkforge_data() from public;
 revoke all on function public.reset_my_talkforge_data() from anon;
 grant execute on function public.reset_my_talkforge_data() to authenticated;
+grant execute on function public.reset_my_talkforge_data() to service_role;
 
 comment on function public.reset_my_talkforge_data() is
   'Atomically deletes active TalkForge identity and coaching data owned by auth.uid(), including claimed Assistant Coach sessions (messages/drafts cascade); retains the Auth account and public.profiles row. Unclaimed anon AC sessions are not member-owned and are excluded.';

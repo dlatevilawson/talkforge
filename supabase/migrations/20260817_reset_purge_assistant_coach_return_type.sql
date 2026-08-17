@@ -1,22 +1,24 @@
--- SUPERSEDED (non-mutating on apply).
+-- HARDEN / 4B.2 corrective: change reset_my_talkforge_data() return type safely.
 --
--- Production apply of this migration FAILED on 2026-08-17 with PostgreSQL 42P13:
---   cannot change return type of existing function reset_my_talkforge_data()
---   DETAIL: Row type defined by OUT parameters is different.
---   HINT: Use DROP FUNCTION reset_my_talkforge_data() first.
+-- Context (production, authoritative):
+--   * 20260817_assistant_coach_anon_sessions.sql applied — AC tables live and empty.
+--   * 20260817_reset_purge_assistant_coach.sql failed with 42P13 (CREATE OR REPLACE
+--     cannot change RETURNS TABLE OUT columns). Function remains the pre-AC 5-column
+--     form from 20260803_atomic_member_data_reset.sql.
 --
--- Authoritative production state after that failure:
---   * 20260817_assistant_coach_anon_sessions.sql — APPLIED (empty AC tables live)
---   * this file — NOT applied (reset_my_talkforge_data remains the pre-AC 5-column form)
+-- Dependency inspection (read-only, pre-corrective):
+--   * identity: public.reset_my_talkforge_data() with empty argument list
+--   * owner: postgres
+--   * security: INVOKER (prosecdef=false), VOLATILE, search_path=''
+--   * ACL: postgres=X, authenticated=X, service_role=X (anon/public revoked)
+--   * pg_depend dependents: none; no views/triggers/policies reference this function
+-- Therefore DROP FUNCTION + recreate is the PostgreSQL-required, dependency-safe path.
 --
--- Do not pretend this migration succeeded. Completion is the forward-only corrective:
---   20260817_reset_purge_assistant_coach_return_type.sql
---
--- The original CREATE OR REPLACE attempt is preserved below as a block comment for audit.
--- Executable body is intentionally a notice-only no-op so greenfield/existing paths can
--- reach the corrective migration without re-hitting 42P13.
+-- Messages / profile drafts continue to cascade via existing FKs on assistant_coach_*.
+-- Unclaimed anon sessions (user_id is null) remain excluded (TTL/expires_at).
 
-/*
+drop function if exists public.reset_my_talkforge_data();
+
 create or replace function public.reset_my_talkforge_data()
 returns table (
   living_profiles_deleted bigint,
@@ -84,17 +86,13 @@ begin
 end
 $function$;
 
+-- Restore production ACL shape observed before DROP:
+--   postgres (owner), authenticated, service_role — not anon/public.
+-- Default privileges would re-grant anon; revoke explicitly.
 revoke all on function public.reset_my_talkforge_data() from public;
 revoke all on function public.reset_my_talkforge_data() from anon;
 grant execute on function public.reset_my_talkforge_data() to authenticated;
+grant execute on function public.reset_my_talkforge_data() to service_role;
 
 comment on function public.reset_my_talkforge_data() is
   'Atomically deletes active TalkForge identity and coaching data owned by auth.uid(), including claimed Assistant Coach sessions (messages/drafts cascade); retains the Auth account and public.profiles row. Unclaimed anon AC sessions are not member-owned and are excluded.';
-*/
-
-do $notice$
-begin
-  raise notice
-    '20260817_reset_purge_assistant_coach.sql is superseded; apply 20260817_reset_purge_assistant_coach_return_type.sql';
-end
-$notice$;

@@ -20,7 +20,8 @@
       "20260809_living_profile_assessment.sql",
       "20260816_living_profile_evidence_insights.sql",
       "20260817_assistant_coach_anon_sessions.sql",
-      "20260817_reset_purge_assistant_coach.sql"
+      "20260817_reset_purge_assistant_coach.sql",
+      "20260817_reset_purge_assistant_coach_return_type.sql"
     ],
     "existingProduction": [
       "20260730_upgrade_legacy_profiles.sql",
@@ -36,7 +37,8 @@
       "20260809_living_profile_assessment.sql",
       "20260816_living_profile_evidence_insights.sql",
       "20260817_assistant_coach_anon_sessions.sql",
-      "20260817_reset_purge_assistant_coach.sql"
+      "20260817_reset_purge_assistant_coach.sql",
+      "20260817_reset_purge_assistant_coach_return_type.sql"
     ]
   },
   "securityInvariants": {
