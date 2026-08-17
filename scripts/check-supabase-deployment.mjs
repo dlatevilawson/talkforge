@@ -124,11 +124,16 @@ assert.equal(
 );
 
 const resetMigration = migrationSql.get(
-  "20260817_reset_purge_assistant_coach.sql"
+  "20260817_reset_purge_assistant_coach_return_type.sql"
 );
 assert.ok(
   resetMigration,
-  "reset purge migration 20260817_reset_purge_assistant_coach.sql missing from migrations dir"
+  "reset return-type corrective 20260817_reset_purge_assistant_coach_return_type.sql missing from migrations dir"
+);
+assert.match(
+  resetMigration,
+  /drop function if exists public\.reset_my_talkforge_data\s*\(\s*\)/i,
+  "corrective must DROP before recreate to change RETURNS TABLE"
 );
 assert.equal(
   normalizeSql(
@@ -146,6 +151,25 @@ assert.match(
 assert.match(
   resetMigration,
   /assistant_coach_sessions_deleted/
+);
+assert.match(
+  resetMigration,
+  /grant execute on function public\.reset_my_talkforge_data\(\) to service_role/i,
+  "corrective must restore service_role EXECUTE observed in production ACL"
+);
+const supersededReset = migrationSql.get(
+  "20260817_reset_purge_assistant_coach.sql"
+);
+assert.ok(supersededReset, "superseded reset purge migration missing");
+assert.match(
+  supersededReset,
+  /SUPERSEDED/i,
+  "failed 42P13 reset purge migration must remain marked SUPERSEDED"
+);
+assert.doesNotMatch(
+  supersededReset.replace(/\/\*[\s\S]*?\*\//g, ""),
+  /create or replace function public\.reset_my_talkforge_data/i,
+  "superseded reset purge migration must not execute CREATE OR REPLACE"
 );
 assert.match(
   snapshot,
