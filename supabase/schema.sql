@@ -446,7 +446,8 @@ returns table (
   coach_memory_deleted bigint,
   practice_sessions_deleted bigint,
   session_reports_deleted bigint,
-  reflections_deleted bigint
+  reflections_deleted bigint,
+  assistant_coach_sessions_deleted bigint
 )
 language plpgsql
 volatile
@@ -460,12 +461,16 @@ declare
   deleted_practice_sessions bigint := 0;
   deleted_session_reports bigint := 0;
   deleted_reflections bigint := 0;
+  deleted_assistant_coach_sessions bigint := 0;
 begin
   if member_id is null then
     raise exception 'Authentication is required to reset TalkForge data.'
       using errcode = '28000';
   end if;
 
+  -- Delete child rows explicitly so the result reports every resource class.
+  -- The function invocation is one database transaction: any failure rolls
+  -- back all prior deletes.
   delete from public.reflections
   where user_id = member_id;
   get diagnostics deleted_reflections = row_count;
@@ -482,6 +487,11 @@ begin
   where user_id = member_id;
   get diagnostics deleted_coach_memory = row_count;
 
+  -- Claimed / member-linked Assistant Coach sessions (cascades messages + drafts).
+  delete from public.assistant_coach_sessions
+  where user_id = member_id;
+  get diagnostics deleted_assistant_coach_sessions = row_count;
+
   delete from public.living_profiles
   where user_id = member_id;
   get diagnostics deleted_living_profiles = row_count;
@@ -492,7 +502,8 @@ begin
     deleted_coach_memory,
     deleted_practice_sessions,
     deleted_session_reports,
-    deleted_reflections;
+    deleted_reflections,
+    deleted_assistant_coach_sessions;
 end
 $function$;
 
@@ -501,7 +512,7 @@ revoke all on function public.reset_my_talkforge_data() from anon;
 grant execute on function public.reset_my_talkforge_data() to authenticated;
 
 comment on function public.reset_my_talkforge_data() is
-  'Atomically deletes active TalkForge identity and coaching data owned by auth.uid(); retains the Auth account and public.profiles row.';
+  'Atomically deletes active TalkForge identity and coaching data owned by auth.uid(), including claimed Assistant Coach sessions (messages/drafts cascade); retains the Auth account and public.profiles row. Unclaimed anon AC sessions are not member-owned and are excluded.';
 
 -- ---------------------------------------------------------------------------
 -- RLS

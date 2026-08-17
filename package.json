@@ -13,6 +13,7 @@
     "test:coach-philosophy": "node --experimental-strip-types --test lib/coach/philosophy.test.mjs lib/coach/forge-core.test.mjs",
     "test:system1-profile": "node --experimental-strip-types --test lib/system1/profile-intelligence.test.mjs lib/system1/persistence.test.mjs",
     "test:assistant-coach-sessions": "node --experimental-strip-types --test lib/assistant-coach/session-repository.test.mjs",
+    "test:reset-purge-ac": "node --test scripts/reset-purge-assistant-coach.test.mjs",
     "test:assessment": "node --experimental-strip-types --test lib/system1/assessment.test.mjs lib/ce/assessment-lifecycle.test.mjs lib/ce/assessment-response-gate.test.mjs lib/ce/assessment-snapshot-lp.test.mjs lib/ce/assessment-coach-prompt.test.mjs lib/ce/assessment-generic-answers.test.mjs lib/ce/assessment-adaptive.test.mjs lib/ce/assessment-training-scenarios.test.mjs lib/ce/assessment-discriminating.test.mjs lib/ce/assessment-questioning.test.mjs",
     "test:billing": "node --experimental-strip-types --test lib/billing/access.test.mjs lib/billing/config.test.mjs lib/billing/member-copy.test.mjs",
     "practice-readiness:check": "node scripts/check-practice-readiness-gate.mjs",
