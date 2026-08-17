@@ -124,7 +124,11 @@ assert.equal(
 );
 
 const resetMigration = migrationSql.get(
-  "20260803_atomic_member_data_reset.sql"
+  "20260817_reset_purge_assistant_coach.sql"
+);
+assert.ok(
+  resetMigration,
+  "reset purge migration 20260817_reset_purge_assistant_coach.sql missing from migrations dir"
 );
 assert.equal(
   normalizeSql(
@@ -134,6 +138,14 @@ assert.equal(
     extractFunction(resetMigration, "reset_my_talkforge_data", "\\$function\\$")
   ),
   "snapshot reset_my_talkforge_data() drifted from its migration"
+);
+assert.match(
+  resetMigration,
+  /delete from public\.assistant_coach_sessions\s+where user_id = member_id/i
+);
+assert.match(
+  resetMigration,
+  /assistant_coach_sessions_deleted/
 );
 assert.match(
   snapshot,
