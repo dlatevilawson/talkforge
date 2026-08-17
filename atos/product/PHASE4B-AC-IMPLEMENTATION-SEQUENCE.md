@@ -71,7 +71,8 @@
 | Drafts | Provisional LP blob; **not** `living_profiles.user_id` until claim |
 | Indexes | `expires_at`, `anon_key_hash` unique for active, `user_id` |
 | RLS | Service-role / server-only writes preferred for anon; no client direct table access |
-| Tests | Migration applies; repository unit tests against test DB or mocked repo |
+| Tests | Migration file + in-memory repository unit tests (`lib/assistant-coach/session-repository.test.mjs`) |
+| Status | **Implemented locally** on `cursor/ac-4b2-anon-session-schema-ecce` (not production-applied) |
 | Non-goals | HTTP routes, cookies, UI |
 
 **PR:** `4B.2: Assistant Coach anon session tables + 14d TTL`
