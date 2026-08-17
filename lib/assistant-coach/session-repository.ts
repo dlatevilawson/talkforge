@@ -1,10 +1,10 @@
 /**
  * Phase 4B.2 — Assistant Coach anonymous session repository (schema companion).
  *
- * Persistence substrate only: no HTTP routes, cookies, or UI.
- * Production DB access must use service_role / server clients (RLS denies
- * anon + authenticated). This module provides types + an in-memory repository
- * for unit tests and later wiring (4B.3+).
+ * Types + in-memory repository for unit tests.
+ * Production adapter: supabase-session-repository.ts (service_role only).
+ * Cookie mint/restore: session-service.ts + /api/assistant-coach/session (4B.3).
+ * No turn API / LLM / UI in this module.
  */
 
 export const ASSISTANT_COACH_ANON_TTL_DAYS = 14;
@@ -159,7 +159,11 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
       const id = activeAnon.get(anonKeyHash);
       if (!id) return null;
       const row = sessions.get(id);
-      return row ? structuredClone(row) : null;
+      if (!row) return null;
+      // Anonymous restore surface: active/gated + unclaimed only.
+      if (row.userId != null) return null;
+      if (row.status !== "active" && row.status !== "gated") return null;
+      return structuredClone(row);
     },
 
     async listMessages(sessionId) {
