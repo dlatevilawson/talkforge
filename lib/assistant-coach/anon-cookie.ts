@@ -9,7 +9,7 @@
  */
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { ASSISTANT_COACH_ANON_COOKIE_NAME } from "./config.ts";
-import { ASSISTANT_COACH_ANON_TTL_DAYS } from "./session-repository.ts";
+// TTL constant no longer needed in cookie Max-Age helper.
 
 export { ASSISTANT_COACH_ANON_COOKIE_NAME };
 
@@ -71,13 +71,20 @@ export function parseAnonCookieValue(
   if (version !== ANON_COOKIE_VERSION || !rawSecret || !mac) {
     return { ok: false, reason: "malformed" };
   }
-  // Reject cookie values that look like they embed structured identity fields.
+  // Reject cookie values that look like they embed structured identity fields,
+  // or that would break the v1.<secret>.<mac> triple (secret must be opaque).
   if (
+    rawSecret.includes(".") ||
+    rawSecret.includes("=") ||
     rawSecret.includes("user_id") ||
     rawSecret.includes("session_id") ||
     rawSecret.includes("transcript") ||
     rawSecret.includes("profile")
   ) {
+    return { ok: false, reason: "malformed" };
+  }
+  // MAC must be base64url without dots.
+  if (!/^[A-Za-z0-9_-]+$/.test(mac) || !/^[A-Za-z0-9_-]+$/.test(rawSecret)) {
     return { ok: false, reason: "malformed" };
   }
   if (!cookieSecret) {
@@ -112,9 +119,8 @@ export function anonCookieMaxAgeSeconds(
 ): number {
   const remainingMs = new Date(expiresAtIso).getTime() - now.getTime();
   const remainingSec = Math.floor(remainingMs / 1000);
-  if (remainingSec <= 0) {
-    return ASSISTANT_COACH_ANON_TTL_DAYS * 24 * 60 * 60;
-  }
+  // Never extend a past-due session via Max-Age (no resurrection window).
+  if (remainingSec <= 0) return 0;
   return remainingSec;
 }
 

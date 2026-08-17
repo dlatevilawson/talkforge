@@ -209,6 +209,13 @@ export function createSupabaseAssistantCoachSessionRepository(
     async markExpiredIfPast(sessionId, now = new Date()) {
       const session = await repository.getSession(sessionId);
       if (!session) return null;
+      // Never overwrite claimed / handed_off / member-linked rows.
+      if (session.userId != null) {
+        return session;
+      }
+      if (session.status !== "active" && session.status !== "gated") {
+        return session;
+      }
       if (!isAnonSessionExpired(session, now)) {
         return session;
       }
@@ -219,14 +226,16 @@ export function createSupabaseAssistantCoachSessionRepository(
           updated_at: now.toISOString(),
         })
         .eq("id", sessionId)
+        .eq("status", session.status)
+        .is("user_id", null)
         .select("*")
-        .single();
+        .maybeSingle();
       if (error) {
         throw new Error(
           `assistant_coach_sessions expire failed: ${error.message}`
         );
       }
-      return mapSessionRow(data as AssistantCoachSessionRow);
+      return data ? mapSessionRow(data as AssistantCoachSessionRow) : session;
     },
   };
   return repository;

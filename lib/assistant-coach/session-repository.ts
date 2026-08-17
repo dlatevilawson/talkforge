@@ -225,6 +225,13 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
     async markExpiredIfPast(sessionId, now = new Date()) {
       const session = sessions.get(sessionId);
       if (!session) return null;
+      // Never overwrite claimed / handed_off / member-linked rows.
+      if (session.userId != null) {
+        return structuredClone(session);
+      }
+      if (session.status !== "active" && session.status !== "gated") {
+        return structuredClone(session);
+      }
       if (!isAnonSessionExpired(session, now)) {
         return structuredClone(session);
       }

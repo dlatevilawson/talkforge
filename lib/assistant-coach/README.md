@@ -23,6 +23,7 @@
 | DB binding | `sha256(opaqueSecret)` hex → `assistant_coach_sessions.anon_key_hash` |
 | Attributes | HttpOnly · Secure (prod) · SameSite=Lax · Path=/ · Max-Age = remaining TTL |
 | Route | `GET|POST /api/assistant-coach/session` |
+| Mint key | Required when cookie missing/invalid: `Idempotency-Key` (43–128 URL-safe chars) |
 | Env | `ASSISTANT_COACH_ANON_COOKIE_SECRET` (server-only, ≥32 chars; fail closed if missing) |
 
 ### Restore algorithm
@@ -36,9 +37,11 @@
 
 ### Concurrency
 
-- Distinct first visits without a cookie each generate a unique secret → unique hash (no shared ownership race).
-- Duplicate insert on the same `anon_key_hash` (unique partial index for active/gated) is caught; the existing restorable row is adopted.
-- Browser keeps the last `Set-Cookie`; server truth remains the session row.
+- Cookieless mint **requires** `Idempotency-Key` (or `X-AC-Mint-Key`): 43–128 URL-safe chars (≈256-bit).
+- That key **is** the raw anon secret → `anon_key_hash = sha256(key)`.
+- Concurrent/repeated mints with the same key collapse to one active row via the unique partial index (and a pre-insert lookup).
+- Distinct keys still create distinct sessions (different visitors / intentional new mints).
+- Valid cookie restore does not require a mint key.
 
 ### Non-goals (still)
 
