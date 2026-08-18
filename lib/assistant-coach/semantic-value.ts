@@ -1,6 +1,14 @@
 /**
  * Phase 4B.5 — semantic hasExperiencedValue (AC-JOURNEY-001 §E.2).
  * Deterministic. LLM does not decide conversion.
+ *
+ * Semantic boundary (Decision 059 / AC-JOURNEY):
+ * - hasExperiencedValue = enough understanding that the visitor felt real value
+ *   (conversion / hard-gate eligibility for anon).
+ * - It does NOT mean Living Profile is complete.
+ * - It does NOT mean a training plan is ready.
+ * - Living Profile remains evidence-driven across future interactions.
+ * - Forge readiness is a later, stronger bar after claim.
  */
 import {
   isFactCategory,

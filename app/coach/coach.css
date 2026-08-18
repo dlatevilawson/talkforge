@@ -116,6 +116,13 @@
   outline-offset: 1px;
 }
 
+.ac-composer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
 .ac-btn {
   display: inline-flex;
   align-items: center;
@@ -141,7 +148,20 @@
   border-color: transparent;
   color: #111;
   font-weight: 600;
-  align-self: flex-start;
+}
+
+.ac-btn-danger {
+  border-color: rgba(248, 113, 113, 0.45);
+  color: #fecaca;
+}
+
+.ac-mic {
+  min-width: 3.25rem;
+}
+
+.ac-status-live {
+  color: #f5d28a;
+  animation: ac-pulse 1.1s ease-in-out infinite;
 }
 
 .ac-gate {
