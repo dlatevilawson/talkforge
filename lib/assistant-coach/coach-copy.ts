@@ -4,7 +4,7 @@
  */
 export const COACH_PRODUCT_NAME = "Coach";
 
-export const COACH_META_TITLE = "Coach · TalkForge";
+export const COACH_META_TITLE = "Coach";
 
 export const COACH_META_DESCRIPTION =
   "Speak or type with TalkForge Coach — be understood before you create an account.";
