@@ -68,12 +68,24 @@ export type RunAssistantCoachTurnResult = {
 export class AssistantCoachTurnError extends Error {
   readonly code: string;
   readonly status: number;
+  readonly gate?: AssistantCoachGateFlags;
+  readonly session?: AssistantCoachSession;
 
-  constructor(code: string, message: string, status = 400) {
+  constructor(
+    code: string,
+    message: string,
+    status = 400,
+    extras?: {
+      gate?: AssistantCoachGateFlags;
+      session?: AssistantCoachSession;
+    }
+  ) {
     super(message);
     this.name = "AssistantCoachTurnError";
     this.code = code;
     this.status = status;
+    this.gate = extras?.gate;
+    this.session = extras?.session;
   }
 }
 
@@ -207,6 +219,43 @@ export async function runAssistantCoachTurn(
         observationDecisions: [],
         idempotentReplay: true,
       };
+    }
+  }
+
+  // 4B.6 — hard gate BEFORE model spend for anonymous sessions.
+  const turnCap = getAssistantCoachAnonTurnCap();
+  const isAnonymous = session.userId == null;
+  if (isAnonymous) {
+    const blocked =
+      session.hasExperiencedValue ||
+      session.status === "gated" ||
+      session.turnCount >= turnCap;
+    if (blocked) {
+      let gated = session;
+      if (
+        session.status === "active" &&
+        typeof repository.updateSessionFlags === "function"
+      ) {
+        gated = await repository.updateSessionFlags(session.id, {
+          status: "gated",
+          hasExperiencedValue: session.hasExperiencedValue,
+          now,
+        });
+      } else if (session.status === "active") {
+        gated = { ...session, status: "gated" };
+      }
+      throw new AssistantCoachTurnError(
+        "must_authenticate",
+        "Create an account to continue this Assistant Coach conversation.",
+        403,
+        {
+          session: gated,
+          gate: buildGateFlags(gated, {
+            turnCap,
+            isAnonymous: true,
+          }),
+        }
+      );
     }
   }
 
@@ -350,12 +399,12 @@ export async function runAssistantCoachTurn(
     updated = { ...updated, hasExperiencedValue: true };
   }
 
-  const turnCap = getAssistantCoachAnonTurnCap();
+  const capForGate = getAssistantCoachAnonTurnCap();
   return {
     reply,
     session: updated,
     gate: buildGateFlags(updated, {
-      turnCap,
+      turnCap: capForGate,
       isAnonymous: updated.userId == null,
     }),
     messages: messagesAfter,

@@ -189,10 +189,21 @@ export async function handleAssistantCoachTurnRequest(
       return jsonResponse(503, { error: err.message });
     }
     if (err instanceof AssistantCoachTurnError) {
-      return jsonResponse(err.status, {
+      const body: Record<string, unknown> = {
         error: err.message,
         code: err.code,
-      });
+      };
+      if (err.gate) body.gate = err.gate;
+      if (err.session) {
+        body.session = {
+          id: err.session.id,
+          status: err.session.status,
+          expiresAt: err.session.expiresAt,
+          turnCount: err.session.turnCount,
+          hasExperiencedValue: err.session.hasExperiencedValue,
+        };
+      }
+      return jsonResponse(err.status, body);
     }
     console.error("assistant-coach turn failed", err);
     return jsonResponse(500, {
