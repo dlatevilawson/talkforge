@@ -1,21 +1,62 @@
 /**
  * Phase 4B.4 — production OpenAI model adapter for Assistant Coach turns.
- * Injectable; tests never call this module.
+ * Injectable; tests never need this module when they pass a model.
+ *
+ * Preview/Production: fail closed when OPENAI_API_KEY is missing.
+ * Local: mock only when ASSISTANT_COACH_ALLOW_MOCK_MODEL is explicitly enabled.
  */
 import OpenAI from "openai";
+import { AssistantCoachConfigError } from "./config.ts";
 import type { AssistantCoachModel } from "./turn-runtime.ts";
 
-function getClient(): OpenAI | null {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return null;
-  return new OpenAI({ apiKey });
+export const OPENAI_API_KEY_ENV = "OPENAI_API_KEY";
+
+/** Explicit local/dev opt-in for canned mock replies. Never honored on Vercel preview/prod. */
+export const ASSISTANT_COACH_ALLOW_MOCK_MODEL_ENV =
+  "ASSISTANT_COACH_ALLOW_MOCK_MODEL";
+
+export const ASSISTANT_COACH_MODEL_NOT_CONFIGURED_PUBLIC =
+  "Assistant Coach model is not configured.";
+
+export type AssistantCoachModelMode =
+  | "openai"
+  | "explicit_mock"
+  | "unavailable";
+
+function truthyFlag(raw: string | undefined): boolean {
+  const v = raw?.trim().toLowerCase() ?? "";
+  return v === "1" || v === "true" || v === "yes" || v === "on";
 }
 
 /**
- * Deterministic fallback when OPENAI_API_KEY is absent (local/dev only).
- * Production previews should configure the key.
+ * Vercel Preview + Production (and generic NODE_ENV=production) must never
+ * silently serve mock Coach replies.
  */
-function mockModel(): AssistantCoachModel {
+export function isHostedAssistantCoachRuntime(
+  env: NodeJS.ProcessEnv = process.env
+): boolean {
+  return (
+    env.VERCEL_ENV === "production" ||
+    env.VERCEL_ENV === "preview" ||
+    env.NODE_ENV === "production"
+  );
+}
+
+export function resolveAssistantCoachModelMode(
+  env: NodeJS.ProcessEnv = process.env
+): AssistantCoachModelMode {
+  if (env[OPENAI_API_KEY_ENV]?.trim()) return "openai";
+  const allowMock = truthyFlag(env[ASSISTANT_COACH_ALLOW_MOCK_MODEL_ENV]);
+  if (allowMock && !isHostedAssistantCoachRuntime(env)) {
+    return "explicit_mock";
+  }
+  return "unavailable";
+}
+
+/**
+ * Deterministic local/test mock — only when explicitly enabled off-hosted.
+ */
+export function createExplicitMockAssistantCoachModel(): AssistantCoachModel {
   return async ({ message, coachContext }) => {
     const focus = coachContext.activeFocusAreas[0] || "your communication";
     return {
@@ -31,9 +72,8 @@ function mockModel(): AssistantCoachModel {
   };
 }
 
-export function createOpenAiAssistantCoachModel(): AssistantCoachModel {
-  const client = getClient();
-  if (!client) return mockModel();
+function createLiveOpenAiModel(apiKey: string): AssistantCoachModel {
+  const client = new OpenAI({ apiKey });
 
   return async ({ message, history, coachContext }) => {
     const historyBlock = history
@@ -85,9 +125,35 @@ ${message}
       };
     } catch {
       return {
-        reply: cleaned || "I'm here with you — say a bit more about what matters in that conversation.",
+        reply:
+          cleaned ||
+          "I'm here with you — say a bit more about what matters in that conversation.",
         observations: [],
       };
     }
   };
+}
+
+/**
+ * Production adapter used by the turn route.
+ * Throws AssistantCoachConfigError (public message) when the real credential
+ * is missing on hosted runtimes — never returns silent mock replies there.
+ */
+export function createOpenAiAssistantCoachModel(
+  env: NodeJS.ProcessEnv = process.env
+): AssistantCoachModel {
+  const mode = resolveAssistantCoachModelMode(env);
+  if (mode === "openai") {
+    return createLiveOpenAiModel(env[OPENAI_API_KEY_ENV]!.trim());
+  }
+  if (mode === "explicit_mock") {
+    return createExplicitMockAssistantCoachModel();
+  }
+
+  console.error(
+    `Assistant Coach model unavailable: ${OPENAI_API_KEY_ENV} is not configured`
+  );
+  throw new AssistantCoachConfigError(
+    ASSISTANT_COACH_MODEL_NOT_CONFIGURED_PUBLIC
+  );
 }
