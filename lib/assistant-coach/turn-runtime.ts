@@ -23,6 +23,7 @@ import {
   buildGateFlags,
   type AssistantCoachGateFlags,
 } from "./gate-flags.ts";
+import { AssistantCoachConfigError } from "./config.ts";
 import { getAssistantCoachAnonTurnCap } from "./config.ts";
 import { computeHasExperiencedValue } from "./semantic-value.ts";
 import {
@@ -296,6 +297,8 @@ export async function runAssistantCoachTurn(
       coachContext,
     });
   } catch (err) {
+    // Preserve fail-closed config errors (e.g. missing OPENAI_API_KEY on hosted).
+    if (err instanceof AssistantCoachConfigError) throw err;
     throw new AssistantCoachTurnError(
       "model_failed",
       err instanceof Error ? err.message : "Model invocation failed.",

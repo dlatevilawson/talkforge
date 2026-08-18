@@ -59,6 +59,7 @@
 | Auth | Valid `tf_ac_anon` cookie (required). Optional member auth enriches claimed sessions. |
 | Body | `{ message, clientTurnId? }` |
 | Runtime | `runAssistantCoachTurn` — injectable model; System 1 evidence/insights only |
+| Model | OpenAI `gpt-5` via `OPENAI_API_KEY`. Preview/Production **fail closed** if missing (no silent mock). Local mock only with explicit `ASSISTANT_COACH_ALLOW_MOCK_MODEL=true`. |
 | Response | `{ reply, session, gate, idempotentReplay }` — `gate` is **flags only** (4B.5/4B.6 own policy/enforcement) |
 
 ### Non-goals (still)

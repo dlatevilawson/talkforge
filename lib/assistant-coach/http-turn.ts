@@ -173,6 +173,8 @@ export async function handleAssistantCoachTurnRequest(
         ? await deps.loadMemberProfile(authUserId)
         : null;
 
+    // Lazy model construction: 4B.6 hard gate must run before any provider
+    // credential check or model factory work.
     const result = await runAssistantCoachTurn({
       repository,
       session,
@@ -180,7 +182,7 @@ export async function handleAssistantCoachTurnRequest(
       clientTurnId,
       authUserId,
       memberProfile,
-      model: deps.createModel(),
+      model: async (input) => deps.createModel()(input),
     });
 
     return jsonResponse(200, publicTurnBody(result));
