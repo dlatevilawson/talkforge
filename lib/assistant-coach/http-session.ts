@@ -11,6 +11,8 @@ import {
   ensureAnonAssistantCoachSession,
 } from "./session-service.ts";
 import type { AssistantCoachSessionRepository } from "./session-repository.ts";
+import { buildGateFlags } from "./gate-flags.ts";
+import { getAssistantCoachAnonTurnCap } from "./config.ts";
 
 export const SESSION_NO_STORE_HEADERS = {
   "Cache-Control": "private, no-store, max-age=0, must-revalidate",
@@ -94,7 +96,25 @@ export async function handleAssistantCoachSessionRequest(
       result.sealedCookie,
       result.cookieAttributes
     );
-    return jsonResponse(200, { session: result.publicSession }, setCookie);
+    const messages = await repository.listMessages(result.session.id);
+    return jsonResponse(
+      200,
+      {
+        session: result.publicSession,
+        messages: messages.map((m) => ({
+          id: m.id,
+          role: m.role,
+          content: m.content,
+          turnIndex: m.turnIndex,
+          createdAt: m.createdAt,
+        })),
+        gate: buildGateFlags(result.session, {
+          turnCap: getAssistantCoachAnonTurnCap(),
+          isAnonymous: result.session.userId == null,
+        }),
+      },
+      setCookie
+    );
   } catch (err) {
     console.error("assistant-coach session mint/restore failed", err);
     return jsonResponse(500, {

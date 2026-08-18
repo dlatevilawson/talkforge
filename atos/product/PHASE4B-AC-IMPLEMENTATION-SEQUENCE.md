@@ -211,6 +211,7 @@
 | UI | Minimal thread + input; gate modal uses **placeholder** keys only (OD-10) |
 | Dual ship | Craft Law #001 + DES-001 |
 | Tests | Playwright smoke: load → send (mocked API) → gate flag renders |
+| Status | **Implemented** — public `/coach` client exercises real session + turn APIs; mint key in sessionStorage; gate UI with placeholder copy |
 | Non-goals | Luxury polish pass; Assessment deletion |
 
 **PR:** `4B.10: Public /coach UI shell`

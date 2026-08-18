@@ -5,7 +5,11 @@
 | **4B.2** | Session / messages / profile_drafts schema + in-memory repository |
 | **4B.3** | Signed HttpOnly anon cookie + server session mint/restore |
 | **4B.4** | `POST /api/assistant-coach/turn` + identity-agnostic `runAssistantCoachTurn` |
-| 4B.5+ | Semantic value, hard gate, claim, UI — later slices |
+| **4B.5** | Sticky semantic value + anon turn cap flags |
+| **4B.6** | Hard gate anon continuation |
+| **4B.10** | Public `/coach` UI |
+| **4B.13** | Proxy allowlist for public Coach |
+| Later | Claim, soft verify, onboarding skip, landing CTA, analytics, expiry, Forge handoff |
 
 ## 4B.2 rules
 
