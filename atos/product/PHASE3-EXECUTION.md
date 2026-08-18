@@ -14,6 +14,6 @@
 | 17 | [TEST-001](TEST-001-user-testing-protocol.md) | Protocol ready |
 | 18 | [ITERATE-001](ITERATE-001-improvement-rule.md) | Active rule |
 | F | [BILL-001](BILL-001-billing-membership.md) | In Development — Free/Pro Stripe membership |
-| AC | [AC-JOURNEY-001](AC-JOURNEY-001-first-user-architecture.md) · [PHASE4B-AC](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md) | **Authorized** (Decision 059) — Phase 4B slices; next **4B.1** |
+| AC | [AC-JOURNEY-001](AC-JOURNEY-001-first-user-architecture.md) · [PHASE4B-AC](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md) | **Authorized** (Decision 059) — Phase 4B in progress; next after founder `/coach` review: **4B.11** landing CTA |
 
 Master schedule: [MASTER-ROADMAP-001](MASTER-ROADMAP-001.md)
