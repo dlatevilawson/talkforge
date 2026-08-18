@@ -245,6 +245,34 @@ export function createSupabaseAssistantCoachSessionRepository(
       }
       return data ? mapSessionRow(data as AssistantCoachSessionRow) : session;
     },
+
+    async updateSessionFlags(sessionId, patch) {
+      const current = await repository.getSession(sessionId);
+      if (!current) throw new Error("session not found");
+      const now = patch.now ?? new Date();
+      const update: Record<string, unknown> = {
+        updated_at: now.toISOString(),
+      };
+      // Sticky: once true, never clear via this helper.
+      if (patch.hasExperiencedValue === true || current.hasExperiencedValue) {
+        update.has_experienced_value = true;
+      }
+      if (patch.status) {
+        update.status = patch.status;
+      }
+      const { data, error } = await client
+        .from("assistant_coach_sessions")
+        .update(update)
+        .eq("id", sessionId)
+        .select("*")
+        .single();
+      if (error) {
+        throw new Error(
+          `assistant_coach_sessions flags update failed: ${error.message}`
+        );
+      }
+      return mapSessionRow(data as AssistantCoachSessionRow);
+    },
   };
   return repository;
 }

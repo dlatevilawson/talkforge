@@ -111,6 +111,17 @@ export type AssistantCoachSessionRepository = {
     draft: Omit<AssistantCoachProfileDraft, "updatedAt"> & { updatedAt?: string }
   ): Promise<AssistantCoachProfileDraft>;
   markExpiredIfPast(sessionId: string, now?: Date): Promise<AssistantCoachSession | null>;
+  /**
+   * Sticky server flags (4B.5+). Never clears hasExperiencedValue once true.
+   */
+  updateSessionFlags?(
+    sessionId: string,
+    patch: {
+      hasExperiencedValue?: boolean;
+      status?: AssistantCoachSessionStatus;
+      now?: Date;
+    }
+  ): Promise<AssistantCoachSession>;
 };
 
 function newId(prefix: string): string {
@@ -269,6 +280,21 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
         activeAnon.delete(session.anonKeyHash);
       }
       session.status = "expired";
+      session.updatedAt = now.toISOString();
+      sessions.set(session.id, session);
+      return structuredClone(session);
+    },
+
+    async updateSessionFlags(sessionId, patch) {
+      const session = sessions.get(sessionId);
+      if (!session) throw new Error("session not found");
+      const now = patch.now ?? new Date();
+      if (patch.hasExperiencedValue === true) {
+        session.hasExperiencedValue = true;
+      }
+      if (patch.status) {
+        session.status = patch.status;
+      }
       session.updatedAt = now.toISOString();
       sessions.set(session.id, session);
       return structuredClone(session);
