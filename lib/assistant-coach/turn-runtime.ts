@@ -23,6 +23,8 @@ import {
   buildGateFlags,
   type AssistantCoachGateFlags,
 } from "./gate-flags.ts";
+import { getAssistantCoachAnonTurnCap } from "./config.ts";
+import { computeHasExperiencedValue } from "./semantic-value.ts";
 import {
   isAnonSessionExpired,
   type AssistantCoachMessage,
@@ -197,7 +199,10 @@ export async function runAssistantCoachTurn(
       return {
         reply: replay.assistant.content,
         session: fresh,
-        gate: buildGateFlags(fresh),
+        gate: buildGateFlags(fresh, {
+          turnCap: getAssistantCoachAnonTurnCap(),
+          isAnonymous: fresh.userId == null,
+        }),
         messages: await repository.listMessages(session.id),
         observationDecisions: [],
         idempotentReplay: true,
@@ -322,14 +327,38 @@ export async function runAssistantCoachTurn(
     updatedAt: now.toISOString(),
   });
 
-  const updated = (await repository.getSession(session.id)) ?? session;
-  const messages = await repository.listMessages(session.id);
+  let updated = (await repository.getSession(session.id)) ?? session;
 
+  // 4B.5 — sticky semantic value (never clears once true).
+  const messagesAfter = await repository.listMessages(session.id);
+  const experienced = computeHasExperiencedValue({
+    evidenceLedger: workingProfile.evidenceLedger ?? [],
+    profileInsights: workingProfile.profileInsights ?? [],
+    messages: messagesAfter,
+  });
+  if (
+    experienced &&
+    !updated.hasExperiencedValue &&
+    typeof repository.updateSessionFlags === "function"
+  ) {
+    updated = await repository.updateSessionFlags(session.id, {
+      hasExperiencedValue: true,
+      now,
+    });
+  } else if (experienced && !updated.hasExperiencedValue) {
+    // Memory repos always have updateSessionFlags; keep fail-soft for partial mocks.
+    updated = { ...updated, hasExperiencedValue: true };
+  }
+
+  const turnCap = getAssistantCoachAnonTurnCap();
   return {
     reply,
     session: updated,
-    gate: buildGateFlags(updated),
-    messages,
+    gate: buildGateFlags(updated, {
+      turnCap,
+      isAnonymous: updated.userId == null,
+    }),
+    messages: messagesAfter,
     observationDecisions: decisions,
     idempotentReplay: false,
   };

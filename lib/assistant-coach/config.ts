@@ -10,6 +10,11 @@ export const ASSISTANT_COACH_ANON_COOKIE_SECRET_ENV =
 /** Minimum HMAC key length (bytes as string length). */
 export const ASSISTANT_COACH_ANON_COOKIE_SECRET_MIN_LENGTH = 32;
 
+/** Env for anon turn safety/economic cap (Decision 059) — not conversion. */
+export const ASSISTANT_COACH_ANON_TURN_CAP_ENV =
+  "ASSISTANT_COACH_ANON_TURN_CAP";
+export const ASSISTANT_COACH_ANON_TURN_CAP_DEFAULT = 10;
+
 export class AssistantCoachConfigError extends Error {
   readonly code = "AC_ANON_COOKIE_CONFIG";
 
@@ -50,3 +55,18 @@ export function requireAssistantCoachAnonCookieSecret(
   }
   return secret;
 }
+
+/**
+ * Configurable anon turn safety/economic cap (default 10).
+ * Not the conversion gate — conversion is semantic hasExperiencedValue.
+ */
+export function getAssistantCoachAnonTurnCap(
+  env: NodeJS.ProcessEnv = process.env
+): number {
+  const raw = env[ASSISTANT_COACH_ANON_TURN_CAP_ENV]?.trim();
+  if (!raw) return ASSISTANT_COACH_ANON_TURN_CAP_DEFAULT;
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isFinite(n) || n < 1) return ASSISTANT_COACH_ANON_TURN_CAP_DEFAULT;
+  return Math.min(n, 10_000);
+}
+

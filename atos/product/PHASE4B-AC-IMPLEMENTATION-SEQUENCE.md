@@ -129,6 +129,7 @@
 | Safety/economic cap | Env/config e.g. `ASSISTANT_COACH_ANON_TURN_CAP` default **10** — **not** conversion |
 | Gate payload | `{ hasExperiencedValue, anonTurnCount, turnCap, mustAuthenticateToContinue, copyKey: "placeholder" }` — **no finalized marketing copy (OD-10)** |
 | Tests | Matrix: value true before/after cap; cap alone does not set value; value alone can require auth even if under cap |
+| Status | **Implemented** — sticky `hasExperiencedValue` (AC-JOURNEY §E.2) + `ASSISTANT_COACH_ANON_TURN_CAP` (default 10); gate flags updated; no hard block |
 | Non-goals | UI modal copy polish |
 
 **PR:** `4B.5: Semantic value gate + configurable anon turn cap`
