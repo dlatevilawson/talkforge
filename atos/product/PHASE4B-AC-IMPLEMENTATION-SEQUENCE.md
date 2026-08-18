@@ -258,6 +258,7 @@
 | Auth required | `/api/assistant-coach/claim`, `/app/*`, practice APIs |
 | Checks | Update `auth:check` / practice-readiness scripts if they assume all coach paths under `/app` |
 | Tests | Unauth `/coach` 200; unauth `/app/practice` → signup/login; unauth claim → 401 |
+| Status | **Implemented** — `proxyRequiresAuth` allowlist keeps `/coach` + AC session/turn public; `/app`/`/founder` unchanged |
 | Non-goals | New identity products |
 
 **PR:** `4B.13: Proxy allowlist for public Coach`

@@ -11,6 +11,7 @@ import {
   canAccessFounderPortal,
   isValidRole,
 } from "@/lib/auth/roles";
+import { proxyRequiresAuth } from "@/lib/auth/public-routes";
 
 /**
  * Refresh Supabase Auth cookies and enforce route authorization.
@@ -50,11 +51,7 @@ export async function updateSession(request: NextRequest) {
   const userId = claimsData?.claims?.sub as string | undefined;
 
   const { pathname } = request.nextUrl;
-  const needsAuth =
-    pathname.startsWith("/founder") ||
-    pathname.startsWith("/app") ||
-    pathname.startsWith("/onboarding") ||
-    pathname.startsWith("/change-password");
+  const needsAuth = proxyRequiresAuth(pathname);
 
   if (!needsAuth) {
     return supabaseResponse;
