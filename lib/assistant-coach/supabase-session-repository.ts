@@ -15,6 +15,7 @@ import {
 import {
   defaultAnonExpiresAt,
   isAnonSessionExpired,
+  AssistantCoachUniqueConflictError,
   type AssistantCoachSessionRepository,
   type CreateAssistantCoachSessionInput,
 } from "./session-repository.ts";
@@ -59,10 +60,8 @@ export function createSupabaseAssistantCoachSessionRepository(
 
       if (error) {
         if (isUniqueViolation(error)) {
-          const existing = await repository.getSessionByAnonKeyHash(
-            input.anonKeyHash
-          );
-          if (existing) return existing;
+          // Expected concurrency only — mint layer may adopt the winner.
+          throw new AssistantCoachUniqueConflictError(input.anonKeyHash);
         }
         throw new Error(
           `assistant_coach_sessions insert failed: ${error.message}`
@@ -83,8 +82,17 @@ export function createSupabaseAssistantCoachSessionRepository(
           { onConflict: "session_id" }
         );
       if (draftError) {
+        // Roll back the session row so a retry with the same Idempotency-Key
+        // does not adopt an incomplete session (no draft).
+        const { error: cleanupError } = await client
+          .from("assistant_coach_sessions")
+          .delete()
+          .eq("id", session.id);
+        const cleanupNote = cleanupError
+          ? ` (session cleanup also failed: ${cleanupError.message})`
+          : "";
         throw new Error(
-          `assistant_coach_profile_drafts insert failed: ${draftError.message}`
+          `assistant_coach_profile_drafts insert failed: ${draftError.message}${cleanupNote}`
         );
       }
 

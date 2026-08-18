@@ -25,6 +25,7 @@ import {
 } from "./anon-cookie.ts";
 import {
   isAnonSessionExpired,
+  isAssistantCoachUniqueConflictError,
   type AssistantCoachSession,
   type AssistantCoachSessionRepository,
 } from "./session-repository.ts";
@@ -94,6 +95,20 @@ function isRestorableAnonSession(
   return true;
 }
 
+/**
+ * Session + profile draft are created as a pair. Never adopt/restore a row
+ * that is missing its draft (partial write or in-flight concurrent insert).
+ */
+async function isCompleteRestorableAnonSession(
+  repository: AssistantCoachSessionRepository,
+  session: AssistantCoachSession,
+  now: Date
+): Promise<boolean> {
+  if (!isRestorableAnonSession(session, now)) return false;
+  const draft = await repository.getDraft(session.id);
+  return draft != null;
+}
+
 function resolveMintRawSecret(
   mintKey: string | null | undefined,
   requireMintKey: boolean
@@ -127,7 +142,10 @@ async function mintNewSession(
 
   // Fast path: another concurrent request already created this hash.
   const preexisting = await repository.getSessionByAnonKeyHash(anonKeyHash);
-  if (preexisting && isRestorableAnonSession(preexisting, now)) {
+  if (
+    preexisting &&
+    (await isCompleteRestorableAnonSession(repository, preexisting, now))
+  ) {
     const sealedCookie = sealAnonCookieValue(rawSecret, cookieSecret);
     const cookieAttributes = buildAnonCookieAttributes(preexisting.expiresAt, {
       now,
@@ -165,9 +183,18 @@ async function mintNewSession(
       publicSession: toPublic(session, outcome),
     };
   } catch (err) {
-    // Unique race: adopt the winner if still restorable.
+    // Adopt only the expected unique-key concurrency collision — never
+    // unrelated persistence failures (e.g. draft insert after session insert).
+    if (!isAssistantCoachUniqueConflictError(err)) {
+      throw err instanceof Error
+        ? err
+        : new Error("failed to mint anonymous Assistant Coach session");
+    }
     const existing = await repository.getSessionByAnonKeyHash(anonKeyHash);
-    if (existing && isRestorableAnonSession(existing, now)) {
+    if (
+      existing &&
+      (await isCompleteRestorableAnonSession(repository, existing, now))
+    ) {
       const sealedCookie = sealAnonCookieValue(rawSecret, cookieSecret);
       const cookieAttributes = buildAnonCookieAttributes(existing.expiresAt, {
         now,
@@ -182,9 +209,14 @@ async function mintNewSession(
         publicSession: toPublic(existing, "restored"),
       };
     }
-    throw err instanceof Error
-      ? err
-      : new Error("failed to mint anonymous Assistant Coach session");
+    // Unique conflict but winner is incomplete (no draft yet / draft failed)
+    // or no longer restorable — do not mint success.
+    if (existing) {
+      throw new Error(
+        "anonymous Assistant Coach session unique conflict without a complete profile draft"
+      );
+    }
+    throw err;
   }
 }
 
@@ -223,7 +255,7 @@ export async function ensureAnonAssistantCoachSession(
           mintOpts
         );
       }
-      if (isRestorableAnonSession(existing, now)) {
+      if (await isCompleteRestorableAnonSession(repository, existing, now)) {
         const sealedCookie = sealAnonCookieValue(
           parsed.rawSecret,
           cookieSecret
@@ -241,7 +273,7 @@ export async function ensureAnonAssistantCoachSession(
           publicSession: toPublic(existing, "restored"),
         };
       }
-      // Claimed / handed_off / unexpected — do not restore as anonymous.
+      // Claimed / handed_off / incomplete draft / unexpected — do not restore.
       return mintNewSession(
         repository,
         cookieSecret,

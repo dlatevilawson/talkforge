@@ -40,6 +40,9 @@
 - Cookieless mint **requires** `Idempotency-Key` (or `X-AC-Mint-Key`): 43–128 URL-safe chars (≈256-bit).
 - That key **is** the raw anon secret → `anon_key_hash = sha256(key)`.
 - Concurrent/repeated mints with the same key collapse to one active row via the unique partial index (and a pre-insert lookup).
+- Only `AssistantCoachUniqueConflictError` (Postgres `23505` on the active anon hash) may adopt the winning session; unrelated persistence failures must propagate.
+- Adopt/restore also requires the paired `assistant_coach_profile_drafts` row. Session-without-draft is never treated as a successful mint.
+- On draft insert failure after session insert, the adapter deletes the session row (best-effort) and throws.
 - Distinct keys still create distinct sessions (different visitors / intentional new mints).
 - Valid cookie restore does not require a mint key.
 
