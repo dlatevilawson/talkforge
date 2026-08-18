@@ -92,6 +92,7 @@
 | Lookup | Hash/compare cookie → session; reject expired (`status=expired` or `expires_at < now`) |
 | Explicit ban | No `signInAnonymously`, no `guest_*` profiles, no cloud guest reassignment |
 | Tests | Mint → read → reject tampered/expired; no guest path imports |
+| Status | **Implemented** — opaque signed cookie `v1.<secret>.<hmac>`, SHA-256 `anon_key_hash`, Supabase service-role adapter, `GET\|POST /api/assistant-coach/session`. Mint adopts only on typed unique-conflict; draft failure rolls back session and never returns 200. |
 | Non-goals | LLM turns, gate UI |
 
 **PR:** `4B.3: Signed HttpOnly anon Coach cookie + session mint`

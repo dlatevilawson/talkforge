@@ -1,10 +1,10 @@
 /**
  * Phase 4B.2 — Assistant Coach anonymous session repository (schema companion).
  *
- * Persistence substrate only: no HTTP routes, cookies, or UI.
- * Production DB access must use service_role / server clients (RLS denies
- * anon + authenticated). This module provides types + an in-memory repository
- * for unit tests and later wiring (4B.3+).
+ * Types + in-memory repository for unit tests.
+ * Production adapter: supabase-session-repository.ts (service_role only).
+ * Cookie mint/restore: session-service.ts + /api/assistant-coach/session (4B.3).
+ * No turn API / LLM / UI in this module.
  */
 
 export const ASSISTANT_COACH_ANON_TTL_DAYS = 14;
@@ -60,6 +60,36 @@ export type CreateAssistantCoachSessionInput = {
   ttlDays?: number;
   profileJson?: Record<string, unknown>;
 };
+
+/**
+ * Thrown only when createSession hits the active/gated anon_key_hash unique
+ * constraint (expected concurrency). Other persistence failures must not use
+ * this type — callers must not treat them as safe adopt/restore races.
+ */
+export class AssistantCoachUniqueConflictError extends Error {
+  readonly code = "AC_ANON_KEY_UNIQUE_CONFLICT";
+  readonly anonKeyHash: string;
+
+  constructor(anonKeyHash: string, message?: string) {
+    super(
+      message ??
+        "anon_key_hash already has an active/gated Assistant Coach session."
+    );
+    this.name = "AssistantCoachUniqueConflictError";
+    this.anonKeyHash = anonKeyHash;
+  }
+}
+
+export function isAssistantCoachUniqueConflictError(
+  err: unknown
+): err is AssistantCoachUniqueConflictError {
+  return (
+    err instanceof AssistantCoachUniqueConflictError ||
+    (typeof err === "object" &&
+      err !== null &&
+      (err as { code?: string }).code === "AC_ANON_KEY_UNIQUE_CONFLICT")
+  );
+}
 
 export type AssistantCoachSessionRepository = {
   createSession(
@@ -123,7 +153,7 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
         throw new Error("anonKeyHash is required for anonymous sessions.");
       }
       if (activeAnon.has(input.anonKeyHash)) {
-        throw new Error("anon_key_hash already has an active/gated session.");
+        throw new AssistantCoachUniqueConflictError(input.anonKeyHash);
       }
       const iso = now.toISOString();
       const session: AssistantCoachSession = {
@@ -159,7 +189,11 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
       const id = activeAnon.get(anonKeyHash);
       if (!id) return null;
       const row = sessions.get(id);
-      return row ? structuredClone(row) : null;
+      if (!row) return null;
+      // Anonymous restore surface: active/gated + unclaimed only.
+      if (row.userId != null) return null;
+      if (row.status !== "active" && row.status !== "gated") return null;
+      return structuredClone(row);
     },
 
     async listMessages(sessionId) {
@@ -221,6 +255,13 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
     async markExpiredIfPast(sessionId, now = new Date()) {
       const session = sessions.get(sessionId);
       if (!session) return null;
+      // Never overwrite claimed / handed_off / member-linked rows.
+      if (session.userId != null) {
+        return structuredClone(session);
+      }
+      if (session.status !== "active" && session.status !== "gated") {
+        return structuredClone(session);
+      }
       if (!isAnonSessionExpired(session, now)) {
         return structuredClone(session);
       }
