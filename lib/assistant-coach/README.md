@@ -7,9 +7,30 @@
 | **4B.4** | `POST /api/assistant-coach/turn` + identity-agnostic `runAssistantCoachTurn` |
 | **4B.5** | Sticky semantic value + anon turn cap flags |
 | **4B.6** | Hard gate anon continuation |
-| **4B.10** | Public `/coach` UI |
+| **4B.10** | Public `/coach` UI (product surface: **Coach**, voice + text) |
 | **4B.13** | Proxy allowlist for public Coach |
-| Later | Claim, soft verify, onboarding skip, landing CTA, analytics, expiry, Forge handoff |
+| Later | Claim (4B.7), soft verify, onboarding skip, landing CTA, analytics, expiry, Forge handoff |
+
+## Product surface (`/coach`)
+
+| Item | Value |
+|---|---|
+| User-facing name | **Coach** (internal modules remain `assistant-coach`) |
+| Opening | Open-ended invite — no assumed conversation/scenario |
+| Input | **Voice + text** into the same turn API |
+| Voice path | Browser `MediaRecorder` → `POST /api/assistant-coach/transcribe` (server OpenAI STT) → transcript in composer → existing turn API |
+| Not used | Forge VoiceArena / Realtime WebRTC (auth-gated duplex practice) |
+| States | Listening (mic only) · Transcribing · Coach is thinking… |
+| Gate | Restrained product copy; **claim continuity still deferred (4B.7)** |
+
+## Semantic value ≠ Living Profile completeness
+
+| Concept | Meaning |
+|---|---|
+| `hasExperiencedValue` | Sticky conversion signal (AC-JOURNEY §E.2) — value-before-auth |
+| Hard gate | Anon may not continue after value **or** turn cap (Decision 059) |
+| Living Profile / draft evidence | Continues accumulating; never “complete” merely because value flipped |
+| Training plan / Forge readiness | Later, stronger bars — not this gate |
 
 ## 4B.2 rules
 
@@ -27,7 +48,7 @@
 | Cookie value | `v1.<opaqueSecret>.<hmac>` (HMAC-SHA256, timing-safe verify) |
 | DB binding | `sha256(opaqueSecret)` hex → `assistant_coach_sessions.anon_key_hash` |
 | Attributes | HttpOnly · Secure (prod) · SameSite=Lax · Path=/ · Max-Age = remaining TTL |
-| Route | `GET|POST /api/assistant-coach/session` |
+| Route | `GET\|POST /api/assistant-coach/session` |
 | Mint key | Required when cookie missing/invalid: `Idempotency-Key` (43–128 URL-safe chars) |
 | Env | `ASSISTANT_COACH_ANON_COOKIE_SECRET` (server-only, ≥32 chars; fail closed if missing) |
 
@@ -62,6 +83,16 @@
 | Model | OpenAI `gpt-5` via `OPENAI_API_KEY`. Preview/Production **fail closed** if missing (no silent mock). Local mock only with explicit `ASSISTANT_COACH_ALLOW_MOCK_MODEL=true`. |
 | Response | `{ reply, session, gate, idempotentReplay }` — `gate` is **flags only** (4B.5/4B.6 own policy/enforcement) |
 
-### Non-goals (still)
+### Transcribe API
 
-`/coach` UI, claim, landing CTA, semantic value policy, hard gate, Forge handoff.
+| Item | Value |
+|---|---|
+| Route | `POST /api/assistant-coach/transcribe` |
+| Auth | Valid `tf_ac_anon` cookie |
+| Body | `multipart/form-data` field `audio` |
+| Model | `gpt-4o-mini-transcribe` (server-only) |
+| Gate | Hard-gated sessions receive `403 must_authenticate` (no STT spend) |
+
+### Non-goals (still deferred)
+
+Claim continuity (4B.7), soft verify, onboarding skip, landing CTA (4B.11), Forge handoff (4B.16), finalized OD-10 marketing gate copy.

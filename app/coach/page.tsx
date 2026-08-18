@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import AssistantCoachClient from "./AssistantCoachClient";
+import {
+  COACH_META_DESCRIPTION,
+  COACH_META_TITLE,
+} from "@/lib/assistant-coach/coach-copy";
 import "./coach.css";
 
 export const metadata: Metadata = {
-  title: "Assistant Coach",
-  description:
-    "Talk through a real conversation and feel understood before you create an account.",
+  title: COACH_META_TITLE,
+  description: COACH_META_DESCRIPTION,
   robots: { index: false, follow: false },
 };
 
