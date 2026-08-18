@@ -4,7 +4,8 @@
 |---|---|
 | **4B.2** | Session / messages / profile_drafts schema + in-memory repository |
 | **4B.3** | Signed HttpOnly anon cookie + server session mint/restore |
-| 4B.4+ | Turn API, UI, claim — **not in this package yet** |
+| **4B.4** | `POST /api/assistant-coach/turn` + identity-agnostic `runAssistantCoachTurn` |
+| 4B.5+ | Semantic value, hard gate, claim, UI — later slices |
 
 ## 4B.2 rules
 
@@ -46,6 +47,16 @@
 - Distinct keys still create distinct sessions (different visitors / intentional new mints).
 - Valid cookie restore does not require a mint key.
 
+### 4B.4 — turn API
+
+| Item | Value |
+|---|---|
+| Route | `POST /api/assistant-coach/turn` |
+| Auth | Valid `tf_ac_anon` cookie (required). Optional member auth enriches claimed sessions. |
+| Body | `{ message, clientTurnId? }` |
+| Runtime | `runAssistantCoachTurn` — injectable model; System 1 evidence/insights only |
+| Response | `{ reply, session, gate, idempotentReplay }` — `gate` is **flags only** (4B.5/4B.6 own policy/enforcement) |
+
 ### Non-goals (still)
 
-Turn/model API, LLM, `/coach` UI, claim, landing CTA, value gate, Forge handoff.
+`/coach` UI, claim, landing CTA, semantic value policy, hard gate, Forge handoff.
