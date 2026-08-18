@@ -112,6 +112,7 @@
 | Idempotency | Dedup on `clientTurnId` / turn index |
 | Rate limit | Per session + IP (reuse shared limiter when available) |
 | Tests | Integration with injected model; evidence accepted/rejected; no identity writes |
+| Status | **Implemented** — `runAssistantCoachTurn` + `POST /api/assistant-coach/turn` (injectable model; OWN-001; idempotent `clientTurnId`; gate flags only) |
 | Non-goals | Hard gate enforcement beyond returning flags; landing CTA; Forge |
 
 **PR:** `4B.4: Assistant Coach turn API`
