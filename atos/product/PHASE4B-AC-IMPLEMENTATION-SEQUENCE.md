@@ -146,6 +146,7 @@
 | Before value & under cap | Anon turns allowed |
 | Status | Session may move to `gated` |
 | Tests | Anon blocked after value; auth user still can turn; under-cap pre-value OK |
+| Status | **Implemented** — anon turns return 403 `must_authenticate` after value/cap (before model); session → `gated`; idempotent replay still allowed |
 | Non-goals | Signup UI redesign |
 
 **PR:** `4B.6: Hard gate anon continuation after value/cap`
