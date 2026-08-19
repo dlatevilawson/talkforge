@@ -17,7 +17,7 @@
 |---|---|
 | User-facing name | **Coach** (internal modules remain `assistant-coach`) |
 | Opening | Open-ended invite — no assumed conversation/scenario |
-| Behavior | Onboarding **understanding/discovery** by default; one earned move when grounded — not curricula/launch kits (AC-local prompt; not Forge policy) |
+| Behavior | Onboarding **understanding/discovery** by default; multi-select / “all the above” stays discovery; one earned proportionate move when grounded — not curricula/programs (AC-local prompt; not Forge policy) |
 | Input | **Voice + text** into the same turn API |
 | Voice path | Browser `MediaRecorder` → `POST /api/assistant-coach/transcribe` (server OpenAI STT) → transcript in composer → existing turn API |
 | Not used | Forge VoiceArena / Realtime WebRTC (auth-gated duplex practice) |
