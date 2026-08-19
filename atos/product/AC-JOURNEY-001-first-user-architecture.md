@@ -236,22 +236,35 @@ On claim: merge draft → member `living_profiles` (see F).
 
 LLM does **not** decide commercial UI. Server computes `hasExperiencedValue` from validated System 1 state + turn metadata.
 
-### E.2 Deterministic rule (recommended v1)
+### E.2 Deterministic rule (v1.1 — intervention-backed value)
 
 ```
-hasExperiencedValue =
+discoveryReady =
   substantiveUserTurns >= 2
   AND (
-    // Path V1 — understanding demonstrated
+    // Path V1 — understanding demonstrated (discovery)
     (hasGroundedGoalOrOutcome AND hasGroundedContextOrFriction)
     OR
-    // Path V2 — supported insight exists
+    // Path V2 — supported insight exists (discovery)
     (count(profileInsights where status in {supported, tentative}
           and kind in {root_pattern, focus_area, key_environment}) >= 1
      AND evidenceLedger fact-categories >= 2)
   )
   AND NOT onlyVagueAspiration
+
+hasExperiencedValue =
+  discoveryReady
+  AND hasValidatedActionableIntervention  // session-scoped; sticky once true
 ```
+
+**Discovery vs value:** Evidence/insights may accumulate as soon as the Coach understands the struggle. That alone is **not** experienced coaching value. Conversion requires at least one **validated actionable intervention** delivered by Coach (exercise, rehearsal, technique, strategy, usable wording/opener, pacing mechanism, or similar), represented as structured model JSON and checked server-side — **not** free-form reply prose.
+
+Intervention acceptance (deterministic):
+
+- `kind` ∈ {exercise, rehearsal, technique, strategy, wording, pacing, other}
+- `summary` length ≥ 24
+- `groundedInCategories` intersects grounded fact categories already on the evidence ledger
+- Reflection, summary, validation, or a follow-up question **without** a valid `intervention` object does **not** flip value
 
 Definitions:
 
@@ -259,6 +272,7 @@ Definitions:
 - **Goal/outcome** = `communication_goal` | `desired_outcome` that is **not** vague aspiration (`isVagueAspirationOnly`).
 - **Context/friction** = `communication_context` | `communication_friction` | `lived_example` | `observed_pattern`.
 - **onlyVagueAspiration** = ledger facts empty except low-confidence vague goals.
+- Interventions are **Coach deliverables**; they must not enter `evidence_ledger` as member identity/evidence.
 
 ### E.3 Floors, conversion, and safety/economic limit
 
@@ -273,9 +287,13 @@ Definitions:
 ### E.4 Explicit non-triggers
 
 - Message count alone
+- Discovery / understanding alone (goal+friction without an intervention)
 - LLM saying “ready to signup”
+- Free-form reply prose without a validated structured `intervention`
+- Reflection, summary, validation, or follow-up question alone
 - Forge readiness (later; stronger bar)
 - Interaction signals (“I don’t know”)
+- Living Profile “completeness” (not a conversion concept)
 
 ---
 

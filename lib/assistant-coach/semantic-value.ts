@@ -1,14 +1,17 @@
 /**
- * Phase 4B.5 — semantic hasExperiencedValue (AC-JOURNEY-001 §E.2).
- * Deterministic. LLM does not decide conversion.
+ * Phase 4B.5 — semantic hasExperiencedValue (AC-JOURNEY-001 §E.2, refined).
+ * Deterministic. LLM prose does not decide conversion.
  *
  * Semantic boundary (Decision 059 / AC-JOURNEY):
- * - hasExperiencedValue = enough understanding that the visitor felt real value
- *   (conversion / hard-gate eligibility for anon).
+ * - Discovery (goal + friction / insights) may accumulate immediately in the
+ *   evidence ledger and draft profile. Discovery alone is NOT experienced value.
+ * - hasExperiencedValue = discovery readiness AND at least one validated
+ *   actionable Coach intervention grounded in that evidence.
  * - It does NOT mean Living Profile is complete.
  * - It does NOT mean a training plan is ready.
  * - Living Profile remains evidence-driven across future interactions.
  * - Forge readiness is a later, stronger bar after claim.
+ * - Anon turn cap remains an independent safety/economic limit (not conversion).
  */
 import {
   isFactCategory,
@@ -73,15 +76,24 @@ function substantiveUserTurnCount(
 export type SemanticValueInput = {
   evidenceLedger: ProfileEvidenceRecord[];
   profileInsights: ProfileInsight[];
-  /** Prior user+assistant messages including the just-completed user turn. */
+  /** Prior user+assistant messages including the just-completed turns. */
   messages: Array<{ role: string; content: string }>;
+  /**
+   * True when this session has at least one server-validated actionable
+   * intervention (structured model field — not reply prose).
+   */
+  hasActionableIntervention: boolean;
 };
 
 /**
- * Sticky conversion eligibility — semantic only (not turn count).
+ * Discovery readiness — enough grounded understanding of the struggle.
+ * Does NOT by itself authorize conversion / hard gate.
  */
-export function computeHasExperiencedValue(
-  input: SemanticValueInput
+export function computeDiscoveryReady(
+  input: Pick<
+    SemanticValueInput,
+    "evidenceLedger" | "profileInsights" | "messages"
+  >
 ): boolean {
   const substantiveUserTurns = substantiveUserTurnCount(input.messages);
   if (substantiveUserTurns < 2) return false;
@@ -114,4 +126,14 @@ export function computeHasExperiencedValue(
   const pathV2 = usefulInsights.length >= 1 && factCategories.size >= 2;
 
   return pathV1 || pathV2;
+}
+
+/**
+ * Sticky conversion eligibility — discovery + delivered coaching intervention.
+ */
+export function computeHasExperiencedValue(
+  input: SemanticValueInput
+): boolean {
+  if (!input.hasActionableIntervention) return false;
+  return computeDiscoveryReady(input);
 }

@@ -27,6 +27,10 @@ import { AssistantCoachConfigError } from "./config.ts";
 import { getAssistantCoachAnonTurnCap } from "./config.ts";
 import { computeHasExperiencedValue } from "./semantic-value.ts";
 import {
+  messageHasAcceptedIntervention,
+  validateCoachIntervention,
+} from "./intervention.ts";
+import {
   isAnonSessionExpired,
   type AssistantCoachMessage,
   type AssistantCoachSession,
@@ -36,6 +40,8 @@ import {
 export type AssistantCoachModelOutput = {
   reply: string;
   observations?: unknown;
+  /** Optional structured actionable intervention (validated server-side). */
+  intervention?: unknown;
 };
 
 export type AssistantCoachModel = (input: {
@@ -344,6 +350,12 @@ export async function runAssistantCoachTurn(
     personalPrinciples: principlesBefore,
   };
 
+  // Validate intervention against post-turn ledger (grounding must exist).
+  const interventionDecision = validateCoachIntervention(
+    modelOut.intervention,
+    workingProfile.evidenceLedger ?? []
+  );
+
   const userMessage = await repository.appendMessage({
     sessionId: session.id,
     turnIndex,
@@ -366,6 +378,16 @@ export async function runAssistantCoachTurn(
       observationCount: decisions.length,
       acceptedCount: decisions.filter((d) => d.accepted).length,
       rejectedCount: decisions.filter((d) => !d.accepted).length,
+      interventionAccepted: interventionDecision.accepted === true,
+      ...(interventionDecision.accepted
+        ? {
+            interventionKind: interventionDecision.kind,
+            interventionSummary: interventionDecision.summary,
+            interventionGrounding: interventionDecision.groundedInCategories,
+          }
+        : interventionDecision.reason
+          ? { interventionRejectReason: interventionDecision.reason }
+          : {}),
     },
     createdAt: new Date(now.getTime() + 1).toISOString(),
   });
@@ -383,10 +405,16 @@ export async function runAssistantCoachTurn(
 
   // 4B.5 — sticky semantic value (never clears once true).
   const messagesAfter = await repository.listMessages(session.id);
+  const priorIntervention = messagesAfter.some(
+    (m) =>
+      m.role === "assistant" &&
+      messageHasAcceptedIntervention(m.modelMeta ?? undefined)
+  );
   const experienced = computeHasExperiencedValue({
     evidenceLedger: workingProfile.evidenceLedger ?? [],
     profileInsights: workingProfile.profileInsights ?? [],
     messages: messagesAfter,
+    hasActionableIntervention: priorIntervention,
   });
   if (
     experienced &&

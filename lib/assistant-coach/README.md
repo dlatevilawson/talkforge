@@ -27,10 +27,13 @@
 
 | Concept | Meaning |
 |---|---|
-| `hasExperiencedValue` | Sticky conversion signal (AC-JOURNEY §E.2) — value-before-auth |
+| Discovery readiness | Grounded goal+friction (or insight + ≥2 fact categories) after ≥2 substantive user turns — evidence may accumulate immediately |
+| Actionable intervention | Structured model `intervention` validated server-side (exercise / rehearsal / technique / strategy / wording / pacing) grounded in ledger facts — **not** reply prose alone |
+| `hasExperiencedValue` | Sticky conversion signal: **discovery + ≥1 validated intervention** (value-before-auth) |
 | Hard gate | Anon may not continue after value **or** turn cap (Decision 059) |
 | Living Profile / draft evidence | Continues accumulating; never “complete” merely because value flipped |
 | Training plan / Forge readiness | Later, stronger bars — not this gate |
+| Turn cap | Independent safety/economic limit (default 10) — not conversion |
 
 ## 4B.2 rules
 

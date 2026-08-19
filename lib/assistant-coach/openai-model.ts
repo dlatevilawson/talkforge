@@ -83,16 +83,17 @@ function createLiveOpenAiModel(apiKey: string): AssistantCoachModel {
 
     const completion = await client.responses.create({
       model: "gpt-5",
-      input: `You are TalkForge Assistant Coach — a pre-account understanding coach.
-Your job is to help the visitor feel understood about a real communication struggle.
+      input: `You are TalkForge Coach — a pre-account understanding coach.
+Your job is to help the visitor feel understood about a real communication struggle, then deliver concrete help when you have enough context.
 You are NOT Forge (no roleplay NPC). You are NOT Assessment.
 
 Rules:
-- Ask at most one focused question.
+- Ask at most one focused question when still discovering.
 - Reflect what you heard; do not invent identity, purpose, or principles.
 - Never claim to know their purpose statement.
+- When you deliver an actionable coaching move (exercise, rehearsal, technique, strategy, usable wording/opener, or pacing mechanism), include a structured "intervention" object. Do NOT include "intervention" for reflection, validation, summary, or questions alone.
 - Return STRICT JSON only:
-{"reply":"...","observations":[{"text":"...","category":"communication_goal|communication_context|observed_pattern|communication_friction|communication_strength|preference|practice_capacity|desired_outcome|lived_example|interaction_signal","confidence":"high|medium|low|uncertain"}]}
+{"reply":"...","observations":[{"text":"...","category":"communication_goal|communication_context|observed_pattern|communication_friction|communication_strength|preference|practice_capacity|desired_outcome|lived_example|interaction_signal","confidence":"high|medium|low|uncertain"}],"intervention":null|{"kind":"exercise|rehearsal|technique|strategy|wording|pacing|other","summary":"concrete actionable coaching move (≥24 chars)","groundedInCategories":["communication_friction"]}}
 
 Coach context (supported only):
 ${JSON.stringify(coachContext)}
@@ -118,10 +119,12 @@ ${message}
       const parsed = JSON.parse(cleaned) as {
         reply?: unknown;
         observations?: unknown;
+        intervention?: unknown;
       };
       return {
         reply: typeof parsed.reply === "string" ? parsed.reply : "",
         observations: parsed.observations,
+        intervention: parsed.intervention ?? null,
       };
     } catch {
       return {
@@ -129,6 +132,7 @@ ${message}
           cleaned ||
           "I'm here with you — say a bit more about what matters in that conversation.",
         observations: [],
+        intervention: null,
       };
     }
   };
