@@ -56,11 +56,19 @@
 }
 
 .ac-shell-chat {
+  position: fixed;
+  top: var(--ac-vvt, 0px);
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: min(100%, 44rem);
   height: var(--ac-vvh, 100dvh);
   max-height: var(--ac-vvh, 100dvh);
   min-height: 0;
   overflow: hidden;
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding: 0.55rem 0.9rem max(0.55rem, env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
 html:has(.ac-shell-chat),
@@ -76,6 +84,18 @@ body:has(.ac-shell-chat) {
 
 .ac-shell-chat .ac-lede {
   font-size: 0.95rem;
+}
+
+.ac-has-messages .ac-title {
+  font-size: 1.15rem;
+}
+
+.ac-has-messages .ac-kicker {
+  font-size: 0.65rem;
+}
+
+.ac-has-messages .ac-header {
+  gap: 0.12rem;
 }
 
 .ac-thread {
@@ -120,18 +140,46 @@ body:has(.ac-shell-chat) {
 .ac-composer {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.55rem;
   flex-shrink: 0;
   position: relative;
   bottom: auto;
-  padding-top: 0.75rem;
-  background: linear-gradient(180deg, transparent, #050505 28%);
+  padding-top: 0.55rem;
+  background: linear-gradient(180deg, transparent, #050505 18%);
 }
 
-.ac-shell-chat .ac-composer textarea {
-  min-height: 3.25rem;
+.ac-composer-dock {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.45rem;
+}
+
+.ac-composer-dock .ac-muted {
+  flex: 1 1 auto;
+  padding: 0.55rem 0.2rem;
+}
+
+.ac-shell-chat .ac-composer textarea,
+.ac-composer-dock textarea {
+  flex: 1 1 auto;
+  width: auto;
+  min-height: 2.75rem;
   max-height: 7.5rem;
+  height: 2.75rem;
   resize: none;
+  font-size: 16px;
+  line-height: 1.35;
+  border-radius: 1.35rem;
+  padding: 0.7rem 0.95rem;
+}
+
+.ac-btn-icon {
+  min-width: 2.75rem;
+  height: 2.75rem;
+  padding: 0 0.85rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+  font-size: 0.85rem;
 }
 
 .ac-shell-chat .ac-gate {
