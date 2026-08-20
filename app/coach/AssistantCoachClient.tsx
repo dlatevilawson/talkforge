@@ -79,7 +79,8 @@ function createClientTurnId(): string {
 
 export default function AssistantCoachClient() {
   const formId = useId();
-  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const threadRef = useRef<HTMLElement | null>(null);
+  const nearBottomRef = useRef(true);
   const streamRef = useRef<MediaStream | null>(null);
   const recordingRef = useRef<CoachRecordingSession | null>(null);
 
@@ -149,8 +150,52 @@ export default function AssistantCoachClient() {
   }, []);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    const root = document.documentElement;
+    const applyViewport = () => {
+      const height = window.visualViewport?.height ?? window.innerHeight;
+      root.style.setProperty("--ac-vvh", `${Math.round(height)}px`);
+      window.scrollTo(0, 0);
+    };
+    applyViewport();
+    const vv = window.visualViewport;
+    vv?.addEventListener("resize", applyViewport);
+    vv?.addEventListener("scroll", applyViewport);
+    window.addEventListener("resize", applyViewport);
+    return () => {
+      vv?.removeEventListener("resize", applyViewport);
+      vv?.removeEventListener("scroll", applyViewport);
+      window.removeEventListener("resize", applyViewport);
+      root.style.removeProperty("--ac-vvh");
+    };
+  }, []);
+
+  useEffect(() => {
+    const thread = threadRef.current;
+    if (!thread) return;
+    const onScroll = () => {
+      const remaining =
+        thread.scrollHeight - thread.scrollTop - thread.clientHeight;
+      nearBottomRef.current = remaining < 96;
+    };
+    onScroll();
+    thread.addEventListener("scroll", onScroll, { passive: true });
+    return () => thread.removeEventListener("scroll", onScroll);
+  }, [ready]);
+
+  useEffect(() => {
+    const thread = threadRef.current;
+    if (!thread || !nearBottomRef.current) return;
+    thread.scrollTop = thread.scrollHeight;
   }, [messages, phase, pending]);
+
+  function keepComposerPinned() {
+    window.scrollTo(0, 0);
+    const height = window.visualViewport?.height ?? window.innerHeight;
+    document.documentElement.style.setProperty(
+      "--ac-vvh",
+      `${Math.round(height)}px`
+    );
+  }
 
   function sendMessage(text: string) {
     const trimmed = text.trim();
@@ -341,14 +386,18 @@ export default function AssistantCoachClient() {
   }
 
   return (
-    <main className="ac-shell">
+    <main className="ac-shell ac-shell-chat">
       <header className="ac-header">
         <p className="ac-kicker">TalkForge</p>
         <h1 className="ac-title">{COACH_PRODUCT_NAME}</h1>
         <p className="ac-lede">{COACH_OPENING}</p>
       </header>
 
-      <section className="ac-thread" aria-label="Conversation">
+      <section
+        ref={threadRef}
+        className="ac-thread"
+        aria-label="Conversation"
+      >
         {messages.length === 0 ? (
           <p className="ac-empty">{COACH_EMPTY_HINT}</p>
         ) : (
@@ -378,7 +427,6 @@ export default function AssistantCoachClient() {
             {statusLabel}
           </p>
         ) : null}
-        <div ref={bottomRef} />
       </section>
 
       {gated ? (
@@ -403,7 +451,8 @@ export default function AssistantCoachClient() {
             id={`${formId}-input`}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            rows={3}
+            onFocus={keepComposerPinned}
+            rows={2}
             placeholder={COACH_COMPOSER_PLACEHOLDER}
             disabled={busy}
           />

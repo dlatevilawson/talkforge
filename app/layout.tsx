@@ -8,6 +8,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: "#050505",
+  // iOS Safari: resize layout with the keyboard so chat composers stay docked.
+  interactiveWidget: "resizes-content",
 };
 
 const geistSans = Geist({
