@@ -13,6 +13,10 @@ import {
   COACH_CONFIRM_WORKING_ON,
   COACH_PRODUCT_NAME,
 } from "@/lib/assistant-coach/coach-copy";
+import {
+  isConfirmedForgeHandoffHref,
+  isPracticableMoment,
+} from "@/lib/assistant-coach/confirmation";
 
 type ConfirmationFields = {
   workingOn: string;
@@ -93,6 +97,13 @@ export default function ConfirmClient() {
 
   function continueToPractice() {
     if (pending) return;
+    if (!isPracticableMoment(fields.identifiedMoment)) {
+      setError(
+        "Name the conversation you need to have — not only the topic — then continue."
+      );
+      setEditing(true);
+      return;
+    }
     setError(null);
     startTransition(async () => {
       try {
@@ -111,9 +122,12 @@ export default function ConfirmClient() {
           );
         }
         const href =
-          typeof body.practiceHref === "string"
-            ? body.practiceHref
-            : "/app/practice";
+          typeof body.practiceHref === "string" ? body.practiceHref : "";
+        if (!isConfirmedForgeHandoffHref(href)) {
+          throw new Error(
+            "Coach couldn’t carry this moment into practice. Try continuing again."
+          );
+        }
         window.location.assign(href);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unable to continue.");
@@ -186,7 +200,7 @@ export default function ConfirmClient() {
               type="button"
               className="ac-btn ac-btn-primary"
               onClick={continueToPractice}
-              disabled={!ready || pending}
+              disabled={!ready || pending || !isPracticableMoment(fields.identifiedMoment)}
             >
               {pending ? "Continuing…" : COACH_CONFIRM_CONTINUE}
             </button>

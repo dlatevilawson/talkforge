@@ -9,6 +9,7 @@ import {
 } from "@/lib/ce/session-config";
 import { resolveArenaVoiceMode } from "@/lib/ce/voice-mode";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { AC_HANDOFF_SOURCE } from "@/lib/assistant-coach/confirmation";
 import { evaluatePracticeRouteAccess } from "@/lib/system2/server-readiness";
 
 export const runtime = "nodejs";
@@ -18,6 +19,7 @@ type SessionBody = {
   eventTitle?: string;
   successCriteria?: string;
   mode?: CeSessionMode | string;
+  source?: string;
 };
 
 /**
@@ -32,8 +34,22 @@ export async function POST(req: Request) {
   }
 
   // Same readiness boundary as /app/practice (BS-013).
+  // AC first-practice handoff: confirmed moment is the starting context.
   const readiness = await evaluatePracticeRouteAccess();
-  if (!readiness.allowed) {
+  let body: SessionBody = {};
+  try {
+    const json = (await req.json()) as unknown;
+    if (json && typeof json === "object") {
+      body = json as SessionBody;
+    }
+  } catch {
+    body = {};
+  }
+  const eventTitle =
+    typeof body.eventTitle === "string" ? body.eventTitle.trim() : "";
+  const acHandoff =
+    body.source === AC_HANDOFF_SOURCE && eventTitle.length > 0;
+  if (!readiness.allowed && !acHandoff) {
     return NextResponse.json(
       {
         error: "Living Profile readiness required before starting Coach Forge.",
@@ -80,16 +96,6 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: SessionBody = {};
-  try {
-    const json = (await req.json()) as unknown;
-    if (json && typeof json === "object") {
-      body = json as SessionBody;
-    }
-  } catch {
-    body = {};
-  }
-
   const track = normalizeTrack(body.track);
   const mode: CeSessionMode =
     body.mode === "assessment" ? "assessment" : "practice";
@@ -104,8 +110,7 @@ export async function POST(req: Request) {
   const handsFree = voiceMode === "handsfree";
   const payload = buildClientSecretRequest({
     track,
-    eventTitle:
-      typeof body.eventTitle === "string" ? body.eventTitle : undefined,
+    eventTitle: eventTitle || undefined,
     successCriteria:
       typeof body.successCriteria === "string"
         ? body.successCriteria

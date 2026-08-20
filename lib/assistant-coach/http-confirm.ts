@@ -3,8 +3,9 @@
  */
 import {
   applyConfirmationToLivingProfile,
-  buildConfirmationView,
   buildFirstPracticeHref,
+  confirmationFromSubmittedFields,
+  isPracticableMoment,
   type ConfirmationFields,
 } from "./confirmation.ts";
 import { SESSION_NO_STORE_HEADERS } from "./http-session.ts";
@@ -59,9 +60,11 @@ export async function handleAssistantCoachConfirmRequest(
     if (!fields) {
       return jsonResponse(400, { error: "Confirmation fields are required." });
     }
-    if (!fields.workingOn && !fields.difficulty && !fields.identifiedMoment) {
+    if (!isPracticableMoment(fields.identifiedMoment)) {
       return jsonResponse(400, {
-        error: "Tell us what you’re working on, or the moment that gets hard.",
+        error:
+          "Name the conversation you need to have — not only the topic — then continue.",
+        code: "identified_moment_required",
       });
     }
 
@@ -76,13 +79,21 @@ export async function handleAssistantCoachConfirmRequest(
     const purposeBefore = current.purposeStatement;
     const next = applyConfirmationToLivingProfile(current, fields);
     next.purposeStatement = purposeBefore;
-    const saved = await deps.saveConfirmedProfile(next);
-    const confirmation = buildConfirmationView(saved);
+    await deps.saveConfirmedProfile(next);
+    const confirmation = confirmationFromSubmittedFields(fields);
     const practiceHref = buildFirstPracticeHref(fields);
+    if (!practiceHref) {
+      return jsonResponse(400, {
+        error:
+          "Name the conversation you need to have — not only the topic — then continue.",
+        code: "identified_moment_required",
+      });
+    }
 
     return jsonResponse(200, {
       confirmation,
       practiceHref,
+      identifiedMoment: fields.identifiedMoment,
     });
   } catch (err) {
     console.error("assistant-coach confirm failed", err);

@@ -82,7 +82,9 @@ export async function handleAssistantCoachClaimRequest(
       profiles: deps.createProfileStore(userId),
     });
 
-    const confirmation = buildConfirmationView(result.profile);
+    const confirmation = buildConfirmationView(result.draftProfile, {
+      userMessages: result.userMessages,
+    });
     return jsonResponse(200, {
       session: {
         id: result.session.id,

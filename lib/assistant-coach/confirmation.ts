@@ -1,12 +1,13 @@
 /**
  * Post-claim understanding confirmation — human-readable LP, not a settings form.
- * Builds the first Forge handoff from confirmed fields (query params only).
+ * Builds the first Forge handoff from THIS Assistant Coach session, not historical LP.
  */
-import { applyMemberLivingProfileUpdate } from "../system1/member-writes.ts";
+import { addProfileEvidence } from "../system1/profile-evidence.ts";
 import type { ProfileEvidenceRecord } from "../system1/profile-evidence.ts";
 import type { LivingProfile, ProvenanceRecord } from "../system1/types.ts";
 
 export const AC_CONFIRM_PATH = "/coach/confirm";
+export const AC_HANDOFF_SOURCE = "ac";
 
 export type ConfirmationFields = {
   workingOn: string;
@@ -20,19 +21,126 @@ export type ConfirmationView = ConfirmationFields & {
   canContinue: boolean;
 };
 
+export type ConfirmationViewOptions = {
+  /** User turns from the AC session being claimed — used only to recover a moment. */
+  userMessages?: string[];
+};
+
 const GROUNDED_CONFIDENCE = new Set(["high", "medium", "low"]);
 
-function latestByCategory(
-  ledger: ProfileEvidenceRecord[] | undefined,
-  categories: ProfileEvidenceRecord["category"][]
-): string {
-  const rows = (ledger ?? []).filter(
+const SPEECH_ACT =
+  /\b(tell|telling|told|ask|asking|asked|say|saying|said|speak|speaking|talk|talking|present|presenting|pitch|answer|answering|opener|challenge|challenged)\b/i;
+
+const WHEN_SCENE =
+  /\bwhen\b.{0,80}\b(ask|tell|challeng|put on the spot|open|hire|about yourself)\b/i;
+
+/**
+ * Member-facing confirmation copy: address the visitor as "you".
+ * Does not rewrite quoted speech or the other person in the scene ("when they ask").
+ */
+export function toMemberFacingYou(text: string): string {
+  const raw = text.trim();
+  if (!raw) return "";
+  if (/^you\b/i.test(raw)) {
+    return raw.charAt(0).toUpperCase() + raw.slice(1);
+  }
+
+  let t = raw;
+  t = t.replace(/\bthe visitor\b/gi, "you");
+  t = t.replace(/\bthe member\b/gi, "you");
+  t = t.replace(/\bthis person\b/gi, "you");
+
+  t = t.replace(
+    /^(Has|Wants|Needs|Rushes|Blanks|Loses|Gets|Named|Is considering|Is preparing)\b/i,
+    (match) => {
+      const key = match.toLowerCase();
+      const map: Record<string, string> = {
+        has: "You have",
+        wants: "You want",
+        needs: "You need",
+        rushes: "You rush",
+        blanks: "You blank",
+        loses: "You lose",
+        gets: "You get",
+        named: "You named",
+        "is considering": "You’re considering",
+        "is preparing": "You’re preparing",
+      };
+      return map[key] ?? match;
+    }
+  );
+
+  // Observation-style "Rushes and loses confidence…"
+  if (!/^you\b/i.test(t) && /^(Rush|Blank|Lose|Get|Freeze|Speed)\b/i.test(t)) {
+    t = `You ${t.charAt(0).toLowerCase()}${t.slice(1)}`;
+  }
+
+  if (/^you\b/i.test(t)) {
+    t = t.replace(/\band wants\b/gi, "and want");
+    t = t.replace(/\band needs\b/gi, "and need");
+    t = t.replace(/\band loses\b/gi, "and lose");
+  }
+
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
+/**
+ * A practicable conversational moment — a scene of speaking — not a life-topic.
+ * "Considering a career change" is context.
+ * "Telling my wife I’m considering a career change" is the moment.
+ */
+export function isPracticableMoment(text: string): boolean {
+  const t = text.trim();
+  if (t.length < 12) return false;
+  if (SPEECH_ACT.test(t) || WHEN_SCENE.test(t)) return true;
+  if (/["“']/.test(t) && t.length >= 16) return true;
+  return false;
+}
+
+function isAssistantCoachEvidence(row: ProfileEvidenceRecord): boolean {
+  return row.sourceType === "assistant_coach";
+}
+
+function grounded(ledger: ProfileEvidenceRecord[]): ProfileEvidenceRecord[] {
+  return ledger.filter(
     (e) =>
-      categories.includes(e.category) &&
       GROUNDED_CONFIDENCE.has(e.confidence) &&
       (e.text?.trim().length ?? 0) >= 8
   );
-  return rows.at(-1)?.text.trim() ?? "";
+}
+
+function latest(
+  rows: ProfileEvidenceRecord[],
+  categories: ProfileEvidenceRecord["category"][]
+): string {
+  const match = rows.filter((e) => categories.includes(e.category));
+  return match.at(-1)?.text.trim() ?? "";
+}
+
+function latestMoment(rows: ProfileEvidenceRecord[]): string {
+  const lived = rows.filter((e) => e.category === "lived_example");
+  for (let i = lived.length - 1; i >= 0; i--) {
+    if (isPracticableMoment(lived[i].text)) return lived[i].text.trim();
+  }
+  const sceneCats: ProfileEvidenceRecord["category"][] = [
+    "communication_friction",
+    "observed_pattern",
+    "communication_context",
+  ];
+  const rest = rows.filter((e) => sceneCats.includes(e.category));
+  for (let i = rest.length - 1; i >= 0; i--) {
+    if (isPracticableMoment(rest[i].text)) return rest[i].text.trim();
+  }
+  return "";
+}
+
+function momentFromUserMessages(messages: string[] | undefined): string {
+  if (!messages?.length) return "";
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const text = messages[i]?.trim() ?? "";
+    if (isPracticableMoment(text)) return text;
+  }
+  return "";
 }
 
 function firstNonEmpty(...values: Array<string | undefined>): string {
@@ -43,38 +151,34 @@ function firstNonEmpty(...values: Array<string | undefined>): string {
   return "";
 }
 
+/**
+ * Confirmation fields come from THIS AC session's evidence.
+ * Historical member goals/challenges/lived examples are not used as the moment.
+ */
 export function buildConfirmationView(
-  profile: LivingProfile | null | undefined
+  profile: LivingProfile | null | undefined,
+  options?: ConfirmationViewOptions
 ): ConfirmationView {
-  const ledger = profile?.evidenceLedger ?? [];
-  const workingOn = firstNonEmpty(
-    latestByCategory(ledger, ["communication_goal", "desired_outcome"]),
-    profile?.goals?.[0]
+  const ledger = grounded(profile?.evidenceLedger ?? []);
+  const acLedger = ledger.filter(isAssistantCoachEvidence);
+  const preferred = acLedger.length > 0 ? acLedger : ledger;
+
+  const workingOn = toMemberFacingYou(
+    latest(preferred, ["communication_goal", "desired_outcome"])
   );
-  const difficulty = firstNonEmpty(
-    latestByCategory(ledger, ["communication_friction", "observed_pattern"]),
-    profile?.challenges?.[0]
+  const difficulty = toMemberFacingYou(
+    latest(preferred, ["communication_friction", "observed_pattern"])
   );
-  const identifiedMoment = firstNonEmpty(
-    latestByCategory(ledger, ["lived_example", "communication_context"]),
-    difficulty
+  const identifiedMoment = toMemberFacingYou(
+    firstNonEmpty(
+      momentFromUserMessages(options?.userMessages),
+      latestMoment(preferred)
+    )
   );
-  const firstWorkInsight = (profile?.profileInsights ?? []).find(
-    (i) =>
-      (i.kind === "training_implication" || i.kind === "focus_area") &&
-      (i.status === "supported" ||
-        i.status === "tentative" ||
-        i.status === "member_confirmed") &&
-      i.statement.trim().length >= 8
-  );
-  const firstWork = firstNonEmpty(
-    firstWorkInsight?.statement,
-    identifiedMoment
-      ? `Stay clear and structured when ${identifiedMoment.replace(/^when\s+/i, "")}`
-      : workingOn
-        ? `Practice the moment inside: ${workingOn}`
-        : ""
-  );
+
+  const firstWork = identifiedMoment
+    ? `Stay clear and structured in that moment: ${identifiedMoment}`
+    : "";
 
   return {
     heading: "Here’s what I’ve understood about you so far",
@@ -82,26 +186,60 @@ export function buildConfirmationView(
     difficulty,
     identifiedMoment,
     firstWork,
-    canContinue: Boolean(workingOn || difficulty || identifiedMoment),
+    canContinue: isPracticableMoment(identifiedMoment),
+  };
+}
+
+export function confirmationFromSubmittedFields(
+  fields: ConfirmationFields
+): ConfirmationView {
+  const identifiedMoment = fields.identifiedMoment.trim();
+  return {
+    heading: "Here’s what I’ve understood about you so far",
+    workingOn: fields.workingOn.trim(),
+    difficulty: fields.difficulty.trim(),
+    identifiedMoment,
+    firstWork: fields.firstWork.trim(),
+    canContinue: isPracticableMoment(identifiedMoment),
   };
 }
 
 export function buildFirstPracticeHref(fields: ConfirmationFields): string {
-  const title = firstNonEmpty(
-    fields.identifiedMoment,
-    fields.workingOn,
-    "Today’s practice"
-  ).slice(0, 180);
+  const title = fields.identifiedMoment.trim().slice(0, 180);
+  if (!title || !isPracticableMoment(title)) return "";
   const success = firstNonEmpty(
     fields.firstWork,
-    title ? `Stay clear and structured in: ${title}` : "Stay clear under pressure"
+    `Stay clear and structured in: ${title}`
   ).slice(0, 240);
   const q = new URLSearchParams({
     title,
     success,
     start: "1",
+    source: AC_HANDOFF_SOURCE,
   });
   return `/app/practice?${q.toString()}`;
+}
+
+export function isAssistantCoachPracticeHandoff(input: {
+  source?: string | null;
+  title?: string | null;
+}): boolean {
+  return (
+    input.source === AC_HANDOFF_SOURCE && Boolean(input.title?.trim())
+  );
+}
+
+export function isConfirmedForgeHandoffHref(href: string): boolean {
+  if (!href.startsWith("/app/practice?")) return false;
+  try {
+    const url = new URL(href, "https://talkforge.local");
+    return isAssistantCoachPracticeHandoff({
+      source: url.searchParams.get("source"),
+      title: url.searchParams.get("title"),
+    });
+  } catch {
+    return false;
+  }
 }
 
 export function applyConfirmationToLivingProfile(
@@ -110,9 +248,9 @@ export function applyConfirmationToLivingProfile(
   now: Date = new Date()
 ): LivingProfile {
   const iso = now.toISOString();
-  let next = applyMemberLivingProfileUpdate(profile, {});
   const workingOn = fields.workingOn.trim();
   const difficulty = fields.difficulty.trim();
+  const moment = fields.identifiedMoment.trim();
   const goals = workingOn
     ? [workingOn, ...(profile.goals ?? []).filter((g) => g.trim() !== workingOn)]
     : profile.goals ?? [];
@@ -123,20 +261,19 @@ export function applyConfirmationToLivingProfile(
       ]
     : profile.challenges ?? [];
 
-  next = {
-    ...next,
-    goals: goals.slice(0, 8),
-    challenges: challenges.slice(0, 8),
-    purposeStatement: profile.purposeStatement,
-    personalPrinciples: profile.personalPrinciples,
-    seasons: profile.seasons,
-    profileInsights: (profile.profileInsights ?? []).map((insight) =>
-      insight.status === "supported" || insight.status === "tentative"
-        ? { ...insight, status: "member_confirmed" as const, updatedAt: iso }
-        : insight
-    ),
-    updatedAt: iso,
-  };
+  let evidenceLedger = profile.evidenceLedger ?? [];
+  if (moment && isPracticableMoment(moment)) {
+    evidenceLedger = addProfileEvidence(evidenceLedger, {
+      id: `ev_ac_confirm_moment_${iso}`,
+      userId: profile.userId,
+      sourceType: "member_statement",
+      sourceId: "assistant_coach_confirm",
+      observedAt: iso,
+      text: moment,
+      category: "lived_example",
+      confidence: "high",
+    });
+  }
 
   const confirmation: ProvenanceRecord = {
     id: `prov_lp_confirm_${iso}`,
@@ -149,12 +286,31 @@ export function applyConfirmationToLivingProfile(
     updatedAt: iso,
     memberConfirmed: true,
   };
-  next.provenance = [confirmation, ...(next.provenance ?? [])].slice(0, 200);
-  return next;
+
+  return {
+    ...profile,
+    goals: goals.slice(0, 8),
+    challenges: challenges.slice(0, 8),
+    purposeStatement: profile.purposeStatement,
+    personalPrinciples: profile.personalPrinciples,
+    seasons: profile.seasons,
+    evidenceLedger,
+    profileInsights: (profile.profileInsights ?? []).map((insight) =>
+      insight.status === "supported" || insight.status === "tentative"
+        ? { ...insight, status: "member_confirmed" as const, updatedAt: iso }
+        : insight
+    ),
+    provenance: [confirmation, ...(profile.provenance ?? [])].slice(0, 200),
+    updatedAt: iso,
+  };
 }
 
 export function isAssistantCoachConfirmPath(pathname: string): boolean {
   return (
     pathname === AC_CONFIRM_PATH || pathname.startsWith(`${AC_CONFIRM_PATH}/`)
   );
+}
+
+export function isAssistantCoachHandoffPath(pathname: string): boolean {
+  return pathname.startsWith("/app/practice");
 }

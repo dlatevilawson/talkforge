@@ -9,6 +9,7 @@ import {
 } from "./claim-merge.ts";
 import { isAnonSessionExpired } from "./session-repository.ts";
 import type {
+  AssistantCoachMessage,
   AssistantCoachSession,
   AssistantCoachSessionRepository,
 } from "./session-repository.ts";
@@ -32,9 +33,36 @@ export type ClaimAssistantCoachSessionInput = {
 
 export type ClaimAssistantCoachSessionResult = {
   session: AssistantCoachSession;
+  /** Merged member Living Profile after claim (System 1). */
   profile: LivingProfile;
+  /** This AC session's draft only — confirmation must not use member history. */
+  draftProfile: LivingProfile;
+  /** User turns from this AC session — used to recover the identified moment. */
+  userMessages: string[];
   alreadyClaimed: boolean;
 };
+
+function userMessageTexts(messages: AssistantCoachMessage[]): string[] {
+  return messages
+    .filter((m) => m.role === "user")
+    .map((m) => m.content.trim())
+    .filter(Boolean);
+}
+
+async function loadSessionDraftAndMessages(
+  repository: AssistantCoachSessionRepository,
+  session: AssistantCoachSession
+): Promise<{ draftProfile: LivingProfile; userMessages: string[] }> {
+  const draftRow = await repository.getDraft(session.id);
+  const draftProfile = draftJsonToLivingProfile(
+    session.id,
+    draftRow?.profileJson
+  );
+  const userMessages = userMessageTexts(
+    await repository.listMessages(session.id)
+  );
+  return { draftProfile, userMessages };
+}
 
 function requireClaimMethods(repository: AssistantCoachSessionRepository) {
   if (
@@ -91,22 +119,46 @@ export async function claimAssistantCoachSession(
       );
     }
     const profile = await input.profiles.loadOrCreate(userId);
-    return { session: existing, profile, alreadyClaimed: true };
+    const { draftProfile, userMessages } = await loadSessionDraftAndMessages(
+      input.repository,
+      existing
+    );
+    return {
+      session: existing,
+      profile,
+      draftProfile,
+      userMessages,
+      alreadyClaimed: true,
+    };
   }
 
   const alreadyClaimed =
     session.userId === userId && session.status === "claimed";
+
+  const { draftProfile, userMessages } = await loadSessionDraftAndMessages(
+    input.repository,
+    session
+  );
+
+  if (alreadyClaimed) {
+    const profile = await input.profiles.loadOrCreate(userId);
+    return {
+      session,
+      profile,
+      draftProfile,
+      userMessages,
+      alreadyClaimed: true,
+    };
+  }
 
   const member = await input.profiles.loadOrCreate(userId);
   const purposeBefore = member.purposeStatement;
   const principlesBefore = member.personalPrinciples;
   const seasonsBefore = member.seasons;
 
-  const draftRow = await input.repository.getDraft(session.id);
-  const draft = draftJsonToLivingProfile(session.id, draftRow?.profileJson);
   const merged = mergeDraftIntoMemberLivingProfile({
     member,
-    draft,
+    draft: draftProfile,
     sessionId: session.id,
     now,
   });
@@ -118,19 +170,19 @@ export async function claimAssistantCoachSession(
   merged.seasons = seasonsBefore;
 
   const saved = await input.profiles.saveMerged(merged);
-  const claimed = alreadyClaimed
-    ? session
-    : await input.repository.claimSession!({
-        sessionId: session.id,
-        userId,
-        now,
-      });
+  const claimed = await input.repository.claimSession!({
+    sessionId: session.id,
+    userId,
+    now,
+  });
 
   await input.profiles.markOnboardingComplete(userId);
 
   return {
     session: claimed,
     profile: saved,
-    alreadyClaimed,
+    draftProfile,
+    userMessages,
+    alreadyClaimed: false,
   };
 }
