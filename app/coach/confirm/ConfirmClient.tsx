@@ -171,6 +171,7 @@ export default function ConfirmClient() {
               label={COACH_CONFIRM_MOMENT}
               value={fields.identifiedMoment}
               editing={editing}
+              emptyHint="The conversation you need to have — tap Edit if this is blank."
               onChange={(v) => update("identifiedMoment", v)}
             />
             <ConfirmField
@@ -200,7 +201,7 @@ export default function ConfirmClient() {
               type="button"
               className="ac-btn ac-btn-primary"
               onClick={continueToPractice}
-              disabled={!ready || pending || !isPracticableMoment(fields.identifiedMoment)}
+              disabled={!ready || pending}
             >
               {pending ? "Continuing…" : COACH_CONFIRM_CONTINUE}
             </button>
@@ -216,11 +217,13 @@ function ConfirmField({
   value,
   editing,
   onChange,
+  emptyHint = "We’ll keep learning this with you.",
 }: {
   label: string;
   value: string;
   editing: boolean;
   onChange: (value: string) => void;
+  emptyHint?: string;
 }) {
   return (
     <article className="ac-confirm-card">
@@ -233,7 +236,7 @@ function ConfirmField({
           rows={3}
         />
       ) : (
-        <p className="ac-copy">{value || "We’ll keep learning this with you."}</p>
+        <p className="ac-copy">{value || emptyHint}</p>
       )}
     </article>
   );

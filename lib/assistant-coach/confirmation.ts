@@ -34,6 +34,12 @@ const SPEECH_ACT =
 const WHEN_SCENE =
   /\bwhen\b.{0,80}\b(ask|tell|challeng|put on the spot|open|hire|about yourself)\b/i;
 
+const START_CONVERSATION =
+  /\b(start|starting|begin|beginning|open|opening)\b.{0,40}\b(conversation|chat|talk)\b/i;
+
+const REACH_OUT =
+  /\breach(?:ing)?\s+out\b|\bsend(?:ing)?\s+(?:a\s+)?(?:text|message|hello|note)\b/i;
+
 /**
  * Member-facing confirmation copy: address the visitor as "you".
  * Does not rewrite quoted speech or the other person in the scene ("when they ask").
@@ -49,6 +55,13 @@ export function toMemberFacingYou(text: string): string {
   t = t.replace(/\bthe visitor\b/gi, "you");
   t = t.replace(/\bthe member\b/gi, "you");
   t = t.replace(/\bthis person\b/gi, "you");
+  // Observation-style third person at the start — not "when they ask".
+  t = t.replace(/^they\s+likely\s+want(?:s)?\b/i, "You want");
+  t = t.replace(/^they\s+likely\s+need(?:s)?\b/i, "You need");
+  t = t.replace(/^they\s+report(?:s)?\s+that\b/i, "You find that");
+  t = t.replace(/^they\s+report(?:s)?\b/i, "You said");
+  t = t.replace(/^they\s+want(?:s)?\b/i, "You want");
+  t = t.replace(/^they\s+need(?:s)?\b/i, "You need");
 
   t = t.replace(
     /^(Has|Wants|Needs|Rushes|Blanks|Loses|Gets|Named|Is considering|Is preparing)\b/i,
@@ -93,6 +106,7 @@ export function isPracticableMoment(text: string): boolean {
   const t = text.trim();
   if (t.length < 12) return false;
   if (SPEECH_ACT.test(t) || WHEN_SCENE.test(t)) return true;
+  if (START_CONVERSATION.test(t) || REACH_OUT.test(t)) return true;
   if (/["“']/.test(t) && t.length >= 16) return true;
   return false;
 }
@@ -134,11 +148,39 @@ function latestMoment(rows: ProfileEvidenceRecord[]): string {
   return "";
 }
 
+function whoFromMessages(messages: string[]): string {
+  const blob = messages.join(" ");
+  if (/\b(my )?wife\b/i.test(blob)) return "my wife";
+  if (/\b(my )?husband\b/i.test(blob)) return "my husband";
+  if (/\bfriends?\b/i.test(blob)) return "a friend";
+  if (/\b(manager|boss)\b/i.test(blob)) return "my manager";
+  return "";
+}
+
+function groundMomentWithWho(text: string, messages: string[]): string {
+  const who = whoFromMessages(messages);
+  if (!who) return text;
+  if (new RegExp(who.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i").test(text)) {
+    return text;
+  }
+  if (
+    /\bstart(?:ing)?(?:\s+a)?\s+conversation\b/i.test(text) &&
+    !/\bwith\b/i.test(text)
+  ) {
+    return text.replace(
+      /\b(start(?:ing)?(?:\s+a)?\s+conversation)\b/i,
+      `$1 with ${who}`
+    );
+  }
+  return text;
+}
+
 function momentFromUserMessages(messages: string[] | undefined): string {
   if (!messages?.length) return "";
   for (let i = messages.length - 1; i >= 0; i--) {
     const text = messages[i]?.trim() ?? "";
-    if (isPracticableMoment(text)) return text;
+    if (!isPracticableMoment(text)) continue;
+    return groundMomentWithWho(text, messages);
   }
   return "";
 }
