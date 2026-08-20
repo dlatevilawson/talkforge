@@ -29,6 +29,8 @@
 | OWN-001: never write identity/purpose as identity authority | OWN-001 |
 | Do not modify Forge coaching brain / Assessment lifecycle / VoiceArena VAD unless a later slice explicitly requires handoff wiring | Phase 1–3 non-goals |
 
+**Founder 2026-08-20 — first vertical slice (this track):** connect Landing CTA → `/coach` → value → signup → claim → confirm understanding → **one** contextual Forge session (`title`/`success` query only). Post-signup is **not** resume-AC. Do not build the flywheel, Progress redesign, AC prompt polish, or Forge expansion in the same change.
+
 ---
 
 ## Prerequisite
@@ -160,7 +162,8 @@
 | Item | Spec |
 |---|---|
 | Route | `POST /api/assistant-coach/claim` (requires Supabase session) |
-| Steps | Validate cookie session active → lock → merge draft evidence/insights into member LP via System 1 writers → set `user_id`, `status=claimed`, clear/rotate anon cookie → idempotent if already claimed by same user |
+| Steps | Validate cookie session (active **or gated**) → lock → merge draft evidence/insights into member LP via System 1 writers → set `user_id`, `status=claimed` → skip redundant onboarding → redirect `/coach/confirm` |
+| Post-claim | **Confirm understanding → one Forge session.** Do not resume AC mid-thread.
 | Conflicts | If session claimed by another user → 409; if member already has richer LP → merge rules in AC-JOURNEY-001 (prefer append evidence; never overwrite member purpose/identity) |
 | Forge | Still forbidden until claimed + practice readiness |
 | Tests | Merge matrix; double-claim idempotent; cross-user claim rejected; OWN-001: purpose untouched |
@@ -176,8 +179,7 @@
 
 | Item | Spec |
 |---|---|
-| Proxy / auth | Allow `/coach` and AC APIs to proceed when `email_verified = false` after claim |
-| Keep | Existing hard verify redirect for `/app` (Forge) **may remain** until a separate security Decision softens it |
+| Proxy / auth | Allow `/coach`, `/coach/confirm`, AC APIs, and `/app/practice` after AC confirm when `email_verified = false`. Other `/app` routes may still hard-redirect to verify. |
 | UX | Optional soft remind banner on `/coach` (placeholder copy) |
 | Tests | Unverified user: claim + `/coach` turn OK; `/app` still redirected if current proxy requires verify |
 | Non-goals | Removing all verify gates site-wide |
@@ -192,7 +194,7 @@
 
 | Item | Spec |
 |---|---|
-| Logic | If claim brought grounded focus/goal/context, skip communication-focus onboarding step |
+| Logic | Claim sets `onboarding_complete`. First member moment is `/coach/confirm` (human LP), not Training Focus picker. |
 | Required | Still collect fields the account product **requires** (e.g. display name if mandatory) — never re-ask AC-learned coaching content |
 | Tests | Claimed-with-evidence skips focus; empty claim still shows focus |
 | Non-goals | Redesigning entire onboarding brand |
@@ -295,18 +297,17 @@
 
 ---
 
-### Slice 4B.16 — Forge handoff read-only (separate, later)
+### Slice 4B.16 — Forge handoff read-only (minimal in vertical slice)
 
-**Goal:** Authenticated Forge receives handoff context; still no identity writes from Forge.
+**Goal:** Authenticated Forge receives the **identified moment** as existing `title` / `success` query params. No Forge Core / VAD / prompt changes.
 
 | Item | Spec |
 |---|---|
-| Input | `buildForgeHandoffContext` → coach prompt injection **read-only** |
-| Gate | Claimed user + practice readiness + entitlement |
-| Non-goals | Changing Forge Core judgment / Arena VAD |
-| PR | Explicitly labeled Forge-touching; review OWN-001 |
+| Input | Confirmation fields → `/app/practice?title=&success=&start=1` |
+| Gate | Claimed user + practice readiness (persisted LP) + entitlement |
+| Non-goals | Changing Forge Core judgment / Arena VAD; flywheel writes from Forge → LP |
 
-**PR:** `4B.16: Forge read-only AC handoff context`
+**PR (with vertical slice):** first contextual practice only.
 
 ---
 

@@ -53,7 +53,7 @@ export default function LandingPage() {
             <Reveal delayMs={240}>
               <div className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <a
-                  href="/signup"
+                  href="/coach"
                   className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full bg-[var(--tf-gold)] px-8 text-sm font-semibold text-[#121417] transition hover:bg-[var(--tf-gold-light)]"
                 >
                   Prepare for today

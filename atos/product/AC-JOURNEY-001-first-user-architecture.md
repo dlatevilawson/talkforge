@@ -81,11 +81,17 @@ FREEZE-001 / OWN-001: identity PR hold; experiences never write identity.
 4. **Value in progress** — personalized replies grounded in validated evidence.
 5. **Save gate eligible** — server sets sticky `hasExperiencedValue` (deterministic; **semantic** conversion — not turn count).
 6. **Save gate shown** — modal with **placeholder** copy keys only (OD-10). Signup + Login. **No indefinite anonymous continue** after meaningful value (OD-1 hard gate).
-7. **Auth** — existing email/password flows; prefer **soft email verification** for Coach continuation (OD-8).
-8. **Claim** — atomic attach of anonymous session → authenticated user; conversation continues mid-thread.
-9. **Authenticated Assistant Coach** — same UI/runtime; persistence now on member LP. Skip redundant onboarding (OD-7).
-10. **Forge-ready** — `evaluateForgeReadiness` → handoff card → `/app/practice` (Assessment not default FTUE; kept available — OD-6).
-11. **Forge** — requires account/claim (OD-4); coaching-only; read-only handoff/LP context (later slice).
+7. **Auth** — existing email/password flows; prefer **soft email verification** so value → account → continuation is not interrupted (OD-8).
+8. **Claim** — atomic attach of anonymous session → authenticated user. Signup changes **ownership**, not the coaching brain. Provisional evidence becomes the member Living Profile.
+9. **Confirm understanding** — human-readable Living Profile of what Coach understood (working on / where it gets difficult / identified moment / what to work on first). Member may **Edit** or **Looks right → Continue**. System 1 inferences are not identity until confirmed. Skip redundant onboarding intake (OD-7).
+10. **One contextual Forge session** — handoff is the identified moment (`/app/practice` title + success from confirmation). Forge does not start cold. Assessment is not default FTUE (OD-6).
+11. **Forge** — requires account/claim (OD-4); coaching-only; **read-only** LP/handoff context. Experiences never write identity (OWN-001).
+
+**Post-signup default is not “resume Assistant Coach mid-thread.”** After first value, the member confirms what TalkForge knows, then practices that moment. Assistant Coach may return later for a new struggle; it is not the full coaching product.
+
+**Product test for every engineering decision:** Does this help TalkForge **understand me** (Assistant Coach), **know me** (Living Profile), **train me** (Forge), or **show me I’m changing** (Progress)? Is the correct system responsible? If not, it is out of this slice.
+
+**This vertical slice (lock):** Landing CTA → `/coach` → value → signup → claim AC evidence → confirmation → one contextual Forge session. Do **not** build the practice→LP flywheel, redesign Progress, perfect AC prompts, or expand Forge in this slice.
 
 ### B.2 What we deliberately remove from the happy path
 
@@ -116,10 +122,11 @@ FREEZE-001 / OWN-001: identity PR hold; experiences never write identity.
 | `SAVE_GATE_ELIGIBLE` ★ | `hasExperiencedValue` true | No | Yes | Yes until TTL |
 | `SAVE_GATE_SHOWN` | Client presented gate (telemetry) | No | Hard after value (OD-1) | Until claim / TTL |
 | `AUTH_IN_PROGRESS` | Signup/login UI | No→Yes | Auth cookies | Yes |
-| `CLAIMED` ★ | Anonymous owned by `user_id` | Yes | Yes | Yes |
-| `AC_ACTIVE_AUTH` ★ | Continuing AC as member | Yes | Yes | Yes |
-| `FORGE_READY` ★ | Readiness true; handoff available | Yes* | Yes | Yes |
-| `FORGE_ACTIVE` | In VoiceArena practice | Yes | Session-scoped | Per Forge rules |
+| `CLAIMED` ★ | Anonymous owned by `user_id`; evidence merged to member LP | Yes | Yes | Yes |
+| `LP_CONFIRM` | Member reviews/edits inferred understanding | Yes | Yes | Yes |
+| `FORGE_READY` ★ | Confirmed understanding + practice handoff available | Yes* | Yes | Yes |
+| `FORGE_ACTIVE` | In VoiceArena practice of the identified moment | Yes | Session-scoped | Per Forge rules |
+| `AC_ACTIVE_AUTH` | Optional later: AC for a **new** struggle (not first-user default) | Yes | Yes | Yes |
 
 \* Forge requires claim (OD-4 / Decision 059). Anonymous Forge is out of scope.
 
@@ -133,9 +140,10 @@ FREEZE-001 / OWN-001: identity PR hold; experiences never write identity.
 | SAVE_GATE_ELIGIBLE → SAVE_GATE_SHOWN | Client shows gate when eligible | UI dismissible; **anon turns still blocked** after value (OD-1) |
 | SAVE_GATE_SHOWN → AUTH_IN_PROGRESS | Signup/Login click | Yes |
 | AUTH_IN_PROGRESS → CLAIMED | Successful auth + claim API | No |
-| CLAIMED → AC_ACTIVE_AUTH | Auto | — |
-| AC_ACTIVE_AUTH → FORGE_READY | `evaluateForgeReadiness.ready` | Soft (more evidence) |
-| FORGE_READY → FORGE_ACTIVE | User starts practice | Session |
+| CLAIMED → LP_CONFIRM | Redirect `/coach/confirm` | — |
+| LP_CONFIRM → FORGE_READY | Member confirms (Looks right / Edit then Continue) | Soft (edit) |
+| FORGE_READY → FORGE_ACTIVE | Continue → `/app/practice` with identified moment | Session |
+| (later) * → AC_ACTIVE_AUTH | New struggle; not the first-user happy path | Soft |
 
 ### C.3 Client vs server
 
@@ -310,7 +318,7 @@ Definitions:
    - Ensure member `living_profiles` exists.
    - **Merge** draft profile → member LP (F.2).
    - Set `sessions.user_id`, `claimed_at`, clear anon association (rotate cookie to authenticated session id).
-   - Return session + profile + resume cursor.
+   - Return session + merged profile. Client proceeds to **`/coach/confirm`**, not a resumed AC thread.
 
 ### F.2 Merge rules (never silent overwrite)
 
@@ -343,7 +351,10 @@ Same merge. If member already Forge-active with rich LP:
 ### F.5 What user must not experience
 
 - Blank new AC thread
-- Re-asking known goals/contexts (prompt uses `buildAssistantCoachContext`)
+- Re-asking known goals/contexts as onboarding intake
+- Dumping into ContinuityHome / dashboard / Explorer as the first post-signup moment
+- Resuming Assistant Coach chat as the default after first value
+- A cold Forge session with no identified moment
 - Second empty Living Profile row
 
 ---
@@ -403,7 +414,7 @@ Extend GA4 with `event_category: "assistant_coach" | "conversion"`. **Never send
 | `forge_started` | Practice session begins | `mode` |
 
 Funnel:  
-`landing_viewed → cta → started → value_reached → gate_shown → signup/login → claimed → resumed → forge_ready → forge_started`
+`landing_viewed → cta → started → value_reached → gate_shown → signup/login → claimed → confirmed → forge_started`
 
 ---
 
@@ -423,11 +434,12 @@ Summary (do not implement as one PR):
 | **4B.5** | Semantic `hasExperiencedValue` + configurable turn safety cap |
 | **4B.6** | Hard gate anon after value/cap |
 | **4B.7** | Claim + merge |
-| **4B.8** | Soft verify carve-out for `/coach` |
-| **4B.9** | Skip redundant onboarding |
+| **4B.8** | Soft verify carve-out for `/coach` **and first `/app/practice` after AC confirm** |
+| **4B.9** | Skip redundant onboarding — **replaced by LP confirmation**, not a focus picker |
 | **4B.10–13** | `/coach` UI · landing primary CTA · demote Assessment FTUE · proxy allowlist |
 | **4B.14–15** | Analytics · expiry purge |
-| **4B.16** | Forge read-only handoff (later, separate) |
+| **Vertical slice** | Landing → `/coach` → value → signup → claim → confirm → **one** contextual Forge session (founder 2026-08-20). Not the flywheel. |
+| **Later** | Forge evidence → System 1 proposals → confirmation → readiness → next practice. Progress viewer last. |
 
 Do **not** in early 4B: delete Assessment, finalize gate copy, change VoiceArena VAD, expand billing, resurrect guests.
 
@@ -466,7 +478,7 @@ Authority: **Decision 059** (2026-08-16).
 | Feature NO-GO vs AC journey | **Superseded for this track** by Decision 059 / OD-0. |
 | OWN-001 | AC writes evidence/insights only; never identity/purpose authority. |
 | Library-only AC | 4B adds API/UI without changing Core intelligence path. |
-| Hard `email_verified` redirect to `/verify-email` | Carve soft path for `/coach` + AC APIs (OD-8); `/app` may stay hard until separate Decision. |
+| Hard `email_verified` redirect to `/verify-email` | Carve soft path for `/coach`, AC APIs, `/coach/confirm`, and the first AC-handoff `/app/practice` (OD-8 + vertical slice). Other `/app` routes may stay hard. |
 
 ---
 
@@ -475,7 +487,8 @@ Authority: **Decision 059** (2026-08-16).
 > Assistant Coach does not belong to authentication.  
 > Authentication attaches ownership to an Assistant Coach session.  
 > Anonymous and authenticated users share the same intelligence/runtime.  
-> Auth changes identity, ownership, and persistence guarantees — not coaching brain.
+> Auth changes identity, ownership, and persistence guarantees — not coaching brain.  
+> After first experienced value, the first-user path is **claim → confirm understanding → practice the identified moment**. Assistant Coach understands; Living Profile knows; Forge trains; Progress (later) shows change.
 
 Responsibility split remains:
 

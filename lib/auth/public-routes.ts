@@ -11,9 +11,10 @@ export const ASSISTANT_COACH_PUBLIC_PATH_PREFIXES = [
   "/api/assistant-coach/transcribe",
 ] as const;
 
-/** Auth-required AC surfaces (claim). */
+/** Auth-required AC surfaces (claim / confirm). */
 export const ASSISTANT_COACH_AUTH_PATH_PREFIXES = [
   "/api/assistant-coach/claim",
+  "/api/assistant-coach/confirm",
 ] as const;
 
 /** Existing member/staff surfaces that require auth at the proxy. */

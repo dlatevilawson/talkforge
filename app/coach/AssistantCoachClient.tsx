@@ -386,10 +386,10 @@ export default function AssistantCoachClient() {
           <h2 className="ac-gate-title">{COACH_GATE_TITLE}</h2>
           <p className="ac-gate-copy">{COACH_GATE_COPY}</p>
           <div className="ac-gate-actions">
-            <a className="ac-btn ac-btn-primary" href="/signup?next=/coach">
+            <a className="ac-btn ac-btn-primary" href="/signup?next=/coach/confirm">
               Create account
             </a>
-            <a className="ac-btn" href="/login?next=/coach">
+            <a className="ac-btn" href="/login?next=/coach/confirm">
               Sign in
             </a>
           </div>

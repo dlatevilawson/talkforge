@@ -29,6 +29,23 @@ export const COACH_GATE_TITLE = "Keep going with TalkForge";
 export const COACH_GATE_COPY =
   "You’ve shared something real. Create an account or sign in to continue.";
 
+export const COACH_CONFIRM_TITLE = "Here’s what I’ve understood about you so far";
+
+export const COACH_CONFIRM_WORKING_ON = "What you’re working on";
+
+export const COACH_CONFIRM_DIFFICULTY = "Where it gets difficult";
+
+export const COACH_CONFIRM_MOMENT = "A moment we’ve identified";
+
+export const COACH_CONFIRM_FIRST_WORK = "What we can work on first";
+
+export const COACH_CONFIRM_CONTINUE = "Looks right — Continue";
+
+export const COACH_CONFIRM_EDIT = "Edit";
+
+export const COACH_CONFIRM_LOST =
+  "This Coach session couldn’t be found. Start again from Coach.";
+
 export const COACH_BOOT_ERROR =
   "Unable to start Coach right now. Please try again.";
 
