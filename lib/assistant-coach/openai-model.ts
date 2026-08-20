@@ -7,6 +7,7 @@
  */
 import OpenAI from "openai";
 import { AssistantCoachConfigError } from "./config.ts";
+import { buildAssistantCoachTurnPrompt } from "./turn-prompt.ts";
 import type { AssistantCoachModel } from "./turn-runtime.ts";
 
 export const OPENAI_API_KEY_ENV = "OPENAI_API_KEY";
@@ -60,10 +61,10 @@ export function createExplicitMockAssistantCoachModel(): AssistantCoachModel {
   return async ({ message, coachContext }) => {
     const focus = coachContext.activeFocusAreas[0] || "your communication";
     return {
-      reply: `I'm listening. You said you're working through something around ${focus}. Tell me more about what happens in the moment — what do you notice in your body or voice when that shows up?`,
+      reply: `I'm listening. You said you're working through something around ${focus}. Who is that conversation with, and what do you need to say or start?`,
       observations: [
         {
-          text: message.slice(0, 240),
+          text: `You said: ${message.slice(0, 220)}`,
           category: "communication_context",
           confidence: "medium",
         },
@@ -76,34 +77,13 @@ function createLiveOpenAiModel(apiKey: string): AssistantCoachModel {
   const client = new OpenAI({ apiKey });
 
   return async ({ message, history, coachContext }) => {
-    const historyBlock = history
-      .slice(-12)
-      .map((h) => `${h.role === "user" ? "Member" : "Coach"}: ${h.content}`)
-      .join("\n");
-
     const completion = await client.responses.create({
       model: "gpt-5",
-      input: `You are TalkForge Coach — a pre-account understanding coach.
-Your job is to help the visitor feel understood about a real communication struggle, then deliver concrete help when you have enough context.
-You are NOT Forge (no roleplay NPC). You are NOT Assessment.
-
-Rules:
-- Ask at most one focused question when still discovering.
-- Reflect what you heard; do not invent identity, purpose, or principles.
-- Never claim to know their purpose statement.
-- When you deliver an actionable coaching move (exercise, rehearsal, technique, strategy, usable wording/opener, or pacing mechanism), include a structured "intervention" object. Do NOT include "intervention" for reflection, validation, summary, or questions alone.
-- Return STRICT JSON only:
-{"reply":"...","observations":[{"text":"...","category":"communication_goal|communication_context|observed_pattern|communication_friction|communication_strength|preference|practice_capacity|desired_outcome|lived_example|interaction_signal","confidence":"high|medium|low|uncertain"}],"intervention":null|{"kind":"exercise|rehearsal|technique|strategy|wording|pacing|other","summary":"concrete actionable coaching move (≥24 chars)","groundedInCategories":["communication_friction"]}}
-
-Coach context (supported only):
-${JSON.stringify(coachContext)}
-
-Conversation so far:
-${historyBlock || "(none)"}
-
-Latest member message:
-${message}
-`,
+      input: buildAssistantCoachTurnPrompt({
+        message,
+        history,
+        coachContext,
+      }),
     });
 
     const raw =

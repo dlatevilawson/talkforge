@@ -6,6 +6,7 @@ import {
   COACH_CONFIRM_CONTINUE,
   COACH_CONFIRM_DIFFICULTY,
   COACH_CONFIRM_EDIT,
+  COACH_CONFIRM_EMPTY,
   COACH_CONFIRM_FIRST_WORK,
   COACH_CONFIRM_LOST,
   COACH_CONFIRM_MOMENT,
@@ -171,7 +172,7 @@ export default function ConfirmClient() {
               label={COACH_CONFIRM_MOMENT}
               value={fields.identifiedMoment}
               editing={editing}
-              emptyHint="The conversation you need to have — tap Edit if this is blank."
+              emptyHint={COACH_CONFIRM_EMPTY}
               onChange={(v) => update("identifiedMoment", v)}
             />
             <ConfirmField
@@ -217,7 +218,7 @@ function ConfirmField({
   value,
   editing,
   onChange,
-  emptyHint = "We’ll keep learning this with you.",
+  emptyHint = COACH_CONFIRM_EMPTY,
 }: {
   label: string;
   value: string;

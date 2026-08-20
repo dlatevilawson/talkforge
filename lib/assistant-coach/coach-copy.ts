@@ -35,9 +35,11 @@ export const COACH_CONFIRM_WORKING_ON = "What you’re working on";
 
 export const COACH_CONFIRM_DIFFICULTY = "Where it gets difficult";
 
-export const COACH_CONFIRM_MOMENT = "A moment we’ve identified";
+export const COACH_CONFIRM_MOMENT = "The conversation you named";
 
-export const COACH_CONFIRM_FIRST_WORK = "What we can work on first";
+export const COACH_CONFIRM_FIRST_WORK = "What you’ll practice first";
+
+export const COACH_CONFIRM_EMPTY = "Not captured yet — tap Edit.";
 
 export const COACH_CONFIRM_CONTINUE = "Looks right — Continue";
 

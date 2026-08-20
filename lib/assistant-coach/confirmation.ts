@@ -55,11 +55,11 @@ export function toMemberFacingYou(text: string): string {
   t = t.replace(/\bthe visitor\b/gi, "you");
   t = t.replace(/\bthe member\b/gi, "you");
   t = t.replace(/\bthis person\b/gi, "you");
-  // Observation-style third person at the start — not "when they ask".
-  t = t.replace(/^they\s+likely\s+want(?:s)?\b/i, "You want");
-  t = t.replace(/^they\s+likely\s+need(?:s)?\b/i, "You need");
-  t = t.replace(/^they\s+report(?:s)?\s+that\b/i, "You find that");
-  t = t.replace(/^they\s+report(?:s)?\b/i, "You said");
+  // Observation-style third person — not "when they ask".
+  t = t.replace(/\bthey\s+likely\s+want(?:s)?\b/gi, "you want");
+  t = t.replace(/\bthey\s+likely\s+need(?:s)?\b/gi, "you need");
+  t = t.replace(/\bthey\s+report(?:s)?\s+that\b/gi, "you find that");
+  t = t.replace(/\bthey\s+report(?:s)?\b/gi, "you said");
   t = t.replace(/^they\s+want(?:s)?\b/i, "You want");
   t = t.replace(/^they\s+need(?:s)?\b/i, "You need");
 
@@ -193,6 +193,77 @@ function firstNonEmpty(...values: Array<string | undefined>): string {
   return "";
 }
 
+function looksLikePlaceholder(text: string): boolean {
+  const t = text.trim();
+  if (!t) return true;
+  return (
+    /\bwe(?:'ll|’ll| have|'ve|’ve)\b/i.test(t) ||
+    /^a moment we/i.test(t) ||
+    /keep learning this with you/i.test(t) ||
+    /stay clear and structured/i.test(t)
+  );
+}
+
+/**
+ * Rewrite a member utterance into confirmation "you" voice without
+ * inventing a diagnosis they did not say.
+ */
+export function youFromUserUtterance(text: string): string {
+  let t = text.trim();
+  t = t.replace(/^(hello|hi|hey)[!.,?\s]*/i, "").trim();
+  if (!t) return "";
+  t = t
+    .replace(/\bI['’]m\b/g, "you’re")
+    .replace(/\bI['’]ve\b/g, "you’ve")
+    .replace(/\bI['’]ll\b/g, "you’ll")
+    .replace(/\bI['’]d\b/g, "you’d")
+    .replace(/\bI\s+don['’]t\b/gi, "you don’t")
+    .replace(/\bI\s+do not\b/gi, "you don’t")
+    .replace(/\bI\s+can['’]t\b/gi, "you can’t")
+    .replace(/\bI\s+cannot\b/gi, "you cannot")
+    .replace(/\bI\s+need to\b/gi, "you need to")
+    .replace(/\bI\s+want to\b/gi, "you want to")
+    .replace(/\bI\s+have\b/gi, "you have")
+    .replace(/\bI\s+get\b/gi, "you get")
+    .replace(/\bmy\b/gi, "your")
+    .replace(/\bI\b/g, "you");
+  return toMemberFacingYou(t);
+}
+
+function workingOnFromMessages(messages: string[] | undefined): string {
+  if (!messages?.length) return "";
+  for (const raw of messages) {
+    const t = raw.trim();
+    if (t.length < 16) continue;
+    if (isPracticableMoment(t) && t.length < 72) continue;
+    const you = youFromUserUtterance(t);
+    if (you && !looksLikePlaceholder(you)) return you;
+  }
+  return "";
+}
+
+function difficultyFromMessages(
+  messages: string[] | undefined,
+  workingOn: string,
+  moment: string
+): string {
+  if (!messages?.length) return "";
+  const momentNorm = moment.trim().toLowerCase();
+  const workingNorm = workingOn.trim().toLowerCase();
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (i === 0 && messages.length > 1) continue;
+    const t = messages[i]?.trim() ?? "";
+    if (t.length < 8) continue;
+    const you = youFromUserUtterance(t);
+    if (!you || looksLikePlaceholder(you)) continue;
+    const youNorm = you.toLowerCase();
+    if (youNorm === workingNorm) continue;
+    if (momentNorm && youNorm === momentNorm) continue;
+    return you;
+  }
+  return "";
+}
+
 /**
  * Confirmation fields come from THIS AC session's evidence.
  * Historical member goals/challenges/lived examples are not used as the moment.
@@ -205,12 +276,6 @@ export function buildConfirmationView(
   const acLedger = ledger.filter(isAssistantCoachEvidence);
   const preferred = acLedger.length > 0 ? acLedger : ledger;
 
-  const workingOn = toMemberFacingYou(
-    latest(preferred, ["communication_goal", "desired_outcome"])
-  );
-  const difficulty = toMemberFacingYou(
-    latest(preferred, ["communication_friction", "observed_pattern"])
-  );
   const identifiedMoment = toMemberFacingYou(
     firstNonEmpty(
       momentFromUserMessages(options?.userMessages),
@@ -218,9 +283,28 @@ export function buildConfirmationView(
     )
   );
 
-  const firstWork = identifiedMoment
-    ? `Stay clear and structured in that moment: ${identifiedMoment}`
-    : "";
+  const evidenceWorkingOn = toMemberFacingYou(
+    latest(preferred, ["communication_goal", "desired_outcome"])
+  );
+  const evidenceDifficulty = toMemberFacingYou(
+    latest(preferred, ["communication_friction", "observed_pattern"])
+  );
+
+  const workingOn = firstNonEmpty(
+    workingOnFromMessages(options?.userMessages),
+    looksLikePlaceholder(evidenceWorkingOn) ? "" : evidenceWorkingOn
+  );
+  const difficulty = firstNonEmpty(
+    difficultyFromMessages(
+      options?.userMessages,
+      workingOn,
+      identifiedMoment
+    ),
+    looksLikePlaceholder(evidenceDifficulty) ? "" : evidenceDifficulty
+  );
+
+  // First work is the diagnosis of the conversation they named — not a slogan.
+  const firstWork = identifiedMoment;
 
   return {
     heading: "Here’s what I’ve understood about you so far",
@@ -241,7 +325,7 @@ export function confirmationFromSubmittedFields(
     workingOn: fields.workingOn.trim(),
     difficulty: fields.difficulty.trim(),
     identifiedMoment,
-    firstWork: fields.firstWork.trim(),
+    firstWork: firstNonEmpty(fields.firstWork.trim(), identifiedMoment),
     canContinue: isPracticableMoment(identifiedMoment),
   };
 }
@@ -249,10 +333,7 @@ export function confirmationFromSubmittedFields(
 export function buildFirstPracticeHref(fields: ConfirmationFields): string {
   const title = fields.identifiedMoment.trim().slice(0, 180);
   if (!title || !isPracticableMoment(title)) return "";
-  const success = firstNonEmpty(
-    fields.firstWork,
-    `Stay clear and structured in: ${title}`
-  ).slice(0, 240);
+  const success = firstNonEmpty(fields.firstWork, title).slice(0, 240);
   const q = new URLSearchParams({
     title,
     success,
