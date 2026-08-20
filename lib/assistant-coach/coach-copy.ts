@@ -41,6 +41,9 @@ export const COACH_CONFIRM_FIRST_WORK = "What you’ll practice first";
 
 export const COACH_CONFIRM_EMPTY = "Not captured yet — tap Edit.";
 
+export const COACH_CONFIRM_MISSING =
+  "I don’t have the conversation yet — tap Edit to name it.";
+
 export const COACH_CONFIRM_CONTINUE = "Looks right — Continue";
 
 export const COACH_CONFIRM_EDIT = "Edit";

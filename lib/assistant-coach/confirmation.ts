@@ -230,6 +230,52 @@ export function youFromUserUtterance(text: string): string {
   return toMemberFacingYou(t);
 }
 
+/**
+ * Provisional evidence from what the member said — not from Coach guesses.
+ * Confirmation and the ledger should agree on the diagnosis.
+ */
+export function memberEvidenceFromTurn(
+  message: string,
+  priorUserMessages: string[] = []
+): {
+  text: string;
+  category: ProfileEvidenceRecord["category"];
+  confidence: "high";
+} | null {
+  const raw = message.trim();
+  if (raw.length < 8) return null;
+  if (
+    /^(ok|okay|yes|yeah|yep|no|nope|thanks|thank you|hi|hello|hey)[!.,]?$/i.test(
+      raw
+    )
+  ) {
+    return null;
+  }
+  const all = [...priorUserMessages, raw];
+  let text = youFromUserUtterance(raw);
+  if (!text) text = toMemberFacingYou(raw);
+  if (!text || looksLikePlaceholder(text)) return null;
+
+  if (isPracticableMoment(raw) || isPracticableMoment(text)) {
+    return {
+      text: toMemberFacingYou(groundMomentWithWho(raw, all)),
+      category: "lived_example",
+      confidence: "high",
+    };
+  }
+  if (
+    /\b(don['’]?t know|freeze|blank|hardest|struggle|difficult|can['’]?t)\b/i.test(
+      raw
+    )
+  ) {
+    return { text, category: "communication_friction", confidence: "high" };
+  }
+  if (text.length >= 16) {
+    return { text, category: "communication_context", confidence: "high" };
+  }
+  return null;
+}
+
 function workingOnFromMessages(messages: string[] | undefined): string {
   if (!messages?.length) return "";
   for (const raw of messages) {

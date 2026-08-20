@@ -9,6 +9,7 @@ import {
   COACH_CONFIRM_EMPTY,
   COACH_CONFIRM_FIRST_WORK,
   COACH_CONFIRM_LOST,
+  COACH_CONFIRM_MISSING,
   COACH_CONFIRM_MOMENT,
   COACH_CONFIRM_TITLE,
   COACH_CONFIRM_WORKING_ON,
@@ -70,12 +71,14 @@ export default function ConfirmClient() {
         }
         const c = body.confirmation ?? {};
         if (!cancelled) {
-          setFields({
+          const next = {
             workingOn: String(c.workingOn ?? ""),
             difficulty: String(c.difficulty ?? ""),
             identifiedMoment: String(c.identifiedMoment ?? ""),
             firstWork: String(c.firstWork ?? ""),
-          });
+          };
+          setFields(next);
+          setEditing(!isPracticableMoment(next.identifiedMoment));
           setReady(true);
         }
       } catch (err) {
@@ -156,31 +159,41 @@ export default function ConfirmClient() {
       ) : (
         <>
           <section className="ac-confirm" aria-label="Living Profile confirmation">
-            <ConfirmField
-              label={COACH_CONFIRM_WORKING_ON}
-              value={fields.workingOn}
-              editing={editing}
-              onChange={(v) => update("workingOn", v)}
-            />
-            <ConfirmField
-              label={COACH_CONFIRM_DIFFICULTY}
-              value={fields.difficulty}
-              editing={editing}
-              onChange={(v) => update("difficulty", v)}
-            />
-            <ConfirmField
-              label={COACH_CONFIRM_MOMENT}
-              value={fields.identifiedMoment}
-              editing={editing}
-              emptyHint={COACH_CONFIRM_EMPTY}
-              onChange={(v) => update("identifiedMoment", v)}
-            />
-            <ConfirmField
-              label={COACH_CONFIRM_FIRST_WORK}
-              value={fields.firstWork}
-              editing={editing}
-              onChange={(v) => update("firstWork", v)}
-            />
+            {!editing &&
+            !fields.workingOn &&
+            !fields.difficulty &&
+            !fields.identifiedMoment &&
+            !fields.firstWork ? (
+              <p className="ac-copy">{COACH_CONFIRM_MISSING}</p>
+            ) : (
+              <>
+                <ConfirmField
+                  label={COACH_CONFIRM_WORKING_ON}
+                  value={fields.workingOn}
+                  editing={editing}
+                  onChange={(v) => update("workingOn", v)}
+                />
+                <ConfirmField
+                  label={COACH_CONFIRM_DIFFICULTY}
+                  value={fields.difficulty}
+                  editing={editing}
+                  onChange={(v) => update("difficulty", v)}
+                />
+                <ConfirmField
+                  label={COACH_CONFIRM_MOMENT}
+                  value={fields.identifiedMoment}
+                  editing={editing}
+                  emptyHint={COACH_CONFIRM_EMPTY}
+                  onChange={(v) => update("identifiedMoment", v)}
+                />
+                <ConfirmField
+                  label={COACH_CONFIRM_FIRST_WORK}
+                  value={fields.firstWork}
+                  editing={editing}
+                  onChange={(v) => update("firstWork", v)}
+                />
+              </>
+            )}
           </section>
 
           {error ? (
@@ -226,6 +239,7 @@ function ConfirmField({
   onChange: (value: string) => void;
   emptyHint?: string;
 }) {
+  if (!editing && !value.trim()) return null;
   return (
     <article className="ac-confirm-card">
       <h2 className="ac-confirm-label">{label}</h2>

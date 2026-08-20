@@ -8,6 +8,7 @@ import {
   type ProfileEvidenceCategory,
   type ProfileEvidenceConfidence,
 } from "../system1/profile-evidence.ts";
+import { toMemberFacingYou } from "./confirmation.ts";
 
 export type RawModelObservation = {
   text?: unknown;
@@ -136,7 +137,7 @@ export function validateModelObservations(
     }
 
     out.push({
-      text,
+      text: toMemberFacingYou(text) || text,
       category: finalCategory,
       confidence: confidenceRaw as ProfileEvidenceConfidence,
       accepted: true,

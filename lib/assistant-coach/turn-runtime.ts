@@ -19,6 +19,8 @@ import {
   validateModelObservations,
   type ObservationDecision,
 } from "./observations.ts";
+import { disciplineAssistantCoachOutput } from "./reply-discipline.ts";
+import { memberEvidenceFromTurn } from "./confirmation.ts";
 import {
   buildGateFlags,
   type AssistantCoachGateFlags,
@@ -312,9 +314,9 @@ export async function runAssistantCoachTurn(
     );
   }
 
-  const reply =
+  const rawReply =
     typeof modelOut?.reply === "string" ? modelOut.reply.trim() : "";
-  if (!reply) {
+  if (!rawReply) {
     throw new AssistantCoachTurnError(
       "malformed_model",
       "Model response missing reply.",
@@ -322,10 +324,33 @@ export async function runAssistantCoachTurn(
     );
   }
 
+  const priorUserMessages = existingMessages
+    .filter((m) => m.role === "user")
+    .map((m) => m.content);
+  const disciplined = disciplineAssistantCoachOutput({
+    reply: rawReply,
+    intervention: modelOut.intervention,
+    userMessages: [...priorUserMessages, message],
+  });
+  const reply = disciplined.reply;
+
   const decisions = validateModelObservations(modelOut.observations);
   const turnIndex =
     existingMessages.reduce((max, m) => Math.max(max, m.turnIndex), -1) + 1;
   const sourceId = clientTurnId || `turn_${session.id}_${turnIndex}`;
+
+  const spoken = memberEvidenceFromTurn(message, priorUserMessages);
+  if (spoken) {
+    workingProfile = addEvidenceToLivingProfile(workingProfile, {
+      userId: workingProfile.userId,
+      sourceType: "assistant_coach",
+      sourceId: `${sourceId}_said`,
+      text: spoken.text,
+      category: spoken.category,
+      confidence: spoken.confidence,
+      observedAt: now.toISOString(),
+    });
+  }
 
   for (const d of decisions) {
     if (!d.accepted) continue;
@@ -352,7 +377,7 @@ export async function runAssistantCoachTurn(
 
   // Validate intervention against post-turn ledger (grounding must exist).
   const interventionDecision = validateCoachIntervention(
-    modelOut.intervention,
+    disciplined.intervention,
     workingProfile.evidenceLedger ?? []
   );
 
@@ -379,6 +404,8 @@ export async function runAssistantCoachTurn(
       acceptedCount: decisions.filter((d) => d.accepted).length,
       rejectedCount: decisions.filter((d) => !d.accepted).length,
       interventionAccepted: interventionDecision.accepted === true,
+      clippedCurriculum: disciplined.clippedCurriculum,
+      withheldIntervention: disciplined.withheldIntervention,
       ...(interventionDecision.accepted
         ? {
             interventionKind: interventionDecision.kind,
