@@ -15,6 +15,10 @@ import {
 } from "@/lib/ce/voice-economics";
 import { resolveRealtimeTurnDetection } from "@/lib/ce/assessment-lifecycle";
 import { buildAssessmentSystemInstructions } from "@/lib/ce/assessment-prompt";
+import {
+  buildAcPracticeObjectiveLines,
+  isAcPracticeHandoff,
+} from "@/lib/ce/ac-practice-handoff";
 
 /** OpenAI Realtime model for CE-M1+. */
 export const CE_REALTIME_MODEL = "gpt-realtime-2.1";
@@ -29,6 +33,8 @@ export type CeTrack = ForgeEvent["track"] | "hello";
 
 /** Session mode — assessment keeps the coach brain; app observes/persists. */
 export type CeSessionMode = "practice" | "assessment";
+
+export { isAcPracticeHandoff } from "@/lib/ce/ac-practice-handoff";
 
 export const CE_TRACK_TITLES: Record<CeTrack, string> = {
   hello: "Voice practice with Forge",
@@ -46,17 +52,33 @@ export function buildPracticeModeObjective(input?: {
   eventTitle?: string;
   successCriteria?: string;
   memory?: CoachPromptContext | null;
+  handoffSource?: string;
 }): string {
   const track = input?.track ?? "system_design";
-  const eventLine = input?.eventTitle
-    ? `They may be preparing for: ${input.eventTitle}. Hold that lightly — understand them before shaping practice. Do not interrogate it as a form.`
-    : "They may be preparing for a high-stakes conversation. Discover what matters before coaching.";
-  const successLine = input?.successCriteria
-    ? `They once said success looks like: ${input.successCriteria}. Don't turn that into a checklist unless they bring it up.`
-    : "";
+  const confirmedPractice = isAcPracticeHandoff({
+    handoffSource: input?.handoffSource,
+    eventTitle: input?.eventTitle,
+  });
+  const acLines = confirmedPractice
+    ? buildAcPracticeObjectiveLines({
+        eventTitle: input?.eventTitle ?? "",
+        successCriteria: input?.successCriteria,
+      })
+    : null;
+  const eventLine = acLines
+    ? acLines.eventLine
+    : input?.eventTitle
+      ? `They may be preparing for: ${input.eventTitle}. Hold that lightly — understand them before shaping practice. Do not interrogate it as a form.`
+      : "They may be preparing for a high-stakes conversation. Discover what matters before coaching.";
+  const successLine = acLines
+    ? acLines.successLine
+    : input?.successCriteria
+      ? `They once said success looks like: ${input.successCriteria}. Don't turn that into a checklist unless they bring it up.`
+      : "";
 
-  const practiceHint =
-    track === "behavioral_tech"
+  const practiceHint = acLines
+    ? acLines.practiceHint
+    : track === "behavioral_tech"
       ? "You may invite a short behavioral story later — only after they feel understood. Then let them speak most of the time."
       : track === "coding_interview"
         ? "You may invite them to think aloud later — only after rapport. Keep your turns short; their thinking is the practice."
@@ -64,13 +86,17 @@ export function buildPracticeModeObjective(input?: {
           ? "Keep the first exchanges short, warm, and curious. Member airtime first."
           : "Role-play an interviewer only after they are ready — never open with cold interrogation. During practice, they speak ~70–80%.";
 
-  const openingRule = input?.memory?.isReturning
-    ? "When the session begins, speak first using Opening style from relationship memory. Welcome them back by name. Name at most one pattern or calm memory. Ask one curious question. Do NOT introduce yourself as if meeting for the first time. Do NOT offer a menu of focus areas."
-    : "When the session begins, speak first: short warm welcome as Forge. No product tour. No onboarding interrogation. One line that they don't have to perform. One curious question about what brought them in (or lightly hold the Home starting place if provided). Then wait. Learn who they are through conversation.";
+  const openingRule = acLines
+    ? acLines.openingRule
+    : input?.memory?.isReturning
+      ? "When the session begins, speak first using Opening style from relationship memory. Welcome them back by name. Name at most one pattern or calm memory. Ask one curious question. Do NOT introduce yourself as if meeting for the first time. Do NOT offer a menu of focus areas."
+      : "When the session begins, speak first: short warm welcome as Forge. No product tour. No onboarding interrogation. One line that they don't have to perform. One curious question about what brought them in (or lightly hold the Home starting place if provided). Then wait. Learn who they are through conversation.";
 
-  const evolutionRule = input?.memory?.adaptiveInsight
-    ? `If it fits naturally later (not in the first breath), you may gently notice: ${input.memory.adaptiveInsight}. Never dump it as a status report.`
-    : "As patterns appear in this session, notice them gently — don't lecture.";
+  const evolutionRule = acLines
+    ? acLines.evolutionRule
+    : input?.memory?.adaptiveInsight
+      ? `If it fits naturally later (not in the first breath), you may gently notice: ${input.memory.adaptiveInsight}. Never dump it as a status report.`
+      : "As patterns appear in this session, notice them gently — don't lecture.";
 
   return [
     "══════════════════════════════════════",
@@ -111,7 +137,12 @@ export function buildSystemInstructions(input?: {
   memory?: CoachPromptContext | null;
   conciseMode?: boolean;
   mode?: CeSessionMode;
+  handoffSource?: string;
 }): string {
+  const confirmedPractice = isAcPracticeHandoff({
+    handoffSource: input?.handoffSource,
+    eventTitle: input?.eventTitle,
+  });
   if (input?.mode === "assessment") {
     return buildAssessmentSystemInstructions({
       memoryBlock: input.memory ? formatCoachMemoryBlock(input.memory) : null,
@@ -126,15 +157,25 @@ export function buildSystemInstructions(input?: {
     "- Prefer waiting and reflecting over filling silence with coaching.",
   ].join("\n");
 
+  const confirmedPracticeRule = confirmedPractice
+    ? buildAcPracticeObjectiveLines({
+        eventTitle: input?.eventTitle ?? "",
+        successCriteria: input?.successCriteria,
+      }).disciplineRule
+    : "";
+
   return buildForgeSystemPrompt({
     modeObjective: buildPracticeModeObjective(input),
-    memoryBlock: input?.memory ? formatCoachMemoryBlock(input.memory) : null,
+    memoryBlock: input?.memory
+      ? formatCoachMemoryBlock(input.memory, { confirmedPractice })
+      : null,
     extras: [
       LISTEN_FIRST_SYSTEM_INSTRUCTION,
       MINIMAL_INTERVENTION_COACHING_RULES,
       BREVITY_SYSTEM_INSTRUCTION,
       input?.conciseMode ? CONCISE_MODE_INSTRUCTION : "",
       acousticRule,
+      confirmedPracticeRule,
     ],
   });
 }
@@ -150,6 +191,7 @@ export function buildClientSecretRequest(input?: {
   conciseMode?: boolean;
   turnKind?: VoiceTurnKind;
   mode?: CeSessionMode;
+  handoffSource?: string;
 }) {
   // Hands-free (gated): semantic_vad; client owns barge-in yield.
   // Hold-to-talk: create_response OFF — mid-hold thinking pauses must NOT

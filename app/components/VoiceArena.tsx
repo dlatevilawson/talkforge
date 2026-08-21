@@ -1280,6 +1280,7 @@ export default function VoiceArena({
           ? false
           : Boolean(tokenData.memory?.isReturning),
         mode,
+        handoffSource: isAssessment ? undefined : handoffSource,
       });
       pushEvent(
         tokenData.memory?.isReturning

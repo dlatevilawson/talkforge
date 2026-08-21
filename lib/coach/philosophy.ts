@@ -329,7 +329,13 @@ export type OpeningSpeechOptions = {
   welcomeHint?: string;
   eventTitle?: string;
   isReturning?: boolean;
+  /** Coach confirm → first Forge session. */
+  handoffSource?: string;
 };
+
+function isAcConfirmedOpening(options: OpeningSpeechOptions): boolean {
+  return options.handoffSource === "ac" && Boolean(options.eventTitle?.trim());
+}
 
 /** Opening speech instructions for Realtime response.create */
 export function buildOpeningSpeechInstructions(
@@ -342,6 +348,18 @@ export function buildOpeningSpeechInstructions(
 
   const hint = options.welcomeHint?.trim();
   const eventTitle = options.eventTitle?.trim();
+
+  if (isAcConfirmedOpening(options) && eventTitle) {
+    return [
+      "Speak now as Forge — a mentor, not a chatbot.",
+      "This is confirmed first practice, not discovery.",
+      `Coach already identified this conversation with the member: "${eventTitle}".`,
+      "Do NOT ask what brought them in. Do NOT ask what they want to work on. Do NOT ask what feels alive. Do NOT offer a menu. Do NOT open from a previous session's scenario, struggle, or interview memory.",
+      "One short welcome by name if you know it. Name this conversation in one clause. Then start the first spoken rep of that scene: invite their opener, or step into the other role and wait.",
+      "Then silence. They speak first in the scene. Forge owns exact wording.",
+    ].join(" ");
+  }
+
   const contextLine = eventTitle
     ? `They chose this starting place from Home: "${eventTitle}". Hold it lightly — one natural acknowledgment is enough, then listen. Do not turn it into a questionnaire.`
     : "";
