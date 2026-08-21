@@ -69,3 +69,15 @@ Before shipping any ad, subject line, or UI string:
 > Would this make someone stop scrolling at 11:30 PM on a Tuesday?
 
 Must tick at least three: curiosity gap · concrete transformation · high-status identity · emotionally specific language · real-life conversation (not software).
+
+---
+
+## Homepage copy (approved combination — 2026-08-06)
+
+| Section | Headline | Support |
+|---|---|---|
+| Belief (Manifesto) | The deepest security in life comes from knowing that when you speak, you will be heard. | We build the private arena where you rehearse the conversations that shape your career, status, and peace of mind. |
+| Core belief (footer) | Every human deserves to feel secure in their own voice and confident that when they speak, the room listens. | — |
+| Experience | Rehearse where no one can see you stumble. | Most people collect advice about communication. Almost nobody rehearses the moments that matter. / Practice your next interview, salary negotiation, or tough boundary in private — so you walk into the real room already knowing what to say. |
+| Mission | From anxious overthinking to unshakeable presence. | Journey steps follow |
+| Social / Ad | You don’t need a louder voice. You need a private place to practice holding your ground. | — |
