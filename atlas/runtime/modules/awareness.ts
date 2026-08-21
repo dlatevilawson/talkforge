@@ -3,16 +3,16 @@ import { traceStage } from "./trace";
 
 /**
  * rt.awareness — operational-labeled items only.
- * Feeds knowledge plane; never Cognition directly; never Identity/Canonical alone.
+ * Live imbalance cards live on FounderOS (IV-AI-008). This plane stays ops-only.
  */
 export function runAwareness(state: WorkflowState): WorkflowState {
   const opsItems: KnowledgeItem[] = [
     {
-      source_id: "ops:situation-stub",
+      source_id: "ops:awareness-steward",
       authority_label: "operational",
       status: "ops",
       excerpt_or_ref:
-        "Operational awareness stub — no Identity/Canonical injection from awareness.",
+        "Awareness steward: FounderOS surfaces material imbalances. Atlas notifies; engineering owns remediation. No Identity or Canonical injection.",
       plane: "ops",
     },
   ];
@@ -24,7 +24,7 @@ export function runAwareness(state: WorkflowState): WorkflowState {
     stage: "knowledge",
   };
   next = traceStage(next, "hub", "Awareness contributed operational items only", [
-    "ops:situation-stub",
+    "ops:awareness-steward",
   ]);
   return next;
 }

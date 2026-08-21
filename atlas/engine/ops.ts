@@ -3,6 +3,7 @@ import path from "path";
 import { getSupabaseConfigStatus } from "@/lib/supabase/config";
 import type { ConversationTurn, PracticeSession } from "@/lib/types";
 import { loadDailyFounderBrief } from "./brief";
+import { collectAwarenessSignals } from "./awareness-steward";
 import { listFounderNotes } from "./notes";
 import { getFounderAuthUserId, getFounderSupabase } from "./supabase";
 import type {
@@ -609,6 +610,15 @@ export async function loadFounderOpsSnapshot(): Promise<FounderOpsSnapshot> {
     aiUsage,
     productHealth,
   });
+  const awarenessSignals = collectAwarenessSignals({
+    productHealth,
+    database,
+    github: githubStatus,
+    aiUsage,
+    openBugs,
+    nextAction,
+    deploymentStatus: state.deployment.status,
+  });
 
   const topPriority =
     [...state.priorities]
@@ -650,6 +660,7 @@ export async function loadFounderOpsSnapshot(): Promise<FounderOpsSnapshot> {
     companyHealth,
     founderMetrics,
     nextAction,
+    awarenessSignals,
   });
 
   return {
@@ -671,5 +682,6 @@ export async function loadFounderOpsSnapshot(): Promise<FounderOpsSnapshot> {
     recentSessions,
     github: githubStatus,
     nextAction,
+    awarenessSignals,
   };
 }
