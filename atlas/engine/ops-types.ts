@@ -181,6 +181,15 @@ export type NextAction = {
   urgency: Severity;
 };
 
+/** IV-AI-008 — notify only. Never a fix plan. */
+export type AwarenessSignal = {
+  id: string;
+  severity: "critical" | "warn" | "info";
+  fact: string;
+  domain: "product" | "systems" | "engineering";
+  owner: "engineering";
+};
+
 export type FounderNote = {
   id: string;
   body: string;
@@ -239,4 +248,5 @@ export type FounderOpsSnapshot = {
   recentSessions: RecentSessionRow[];
   github: GithubStatus;
   nextAction: NextAction;
+  awarenessSignals: AwarenessSignal[];
 };

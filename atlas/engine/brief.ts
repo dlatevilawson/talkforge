@@ -1,11 +1,13 @@
 import OpenAI from "openai";
 import type {
+  AwarenessSignal,
   CompanyHealth,
   DailyFounderBrief,
   FounderMetrics,
   MissionControl,
   NextAction,
 } from "./ops-types";
+import { awarenessBriefLine } from "./awareness-steward";
 import { getFounderAuthUserId, getFounderSupabase } from "./supabase";
 
 const BRIEF_SCENARIO_ID = "atlas-founder-brief";
@@ -19,6 +21,7 @@ function buildDeterministicBrief(input: {
   companyHealth: CompanyHealth;
   founderMetrics: FounderMetrics;
   nextAction: NextAction;
+  awarenessSignals?: AwarenessSignal[];
 }): DailyFounderBrief {
   const { missionControl, companyHealth, founderMetrics, nextAction } = input;
   const top = missionControl.topPriority;
@@ -33,6 +36,7 @@ function buildDeterministicBrief(input: {
   ].slice(0, 3);
 
   const summary = [
+    awarenessBriefLine(input.awarenessSignals ?? []),
     `Sprint ${missionControl.sprint.name}: ${missionControl.sprint.goal}`,
     `Today: ${missionControl.todayMission.title}.`,
     `Milestone ${missionControl.milestone.id} at ${missionControl.milestone.progress}% — ${missionControl.milestone.title}.`,
@@ -238,6 +242,7 @@ export async function loadDailyFounderBrief(input: {
   companyHealth: CompanyHealth;
   founderMetrics: FounderMetrics;
   nextAction: NextAction;
+  awarenessSignals?: AwarenessSignal[];
   forceRefresh?: boolean;
 }): Promise<DailyFounderBrief> {
   const date = todayKey();

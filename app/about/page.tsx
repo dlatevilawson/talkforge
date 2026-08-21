@@ -14,12 +14,12 @@ export default function AboutPage() {
           About
         </p>
         <h1 className="mt-5 font-[family-name:var(--font-lp-display),serif] text-4xl font-semibold tracking-[-0.03em]">
-          A company, not a product.
+          When you speak, you will be heard.
         </h1>
         <p className="mt-6 text-lg leading-8 text-[var(--lp-muted)]">
-          Nobody should ever feel voiceless because they don&apos;t know how to
-          express themselves. TalkForge exists so people can practice the
-          conversations that shape a life.
+          The deepest security in life comes from knowing that when you speak,
+          you will be heard. We build the private arena where you rehearse the
+          conversations that shape your career, status, and peace of mind.
         </p>
         <Link href="/" className="mt-10 inline-block text-sm text-[var(--lp-ink)] underline">
           ← Home

@@ -89,6 +89,7 @@ export default function FounderOS({ snapshot }: FounderOSProps) {
     brief,
     quickActions,
     nextAction,
+    awarenessSignals = [],
   } = snapshot;
 
   return (
@@ -195,6 +196,58 @@ export default function FounderOS({ snapshot }: FounderOSProps) {
           </div>
         </div>
       </section>
+
+      {/* 0. Atlas Awareness — IV-AI-008: first to know, not the fixer */}
+      <div className="mt-6">
+        <p className="mb-3 text-[11px] uppercase tracking-[0.22em] text-zinc-600">
+          Atlas Awareness
+        </p>
+        <Panel
+          title="What is off — Atlas notifies, engineering owns the fix"
+          action={
+            <span className="text-[11px] uppercase tracking-[0.16em] text-zinc-600">
+              {awarenessSignals.length === 0
+                ? "clear"
+                : `${awarenessSignals.length} signal${
+                    awarenessSignals.length === 1 ? "" : "s"
+                  }`}
+            </span>
+          }
+        >
+          {awarenessSignals.length === 0 ? (
+            <p className="text-sm text-zinc-500">
+              No material imbalances detected.
+            </p>
+          ) : (
+            <ul className="space-y-3">
+              {awarenessSignals.map((signal) => (
+                <li key={signal.id}>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={`text-[11px] uppercase tracking-[0.14em] ${
+                        signal.severity === "critical"
+                          ? "text-red-300"
+                          : signal.severity === "warn"
+                            ? "text-amber-300"
+                            : "text-zinc-500"
+                      }`}
+                    >
+                      {signal.severity}
+                    </span>
+                    <span className="text-[11px] uppercase tracking-[0.14em] text-zinc-600">
+                      {signal.domain}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm text-zinc-100">{signal.fact}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="mt-4 text-xs text-zinc-600">
+            Atlas is first to know. Atlas does not fix.
+          </p>
+        </Panel>
+      </div>
 
       {/* 1. Mission Control */}
       <div className="mt-6">

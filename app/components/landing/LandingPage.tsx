@@ -80,11 +80,12 @@ export default function LandingPage() {
                 What We Believe
               </p>
               <blockquote className="mt-8 font-[family-name:var(--font-lp-display)] text-3xl font-medium leading-snug tracking-[-0.03em] text-[var(--lp-ink)] sm:text-4xl sm:leading-[1.25]">
-                Nobody should ever feel voiceless because they don&apos;t know
-                how to express themselves.
+                The deepest security in life comes from knowing that when you
+                speak, you will be heard.
               </blockquote>
               <p className="mt-12 font-[family-name:var(--font-lp-display)] text-xl font-medium tracking-[-0.02em] text-[var(--lp-ink)] sm:text-2xl">
-                A company, not a product.
+                We build the private arena where you rehearse the conversations
+                that shape your career, status, and peace of mind.
               </p>
             </Reveal>
           </div>
@@ -101,19 +102,19 @@ export default function LandingPage() {
                 Experience
               </p>
               <h2 className="mt-5 font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
-                Practice where no one can see you fail.
+                Rehearse where no one can see you stumble.
               </h2>
             </Reveal>
             <Reveal delayMs={100}>
               <div className="space-y-6 text-lg leading-8 text-[var(--lp-muted)]">
                 <p>
                   Most people collect advice about communication. Almost nobody
-                  rehearses the moment that matters.
+                  rehearses the moments that matter.
                 </p>
                 <p className="text-[var(--lp-ink)]">
-                  Here, you practice the conversations that change your career,
-                  your relationships, and your status — then walk into the real
-                  ones already ready.
+                  Practice your next interview, salary negotiation, or tough
+                  boundary in private — so you walk into the real room already
+                  knowing what to say.
                 </p>
               </div>
             </Reveal>
@@ -131,7 +132,7 @@ export default function LandingPage() {
                 Mission
               </p>
               <h2 className="mx-auto mt-5 max-w-2xl text-center font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
-                The journey from practice to life.
+                From anxious overthinking to unshakeable presence.
               </h2>
             </Reveal>
 
@@ -253,8 +254,8 @@ export default function LandingPage() {
           <div className="max-w-sm">
             <TalkForgeLogo />
             <p className="mt-5 text-sm leading-6 text-[var(--lp-muted)]">
-              Nobody should ever feel voiceless because they don&apos;t know how
-              to express themselves.
+              Every human deserves to feel secure in their own voice and
+              confident that when they speak, the room listens.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-10 sm:grid-cols-3">
@@ -321,7 +322,8 @@ export default function LandingPage() {
           </div>
         </div>
         <p className="mx-auto mt-14 max-w-6xl text-xs text-[var(--lp-muted)]">
-          © {new Date().getFullYear()} TalkForge. Practice before performance.
+          © {new Date().getFullYear()} TalkForge. You don&apos;t need a louder
+          voice. You need a private place to practice holding your ground.
         </p>
       </footer>
     </div>
