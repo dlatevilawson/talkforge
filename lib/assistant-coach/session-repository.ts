@@ -122,6 +122,21 @@ export type AssistantCoachSessionRepository = {
       now?: Date;
     }
   ): Promise<AssistantCoachSession>;
+  /**
+   * Lookup by cookie hash for claim — includes gated + already-claimed rows.
+   * Anonymous restore still uses getSessionByAnonKeyHash (unclaimed only).
+   */
+  getSessionByAnonKeyHashForClaim?(
+    anonKeyHash: string
+  ): Promise<AssistantCoachSession | null>;
+  getLatestClaimedSessionByUserId?(
+    userId: string
+  ): Promise<AssistantCoachSession | null>;
+  claimSession?(input: {
+    sessionId: string;
+    userId: string;
+    now?: Date;
+  }): Promise<AssistantCoachSession>;
 };
 
 function newId(prefix: string): string {
@@ -295,6 +310,52 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
       if (patch.status) {
         session.status = patch.status;
       }
+      session.updatedAt = now.toISOString();
+      sessions.set(session.id, session);
+      return structuredClone(session);
+    },
+
+    async getSessionByAnonKeyHashForClaim(anonKeyHash) {
+      for (const row of sessions.values()) {
+        if (row.anonKeyHash !== anonKeyHash) continue;
+        if (row.status === "expired") continue;
+        return structuredClone(row);
+      }
+      return null;
+    },
+
+    async getLatestClaimedSessionByUserId(userId) {
+      const claimed = [...sessions.values()].filter(
+        (s) => s.userId === userId && s.status === "claimed"
+      );
+      claimed.sort((a, b) =>
+        String(b.claimedAt ?? b.updatedAt).localeCompare(
+          String(a.claimedAt ?? a.updatedAt)
+        )
+      );
+      return claimed[0] ? structuredClone(claimed[0]) : null;
+    },
+
+    async claimSession(input) {
+      const session = sessions.get(input.sessionId);
+      if (!session) throw new Error("session not found");
+      const now = input.now ?? new Date();
+      if (session.userId === input.userId && session.status === "claimed") {
+        return structuredClone(session);
+      }
+      if (session.userId != null && session.userId !== input.userId) {
+        const err = new Error("session claimed by another user");
+        err.name = "AssistantCoachClaimConflictError";
+        throw err;
+      }
+      if (isAnonSessionExpired(session, now)) {
+        const err = new Error("session expired");
+        err.name = "AssistantCoachClaimExpiredError";
+        throw err;
+      }
+      session.userId = input.userId;
+      session.status = "claimed";
+      session.claimedAt = now.toISOString();
       session.updatedAt = now.toISOString();
       sessions.set(session.id, session);
       return structuredClone(session);

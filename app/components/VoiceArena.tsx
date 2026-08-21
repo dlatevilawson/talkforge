@@ -107,6 +107,7 @@ type VoiceArenaProps = {
   successCriteria?: string;
   autoStart?: boolean;
   mode?: CeSessionMode;
+  handoffSource?: string;
 };
 
 type AssessmentWrap = {
@@ -150,6 +151,7 @@ export default function VoiceArena({
   successCriteria,
   autoStart = false,
   mode = "practice",
+  handoffSource,
 }: VoiceArenaProps) {
   const router = useRouter();
   const isAssessment = mode === "assessment";
@@ -1140,6 +1142,7 @@ export default function VoiceArena({
           eventTitle: isAssessment ? undefined : eventTitle,
           successCriteria: isAssessment ? undefined : successCriteria,
           mode,
+          source: isAssessment ? undefined : handoffSource,
         }),
       });
       const tokenData = (await tokenRes.json()) as {
@@ -1179,9 +1182,10 @@ export default function VoiceArena({
       realtimeSessionIdRef.current = tokenData.session_id ?? null;
       welcomeHintRef.current = tokenData.memory?.welcomeHint?.trim() || "";
       if (tokenData.memory?.isReturning && tokenData.memory.firstName) {
+        const titledStart = Boolean(eventTitle?.trim()) || handoffSource === "ac";
         setWelcomeLine(
           `Welcome back, ${tokenData.memory.firstName}${
-            tokenData.memory.lastScenarioTitle
+            !titledStart && tokenData.memory.lastScenarioTitle
               ? ` · last: ${tokenData.memory.lastScenarioTitle}`
               : ""
           }`

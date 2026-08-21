@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { signupAction, type AuthActionState } from "@/app/actions/auth";
@@ -25,15 +26,20 @@ function Submit() {
 }
 
 export default function SignupForm({ next }: { next: string }) {
+  const router = useRouter();
   const [state, action] = useActionState(signupAction, {} as AuthActionState);
 
   useEffect(() => {
     if (state.ok) trackAuthEvent("auth_signup_success");
     else if (state.message && !state.ok)
       trackAuthEvent("auth_signup_failure");
-  }, [state.ok, state.message]);
+    if (state.ok && state.redirectTo) {
+      router.push(state.redirectTo);
+      router.refresh();
+    }
+  }, [state.ok, state.message, state.redirectTo, router]);
 
-  if (state.ok) {
+  if (state.ok && !state.redirectTo) {
     const verifyHref = state.email
       ? `/verify-email?email=${encodeURIComponent(state.email)}`
       : "/verify-email";
@@ -76,6 +82,7 @@ export default function SignupForm({ next }: { next: string }) {
       }
     >
       <form action={action} className="space-y-4">
+        <input type="hidden" name="next" value={next} />
         <AuthInput
           id="email"
           name="email"

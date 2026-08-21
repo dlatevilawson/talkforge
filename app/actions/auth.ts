@@ -146,13 +146,14 @@ export async function signupAction(
   }
 
   const { email, password, displayName } = parsed.data;
+  const next = safeNextPath(String(formData.get("next") ?? ""), "/onboarding");
   const supabase = await createServerSupabaseClient();
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: authCallbackUrl("/onboarding"),
+      emailRedirectTo: authCallbackUrl(next),
       data: {
         display_name: displayName || email.split("@")[0] || "Member",
         auth_provider: "email",
@@ -172,10 +173,19 @@ export async function signupAction(
   }
 
   logAuthEvent("auth_signup_success");
+  if (data.session) {
+    return {
+      ok: true,
+      message: AUTH_COPY.signupSuccess,
+      email,
+      redirectTo: next,
+    };
+  }
   return {
     ok: true,
     message: AUTH_COPY.signupSuccess,
     email,
+    redirectTo: `/verify-email?email=${encodeURIComponent(email)}&next=${encodeURIComponent(next)}`,
   };
 }
 
@@ -282,9 +292,12 @@ export async function loginAction(
   }
 
   if (profile && !profile.email_verified) {
+    if (next.startsWith("/coach/confirm") || next.startsWith("/app/practice")) {
+      return { ok: true, redirectTo: next };
+    }
     return {
       ok: true,
-      redirectTo: `/verify-email?email=${encodeURIComponent(email)}`,
+      redirectTo: `/verify-email?email=${encodeURIComponent(email)}&next=${encodeURIComponent(next)}`,
     };
   }
 
@@ -304,6 +317,9 @@ export async function loginAction(
   }
 
   if (profile && !profile.onboarding_complete) {
+    if (next.startsWith("/coach/confirm") || next.startsWith("/app/practice")) {
+      return { ok: true, redirectTo: next };
+    }
     return { ok: true, redirectTo: "/onboarding" };
   }
 

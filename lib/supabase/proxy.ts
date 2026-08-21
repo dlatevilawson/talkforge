@@ -105,16 +105,26 @@ export async function updateSession(request: NextRequest) {
     !profile.email_verified &&
     !pathname.startsWith("/verify-email")
   ) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/verify-email";
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user?.email) {
-      redirectUrl.searchParams.set("email", user.email);
+    // OD-8 + first-user vertical slice: do not hard-block confirm or the
+    // first contextual Forge session. Other /app routes still require verify.
+    const allowUnverified =
+      pathname.startsWith("/app/practice") ||
+      pathname.startsWith("/coach");
+    if (!allowUnverified) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/verify-email";
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user?.email) {
+        redirectUrl.searchParams.set("email", user.email);
+      }
+      redirectUrl.searchParams.set(
+        "next",
+        pathname.startsWith("/app") ? pathname : "/coach/confirm"
+      );
+      return NextResponse.redirect(redirectUrl);
     }
-    redirectUrl.searchParams.set("next", "/onboarding");
-    return NextResponse.redirect(redirectUrl);
   }
 
   if (pathname.startsWith("/founder")) {

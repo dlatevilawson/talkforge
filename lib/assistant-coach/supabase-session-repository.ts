@@ -273,6 +273,86 @@ export function createSupabaseAssistantCoachSessionRepository(
       }
       return mapSessionRow(data as AssistantCoachSessionRow);
     },
+
+    async getSessionByAnonKeyHashForClaim(anonKeyHash) {
+      const { data, error } = await client
+        .from("assistant_coach_sessions")
+        .select("*")
+        .eq("anon_key_hash", anonKeyHash)
+        .neq("status", "expired")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) {
+        throw new Error(
+          `assistant_coach_sessions claim lookup failed: ${error.message}`
+        );
+      }
+      return data ? mapSessionRow(data as AssistantCoachSessionRow) : null;
+    },
+
+    async getLatestClaimedSessionByUserId(userId) {
+      const { data, error } = await client
+        .from("assistant_coach_sessions")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("status", "claimed")
+        .order("claimed_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) {
+        throw new Error(
+          `assistant_coach_sessions claimed lookup failed: ${error.message}`
+        );
+      }
+      return data ? mapSessionRow(data as AssistantCoachSessionRow) : null;
+    },
+
+    async claimSession(input) {
+      const current = await repository.getSession(input.sessionId);
+      if (!current) throw new Error("session not found");
+      const now = input.now ?? new Date();
+      if (current.userId === input.userId && current.status === "claimed") {
+        return current;
+      }
+      if (current.userId != null && current.userId !== input.userId) {
+        const err = new Error("session claimed by another user");
+        err.name = "AssistantCoachClaimConflictError";
+        throw err;
+      }
+      if (isAnonSessionExpired(current, now)) {
+        const err = new Error("session expired");
+        err.name = "AssistantCoachClaimExpiredError";
+        throw err;
+      }
+      const { data, error } = await client
+        .from("assistant_coach_sessions")
+        .update({
+          user_id: input.userId,
+          status: "claimed",
+          claimed_at: now.toISOString(),
+          updated_at: now.toISOString(),
+        })
+        .eq("id", input.sessionId)
+        .is("user_id", null)
+        .select("*")
+        .maybeSingle();
+      if (error) {
+        throw new Error(
+          `assistant_coach_sessions claim failed: ${error.message}`
+        );
+      }
+      if (data) {
+        return mapSessionRow(data as AssistantCoachSessionRow);
+      }
+      const raced = await repository.getSession(input.sessionId);
+      if (raced?.userId === input.userId && raced.status === "claimed") {
+        return raced;
+      }
+      const err = new Error("session claimed by another user");
+      err.name = "AssistantCoachClaimConflictError";
+      throw err;
+    },
   };
   return repository;
 }

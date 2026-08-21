@@ -79,7 +79,9 @@ function createClientTurnId(): string {
 
 export default function AssistantCoachClient() {
   const formId = useId();
-  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const threadRef = useRef<HTMLElement | null>(null);
+  const composerInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const nearBottomRef = useRef(true);
   const streamRef = useRef<MediaStream | null>(null);
   const recordingRef = useRef<CoachRecordingSession | null>(null);
 
@@ -149,8 +151,51 @@ export default function AssistantCoachClient() {
   }, []);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    const root = document.documentElement;
+    const applyViewport = () => {
+      const vv = window.visualViewport;
+      const height = vv?.height ?? window.innerHeight;
+      const top = vv?.offsetTop ?? 0;
+      root.style.setProperty("--ac-vvh", `${Math.round(height)}px`);
+      root.style.setProperty("--ac-vvt", `${Math.round(top)}px`);
+    };
+    applyViewport();
+    const vv = window.visualViewport;
+    vv?.addEventListener("resize", applyViewport);
+    vv?.addEventListener("scroll", applyViewport);
+    window.addEventListener("orientationchange", applyViewport);
+    return () => {
+      vv?.removeEventListener("resize", applyViewport);
+      vv?.removeEventListener("scroll", applyViewport);
+      window.removeEventListener("orientationchange", applyViewport);
+      root.style.removeProperty("--ac-vvh");
+      root.style.removeProperty("--ac-vvt");
+    };
+  }, []);
+
+  useEffect(() => {
+    const thread = threadRef.current;
+    if (!thread) return;
+    const onScroll = () => {
+      const remaining =
+        thread.scrollHeight - thread.scrollTop - thread.clientHeight;
+      nearBottomRef.current = remaining < 96;
+    };
+    onScroll();
+    thread.addEventListener("scroll", onScroll, { passive: true });
+    return () => thread.removeEventListener("scroll", onScroll);
+  }, [ready]);
+
+  useEffect(() => {
+    const thread = threadRef.current;
+    if (!thread || !nearBottomRef.current) return;
+    thread.scrollTop = thread.scrollHeight;
   }, [messages, phase, pending]);
+
+  function growComposer(el: HTMLTextAreaElement) {
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+  }
 
   function sendMessage(text: string) {
     const trimmed = text.trim();
@@ -164,6 +209,9 @@ export default function AssistantCoachClient() {
     ]);
     setDraft("");
     setPhase("thinking");
+    if (composerInputRef.current) {
+      composerInputRef.current.style.height = "auto";
+    }
 
     startTransition(async () => {
       try {
@@ -341,14 +389,26 @@ export default function AssistantCoachClient() {
   }
 
   return (
-    <main className="ac-shell">
+    <main
+      className={
+        messages.length > 0
+          ? "ac-shell ac-shell-chat ac-has-messages"
+          : "ac-shell ac-shell-chat"
+      }
+    >
       <header className="ac-header">
         <p className="ac-kicker">TalkForge</p>
         <h1 className="ac-title">{COACH_PRODUCT_NAME}</h1>
-        <p className="ac-lede">{COACH_OPENING}</p>
+        {messages.length === 0 ? (
+          <p className="ac-lede">{COACH_OPENING}</p>
+        ) : null}
       </header>
 
-      <section className="ac-thread" aria-label="Conversation">
+      <section
+        ref={threadRef}
+        className="ac-thread"
+        aria-label="Conversation"
+      >
         {messages.length === 0 ? (
           <p className="ac-empty">{COACH_EMPTY_HINT}</p>
         ) : (
@@ -378,7 +438,6 @@ export default function AssistantCoachClient() {
             {statusLabel}
           </p>
         ) : null}
-        <div ref={bottomRef} />
       </section>
 
       {gated ? (
@@ -386,10 +445,10 @@ export default function AssistantCoachClient() {
           <h2 className="ac-gate-title">{COACH_GATE_TITLE}</h2>
           <p className="ac-gate-copy">{COACH_GATE_COPY}</p>
           <div className="ac-gate-actions">
-            <a className="ac-btn ac-btn-primary" href="/signup?next=/coach">
+            <a className="ac-btn ac-btn-primary" href="/signup?next=/coach/confirm">
               Create account
             </a>
-            <a className="ac-btn" href="/login?next=/coach">
+            <a className="ac-btn" href="/login?next=/coach/confirm">
               Sign in
             </a>
           </div>
@@ -399,58 +458,73 @@ export default function AssistantCoachClient() {
           <label className="sr-only" htmlFor={`${formId}-input`}>
             Message
           </label>
-          <textarea
-            id={`${formId}-input`}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            rows={3}
-            placeholder={COACH_COMPOSER_PLACEHOLDER}
-            disabled={busy}
-          />
+          {phase === "recording" ? (
+            <div className="ac-composer-dock">
+              <p className="ac-muted ac-status ac-status-live" aria-live="polite">
+                {COACH_STATE_LISTENING}
+              </p>
+              <button
+                type="button"
+                className="ac-btn ac-btn-danger"
+                onClick={cancelRecording}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="ac-btn ac-btn-primary"
+                onClick={() => void finishRecording()}
+              >
+                Done
+              </button>
+            </div>
+          ) : (
+            <div className="ac-composer-dock">
+              <button
+                type="button"
+                className="ac-btn ac-btn-icon ac-mic"
+                onClick={() => void startRecording()}
+                disabled={busy}
+                aria-label="Speak with Coach"
+              >
+                Speak
+              </button>
+              <textarea
+                ref={composerInputRef}
+                id={`${formId}-input`}
+                value={draft}
+                onChange={(e) => {
+                  setDraft(e.target.value);
+                  growComposer(e.target);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!busy && draft.trim()) sendMessage(draft);
+                  }
+                }}
+                rows={1}
+                placeholder={COACH_COMPOSER_PLACEHOLDER}
+                disabled={busy}
+                enterKeyHint="send"
+              />
+              <button
+                type="submit"
+                className="ac-btn ac-btn-primary ac-btn-icon"
+                disabled={busy || !draft.trim()}
+                aria-label={
+                  phase === "thinking" || pending ? "Sending" : "Send"
+                }
+              >
+                {phase === "thinking" || pending ? "…" : "Send"}
+              </button>
+            </div>
+          )}
           {sendError ? (
             <p className="ac-error" role="alert">
               {sendError}
             </p>
           ) : null}
-          <div className="ac-composer-actions">
-            {phase === "recording" ? (
-              <>
-                <button
-                  type="button"
-                  className="ac-btn ac-btn-danger"
-                  onClick={cancelRecording}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="ac-btn ac-btn-primary"
-                  onClick={() => void finishRecording()}
-                >
-                  Done
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className="ac-btn ac-mic"
-                  onClick={() => void startRecording()}
-                  disabled={busy}
-                  aria-label="Speak with Coach"
-                >
-                  Speak
-                </button>
-                <button
-                  type="submit"
-                  className="ac-btn ac-btn-primary"
-                  disabled={busy || !draft.trim()}
-                >
-                  {phase === "thinking" || pending ? "Sending…" : "Send"}
-                </button>
-              </>
-            )}
-          </div>
         </form>
       )}
     </main>

@@ -31,7 +31,7 @@ export default function LandingNav() {
   }, []);
 
   const onFilm = !scrolled;
-  const startHref = authed ? "/app" : "/signup";
+  const startHref = authed ? "/app" : "/coach";
   const startLabel = authed ? "Continue" : "Prepare for today";
 
   return (

@@ -8,8 +8,9 @@
 | **4B.5** | Sticky semantic value + anon turn cap flags |
 | **4B.6** | Hard gate anon continuation |
 | **4B.10** | Public `/coach` UI (product surface: **Coach**, voice + text) |
+| **Vertical slice** | Landing CTA → `/coach` → value → signup → **claim** → **confirm** → one Forge session |
 | **4B.13** | Proxy allowlist for public Coach |
-| Later | Claim (4B.7), soft verify, onboarding skip, landing CTA, analytics, expiry, Forge handoff |
+| Later | Analytics, expiry, flywheel (Forge evidence → System 1), Progress |
 
 ## Product surface (`/coach`)
 
@@ -21,7 +22,7 @@
 | Voice path | Browser `MediaRecorder` → `POST /api/assistant-coach/transcribe` (server OpenAI STT) → transcript in composer → existing turn API |
 | Not used | Forge VoiceArena / Realtime WebRTC (auth-gated duplex practice) |
 | States | Listening (mic only) · Transcribing · Coach is thinking… |
-| Gate | Restrained product copy; **claim continuity still deferred (4B.7)** |
+| Gate | Restrained product copy; after value → signup → **confirm understanding** → one Forge session |
 
 ## Semantic value ≠ Living Profile completeness
 
