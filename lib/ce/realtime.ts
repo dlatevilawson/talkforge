@@ -381,6 +381,7 @@ export function requestOpeningSpeech(
     eventTitle?: string;
     isReturning?: boolean;
     mode?: "practice" | "assessment";
+    handoffSource?: string;
   }
 ): void {
   if (dc.readyState !== "open") {
@@ -394,6 +395,7 @@ export function requestOpeningSpeech(
           welcomeHint,
           eventTitle: options?.eventTitle,
           isReturning: options?.isReturning,
+          handoffSource: options?.handoffSource,
         });
 
   dc.send(

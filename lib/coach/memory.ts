@@ -264,11 +264,25 @@ function joinClipped(items: string[] | undefined, maxItems: number, maxChars: nu
   return clipMemory(list.join("; "), maxChars);
 }
 
-export function formatCoachMemoryBlock(ctx: CoachPromptContext): string {
+export function formatCoachMemoryBlock(
+  ctx: CoachPromptContext,
+  options?: { confirmedPractice?: boolean }
+): string {
   const learning =
     ctx.learningStyle && ctx.learningStyle in LEARNING_STYLE_LABELS
       ? LEARNING_STYLE_LABELS[ctx.learningStyle as Exclude<LearningStyle, "">]
       : "(not set)";
+
+  if (options?.confirmedPractice) {
+    return `
+Member relationship memory:
+- Call them: ${ctx.firstName}${ctx.nickname ? ` (nickname: ${ctx.nickname})` : ""}
+- Opening style: ${clipMemory(ctx.welcomeHint, 280)}
+- Coaching pressure: ${learning}
+- This session's conversation is already confirmed. Do not open from last scenario, last summary, or pattern insight.
+- Law #016: do not invent or overwrite who they are becoming.
+`;
+  }
 
   if (!ctx.isReturning) {
     return `

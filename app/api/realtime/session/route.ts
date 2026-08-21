@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
 import { evaluatePracticeEntitlement } from "@/lib/billing/entitlements";
 import { loadCoachPromptContextForUser } from "@/lib/coach/memory-server";
+import { applyConfirmedPracticeHandoff } from "@/lib/ce/ac-practice-handoff";
 import {
   buildClientSecretRequest,
   type CeSessionMode,
@@ -100,6 +101,15 @@ export async function POST(req: Request) {
   const mode: CeSessionMode =
     body.mode === "assessment" ? "assessment" : "practice";
   const memory = await loadCoachPromptContextForUser(gate.userId);
+  const memoryForSession = acHandoff
+    ? applyConfirmedPracticeHandoff(memory, {
+        eventTitle,
+        successCriteria:
+          typeof body.successCriteria === "string"
+            ? body.successCriteria
+            : undefined,
+      })
+    : memory;
   const planIsPro =
     entitlement.plan === "pro" ||
     entitlement.reason === "pro" ||
@@ -115,9 +125,10 @@ export async function POST(req: Request) {
       typeof body.successCriteria === "string"
         ? body.successCriteria
         : undefined,
-    memory,
+    memory: memoryForSession,
     handsFree,
     mode,
+    handoffSource: acHandoff ? AC_HANDOFF_SOURCE : undefined,
   });
 
   try {
@@ -166,12 +177,12 @@ export async function POST(req: Request) {
         sessionsLimit: entitlement.sessionsLimit,
       },
       memory: {
-        firstName: memory.firstName,
-        isReturning: memory.isReturning,
-        sessionsCompleted: memory.sessionsCompleted,
-        welcomeHint: memory.welcomeHint,
-        adaptiveInsight: memory.adaptiveInsight,
-        lastScenarioTitle: memory.lastScenarioTitle,
+        firstName: memoryForSession.firstName,
+        isReturning: memoryForSession.isReturning,
+        sessionsCompleted: memoryForSession.sessionsCompleted,
+        welcomeHint: memoryForSession.welcomeHint,
+        adaptiveInsight: memoryForSession.adaptiveInsight,
+        lastScenarioTitle: memoryForSession.lastScenarioTitle,
       },
     });
   } catch (error) {
