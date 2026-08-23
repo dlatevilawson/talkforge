@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | **Document ID** | IV-INDEX |
-| **Version** | 1.11.0 |
+| **Version** | 1.12.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
-| **Updated** | 2026-08-21 |
-| **Entry count** | 71 |
+| **Updated** | 2026-08-23 |
+| **Entry count** | 72 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
@@ -58,7 +58,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-LAW-011](laws/IV-LAW-011-constitutional-law-001.md) | Constitutional Law #001 — deliberate Canonical admission | Approved | Critical | High | `laws/IV-LAW-011-constitutional-law-001.md` |
 | [IV-LAW-012](laws/IV-LAW-012-craft-law-001.md) | Craft Law #001 — human, trustworthy, courageous | Approved | Critical | High | `laws/IV-LAW-012-craft-law-001.md` |
 
-## Product Ideas (8)
+## Product Ideas (10)
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
@@ -71,6 +71,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-PROD-007](product-ideas/IV-PROD-007-marketing-brain.md) | Marketing Brain (direct-response front door) | In Development | Critical | High | `product-ideas/IV-PROD-007-marketing-brain.md` |
 | [IV-PROD-008](product-ideas/IV-PROD-008-billing-membership.md) | Billing & Membership Platform (Free / Pro) | In Development | Critical | High | `product-ideas/IV-PROD-008-billing-membership.md` |
 | [IV-PROD-009](product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md) | First-user Assistant Coach journey (pre-account value) | Building | Critical | High | `product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md` |
+| [IV-PROD-010](product-ideas/IV-PROD-010-marketing-agent.md) | Marketing Agent — draft campaigns; Founder owns spend | Inbox | Useful | High | `product-ideas/IV-PROD-010-marketing-agent.md` |
 
 ## Features (9)
 
