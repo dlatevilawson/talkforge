@@ -8,7 +8,7 @@
 | **Status** | In Development |
 | **Importance** | Critical |
 | **Owner** | Founder |
-| **Last Updated** | 2026-08-06 |
+| **Last Updated** | 2026-08-23 |
 | **Captured** | 2026-08-06 |
 | **AI Steward** | Atlas |
 
@@ -32,7 +32,7 @@ Growth fails when the front door speaks engineering. Alignment from ad → landi
 |---|---|
 | **Depends on** | IV-PHIL-001 · IV-PHIL-006 · IV-UX-009 |
 | **Supports** | IV-PROD-006 · IV-UX-001 · IV-FUT-004 |
-| **Related** | IV-UX-008 · BETA-REC-002 · IV-REJ-001 |
+| **Related** | IV-UX-008 · BETA-REC-002 · IV-REJ-001 · IV-PROD-010 |
 
 ---
 
