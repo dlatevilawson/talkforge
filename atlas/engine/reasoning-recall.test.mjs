@@ -1,14 +1,20 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { describe, it } from "node:test";
+import { afterEach, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { classifySittingClose } from "./executive-memory.ts";
+import {
+  closeAskAtlasSitting,
+  listExecutiveMemoryMemory,
+  resetExecutiveMemoryForTests,
+} from "./executive-memory-store.ts";
 import {
   buildAskAtlasCounselInstructions,
   generateAtlasResponse,
 } from "./reasoning.ts";
 import { buildAtlasSystemPrompt } from "./prompt.ts";
+import { resetRetentionForTests } from "../runtime/retention/store.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -38,6 +44,11 @@ const stubContext = {
 };
 
 describe("ACI-001 G1 later-sitting Executive Memory recall", () => {
+  afterEach(() => {
+    resetExecutiveMemoryForTests();
+    resetRetentionForTests();
+  });
+
   const stored = [
     ...classifySittingClose(
       [
@@ -92,11 +103,54 @@ describe("ACI-001 G1 later-sitting Executive Memory recall", () => {
   it("Ask Atlas route recalls from stored memory, not from the Temporary thread", () => {
     const route = readFileSync(join(root, "app/api/atlas/route.ts"), "utf8");
     const reasoning = readFileSync(join(root, "atlas/engine/reasoning.ts"), "utf8");
+    const panel = readFileSync(
+      join(root, "app/atlas/components/AskAtlasPanel.tsx"),
+      "utf8"
+    );
     assert.match(route, /listExecutiveMemory/);
     assert.match(route, /executive_memory/);
     assert.match(reasoning, /retrieveRelevantExecutiveMemory/);
     assert.match(reasoning, /canonical: false/);
     assert.doesNotMatch(reasoning, /formatOperationalMemoryForCounsel\(operationalMemory\)/);
+    assert.match(panel, /setThread\(\[\]\)/);
+    assert.match(panel, /Temporary/);
+  });
+
+  it("reload of a new sitting recalls persisted memory, not the closed thread", async () => {
+    await closeAskAtlasSitting(
+      [
+        {
+          role: "user",
+          content: "Decision: Executive Memory G1-RECALL-PROOF-ZIRCON is next.",
+        },
+      ],
+      "sit_closed_persist"
+    );
+    await closeAskAtlasSitting(
+      [
+        {
+          role: "user",
+          content: "Risk: Stripe webhook could fail on live keys.",
+        },
+      ],
+      "sit_unrelated_persist"
+    );
+
+    const reloaded = listExecutiveMemoryMemory();
+    const { instructions, recalled } = buildAskAtlasCounselInstructions(
+      buildAtlasSystemPrompt(stubContext),
+      [],
+      reloaded,
+      "What did we decide about Executive Memory?"
+    );
+
+    assert.ok(reloaded.length >= 2);
+    assert.equal(recalled.length, 1);
+    assert.match(recalled[0].summary, /G1-RECALL-PROOF-ZIRCON/);
+    assert.match(instructions, /sitting sit_closed_persist/);
+    assert.match(instructions, /not Canonical/);
+    assert.doesNotMatch(instructions, /Stripe webhook/);
+    assert.equal(recalled[0].canonical, false);
   });
 
   it("Atlas uses retrieved Operational Memory in an independent sitting", { timeout: 90_000 }, async (t) => {

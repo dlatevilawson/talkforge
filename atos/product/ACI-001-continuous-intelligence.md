@@ -196,7 +196,7 @@ In-company AI/provider health is a feed of Internal Company Awareness. It is **n
 
 Implement in this order. Each slice needs its own Founder execute. None of these invent the destination; they build it.
 
-1. **Executive Memory** — **G1 persist + relevance-filtered recall (Working Knowledge).** Memory Keeper on sitting close; later independent sittings retrieve relevant classified records with provenance into Atlas reasoning. Raw thread stays Temporary. Retrieved Operational Memory is not Canonical. STD-002 remains the only Canonical path. Loader freeze stays. Founder-visible runtime stays off.
+1. **Executive Memory** — **G1 persist + relevance-filtered recall proven (Working Knowledge, not Canonical).** Memory Keeper on sitting close; later independent sittings retrieve relevant classified records with provenance into Atlas reasoning. Raw thread stays Temporary. Retrieved Operational Memory is not Canonical. STD-002 remains the only Canonical path. Loader freeze stays. Founder-visible runtime stays off. Do not treat this as Canonical admission.
 2. **Unified event ingestion** — company events and (later) external events into Hub `receive`. Start by adapting existing awareness signals + staff bus. No new AIO office.
 3. **Agent census / coordination** — which agent ran, under which charter, what it produced, how Memory Keeper classified it.
 4. **Outcome learning** — execution results classified; Operational Memory updates the next pass; Promotion Candidates enter STD-002 (REF-R1110).
