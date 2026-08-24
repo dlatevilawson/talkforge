@@ -32,7 +32,7 @@ Today Atlas is largely frozen as institutional stewardship (docs, gates, observa
 |---|---|
 | **Depends on** | IV-LAW-010 · IV-LAW-011 · IV-PHIL-007 |
 | **Supports** | Company OS continuity · Founder decision quality · RES-011 Atlas-in-service posture (reinterpreted as awareness, not silence) |
-| **Related** | IV-AI-001 · Blind Spot Register · ATLAS runtime observation · STD-005 incident investigation |
+| **Related** | IV-AI-001 · IV-AI-010 · Blind Spot Register · ATLAS runtime observation · STD-005 incident investigation |
 
 ---
 

@@ -4,6 +4,7 @@ import { getSupabaseConfigStatus } from "@/lib/supabase/config";
 import type { ConversationTurn, PracticeSession } from "@/lib/types";
 import { loadDailyFounderBrief } from "./brief";
 import { collectAwarenessSignals } from "./awareness-steward";
+import { listExecutiveMemory } from "./executive-memory-store";
 import { listFounderNotes } from "./notes";
 import { getFounderAuthUserId, getFounderSupabase } from "./supabase";
 import type {
@@ -583,13 +584,14 @@ function decideNextAction(input: {
  */
 export async function loadFounderOpsSnapshot(): Promise<FounderOpsSnapshot> {
   const state = await loadOpsState();
-  const [sessions, reflectionsSaved, githubStatus, notes, profiles] =
+  const [sessions, reflectionsSaved, githubStatus, notes, profiles, executiveMemory] =
     await Promise.all([
       loadPracticeSessions(),
       loadReflectionCount(),
       loadGithubActivity(state),
       listFounderNotes(12),
       loadProfiles(),
+      listExecutiveMemory(20),
     ]);
   const database = await pingDatabase(profiles);
 
@@ -671,6 +673,7 @@ export async function loadFounderOpsSnapshot(): Promise<FounderOpsSnapshot> {
     quickActions: state.quickActions,
     links: state.links,
     notes,
+    executiveMemory,
     brief,
     sprint: state.sprint,
     priorities: [...state.priorities].sort((a, b) => a.rank - b.rank),

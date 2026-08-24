@@ -1,3 +1,5 @@
+import type { ExecutiveMemoryRecord } from "./executive-memory";
+
 export type OpsStatus = "open" | "in_progress" | "done" | "blocked";
 export type Severity = "critical" | "high" | "medium" | "low";
 export type HealthTone = "good" | "warn" | "bad" | "neutral";
@@ -236,6 +238,7 @@ export type FounderOpsSnapshot = {
   quickActions: QuickAction[];
   links: OpsLinks;
   notes: FounderNote[];
+  executiveMemory: ExecutiveMemoryRecord[];
   brief: DailyFounderBrief;
   /** @deprecated Prefer missionControl / companyHealth; kept for transitional callers */
   sprint: SprintState;

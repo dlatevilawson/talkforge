@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import type { FounderOpsSnapshot } from "@/atlas/engine/ops-types";
 import AskAtlasPanel from "./components/AskAtlasPanel";
+import ExecutiveMemoryPanel from "./components/ExecutiveMemoryPanel";
 import FounderNotesPanel from "./components/FounderNotesPanel";
 import {
   formatWhen,
@@ -90,6 +91,7 @@ export default function FounderOS({ snapshot }: FounderOSProps) {
     quickActions,
     nextAction,
     awarenessSignals = [],
+    executiveMemory = [],
   } = snapshot;
 
   return (
@@ -589,6 +591,16 @@ export default function FounderOS({ snapshot }: FounderOSProps) {
             </ul>
           )}
         </Panel>
+      </div>
+
+      {/* 6. Executive Memory — ACI-001 G1, not Founder Notes */}
+      <div className="mt-8">
+        <p className="mb-3 text-[11px] uppercase tracking-[0.22em] text-zinc-600">
+          6 · Executive Memory
+        </p>
+        <div className="border border-white/10 bg-[#0f1115]/40">
+          <ExecutiveMemoryPanel records={executiveMemory} />
+        </div>
       </div>
 
       {/* 7. Ask Atlas */}

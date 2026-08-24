@@ -5,7 +5,7 @@
 | **Document ID** | MASTER-ROADMAP-001 |
 | **Version** | 1.0.0 |
 | **Status** | **Complete — EXEC-001 Step 12** |
-| **Updated** | 2026-08-02 |
+| **Updated** | 2026-08-24 |
 | **Depends on** | DEP-MAP-001 · PRIORITY-001 · CAT-001 · VERIFY-001 · CONST-001 · Idea Vault |
 | **Related** | ROADMAP-001 (north star narrative) |
 
@@ -72,6 +72,30 @@ Translate priorities into implementation phases with goal, dependencies, complex
 |---|---|---|---|---|---|
 | F1 Free / Pro billing | Stripe Checkout + Portal + webhooks; server SSOT; configurable free limits; Membership + Billing surfaces; calm end-of-free | Living Profile · CE practice · BS-016 | High | Eng / Founder | In Development |
 | F2 Production Stripe cutover | Live keys, webhook endpoint, Price ID, migration applied, conversion analytics | F1 · prod hardening | Medium | Founder / Eng | Not started |
+
+---
+
+## Company OS — ATOS Continuous Intelligence (IV-AI-010 / ACI-001)
+
+Working Knowledge track. **Not** a seventh ATOS system. SPEC-001–006 stay frozen. Does not replace Phases A–F.
+
+Destination (named in [ACI-001](ACI-001-continuous-intelligence.md)): company and external events → Context → Executive Memory → Atlas reasoning → plans/delegation → agent or human execution → outcomes → learning → Memory Keeper.
+
+Implementation order (Founder-gated slices; do not start at agency):
+
+1. Executive Memory
+2. Unified event ingestion
+3. Agent census / coordination
+4. Outcome learning
+5. Autonomous Atlas operating loop
+6. External Technology Intelligence
+7. Governed agency
+
+| Item | Goal | Dependencies | Complexity | Owner | Status |
+|---|---|---|---|---|---|
+| G0 ACI-001 contract | Architecture understood, connected, actable | SPEC-001…006 · RUNTIME-MEM · STD-002 · IV-AI-008 | Medium | Atlas / Founder | Complete — Working Knowledge |
+| G1 Executive Memory | Memory Keeper on sitting close; later sittings recall relevant Operational Memory with provenance; never Canonical | G0 | Medium | Eng / Atlas | Recall proven — Working Knowledge (not Canonical) |
+| G2+ remaining slices | Event ingest → census → learning → loop → external TI → agency | G1 · Founder execute per slice | High | Eng / Atlas | Not started |
 
 ---
 
