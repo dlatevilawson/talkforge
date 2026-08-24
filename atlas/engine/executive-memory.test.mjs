@@ -9,6 +9,7 @@ import {
   classifySittingClose,
   extractExecutiveMemoryCandidates,
   formatOperationalMemoryForCounsel,
+  retrieveRelevantExecutiveMemory,
 } from "./executive-memory.ts";
 import {
   closeAskAtlasSitting,
@@ -182,5 +183,41 @@ describe("ACI-001 G1 Executive Memory Keeper", () => {
     assert.match(closeRoute, /canonical: false/);
     assert.match(memoryRoute, /listExecutiveMemory/);
     assert.match(memoryRoute, /canonical: false/);
+  });
+
+  it("a later sitting retrieves relevant memory and leaves irrelevant memory out", () => {
+    const decision = classifySittingClose(
+      [{ role: "user", content: "Decision: Executive Memory G1-RECALL-PROOF-ZIRCON is next." }],
+      "sit_prior"
+    );
+    const risk = classifySittingClose(
+      [{ role: "user", content: "Risk: Stripe webhook could fail on live keys." }],
+      "sit_other"
+    );
+    const stored = [...decision, ...risk];
+    assert.equal(stored.every((row) => row.canonical === false), true);
+
+    const recalled = retrieveRelevantExecutiveMemory(
+      "What did we decide about Executive Memory?",
+      stored
+    );
+    assert.equal(recalled.length, 1);
+    assert.match(recalled[0].summary, /G1-RECALL-PROOF-ZIRCON/);
+    assert.doesNotMatch(recalled[0].summary, /Stripe/);
+    assert.equal(recalled[0].canonical, false);
+
+    const none = retrieveRelevantExecutiveMemory(
+      "What should I eat for lunch today?",
+      stored
+    );
+    assert.equal(none.length, 0);
+
+    const stripeOnly = retrieveRelevantExecutiveMemory(
+      "What is the Stripe webhook risk?",
+      stored
+    );
+    assert.equal(stripeOnly.length, 1);
+    assert.match(stripeOnly[0].summary, /Stripe/);
+    assert.doesNotMatch(stripeOnly[0].summary, /ZIRCON/);
   });
 });

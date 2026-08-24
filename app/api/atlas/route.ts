@@ -127,7 +127,7 @@ export async function POST(req: Request) {
       listExecutiveMemory(20),
     ]);
     const thread = normalizeAtlasThread(body.thread);
-    const response = await generateAtlasResponse(
+    const result = await generateAtlasResponse(
       message,
       context,
       thread,
@@ -136,7 +136,17 @@ export async function POST(req: Request) {
     const flags = getRuntimeFlagSnapshot();
 
     return NextResponse.json({
-      response,
+      response: result.response,
+      executive_memory: {
+        recalled: result.recalled.map((record) => ({
+          id: record.id,
+          kind: record.kind,
+          class: record.class,
+          sitting_id: record.sitting_id,
+          canonical: false,
+        })),
+        canonical: false,
+      },
       plane: "legacy",
       binding_surface: "legacy",
       runtime: {

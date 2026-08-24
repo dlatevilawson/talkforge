@@ -4,7 +4,7 @@
  */
 
 import type { MemoryClass } from "@/atlas/runtime/types/envelopes";
-import type { AtlasThreadTurn } from "./thread";
+import type { AtlasThreadTurn } from "./thread.ts";
 
 export const EXECUTIVE_MEMORY_KINDS = [
   "correction",
@@ -203,7 +203,94 @@ export function formatOperationalMemoryForCounsel(
   return usable
     .map(
       (record, index) =>
-        `${index + 1}. [${record.class}/${record.kind}] ${record.summary} (not Canonical; sitting ${record.sitting_id})`
+        `${index + 1}. [${record.class}/${record.kind}] ${record.summary} (not Canonical; sitting ${record.sitting_id}; source ${record.provenance.source})`
     )
     .join("\n");
+}
+
+const MEMORY_STOPWORDS = new Set([
+  "the",
+  "and",
+  "for",
+  "that",
+  "this",
+  "with",
+  "from",
+  "what",
+  "did",
+  "about",
+  "have",
+  "has",
+  "was",
+  "were",
+  "are",
+  "not",
+  "our",
+  "you",
+  "your",
+]);
+
+function tokensOf(text: string): string[] {
+  return (text.toLowerCase().match(/[a-z0-9]{3,}/g) ?? []).filter(
+    (token) => !MEMORY_STOPWORDS.has(token)
+  );
+}
+
+function tokensRelated(a: string, b: string): boolean {
+  if (a === b) return true;
+  if (a.length >= 5 && b.length >= 5) {
+    const stem = a.slice(0, 5);
+    return a.startsWith(stem) && b.startsWith(stem);
+  }
+  return false;
+}
+
+function kindHintFromQuery(query: string): ExecutiveMemoryKind | null {
+  if (/\bdecid|\bdecision\b/i.test(query)) return "decision";
+  if (/\bcorrect|\bwrong\b|\bincorrect\b/i.test(query)) return "correction";
+  if (/\bcommit/i.test(query)) return "commitment";
+  if (/\brisk|\bcould fail\b/i.test(query)) return "risk";
+  if (/\bmistake\b/i.test(query)) return "mistake";
+  if (/\blesson|\blearned\b/i.test(query)) return "lesson";
+  if (/\bunresolved|\bstill open\b|\bopen question\b/i.test(query)) {
+    return "unresolved";
+  }
+  return null;
+}
+
+/**
+ * Retrieve relevant classified records for a *later* sitting.
+ * Irrelevant memories stay out. Retrieved records remain not Canonical.
+ */
+export function retrieveRelevantExecutiveMemory(
+  query: string,
+  records: ExecutiveMemoryRecord[],
+  options?: { limit?: number; minScore?: number }
+): ExecutiveMemoryRecord[] {
+  const limit = options?.limit ?? 3;
+  const minScore = options?.minScore ?? 2;
+  const queryTokens = tokensOf(query);
+  const hintedKind = kindHintFromQuery(query);
+
+  const scored = records
+    .filter(
+      (record) =>
+        record.canonical === false &&
+        (record.class === "operational" ||
+          record.class === "promotion_candidate")
+    )
+    .map((record) => {
+      const summaryTokens = tokensOf(`${record.summary} ${record.kind}`);
+      const overlap = queryTokens.filter((token) =>
+        summaryTokens.some((other) => tokensRelated(token, other))
+      ).length;
+      const kindBonus = hintedKind && hintedKind === record.kind ? 1 : 0;
+      return { record, score: overlap + kindBonus, overlap };
+    })
+    .filter((row) => row.overlap >= 1 && row.score >= minScore)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((row) => row.record);
+
+  return scored;
 }

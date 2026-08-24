@@ -1,4 +1,4 @@
-import type { AtlasContext } from "./context";
+import type { AtlasContext } from "./context.ts";
 
 function documentSection(title: string, body: string): string {
   const content = body.trim()
