@@ -29,10 +29,16 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  overflow-x: clip;
+}
+
 body {
   background: var(--tf-bg);
   color: var(--tf-fg);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  overflow-x: clip;
+  max-width: 100%;
 }
 
 .tf-home {

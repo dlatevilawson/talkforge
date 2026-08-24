@@ -9,6 +9,7 @@ import {
   listSessionReports,
   listSessions,
 } from "@/lib/storage";
+import { shouldShowOverall } from "@/lib/coach/progress-display";
 import type {
   GrowthSummary,
   PracticeSession,
@@ -27,11 +28,13 @@ const SKILL_LABELS: Record<SkillKey, string> = {
   leadership: "Leadership",
 };
 
-/** Professional skill waveform — replaces stacked bars for a coach-room feel. */
+/** Practice shape — scores stay; labels are member-facing, not a dashboard brand. */
 function SkillsWaveform({
   skills,
+  showOverall,
 }: {
   skills: Partial<Record<SkillKey, number>> | undefined;
+  showOverall: boolean;
 }) {
   const keys = Object.keys(SKILL_LABELS) as SkillKey[];
   const values = keys.map((key) =>
@@ -85,20 +88,22 @@ function SkillsWaveform({
       <div className="flex items-end justify-between gap-3">
         <div>
           <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-[#c9a95f]">
-            Voice of your growth
+            How you showed up
           </p>
           <p className="mt-1 text-sm text-zinc-500">
-            Shape of your communication across practice.
+            From your sessions — not a quiz.
           </p>
         </div>
-        <p className="text-right">
-          <span className="block text-[0.65rem] uppercase tracking-[0.16em] text-zinc-600">
-            Signal
-          </span>
-          <span className="text-lg font-semibold tabular-nums text-[#e7d6b1]">
-            {avg > 0 ? Math.round(avg) : "—"}
-          </span>
-        </p>
+        {showOverall ? (
+          <p className="text-right">
+            <span className="block text-[0.65rem] uppercase tracking-[0.16em] text-zinc-600">
+              Overall
+            </span>
+            <span className="text-lg font-semibold tabular-nums text-[#e7d6b1]">
+              {avg > 0 ? Math.round(avg) : "—"}
+            </span>
+          </p>
+        ) : null}
       </div>
 
       <div className="relative mt-4">
@@ -258,11 +263,11 @@ export default function ProgressPage() {
           Progress
         </p>
         <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">
-          How you’re growing
+          What you’ve practiced.
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">
-          Every practice session becomes permanent history. Forge uses it to
-          coach you like someone who knows you — not a stranger every time.
+          The conversations you’ve practiced. What happened here helps shape
+          what comes next.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
@@ -312,12 +317,13 @@ export default function ProgressPage() {
           ) : null}
 
           <section className="mt-10">
-            <h2 className="text-xl font-semibold">Communication skills</h2>
-            <p className="mt-2 text-sm text-zinc-500">
-              Your practice signal — how you’re growing across sessions.
-            </p>
-            <div className="mt-6">
-              <SkillsWaveform skills={skills} />
+            <div className="mt-2">
+              <SkillsWaveform
+                skills={skills}
+                showOverall={shouldShowOverall(
+                  growth?.sessionsCompleted ?? progress.sessionsCompleted
+                )}
+              />
             </div>
           </section>
 
@@ -325,32 +331,6 @@ export default function ProgressPage() {
             <Stat
               label="Sessions completed"
               value={String(growth?.sessionsCompleted ?? progress.sessionsCompleted)}
-            />
-            <Stat
-              label="Best coaching score"
-              value={String(growth?.bestScore || progress.averageScore || "—")}
-            />
-            <Stat
-              label="Hours practiced"
-              value={String(growth?.hoursPracticed ?? 0)}
-            />
-            <Stat
-              label="Streak"
-              value={`${growth?.streakDays ?? 0} day${
-                (growth?.streakDays ?? 0) === 1 ? "" : "s"
-              }`}
-            />
-            <Stat
-              label="Avg filler words"
-              value={String(growth?.averageFillerWords ?? "—")}
-            />
-            <Stat
-              label="Longest conversation"
-              value={formatDuration(growth?.longestConversationSeconds)}
-            />
-            <Stat
-              label="Average score"
-              value={String(growth?.averageScore || progress.averageScore || "—")}
             />
             <Stat
               label="Last practice"
@@ -364,6 +344,14 @@ export default function ProgressPage() {
                   ? new Date(growth.lastSessionAt).toLocaleDateString()
                   : undefined
               }
+            />
+            <Stat
+              label="Hours practiced"
+              value={String(growth?.hoursPracticed ?? 0)}
+            />
+            <Stat
+              label="Longest conversation"
+              value={formatDuration(growth?.longestConversationSeconds)}
             />
           </div>
 

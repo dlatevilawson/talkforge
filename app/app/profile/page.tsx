@@ -371,20 +371,20 @@ export default function ProfilePage() {
             >
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a95f]">
-                  Current state
+                  What we heard
                 </p>
                 <h2
                   id="assessment-summary-heading"
                   className="mt-2 text-xl font-semibold text-white"
                 >
                   {living.profileSource === "incomplete"
-                    ? "Assessment incomplete"
-                    : "From your assessment"}
+                    ? "Not enough was captured yet"
+                    : "This conversation"}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-zinc-400">
                   {living.profileSource === "incomplete"
-                    ? "Not enough was captured to write a full profile. You can run the assessment again from Home."
-                    : "Goals, challenges, and inferred presence — no roadmap yet."}
+                    ? "You can run this again from Home if you want a fuller picture."
+                    : "This is the conversation. Not a plan."}
                 </p>
               </div>
               {living.goals.length > 0 ? (
@@ -475,17 +475,17 @@ export default function ProfilePage() {
           <div className="max-w-xl space-y-5 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
             <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-[#c9a95f]">
-                Member Presence Profile
+                Account
               </h3>
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-neutral-400">Total Practice Reps</p>
+                  <p className="text-xs text-neutral-400">Practice sessions</p>
                   <p className="mt-1 text-xl font-bold text-white">
                     {progress?.sessionsCompleted ?? 0}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-neutral-400">Pressure Duration</p>
+                  <p className="text-xs text-neutral-400">Longest session</p>
                   <p className="mt-1 text-xl font-bold text-white">
                     {formatDuration(longestSessionSeconds) ?? "—"}
                   </p>

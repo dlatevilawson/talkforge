@@ -136,7 +136,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     const initial = name.trim().charAt(0).toUpperCase() || "F";
 
     return (
-      <div className="min-h-screen overflow-hidden bg-[#090b0d] font-sans text-[var(--tf-fg)]">
+      <div className="min-h-screen overflow-x-clip overflow-y-hidden bg-[#090b0d] font-sans text-[var(--tf-fg)]">
         <header className="relative z-20 pt-[max(1rem,env(safe-area-inset-top))]">
           <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-5 sm:h-24 sm:px-8 lg:px-12">
             <Link
@@ -175,7 +175,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-[1440px] px-5 sm:px-8 lg:px-12">
+        <main className="mx-auto w-full min-w-0 max-w-[1440px] px-5 sm:px-8 lg:px-12">
           {children}
         </main>
       </div>
@@ -183,7 +183,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--tf-bg)] font-sans text-[var(--tf-fg)]">
+    <div className="min-h-screen min-w-0 overflow-x-clip bg-[var(--tf-bg)] font-sans text-[var(--tf-fg)]">
       <header className="sticky top-0 z-50 bg-[#050505]/90 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-6">
           <Link
@@ -275,7 +275,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <div className="mx-auto w-full max-w-7xl px-4 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-14 sm:px-6 sm:pt-12">
+      <div className="mx-auto w-full min-w-0 max-w-7xl px-4 pb-[max(2.5rem,env(safe-area-inset-bottom))] pt-14 sm:px-6 sm:pt-12">
         {children}
       </div>
     </div>
