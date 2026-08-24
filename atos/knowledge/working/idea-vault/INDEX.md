@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | **Document ID** | IV-INDEX |
-| **Version** | 1.11.0 |
+| **Version** | 1.12.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
-| **Updated** | 2026-08-21 |
-| **Entry count** | 71 |
+| **Updated** | 2026-08-24 |
+| **Entry count** | 72 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
@@ -100,7 +100,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-UX-008](ux-ideas/IV-UX-008-machine-behavior-language.md) | Machine Behavior Language | In Development | Critical | High | `ux-ideas/IV-UX-008-machine-behavior-language.md` |
 | [IV-UX-009](ux-ideas/IV-UX-009-optional-visual-training-focus.md) | Optional visual training focus (Machines picker) | In Development | Critical | High | `ux-ideas/IV-UX-009-optional-visual-training-focus.md` |
 
-## AI Ideas (8)
+## AI Ideas (9)
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
@@ -112,6 +112,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-AI-006](ai-ideas/IV-AI-006-coach-forge-excellence.md) | Coach Forge Communication Excellence Assessment | In Development | Critical | High | `ai-ideas/IV-AI-006-coach-forge-excellence.md` |
 | [IV-AI-007](ai-ideas/IV-AI-007-coach-forge-first-principle.md) | Coach Forge First Principle — Understand before you coach | In Development | Critical | High | `ai-ideas/IV-AI-007-coach-forge-first-principle.md` |
 | [IV-AI-008](ai-ideas/IV-AI-008-atlas-awareness-steward.md) | Atlas Awareness Steward — first to know, not the fixer | In Development | Critical | High | `ai-ideas/IV-AI-008-atlas-awareness-steward.md` |
+| [IV-AI-010](ai-ideas/IV-AI-010-atos-continuous-intelligence.md) | ATOS Continuous Intelligence — governed company-learning loop | In Development | Critical | High | `ai-ideas/IV-AI-010-atos-continuous-intelligence.md` |
 
 ## Research Ideas (4)
 
@@ -144,7 +145,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 
 ---
 
-## Critical ideas (48) — definitional weight
+## Critical ideas (49) — definitional weight
 
 | ID | Title | Status | Category |
 |---|---|---|---|
@@ -192,6 +193,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-AI-006](ai-ideas/IV-AI-006-coach-forge-excellence.md) | Coach Forge Communication Excellence Assessment | In Development | AI Ideas |
 | [IV-AI-007](ai-ideas/IV-AI-007-coach-forge-first-principle.md) | Coach Forge First Principle — Understand before you coach | In Development | AI Ideas |
 | [IV-AI-008](ai-ideas/IV-AI-008-atlas-awareness-steward.md) | Atlas Awareness Steward — first to know, not the fixer | In Development | AI Ideas |
+| [IV-AI-010](ai-ideas/IV-AI-010-atos-continuous-intelligence.md) | ATOS Continuous Intelligence — governed company-learning loop | In Development | AI Ideas |
 | [IV-PROD-008](product-ideas/IV-PROD-008-billing-membership.md) | Billing & Membership Platform (Free / Pro) | In Development | Product Ideas |
 | [IV-PROD-009](product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md) | First-user Assistant Coach journey (pre-account value) | Building | Product Ideas |
 | [IV-RES-004](research-ideas/IV-RES-004-transfer-outside-app.md) | Transfer outside the app is the scoreboard | Researching | Research Ideas |

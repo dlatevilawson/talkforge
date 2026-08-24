@@ -150,6 +150,7 @@ See [`references/README.md`](references/README.md).
 | RES-022 | HBF Phase I Working authorized | [resolutions/RES-022-hbf-phase-i.md](resolutions/RES-022-hbf-phase-i.md) |
 | KA-REORG-001 | Knowledge reorganization (**Complete**) | [product/KA-REORG-001-knowledge-reorganization.md](product/KA-REORG-001-knowledge-reorganization.md) |
 | KA-PAUSE-001 | Framework rules (**TEA + KA gates**) | [product/KA-PAUSE-001-framework-pause.md](product/KA-PAUSE-001-framework-pause.md) |
+| ACI-001 | ATOS Continuous Intelligence (**Working** — not Canonical; not a seventh SPEC) | [product/ACI-001-continuous-intelligence.md](product/ACI-001-continuous-intelligence.md) |
 | LOAD-MANIFEST | Agent knowledge inheritance + AI protocol | [knowledge/LOAD-MANIFEST.md](knowledge/LOAD-MANIFEST.md) |
 | RES-021 | TEA-001 Accepted | [resolutions/RES-021-tea-001-acceptance.md](resolutions/RES-021-tea-001-acceptance.md) |
 | RES-020 | KA-001 Approved; stewardship; reorg authorized | [resolutions/RES-020-ka-001-approval.md](resolutions/RES-020-ka-001-approval.md) |
