@@ -175,4 +175,65 @@ describe("ACI-001 G1 later-sitting Executive Memory recall", () => {
     assert.match(result.response, /not Canonical|Operational|not admitted/i);
     assert.doesNotMatch(result.response, /Stripe webhook/i);
   });
+
+  it("ORCHID LANTERN survives Close Sitting into a later relevant sitting", { timeout: 90_000 }, async (t) => {
+    const phrase =
+      "Use codename ORCHID LANTERN for the retention experiment. This is operational context, not company policy.";
+    const laterQuestion =
+      "What is the retention experiment codename? Use Operational Memory if it is relevant. Say whether that memory is Canonical.";
+
+    const closed = await closeAskAtlasSitting(
+      [{ role: "user", content: phrase }],
+      "sit_orchid_close"
+    );
+    assert.equal(closed.records.length, 1);
+    assert.equal(closed.records[0].class, "operational");
+    assert.equal(closed.records[0].canonical, false);
+    assert.match(closed.records[0].summary, /ORCHID LANTERN/);
+
+    const persisted = listExecutiveMemoryMemory();
+    const { instructions, recalled } = buildAskAtlasCounselInstructions(
+      buildAtlasSystemPrompt(stubContext),
+      [],
+      persisted,
+      laterQuestion
+    );
+    assert.equal(recalled.length, 1);
+    assert.match(recalled[0].summary, /ORCHID LANTERN/);
+    assert.equal(recalled[0].canonical, false);
+    assert.match(instructions, /ORCHID LANTERN/);
+    assert.match(instructions, /new Ask Atlas sitting/);
+    assert.match(instructions, /not Canonical/);
+
+    const loader = readFileSync(join(root, "atlas/engine/loader.ts"), "utf8");
+    const constitution = readFileSync(join(root, "atlas/constitution.md"), "utf8");
+    const vaultIndex = readFileSync(
+      join(root, "atos/knowledge/working/idea-vault/INDEX.md"),
+      "utf8"
+    );
+    assert.doesNotMatch(loader, /ORCHID LANTERN/);
+    assert.doesNotMatch(constitution, /ORCHID LANTERN/);
+    assert.doesNotMatch(vaultIndex, /ORCHID LANTERN/);
+    assert.doesNotMatch(stubContext.constitution, /ORCHID LANTERN/);
+    assert.doesNotMatch(stubContext.decisions, /ORCHID LANTERN/);
+
+    const key = loadOpenAiKey();
+    if (!key) {
+      t.skip("OPENAI_API_KEY is not available");
+      return;
+    }
+    process.env.OPENAI_API_KEY = key;
+
+    const result = await generateAtlasResponse(
+      laterQuestion,
+      stubContext,
+      [],
+      persisted
+    );
+    assert.equal(result.canonical, false);
+    assert.equal(result.recalled.length, 1);
+    assert.match(result.recalled[0].summary, /ORCHID LANTERN/);
+    assert.match(result.response, /ORCHID LANTERN/i);
+    assert.match(result.response, /not Canonical|Operational|not admitted|not company policy/i);
+  });
 });

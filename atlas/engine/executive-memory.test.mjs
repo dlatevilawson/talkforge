@@ -220,4 +220,35 @@ describe("ACI-001 G1 Executive Memory Keeper", () => {
     assert.match(stripeOnly[0].summary, /Stripe/);
     assert.doesNotMatch(stripeOnly[0].summary, /ZIRCON/);
   });
+
+  it("extracts unlabeled operational context as Operational, never Canonical", () => {
+    const phrase =
+      "Use codename ORCHID LANTERN for the retention experiment. This is operational context, not company policy.";
+    const records = classifySittingClose(
+      [{ role: "user", content: phrase }],
+      "sit_orchid_extract"
+    );
+    assert.equal(records.length, 1);
+    assert.equal(records[0].kind, "decision");
+    assert.equal(records[0].class, "operational");
+    assert.equal(records[0].canonical, false);
+    assert.match(records[0].summary, /ORCHID LANTERN/);
+
+    const assistantOnly = classifySittingClose(
+      [{ role: "assistant", content: phrase }],
+      "sit_orchid_atlas"
+    );
+    assert.equal(assistantOnly.length, 0);
+
+    const asking = classifySittingClose(
+      [
+        {
+          role: "user",
+          content: "What is the operational context for retention?",
+        },
+      ],
+      "sit_orchid_ask"
+    );
+    assert.equal(asking.length, 0);
+  });
 });

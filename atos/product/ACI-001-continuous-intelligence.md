@@ -132,6 +132,8 @@ The following **must be eligible** for Operational Memory or Promotion Candidate
 - lessons
 - unresolved issues
 
+Eligibility is the substance of those kinds, not a required `Decision:` / `Risk:` label. Founder-stated **operational context that is explicitly not company policy** is an operating decision: persist as Operational Memory with `canonical: false`. Questions and chit-chat stay Temporary. This does not change STD-002.
+
 Canonical admission remains governed by **STD-002**.
 
 IV-AI-009 sitting-thread continuity (this sitting, in the browser) is a Temporary mechanic for follow-up. It is **not** the ceiling of Executive Memory.
