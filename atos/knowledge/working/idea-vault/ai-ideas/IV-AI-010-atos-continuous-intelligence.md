@@ -48,7 +48,7 @@ Atlas today can counsel from institutional files and notice some internal ops fa
 
 ## Notes
 
-Working Knowledge until Founder admission. Contract: [ACI-001](../../../../product/ACI-001-continuous-intelligence.md). IV-AI-009 is sitting-thread continuity, not the ceiling of Executive Memory. Raw Ask Atlas chat never auto-Canonicalizes. Memory Keeper may extract durable candidates at sitting close.
+Working Knowledge until Founder admission. Contract: [ACI-001](../../../../product/ACI-001-continuous-intelligence.md). IV-AI-009 is sitting-thread continuity, not the ceiling of Executive Memory. Raw Ask Atlas chat never auto-Canonicalizes. **G1:** Memory Keeper extracts durable candidates at sitting close (Operational or Promotion Candidate). Canonical admission remains STD-002.
 
 ---
 

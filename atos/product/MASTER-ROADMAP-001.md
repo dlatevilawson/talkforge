@@ -93,8 +93,9 @@ Implementation order (Founder-gated slices; do not start at agency):
 
 | Item | Goal | Dependencies | Complexity | Owner | Status |
 |---|---|---|---|---|---|
-| G0 ACI-001 contract | Architecture understood, connected, actable | SPEC-001…006 · RUNTIME-MEM · STD-002 · IV-AI-008 | Medium | Atlas / Founder | In Development — Working Knowledge |
-| G1+ Implementation slices | Build the named loop | G0 · Founder execute per slice | High | Eng / Atlas | Not started |
+| G0 ACI-001 contract | Architecture understood, connected, actable | SPEC-001…006 · RUNTIME-MEM · STD-002 · IV-AI-008 | Medium | Atlas / Founder | Complete — Working Knowledge |
+| G1 Executive Memory | Memory Keeper on Ask Atlas sitting close; provenance; eligible kinds Operational or Promotion Candidate; never Canonical | G0 | Medium | Eng / Atlas | Implemented — Working Knowledge |
+| G2+ remaining slices | Event ingest → census → learning → loop → external TI → agency | G1 · Founder execute per slice | High | Eng / Atlas | Not started |
 
 ---
 

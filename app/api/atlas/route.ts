@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { listExecutiveMemory } from "@/atlas/engine/executive-memory-store";
 import { loadAtlasContext } from "@/atlas/engine/loader";
 import { generateAtlasResponse } from "@/atlas/engine/reasoning";
+import { normalizeAtlasThread } from "@/atlas/engine/thread";
 import {
   getRuntimeFlagSnapshot,
   isTargetFounderVisibleEnabled,
@@ -120,8 +122,17 @@ export async function POST(req: Request) {
       }
     }
 
-    const context = await loadAtlasContext();
-    const response = await generateAtlasResponse(message, context);
+    const [context, storedMemory] = await Promise.all([
+      loadAtlasContext(),
+      listExecutiveMemory(20),
+    ]);
+    const thread = normalizeAtlasThread(body.thread);
+    const response = await generateAtlasResponse(
+      message,
+      context,
+      thread,
+      storedMemory
+    );
     const flags = getRuntimeFlagSnapshot();
 
     return NextResponse.json({

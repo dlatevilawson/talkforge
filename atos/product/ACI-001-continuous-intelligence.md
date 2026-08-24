@@ -4,7 +4,7 @@
 |---|---|
 | **Document ID** | ACI-001 |
 | **Title** | ATOS Continuous Intelligence |
-| **Version** | 0.1.0 |
+| **Version** | 0.2.0 |
 | **Status** | **Working Knowledge — not Canonical** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -176,7 +176,7 @@ In-company AI/provider health is a feed of Internal Company Awareness. It is **n
 
 ## 7. Capabilities mapped to the six SPECs (no new stores)
 
-**Executive Memory** — SPEC-005 Memory Keeper + SPEC-003. Destination: durable classified memory of executive counsel and company learning. Gap today: Ask Atlas never calls Memory Keeper.
+**Executive Memory** — SPEC-005 Memory Keeper + SPEC-003. Destination: durable classified memory of executive counsel and company learning. **G1 implemented:** Ask Atlas sitting close runs Memory Keeper; eligible kinds persist as Operational Memory or Promotion Candidate with provenance; Canonical remains false until STD-002. Remaining gap: later slices do not yet feed this store from company/external events.
 
 **Event ingestion** — SPEC-004 + SPEC-005 Hub receive. Destination: one ingest path for company events **and** external technology events. Gap today: FounderOS panel + in-process staff bus.
 
@@ -196,7 +196,7 @@ In-company AI/provider health is a feed of Internal Company Awareness. It is **n
 
 Implement in this order. Each slice needs its own Founder execute. None of these invent the destination; they build it.
 
-1. **Executive Memory** — Memory Keeper on sitting close; provenance; eligible classes for corrections, decisions, commitments, risks, mistakes, lessons, unresolved issues.
+1. **Executive Memory** — **G1 implemented (Working Knowledge).** Memory Keeper on sitting close; provenance; eligible classes for corrections, decisions, commitments, risks, mistakes, lessons, unresolved issues. Raw thread is not Canonical. Loader freeze stays. Founder-visible runtime stays off.
 2. **Unified event ingestion** — company events and (later) external events into Hub `receive`. Start by adapting existing awareness signals + staff bus. No new AIO office.
 3. **Agent census / coordination** — which agent ran, under which charter, what it produced, how Memory Keeper classified it.
 4. **Outcome learning** — execution results classified; Operational Memory updates the next pass; Promotion Candidates enter STD-002 (REF-R1110).
@@ -206,7 +206,7 @@ Implement in this order. Each slice needs its own Founder execute. None of these
 
 Do **not** start at step 7. Do **not** skip Executive Memory.
 
-This documentation slice stops at naming the roadmap. It does not implement it.
+G0 named the destination. G1 implements Executive Memory only. Slices 2–7 remain unstarted.
 
 ---
 
