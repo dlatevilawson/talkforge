@@ -48,27 +48,28 @@ const KIND_PATTERNS: Array<{ kind: ExecutiveMemoryKind; pattern: RegExp }> = [
   {
     kind: "correction",
     pattern:
-      /\b(that'?s wrong|incorrect|correction:|not true|atlas was wrong|you.?re wrong|do not say)\b/i,
+      /\b(that'?s wrong|incorrect|not true|atlas was wrong|you.?re wrong|do not say)\b|correction:/i,
   },
   {
     kind: "decision",
-    pattern: /\b(we decided|i decide|decision:|that'?s the decision|the decision is)\b/i,
+    pattern:
+      /\b(we decided|i decide|that'?s the decision|the decision is)\b|decision:/i,
   },
   {
     kind: "commitment",
-    pattern: /\b(i commit|we commit|we will|we'?ll ship|commitment:)\b/i,
+    pattern: /\b(i commit|we commit|we'?ll ship)\b|we will |commitment:/i,
   },
   {
     kind: "risk",
-    pattern: /\b(risk:|this risks|the risk is|could fail|danger)\b/i,
+    pattern: /\b(this risks|the risk is|could fail|danger)\b|risk:/i,
   },
   {
     kind: "mistake",
-    pattern: /\b(mistake:|we got this wrong|we made a mistake|our mistake)\b/i,
+    pattern: /\b(we got this wrong|we made a mistake|our mistake)\b|mistake:/i,
   },
   {
     kind: "lesson",
-    pattern: /\b(lesson:|we learned|the lesson is|next time we)\b/i,
+    pattern: /\b(we learned|the lesson is|next time we)\b|lesson:/i,
   },
   {
     kind: "unresolved",

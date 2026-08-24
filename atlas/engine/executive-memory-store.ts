@@ -4,19 +4,37 @@
  * Never writes Constitution, Decisions, Living Profile, or REG-PROMO-Q as Canonical.
  */
 
-import { persistDisposition } from "@/atlas/runtime/retention/store";
-import type { ExecutiveMemoryRecord } from "./executive-memory";
+import { persistDisposition } from "../runtime/retention/store.ts";
+import type { ExecutiveMemoryRecord } from "./executive-memory.ts";
 import {
   assertNeverCanonical,
   classifySittingClose,
   newSittingId,
-} from "./executive-memory";
-import type { AtlasThreadTurn } from "./thread";
-import { getFounderAuthUserId, getFounderSupabase } from "./supabase";
+} from "./executive-memory.ts";
+import type { AtlasThreadTurn } from "./thread.ts";
 
 export const EXECUTIVE_MEMORY_SCENARIO_ID = "atlas-founder-executive-memory";
 
 const memory: ExecutiveMemoryRecord[] = [];
+
+async function founderSession(): Promise<{
+  supabase: Awaited<
+    ReturnType<typeof import("./supabase.ts").getFounderSupabase>
+  >;
+  userId: string | null;
+} | null> {
+  try {
+    const { getFounderAuthUserId, getFounderSupabase } = await import(
+      "./supabase.ts"
+    );
+    const supabase = await getFounderSupabase();
+    if (!supabase) return null;
+    const userId = await getFounderAuthUserId(supabase);
+    return { supabase, userId };
+  } catch {
+    return null;
+  }
+}
 
 export function resetExecutiveMemoryForTests(): void {
   memory.length = 0;
@@ -57,12 +75,12 @@ function parseRecord(row: {
 export async function listExecutiveMemory(
   limit = 40
 ): Promise<ExecutiveMemoryRecord[]> {
-  const supabase = await getFounderSupabase();
-  if (!supabase) {
+  const session = await founderSession();
+  if (!session?.supabase) {
     return memory.slice(-limit).reverse();
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await session.supabase
     .from("practice_sessions")
     .select("id, mission_prompt, started_at")
     .eq("scenario_id", EXECUTIVE_MEMORY_SCENARIO_ID)
@@ -105,15 +123,12 @@ export async function persistExecutiveMemoryRecords(
     memory.push(record);
   }
 
-  const supabase = await getFounderSupabase();
-  if (!supabase) return stored;
-
-  const userId = await getFounderAuthUserId(supabase);
-  if (!userId) return stored;
+  const session = await founderSession();
+  if (!session?.supabase || !session.userId) return stored;
 
   const rows = stored.map((record) => ({
     id: record.id,
-    user_id: userId,
+    user_id: session.userId,
     scenario_id: EXECUTIVE_MEMORY_SCENARIO_ID,
     scenario_title: `${record.class}:${record.kind}`,
     mission_prompt: JSON.stringify({ ...record, canonical: false }),
@@ -123,7 +138,9 @@ export async function persistExecutiveMemoryRecords(
     turns: [],
   }));
 
-  const { error } = await supabase.from("practice_sessions").insert(rows);
+  const { error } = await session.supabase
+    .from("practice_sessions")
+    .insert(rows);
   if (error) {
     throw new Error(`Failed to store Executive Memory: ${error.message}`);
   }
