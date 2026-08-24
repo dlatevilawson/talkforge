@@ -1,11 +1,15 @@
 .ac-shell {
+  box-sizing: border-box;
   min-height: 100dvh;
-  max-width: 44rem;
+  width: 100%;
+  max-width: min(44rem, 100%);
   margin: 0 auto;
-  padding: 1.5rem 1.1rem 2.5rem;
+  padding: 1.5rem max(1.1rem, env(safe-area-inset-right)) 2.5rem
+    max(1.1rem, env(safe-area-inset-left));
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  overflow-x: hidden;
   background:
     radial-gradient(
       40rem 24rem at 12% -10%,
@@ -46,6 +50,8 @@
 .ac-meta,
 .ac-role {
   margin: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
   color: var(--tf-muted);
   line-height: 1.55;
 }
@@ -62,20 +68,26 @@
   right: 0;
   margin-left: auto;
   margin-right: auto;
-  width: min(100%, 44rem);
+  width: auto;
+  max-width: 44rem;
   height: var(--ac-vvh, 100dvh);
   max-height: var(--ac-vvh, 100dvh);
   min-height: 0;
-  overflow: hidden;
-  padding: 0.55rem 0.9rem max(0.55rem, env(safe-area-inset-bottom));
+  overflow-x: hidden;
+  overflow-y: hidden;
+  padding: 0.55rem max(0.9rem, env(safe-area-inset-right))
+    max(0.55rem, env(safe-area-inset-bottom))
+    max(0.9rem, env(safe-area-inset-left));
   box-sizing: border-box;
 }
 
 html:has(.ac-shell-chat),
 body:has(.ac-shell-chat) {
   overflow: hidden;
+  overflow-x: hidden;
   height: var(--ac-vvh, 100dvh);
   overscroll-behavior: none;
+  max-width: 100%;
 }
 
 .ac-shell-chat .ac-header {
@@ -270,6 +282,12 @@ body:has(.ac-shell-chat) {
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.ac-gate-actions .ac-btn {
+  min-width: 0;
 }
 
 .ac-confirm {

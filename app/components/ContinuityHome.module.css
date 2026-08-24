@@ -6,10 +6,12 @@
   position: relative;
   display: grid;
   min-height: calc(100svh - 112px);
-  grid-template-columns: minmax(0, 0.92fr) minmax(430px, 1.08fr);
+  max-width: 100%;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
   align-items: center;
   gap: clamp(2rem, 5vw, 7rem);
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: hidden;
   padding: clamp(3rem, 6vw, 6.5rem) clamp(1.25rem, 3vw, 3rem);
 }
 
@@ -727,11 +729,12 @@
   .home {
     display: flex;
     flex-direction: column;
+    overflow-x: clip;
     padding: 2.5rem 0 3rem;
   }
 
   .ambient {
-    inset: -2rem -1rem;
+    inset: 0;
   }
 
   .copy {
@@ -772,8 +775,9 @@
 
   .machineArea {
     width: 100%;
-    min-height: 32rem;
+    min-height: 24rem;
     margin-top: 1.5rem;
+    overflow: hidden;
   }
 
   .status {
@@ -782,8 +786,11 @@
   }
 
   .machineStage {
-    height: 31rem;
-    transform: scale(0.85);
+    width: 100%;
+    max-width: 100%;
+    height: 26rem;
+    transform: scale(0.68);
+    transform-origin: top center;
   }
 
   .machineCaption {

@@ -8,7 +8,7 @@
 | **Status** | Inbox |
 | **Importance** | Important |
 | **Owner** | Founder |
-| **Last Updated** | 2026-08-01 |
+| **Last Updated** | 2026-08-24 |
 | **Captured** | 2026-08-01 |
 | **AI Steward** | Atlas |
 
@@ -32,7 +32,7 @@ Must pass understood-over-evaluated filter.
 |---|---|
 | **Depends on** | IV-PHIL-003 · IV-LAW-002 · IV-LAW-006 |
 | **Supports** | IV-FEAT-007 · IV-UX-001 |
-| **Related** | IV-REJ-001 · IV-REJ-004 |
+| **Related** | IV-REJ-001 · IV-REJ-004 · IV-UX-010 |
 
 ---
 
