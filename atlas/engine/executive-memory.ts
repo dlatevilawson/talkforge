@@ -81,14 +81,42 @@ const KIND_PATTERNS: Array<{ kind: ExecutiveMemoryKind; pattern: RegExp }> = [
 const PROMOTE_PATTERN =
   /\b(promote|promotion candidate|admit this|canonical candidate)\b/i;
 
+/**
+ * Explicit Operational (not Canonical) durability the Founder states in
+ * natural language — not a Decision: label, and not admission.
+ */
+const OPERATIONAL_CONTEXT_PATTERN =
+  /\boperational context\b|\bthis is operational\b|\bnot company policy\b/i;
+
+const CODENAME_PATTERN = /\bcodename\b/i;
+
+const IMPERATIVE_USE_FOR_PATTERN =
+  /^(?:please\s+)?use\b[\s\S]{1,160}\bfor\b/i;
+
 function excerptOf(text: string): string {
   return text.trim().slice(0, 400);
+}
+
+function isInterrogativeOnly(text: string): boolean {
+  const trimmed = text.trim();
+  if (!trimmed.endsWith("?")) return false;
+  return !/[.!]/u.test(trimmed.slice(0, -1));
+}
+
+function isOperatingDecision(text: string): boolean {
+  if (isInterrogativeOnly(text)) return false;
+  if (OPERATIONAL_CONTEXT_PATTERN.test(text)) return true;
+  if (CODENAME_PATTERN.test(text)) return true;
+  return IMPERATIVE_USE_FOR_PATTERN.test(text.trim());
 }
 
 function detectKind(text: string): ExecutiveMemoryKind | null {
   for (const rule of KIND_PATTERNS) {
     if (rule.pattern.test(text)) return rule.kind;
   }
+  // Operating choice / named operational context. Class stays Operational;
+  // this does not admit Canonical knowledge.
+  if (isOperatingDecision(text)) return "decision";
   return null;
 }
 
@@ -246,7 +274,11 @@ function tokensRelated(a: string, b: string): boolean {
 }
 
 function kindHintFromQuery(query: string): ExecutiveMemoryKind | null {
-  if (/\bdecid|\bdecision\b/i.test(query)) return "decision";
+  if (
+    /\bdecid|\bdecision\b|\bcodename\b|\boperational context\b/i.test(query)
+  ) {
+    return "decision";
+  }
   if (/\bcorrect|\bwrong\b|\bincorrect\b/i.test(query)) return "correction";
   if (/\bcommit/i.test(query)) return "commitment";
   if (/\brisk|\bcould fail\b/i.test(query)) return "risk";
