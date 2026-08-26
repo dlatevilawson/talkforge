@@ -4,11 +4,11 @@
 |---|---|
 | **Document ID** | ACI-001 |
 | **Title** | ATOS Continuous Intelligence |
-| **Version** | 0.2.0 |
+| **Version** | 0.3.0 |
 | **Status** | **Working Knowledge — not Canonical** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
-| **Updated** | 2026-08-24 |
+| **Updated** | 2026-08-26 |
 | **Plane** | Built **on** ATOS (GOV-MAINT-1.0.0). Does not amend SPEC-001–006. |
 | **Idea Vault** | [IV-AI-010](../knowledge/working/idea-vault/ai-ideas/IV-AI-010-atos-continuous-intelligence.md) |
 | **Blind spot** | [BS-017](../knowledge/working/blind-spot-register/bs-017.md) |
@@ -178,9 +178,9 @@ In-company AI/provider health is a feed of Internal Company Awareness. It is **n
 
 ## 7. Capabilities mapped to the six SPECs (no new stores)
 
-**Executive Memory** — SPEC-005 Memory Keeper + SPEC-003. Destination: durable classified memory of executive counsel and company learning. **G1:** Ask Atlas sitting close runs Memory Keeper; eligible kinds persist as Operational Memory or Promotion Candidate with provenance; a later independent sitting retrieves *relevant* records only and provides them to Atlas reasoning. Canonical remains false until STD-002. Remaining gap: later slices do not yet feed this store from company/external events.
+**Executive Memory** — SPEC-005 Memory Keeper + SPEC-003. Destination: durable classified memory of executive counsel and company learning. **G1 closed (Founder-accepted 2026-08-26):** Ask Atlas sitting close runs Memory Keeper; eligible kinds persist as Operational Memory or Promotion Candidate with provenance; a later independent sitting retrieves *relevant* records only and provides them to Atlas reasoning. Canonical remains false until STD-002. Remaining gap: later slices do not yet feed this store from company/external events. Do not add G1 scope.
 
-**Event ingestion** — SPEC-004 + SPEC-005 Hub receive. Destination: one ingest path for company events **and** external technology events. Gap today: FounderOS panel + in-process staff bus.
+**Event ingestion** — SPEC-004 + SPEC-005 Hub receive. Destination: one ingest path for company events **and** external technology events. **G2:** company events from existing awareness signals and the in-process staff bus admit through Hub receive (`runIngress`) as ops-labeled knowledge (`canonical: false`). External events remain later (slice 6). No new AIO office.
 
 **Working Knowledge** — SPEC-003 Idea Vault. Destination: vault entries can enter the loop as labeled Working Knowledge, never as Canonical.
 
@@ -198,17 +198,17 @@ In-company AI/provider health is a feed of Internal Company Awareness. It is **n
 
 Implement in this order. Each slice needs its own Founder execute. None of these invent the destination; they build it.
 
-1. **Executive Memory** — **G1 persist + relevance-filtered recall proven (Working Knowledge, not Canonical).** Memory Keeper on sitting close; later independent sittings retrieve relevant classified records with provenance into Atlas reasoning. Raw thread stays Temporary. Retrieved Operational Memory is not Canonical. STD-002 remains the only Canonical path. Loader freeze stays. Founder-visible runtime stays off. Do not treat this as Canonical admission.
-2. **Unified event ingestion** — company events and (later) external events into Hub `receive`. Start by adapting existing awareness signals + staff bus. No new AIO office.
+1. **Executive Memory** — **G1 closed. Founder-accepted 2026-08-26 (Working Knowledge, not Canonical).** Memory Keeper on sitting close; later independent sittings retrieve relevant classified records with provenance into Atlas reasoning. Raw thread stays Temporary. Retrieved Operational Memory is not Canonical. STD-002 remains the only Canonical path. Loader freeze stays. Founder-visible runtime stays off. Do not add further G1 scope.
+2. **Unified event ingestion** — **G2 in development.** Company events and (later) external events into Hub `receive`. Start by adapting existing awareness signals + staff bus. No new AIO office. Ingested events are Operational, never Canonical.
 3. **Agent census / coordination** — which agent ran, under which charter, what it produced, how Memory Keeper classified it.
 4. **Outcome learning** — execution results classified; Operational Memory updates the next pass; Promotion Candidates enter STD-002 (REF-R1110).
 5. **Autonomous Atlas operating loop** — the destination loop running continuously (still non-sovereign; Founder-visible delivery remains off until a separate Decision).
 6. **External Technology Intelligence** — scoped external observation; Working/Operational first; never Canonical by discovery.
 7. **Governed agency** — Atlas may execute only inside **explicitly delegated** authority. Not implied by learning. Not a silent grant.
 
-Do **not** start at step 7. Do **not** skip Executive Memory.
+Do **not** start at step 7. Do **not** reopen G1.
 
-G0 named the destination. G1 is persist plus relevance-filtered recall. Slices 2–7 remain unstarted.
+G0 named the destination. G1 is closed (Founder-accepted persist + recall). G2 is unified event ingestion. Slices 3–7 remain unstarted.
 
 ---
 

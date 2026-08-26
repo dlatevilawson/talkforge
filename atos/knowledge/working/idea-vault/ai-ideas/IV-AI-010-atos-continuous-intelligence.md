@@ -8,7 +8,7 @@
 | **Status** | In Development |
 | **Importance** | Critical |
 | **Owner** | Founder |
-| **Last Updated** | 2026-08-24 |
+| **Last Updated** | 2026-08-26 |
 | **Captured** | 2026-08-24 |
 | **AI Steward** | Atlas |
 
@@ -48,7 +48,7 @@ Atlas today can counsel from institutional files and notice some internal ops fa
 
 ## Notes
 
-Working Knowledge until Founder admission. Contract: [ACI-001](../../../../product/ACI-001-continuous-intelligence.md). IV-AI-009 is sitting-thread continuity, not the ceiling of Executive Memory. Raw Ask Atlas chat never auto-Canonicalizes. **G1:** Memory Keeper extracts durable candidates at sitting close; a later sitting retrieves relevant Operational Memory with provenance. Canonical admission remains STD-002.
+Working Knowledge until Founder admission. Contract: [ACI-001](../../../../product/ACI-001-continuous-intelligence.md). IV-AI-009 is sitting-thread continuity, not the ceiling of Executive Memory. Raw Ask Atlas chat never auto-Canonicalizes. **G1 closed (Founder-accepted 2026-08-26):** sitting-close Memory Keeper + later-sitting recall. Do not add G1 scope. **G2:** unified event ingestion into Hub receive. Canonical admission remains STD-002.
 
 ---
 
