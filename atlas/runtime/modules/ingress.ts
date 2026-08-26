@@ -1,10 +1,17 @@
 import { randomUUID } from "crypto";
-import type { RequestEnvelope, RequestSource, WorkflowState } from "../types/envelopes";
+import { normalizeCompanyEvents } from "../ingest/company-event";
+import type {
+  CompanyEvent,
+  RequestEnvelope,
+  RequestSource,
+  WorkflowState,
+} from "../types/envelopes";
 import { traceStage } from "./trace";
 
 export type IngressInput = {
-  message: string;
+  message?: string;
   source?: RequestSource;
+  events?: CompanyEvent[];
 };
 
 export type IngressResult =
@@ -13,15 +20,23 @@ export type IngressResult =
 
 /**
  * rt.ingress — admit/classify legitimate inputs only.
+ * ACI-001 G2: company events share this receive path (ops-labeled, never Canonical).
  * Does not reason or recommend.
  */
 export function runIngress(input: IngressInput): IngressResult {
-  const message = input.message.trim();
+  const events = normalizeCompanyEvents(input.events);
+  const explicitMessage = (input.message ?? "").trim();
+  const message =
+    explicitMessage ||
+    (events.length > 0
+      ? `Admit ${events.length} operational company event(s).`
+      : "");
   const request_id = randomUUID();
   let state: WorkflowState = {
     request_id,
     stage: "ingress",
     audit: [],
+    ingestedEvents: events,
   };
 
   if (!message) {
@@ -33,11 +48,15 @@ export function runIngress(input: IngressInput): IngressResult {
     };
   }
 
+  const source: RequestSource =
+    input.source ?? (events.length > 0 && !explicitMessage ? "ops" : "founder");
+
   const request: RequestEnvelope = {
     request_id,
-    source: input.source ?? "founder",
+    source,
     intent: message,
-    payload_ref: `message:${request_id}`,
+    payload_ref:
+      events.length > 0 ? `events:${request_id}` : `message:${request_id}`,
     received_at: new Date().toISOString(),
   };
 
@@ -45,6 +64,9 @@ export function runIngress(input: IngressInput): IngressResult {
     ...state,
     request,
   };
-  state = traceStage(state, "ingress", "Request admitted", [request.payload_ref]);
+  state = traceStage(state, "ingress", "Request admitted", [
+    request.payload_ref,
+    ...events.map((event) => `event:${event.family}:${event.kind}`),
+  ]);
   return { ok: true, state };
 }

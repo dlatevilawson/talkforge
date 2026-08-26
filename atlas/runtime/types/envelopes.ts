@@ -67,6 +67,20 @@ export type RequestEnvelope = {
   received_at: string;
 };
 
+/** ACI-001 G2 — Hub-admitted company event. Operational, never Canonical. */
+export type CompanyEvent = {
+  id: string;
+  family: "awareness" | "staff";
+  kind: string;
+  fact: string;
+  occurred_at: string;
+  provenance: {
+    origin: "awareness-steward" | "staff-bus";
+    refs: string[];
+  };
+  canonical: false;
+};
+
 export type AuthorityVerdict = {
   request_id: string;
   result: AuthorityResult;
@@ -163,4 +177,5 @@ export type WorkflowState = {
   disposition?: MemoryDisposition;
   audit: AuditEvent[];
   error?: string;
+  ingestedEvents?: CompanyEvent[];
 };
