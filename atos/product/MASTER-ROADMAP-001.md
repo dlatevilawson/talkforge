@@ -94,8 +94,9 @@ Implementation order (Founder-gated slices; do not start at agency):
 | Item | Goal | Dependencies | Complexity | Owner | Status |
 |---|---|---|---|---|---|
 | G0 ACI-001 contract | Architecture understood, connected, actable | SPEC-001…006 · RUNTIME-MEM · STD-002 · IV-AI-008 | Medium | Atlas / Founder | Complete — Working Knowledge |
-| G1 Executive Memory | Memory Keeper on sitting close; later sittings recall relevant Operational Memory with provenance; never Canonical | G0 | Medium | Eng / Atlas | Recall proven — Working Knowledge (not Canonical) |
-| G2+ remaining slices | Event ingest → census → learning → loop → external TI → agency | G1 · Founder execute per slice | High | Eng / Atlas | Not started |
+| G1 Executive Memory | Memory Keeper on sitting close; later sittings recall relevant Operational Memory with provenance; never Canonical | G0 | Medium | Eng / Atlas | **Closed — Founder-accepted 2026-08-26** (Working Knowledge, not Canonical). No further G1 scope. |
+| G2 Unified event ingestion | Company events from awareness signals + staff bus admit through Hub receive as ops-labeled knowledge; never Canonical; no new AIO office | G1 | Medium | Eng / Atlas | In Development |
+| G3+ remaining slices | Census → learning → loop → external TI → agency | G2 · Founder execute per slice | High | Eng / Atlas | Not started |
 
 ---
 

@@ -6,6 +6,8 @@
 import { runTargetPipeline } from "./modules/hub";
 import { listKnowledgeCatalog } from "./modules/knowledge";
 import { getAuditSink, resetTraceSinkForTests } from "./modules/trace";
+import { ingestCompanyEvents } from "./ingest/receive";
+import { companyEventsFromAwarenessSignals } from "./ingest/company-event";
 
 function assert(cond: unknown, msg: string): asserts cond {
   if (!cond) throw new Error(msg);
@@ -84,6 +86,33 @@ async function main(): Promise<void> {
     assert(stages.includes(required), `Trace includes ${required}`);
   }
 
+  resetTraceSinkForTests();
+  const g2 = await ingestCompanyEvents(
+    companyEventsFromAwarenessSignals([
+      {
+        id: "systems-database",
+        severity: "critical",
+        fact: "Database is not reachable.",
+        domain: "systems",
+        owner: "engineering",
+      },
+    ]),
+    { throughWave: "w2" }
+  );
+  assert(g2.canonical === false, "G2: ingest never Canonical");
+  assert(g2.admitted === 1, "G2: awareness event admitted");
+  assert(g2.result?.state.request?.source === "ops", "G2: Hub receive source is ops");
+  assert(
+    g2.result?.state.knowledge?.some(
+      (item) =>
+        item.plane === "ops" &&
+        item.authority_label === "operational" &&
+        /Database is not reachable/.test(item.excerpt_or_ref)
+    ),
+    "G2: awareness fact is ops-labeled knowledge"
+  );
+  assert(g2.result?.founderVisible === false, "G2: FOUNDER_VISIBLE stays off");
+
   console.log("PASS: Atlas runtime W0–W3 checks");
   console.log(
     JSON.stringify(
@@ -91,6 +120,7 @@ async function main(): Promise<void> {
         w1_authority: w1.state.authority?.result,
         w2_context_items: w2.state.context?.items.length,
         w3_validation: w3.state.validation?.result,
+        g2_admitted: g2.admitted,
         audit_events: getAuditSink().length,
         flags: { target: w3.enabled, founderVisible: w3.founderVisible },
       },

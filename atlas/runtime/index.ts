@@ -12,6 +12,12 @@ export {
   isTargetPlaneEnabled,
 } from "./flags";
 export { runTargetPipeline, type PipelineResult } from "./modules/hub";
+export { ingestCompanyEvents } from "./ingest/receive";
+export {
+  companyEventsFromAwarenessSignals,
+  companyEventsFromStaffEvents,
+  normalizeCompanyEvents,
+} from "./ingest/company-event";
 export { dryRunExchangeExposure } from "./modules/exchange";
 export { getAuditSink, resetTraceSinkForTests } from "./modules/trace";
 export {
