@@ -116,18 +116,17 @@ function ContinuityHomeInner() {
 
     async function load() {
       try {
-        const user = await getUser();
-        if (!user?.id) {
-          if (!cancelled) {
-            setHome(buildAdaptiveHome(null));
-            setSessionHistory({ status: "unknown" });
-            setEntitlement({ status: "unknown" });
-          }
-          return;
+        let userId: string | null = null;
+        try {
+          const user = await getUser();
+          userId = user?.id ?? null;
+        } catch {
+          userId = null;
         }
 
+        const unknownHistory: HomeSessionHistory = { status: "unknown" };
         const [history, living, access] = await Promise.all([
-          loadSessionHistory(user.id),
+          userId ? loadSessionHistory(userId) : Promise.resolve(unknownHistory),
           loadLivingProfile(),
           loadEntitlement(),
         ]);
