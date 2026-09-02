@@ -232,10 +232,10 @@ export function buildAdaptiveHome(
       title: objective ? "Continue toward your goal" : "Begin today’s training",
       href: "/app/practice",
       continuityLine: objective
-        ? `Keep working on: ${objective}. Or tell Forge if something new is on your mind.`
+        ? `Keep working on: ${objective}.`
         : name
-          ? `${name}, start training now — or optionally choose a focus first.`
-          : "Start training now — or optionally choose a focus first.",
+          ? `${name}, one focused session — Forge will listen first.`
+          : "One focused session. Forge will listen first.",
       source: "readiness",
       rankedFrom: readiness.ranked,
     },

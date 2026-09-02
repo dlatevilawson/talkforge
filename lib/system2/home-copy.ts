@@ -1,62 +1,56 @@
 /**
  * Adaptive Coach Homepage copy (Continuity Home).
- * Keep the choice set short — curiosity without a catalog (IV-REJ-005).
+ * One recommendation above the fold (IV-UX-001). Alternatives stay secondary.
  */
 
 export const APP_HOME_SCREEN_COPY = {
-  headline: "Where do you need to be heard today?",
-  subheadline:
-    "Forge listens before it coaches. Pick a starting place—you can change direction anytime.",
+  headline: "Today, we’re training this.",
   loadingHeadline: "Preparing today’s training.",
   notReadyHeadline: "Your Coach is almost ready.",
   notReadySubheadline: "Standing by while your profile loads.",
+  alternativesLabel: "Not this today",
+  beginFallback: "Begin today’s training",
 
-  cards: [
-    {
-      id: "continue",
-      title: "Continue active drill",
-      subtitle: "Stay calm, think clearly, and lead through conflict.",
-      practiceTitle: "Stay calm, think clearly, and lead through conflict.",
-    },
+  /** Demoted Explorer path — Assessment is not the Coach recommendation. */
+  explorerAlternative: {
+    id: "living-plan",
+    title: "Start with a short living plan instead",
+    subtitle: "A brief conversation so Forge can get a sense of you.",
+    mode: "assessment" as const,
+  },
+
+  /** Returning-member alternatives — never equal to the recommendation. */
+  alternatives: [
     {
       id: "custom",
-      title: "Bring a custom scenario",
-      subtitle: "Tell Forge who you're meeting with and what's at stake.",
+      title: "Bring a different conversation",
+      subtitle: "Tell Forge who you’re meeting and what’s at stake.",
       practiceTitle: "What brings you in today?",
     },
     {
-      id: "replay",
-      title: "Stop replaying it at 2 AM",
-      subtitle: "Re-run that awkward moment until you get it right.",
-      practiceTitle: "Stop replaying it at 2 AM",
-    },
-    {
       id: "avoided",
-      title: "The conversation I've been avoiding",
+      title: "The conversation I’ve been avoiding",
       subtitle: "Build the composure to say what needs to be said.",
       practiceTitle: "The conversation I've been avoiding",
     },
   ],
 
-  /**
-   * Explorer (new-user) paths — no completed practice_sessions yet.
-   * Neither option pre-selects a topic or scenario.
-   */
-  explorerCards: [
-    {
-      id: "living-plan",
-      title: "Build My Living Training Plan",
-      subtitle: "A short conversation with Forge so it can get a sense of you.",
-      /** Opens Coach Forge in assessment mode — not the focus picker. */
-      mode: "assessment" as const,
-    },
-    {
-      id: "talk-forge",
-      title: "Talk to Coach Forge",
-      subtitle: "Open the floor. Forge listens first—no scenario required.",
-    },
-  ],
-
   footerLink: "Tune Forge's memory & preferences →",
   footerHref: "/app/profile#goal",
+} as const;
+
+export const HOME_ALTERNATIVE_CATALOG = {
+  explorer: {
+    id: APP_HOME_SCREEN_COPY.explorerAlternative.id,
+    title: APP_HOME_SCREEN_COPY.explorerAlternative.title,
+    blurb: APP_HOME_SCREEN_COPY.explorerAlternative.subtitle,
+    practiceTitle: "",
+    mode: APP_HOME_SCREEN_COPY.explorerAlternative.mode,
+  },
+  returning: APP_HOME_SCREEN_COPY.alternatives.map((card) => ({
+    id: card.id,
+    title: card.title,
+    blurb: card.subtitle,
+    practiceTitle: card.practiceTitle,
+  })),
 } as const;

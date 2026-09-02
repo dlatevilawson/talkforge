@@ -6,21 +6,22 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import styles from "./ContinuityHome.module.css";
 import { buildAdaptiveHome } from "@/lib/system2";
 import type { AdaptiveHomeModel } from "@/lib/system2";
-import { APP_HOME_SCREEN_COPY } from "@/lib/system2/home-copy";
+import {
+  APP_HOME_SCREEN_COPY,
+  HOME_ALTERNATIVE_CATALOG,
+} from "@/lib/system2/home-copy";
+import {
+  buildHomeAlternatives,
+  canStartTraining,
+  isExplorerFromSessionHistory,
+  practiceEntryHref,
+  type HomeAlternative,
+  type HomeEntitlement,
+  type HomeSessionHistory,
+} from "@/lib/system2/home-recommendation";
 import type { LivingProfile } from "@/lib/system1/types";
+import { CLAIM_FOUNDING_PASS_CTA } from "@/lib/billing/member-copy";
 import { countCompletedSessions, getUser } from "@/lib/storage";
-
-type WorkOption = {
-  id: string;
-  title: string;
-  blurb: string;
-  /** Empty string = open practice with no pre-selected topic/scenario. */
-  practiceTitle: string;
-  /** When set, navigate here instead of entering practice. */
-  href?: string;
-  /** Practice session mode (assessment = discovery interview). */
-  mode?: "assessment";
-};
 
 const homeCopy = APP_HOME_SCREEN_COPY;
 
@@ -38,61 +39,59 @@ function gateMessage(gate: string | null): string | null {
   return "Return to Home for your next step — coaching starts from readiness.";
 }
 
-/** Explorer: zero completed practice_sessions for this user. */
-function buildExplorerOptions(): WorkOption[] {
-  return homeCopy.explorerCards.map((card) => {
-    const href =
-      "href" in card && typeof card.href === "string" ? card.href : undefined;
-    const mode =
-      "mode" in card && card.mode === "assessment" ? "assessment" : undefined;
-    return {
-      id: card.id,
-      title: card.title,
-      blurb: card.subtitle,
-      practiceTitle: "",
-      href,
-      mode,
-    };
-  });
+async function loadSessionHistory(userId: string): Promise<HomeSessionHistory> {
+  try {
+    const completed = await countCompletedSessions(userId);
+    return { status: "known", completed };
+  } catch {
+    return { status: "unknown" };
+  }
 }
 
-function buildWorkOptions(focus: string | null): WorkOption[] {
-  const [continueCard, ...rest] = homeCopy.cards;
-  const options: WorkOption[] = [];
-
-  // Prefer active Living Profile focus as the first path when present.
-  if (focus?.trim()) {
-    options.push({
-      id: continueCard.id,
-      title: continueCard.title,
-      blurb: focus.trim(),
-      practiceTitle: focus.trim(),
-    });
-  } else {
-    options.push({
-      id: continueCard.id,
-      title: continueCard.title,
-      blurb: continueCard.subtitle,
-      practiceTitle: continueCard.practiceTitle,
-    });
+async function loadLivingProfile(): Promise<{
+  profile: LivingProfile | null;
+  error: string;
+}> {
+  try {
+    const res = await fetch("/api/living-profile", { cache: "no-store" });
+    if (!res.ok) {
+      return {
+        profile: null,
+        error: "Couldn’t load your Living Profile. Retry in a moment.",
+      };
+    }
+    const data = (await res.json()) as { profile?: LivingProfile | null };
+    const loaded = data.profile ?? null;
+    return {
+      profile: loaded && loaded.version >= 1 ? loaded : null,
+      error: "",
+    };
+  } catch {
+    return {
+      profile: null,
+      error: "Couldn’t load your Living Profile. Retry in a moment.",
+    };
   }
+}
 
-  for (const card of rest) {
-    options.push({
-      id: card.id,
-      title: card.title,
-      blurb: card.subtitle,
-      practiceTitle: card.practiceTitle,
-    });
+async function loadEntitlement(): Promise<HomeEntitlement> {
+  try {
+    const entRes = await fetch("/api/billing/entitlement", { cache: "no-store" });
+    if (!entRes.ok) return { status: "unknown" };
+    const entData = (await entRes.json()) as {
+      entitlement?: { canStartPractice?: boolean };
+    };
+    return entData.entitlement?.canStartPractice === false
+      ? { status: "limited" }
+      : { status: "open" };
+  } catch {
+    return { status: "unknown" };
   }
-
-  // Keep the choice set short — curiosity without a catalog.
-  return options.slice(0, 4);
 }
 
 /**
- * Adaptive Coach Homepage — one question, a few paths into practice.
- * Not a seven-tile mission menu (IV-REJ-005).
+ * Adaptive Coach Homepage — one readiness-derived recommendation.
+ * Alternatives stay secondary (CXA-001). Not a mission menu (IV-REJ-005).
  */
 function ContinuityHomeInner() {
   const router = useRouter();
@@ -102,9 +101,12 @@ function ContinuityHomeInner() {
   const [loading, setLoading] = useState(true);
   const [enteringTraining, setEnteringTraining] = useState(false);
   const [loadError, setLoadError] = useState("");
-  const [practiceLimitReached, setPracticeLimitReached] = useState(false);
-  /** True when the member has zero completed practice_sessions. */
-  const [isExplorer, setIsExplorer] = useState(true);
+  const [sessionHistory, setSessionHistory] = useState<HomeSessionHistory>({
+    status: "unknown",
+  });
+  const [entitlement, setEntitlement] = useState<HomeEntitlement>({
+    status: "unknown",
+  });
 
   useEffect(() => {
     router.prefetch("/app/practice?start=1");
@@ -115,58 +117,43 @@ function ContinuityHomeInner() {
     async function load() {
       try {
         const user = await getUser();
-        let profile: LivingProfile | null = null;
-        if (user?.id) {
-          try {
-            const completed = await countCompletedSessions(user.id);
-            if (!cancelled) {
-              setIsExplorer(completed === 0);
-            }
-          } catch {
-            // Soft-fail toward Explorer so new members are not shown returning drills.
-            if (!cancelled) setIsExplorer(true);
+        if (!user?.id) {
+          if (!cancelled) {
+            setHome(buildAdaptiveHome(null));
+            setSessionHistory({ status: "unknown" });
+            setEntitlement({ status: "unknown" });
           }
-          try {
-            const res = await fetch("/api/living-profile", { cache: "no-store" });
-            if (res.ok) {
-              const data = (await res.json()) as { profile?: LivingProfile | null };
-              const loaded = data.profile ?? null;
-              profile = loaded && loaded.version >= 1 ? loaded : null;
-            } else if (!cancelled) {
-              setLoadError("Couldn’t load your Living Profile. Retry in a moment.");
-            }
-          } catch {
-            if (!cancelled) {
-              setLoadError("Couldn’t load your Living Profile. Retry in a moment.");
-            }
-          }
-          try {
-            const entRes = await fetch("/api/billing/entitlement", {
-              cache: "no-store",
-            });
-            if (entRes.ok) {
-              const entData = (await entRes.json()) as {
-                entitlement?: { canStartPractice?: boolean };
-              };
-              if (!cancelled) {
-                setPracticeLimitReached(
-                  entData.entitlement?.canStartPractice === false
-                );
-              }
-            }
-          } catch {
-            // Billing soft-check must never block Home.
-          }
-        } else if (!cancelled) {
-          setIsExplorer(true);
+          return;
         }
-        if (!cancelled) {
-          setHome(buildAdaptiveHome(profile));
+
+        const [history, living, access] = await Promise.all([
+          loadSessionHistory(user.id),
+          loadLivingProfile(),
+          loadEntitlement(),
+        ]);
+
+        if (cancelled) return;
+        setSessionHistory(history);
+        setEntitlement(access);
+        if (living.error) setLoadError(living.error);
+        if (history.status === "unknown") {
+          setLoadError((current) =>
+            current ||
+            "Couldn’t load your session history. Your Coach recommendation is still from your Living Profile."
+          );
         }
+        if (access.status === "unknown") {
+          setLoadError((current) =>
+            current ||
+            "Couldn’t confirm practice access. Refresh before starting training."
+          );
+        }
+        setHome(buildAdaptiveHome(living.profile));
       } catch {
         if (!cancelled) {
           setHome(buildAdaptiveHome(null));
-          setIsExplorer(true);
+          setSessionHistory({ status: "unknown" });
+          setEntitlement({ status: "unknown" });
           setLoadError("Couldn’t load your session. Refresh and try again.");
         }
       } finally {
@@ -181,35 +168,37 @@ function ContinuityHomeInner() {
   }, [router]);
 
   const readiness = home?.readiness;
+  const recommendation = home?.recommendation;
   const isReady = Boolean(readiness?.profileGatePassed);
-  const focus = readiness?.objective;
+  const trainingOpen = canStartTraining(entitlement);
+  const practiceLimited = entitlement.status === "limited";
   const bounceNote = gateMessage(gate);
-  const workOptions = useMemo(
+  const alternatives = useMemo(
     () =>
-      isExplorer ? buildExplorerOptions() : buildWorkOptions(focus ?? null),
-    [isExplorer, focus]
+      practiceLimited
+        ? []
+        : buildHomeAlternatives(sessionHistory, HOME_ALTERNATIVE_CATALOG),
+    [practiceLimited, sessionHistory]
   );
+  const explorer = isExplorerFromSessionHistory(sessionHistory);
 
-  function enterPractice(
-    practiceTitle: string,
-    mode?: "assessment"
-  ) {
+  function enterPractice(practiceTitle: string, mode?: "assessment") {
+    if (!trainingOpen) return;
     setEnteringTraining(true);
-    const trainingParams = new URLSearchParams({ start: "1" });
-    if (practiceTitle.trim()) {
-      trainingParams.set("title", practiceTitle.trim());
-    }
-    if (mode === "assessment") {
-      trainingParams.set("mode", "assessment");
-    }
-    window.location.assign(`/app/practice?${trainingParams.toString()}`);
+    const dest = practiceEntryHref({ title: practiceTitle, mode });
+    window.location.assign(`/app/practice${dest.slice("/app/practice".length)}`);
   }
 
-  function selectOption(option: WorkOption) {
-    if (option.href) {
-      router.push(option.href);
-      return;
-    }
+  function beginRecommended() {
+    if (!recommendation || recommendation.href !== "/app/practice") return;
+    const title =
+      !explorer && readiness?.objective?.trim()
+        ? readiness.objective.trim()
+        : "";
+    enterPractice(title);
+  }
+
+  function selectAlternative(option: HomeAlternative) {
     enterPractice(option.practiceTitle, option.mode);
   }
 
@@ -241,7 +230,7 @@ function ContinuityHomeInner() {
           </span>
           <span>
             <strong>Your Coach</strong>
-            <small>Today’s session</small>
+            <small>Today’s recommendation</small>
           </span>
         </div>
 
@@ -262,7 +251,7 @@ function ContinuityHomeInner() {
                 aria-label="Loading recommendation"
               />
             ) : isReady ? (
-              homeCopy.subheadline
+              recommendation?.continuityLine
             ) : (
               homeCopy.notReadySubheadline
             )}
@@ -275,17 +264,11 @@ function ContinuityHomeInner() {
           </p>
         ) : null}
 
-        {practiceLimitReached && !bounceNote && !loadError ? (
+        {practiceLimited && !bounceNote ? (
           <p className="mt-4 max-w-md text-sm leading-6 text-white/55" role="status">
-            You’ve completed your complimentary coaching sessions.{" "}
-            <Link
-              href="/app/billing"
-              className="text-[#c9a95f] underline-offset-4 hover:underline"
-            >
-              Claim Your Founding Pass →
-            </Link>{" "}
-            whenever you’re ready — your account and progress stay open to
-            explore.
+            You’ve completed your complimentary coaching sessions. Claim a
+            Founding Pass whenever you’re ready — your account and progress stay
+            open to explore.
           </p>
         ) : null}
 
@@ -295,51 +278,7 @@ function ContinuityHomeInner() {
               Preparing your session
               <ArrowGlyph />
             </button>
-          ) : isReady ? (
-            <>
-              <div className={styles.options} role="list">
-                {workOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    type="button"
-                    role="listitem"
-                    className={styles.option}
-                    disabled={enteringTraining}
-                    onClick={() => selectOption(option)}
-                  >
-                    <span className={styles.optionLabel}>
-                      <span className={styles.optionTitle}>{option.title}</span>
-                      <span className={styles.optionBlurb}>{option.blurb}</span>
-                    </span>
-                    <span className={styles.optionMark} aria-hidden="true">
-                      <svg viewBox="0 0 20 20">
-                        <path d="M5 15 15 5M8 5h7v7" />
-                      </svg>
-                    </span>
-                  </button>
-                ))}
-              </div>
-              <p className={styles.actionNote}>
-                <Link
-                  href={homeCopy.footerHref}
-                  className="text-[#c9a95f] underline-offset-4 hover:underline"
-                >
-                  {homeCopy.footerLink}
-                </Link>
-                {practiceLimitReached ? (
-                  <>
-                    {" · "}
-                    <Link
-                      href="/app/billing"
-                      className="text-white/45 underline-offset-4 hover:underline"
-                    >
-                      Founding Pass
-                    </Link>
-                  </>
-                ) : null}
-              </p>
-            </>
-          ) : (
+          ) : !isReady ? (
             <>
               <button type="button" className={styles.primaryAction} disabled>
                 Preparing your profile
@@ -349,6 +288,69 @@ function ContinuityHomeInner() {
                 One focused practice. You set the pace.
               </p>
             </>
+          ) : practiceLimited ? (
+            <>
+              <Link href="/app/billing" className={styles.primaryAction}>
+                {CLAIM_FOUNDING_PASS_CTA}
+                <ArrowGlyph />
+              </Link>
+              <p className={styles.actionNote}>
+                Training stays locked until a Founding Pass is active.
+              </p>
+            </>
+          ) : !trainingOpen ? (
+            <>
+              <button type="button" className={styles.primaryAction} disabled>
+                Confirming practice access
+                <ArrowGlyph />
+              </button>
+              <p className={styles.actionNote}>
+                Refresh to confirm you can start today’s session.
+              </p>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className={styles.primaryAction}
+                disabled={enteringTraining}
+                onClick={beginRecommended}
+              >
+                {recommendation?.title ?? homeCopy.beginFallback}
+                <ArrowGlyph />
+              </button>
+              {alternatives.length > 0 ? (
+                <div className={styles.alternatives}>
+                  <p className={styles.alternativesLabel}>
+                    {homeCopy.alternativesLabel}
+                  </p>
+                  {alternatives.map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      className={styles.alternative}
+                      disabled={enteringTraining}
+                      onClick={() => selectAlternative(option)}
+                    >
+                      <span className={styles.alternativeTitle}>
+                        {option.title}
+                      </span>
+                      <span className={styles.alternativeBlurb}>
+                        {option.blurb}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+              <p className={styles.actionNote}>
+                <Link
+                  href={homeCopy.footerHref}
+                  className="text-[#c9a95f] underline-offset-4 hover:underline"
+                >
+                  {homeCopy.footerLink}
+                </Link>
+              </p>
+            </>
           )}
         </div>
       </div>
@@ -356,7 +358,13 @@ function ContinuityHomeInner() {
       <div className={styles.machineArea}>
         <div className={`${styles.status} ${isReady ? styles.readyStatus : ""}`}>
           <span className={styles.statusDot} aria-hidden="true" />
-          {loading ? "Coach preparing" : isReady ? "Ready to train" : "Preparing profile"}
+          {loading
+            ? "Coach preparing"
+            : practiceLimited
+              ? "Practice locked"
+              : isReady
+                ? "Ready to train"
+                : "Preparing profile"}
         </div>
 
         <div
