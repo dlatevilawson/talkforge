@@ -96,10 +96,11 @@ export function rankReadinessCandidates(
   }
 
   const primary = profile.seasons.find((s) => s.rank === "primary");
-  if (primary?.label.trim()) {
+  const primaryLabel = primary?.label?.trim() ?? "";
+  if (primary && primaryLabel) {
     ranked.push({
       id: `season_${primary.id}`,
-      label: primary.label.trim(),
+      label: primaryLabel,
       score: 85,
       source: "season",
       isIdentity: true,
@@ -107,10 +108,11 @@ export function rankReadinessCandidates(
   }
 
   for (const season of profile.seasons.filter((s) => s.rank !== "primary")) {
-    if (!season.label.trim()) continue;
+    const label = season.label?.trim() ?? "";
+    if (!label) continue;
     ranked.push({
       id: `season_${season.id}`,
-      label: season.label.trim(),
+      label,
       score: 70,
       source: "season",
       isIdentity: true,
@@ -118,10 +120,12 @@ export function rankReadinessCandidates(
   }
 
   for (const principle of profile.personalPrinciples) {
-    if (!principle.text.trim()) continue;
+    const text =
+      typeof principle === "string" ? principle : principle?.text ?? "";
+    if (!text.trim()) continue;
     ranked.push({
-      id: `principle_${principle.id}`,
-      label: principle.text.trim(),
+      id: `principle_${typeof principle === "string" ? text : principle.id}`,
+      label: text.trim(),
       score: 60,
       source: "principle",
       isIdentity: true,
@@ -232,10 +236,10 @@ export function buildAdaptiveHome(
       title: objective ? "Continue toward your goal" : "Begin today’s training",
       href: "/app/practice",
       continuityLine: objective
-        ? `Keep working on: ${objective}. Or tell Forge if something new is on your mind.`
+        ? `Keep working on: ${objective.replace(/[.]+$/, "")}.`
         : name
-          ? `${name}, start training now — or optionally choose a focus first.`
-          : "Start training now — or optionally choose a focus first.",
+          ? `${name}, one focused session — Forge will listen first.`
+          : "One focused session. Forge will listen first.",
       source: "readiness",
       rankedFrom: readiness.ranked,
     },

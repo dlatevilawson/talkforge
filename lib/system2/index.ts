@@ -23,3 +23,16 @@ export {
   trainingFocusById,
 } from "./training-focus";
 export type { TrainingFocusOption } from "./training-focus";
+
+export {
+  buildHomeAlternatives,
+  canStartTraining,
+  isExplorerFromSessionHistory,
+  practiceEntryHref,
+} from "./home-recommendation";
+export type {
+  HomeAlternative,
+  HomeAlternativeCatalog,
+  HomeEntitlement,
+  HomeSessionHistory,
+} from "./home-recommendation";

@@ -8,6 +8,7 @@ import { canAccessFounderPortal } from "@/lib/auth/roles";
 import type { UserRole } from "@/lib/auth/constants";
 import { migrateGuestPracticeData } from "@/lib/auth/migrate-guest";
 import { trackAuthEvent } from "@/lib/auth/analytics";
+import { logoutConfirmed } from "@/lib/auth/logout";
 import {
   bindAuthenticatedUserId,
   clearCurrentUserId,
@@ -32,6 +33,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [showFounder, setShowFounder] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -94,7 +96,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
     function closeOnEscape(event: KeyboardEvent) {
       if (event.key === "Escape") {
+        event.preventDefault();
         setMenuOpen(false);
+        triggerRef.current?.focus();
       }
     }
 
@@ -107,13 +111,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [menuOpen]);
 
   async function logout() {
+    let res: Response;
+    try {
+      res = await fetch("/api/auth/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "logout" }),
+      });
+    } catch {
+      return;
+    }
+    if (!logoutConfirmed(res)) return;
     setMenuOpen(false);
     trackAuthEvent("auth_logout");
-    await fetch("/api/auth/session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "logout" }),
-    });
     clearCurrentUserId();
     clearPendingGuestUserId();
     router.push("/");
@@ -197,7 +207,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <div ref={menuRef} className="relative">
             <button
               type="button"
-              aria-haspopup="menu"
+              ref={triggerRef}
               aria-expanded={menuOpen}
               aria-controls="app-account-menu"
               onClick={() => setMenuOpen((open) => !open)}

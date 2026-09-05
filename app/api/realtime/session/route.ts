@@ -72,12 +72,15 @@ export async function POST(req: Request) {
     typeof profile?.role === "string" ? profile.role : null
   );
   if (!entitlement.canStartPractice) {
+    const unavailable = entitlement.reason === "billing_unavailable";
     return NextResponse.json(
       {
         error:
           entitlement.message ??
-          "You’ve completed your complimentary coaching sessions. Whenever you’re ready, Forge will be here.",
-        code: "PRACTICE_LIMIT_REACHED",
+          (unavailable
+            ? "Training isn’t available right now. Try again in a moment."
+            : "You’ve completed your complimentary coaching sessions. Whenever you’re ready, Forge will be here."),
+        code: unavailable ? "BILLING_UNAVAILABLE" : "PRACTICE_LIMIT_REACHED",
         reason: entitlement.reason,
         membershipPath: "/membership",
         billingPath: "/app/billing",

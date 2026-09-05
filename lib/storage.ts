@@ -418,7 +418,9 @@ export async function countCompletedSessions(userId: string): Promise<number> {
     .eq("user_id", userId)
     .not("completed_at", "is", null);
 
-  if (error) return 0;
+  if (error) {
+    throw new Error(`Failed to count completed sessions: ${error.message}`);
+  }
   return count ?? 0;
 }
 

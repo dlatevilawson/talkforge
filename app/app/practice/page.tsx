@@ -54,6 +54,9 @@ export default async function VoicePage({
       typeof profile?.role === "string" ? profile.role : null
     );
     if (!entitlement.canStartPractice) {
+      if (entitlement.reason === "billing_unavailable") {
+        redirect("/app?gate=readiness_unavailable");
+      }
       return <EndOfFreePractice />;
     }
   }

@@ -5,6 +5,8 @@ Authorized by SYS2-001 / BUILD-SYS2 / AUDIT-001 remediation.
 | Module | Role |
 |---|---|
 | `types.ts` | Readiness + Adaptive Homepage contracts |
+| `home-copy.ts` | Coach homepage copy |
+| `home-recommendation.ts` | One recommendation + secondary alternatives |
 | `index.ts` | Public exports |
 
 ## Rules
