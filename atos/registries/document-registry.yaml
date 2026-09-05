@@ -7,20 +7,20 @@
 # Human Approver: Founder
 # Review Cycle: Each ATOS version
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
-# Change Log: 2026-07-19 — RES-011 TalkForge primary; Atlas in service
+# Change Log: 2026-09-05 — recount listed entries; 2026-07-19 — RES-011 TalkForge primary; Atlas in service
 
-version: 1.0.6
-updated_at: "2026-08-04"
+version: 1.0.7
+updated_at: "2026-09-05"
 milestone: M9
 description: >
   Canonical index of governed ATOS document IDs. Completeness means every known ID
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
 
 counts:
-  total: 139
-  with_path: 136
+  total: 170
+  with_path: 167
   planned: 3
-  authoritative: 41
+  authoritative: 73
 
 documents:
   - id: ATOS-NAV
@@ -1342,7 +1342,7 @@ documents:
     title: "Document Registry"
     path: atos/registries/document-registry.yaml
     state: authoritative
-    version: "1.0.0"
+    version: "1.0.7"
     owner: Founder
     ai_steward: Atlas
     layer: registries
