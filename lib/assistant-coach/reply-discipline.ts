@@ -11,7 +11,7 @@ import { COACH_STARTERS } from "./coach-copy.ts";
 export const UNDERSTANDING_FALLBACK =
   "Who is that conversation with — and what do you need to say or start?";
 
-const STARTER_MESSAGES = new Set(
+const STARTER_MESSAGES = new Set<string>(
   COACH_STARTERS.flatMap((starter) =>
     starter.message === null ? [] : [starter.message]
   )
