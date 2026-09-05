@@ -17,7 +17,7 @@
 | Item | Value |
 |---|---|
 | User-facing name | **Coach** (internal modules remain `assistant-coach`) |
-| Opening | Open-ended invite — no assumed conversation/scenario |
+| Opening | “What conversation are you preparing for?” + optional high-stakes conversation starters; custom input remains open |
 | Input | **Voice + text** into the same turn API |
 | Voice path | Browser `MediaRecorder` → `POST /api/assistant-coach/transcribe` (server OpenAI STT) → transcript in composer → existing turn API |
 | Not used | Forge VoiceArena / Realtime WebRTC (auth-gated duplex practice) |

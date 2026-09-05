@@ -10,13 +10,47 @@ export const COACH_META_DESCRIPTION =
   "Speak or type with TalkForge Coach — be understood before you create an account.";
 
 export const COACH_OPENING =
-  "What’s on your mind today?";
+  "What conversation are you preparing for?";
+
+export type CoachStarter = {
+  id: string;
+  label: string;
+  message: string | null;
+};
+
+export const COACH_STARTERS = [
+  {
+    id: "interview",
+    label: "Interview",
+    message: "I’m preparing for an interview.",
+  },
+  {
+    id: "salary-negotiation",
+    label: "Salary negotiation",
+    message: "I’m preparing for a salary negotiation.",
+  },
+  {
+    id: "difficult-feedback",
+    label: "Difficult feedback",
+    message: "I’m preparing for a difficult feedback conversation.",
+  },
+  {
+    id: "setting-a-boundary",
+    label: "Setting a boundary",
+    message: "I’m preparing to set a boundary.",
+  },
+  {
+    id: "something-else",
+    label: "Something else",
+    message: null,
+  },
+] as const satisfies readonly CoachStarter[];
 
 export const COACH_EMPTY_HINT =
-  "Speak or type — start wherever you are.";
+  "Choose a starting point, or speak or type your own.";
 
 export const COACH_COMPOSER_PLACEHOLDER =
-  "Share what’s on your mind…";
+  "Name the conversation you’re preparing for…";
 
 export const COACH_STATE_LISTENING = "Listening…";
 
