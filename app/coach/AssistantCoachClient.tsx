@@ -16,9 +16,11 @@ import {
   COACH_GATE_TITLE,
   COACH_OPENING,
   COACH_PRODUCT_NAME,
+  COACH_STARTERS,
   COACH_STATE_LISTENING,
   COACH_STATE_THINKING,
   COACH_STATE_TRANSCRIBING,
+  type CoachStarter,
 } from "@/lib/assistant-coach/coach-copy";
 
 type ChatMessage = {
@@ -261,6 +263,14 @@ export default function AssistantCoachClient() {
     });
   }
 
+  function chooseStarter(starter: CoachStarter) {
+    if (starter.message) {
+      sendMessage(starter.message);
+      return;
+    }
+    composerInputRef.current?.focus();
+  }
+
   function onSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (busy || gated) return;
@@ -410,7 +420,26 @@ export default function AssistantCoachClient() {
         aria-label="Conversation"
       >
         {messages.length === 0 ? (
-          <p className="ac-empty">{COACH_EMPTY_HINT}</p>
+          <div className="ac-empty-state">
+            <p className="ac-empty">{COACH_EMPTY_HINT}</p>
+            <div
+              className="ac-starters"
+              role="group"
+              aria-label="Common conversation types"
+            >
+              {COACH_STARTERS.map((starter) => (
+                <button
+                  key={starter.id}
+                  type="button"
+                  className="ac-starter"
+                  disabled={busy}
+                  onClick={() => chooseStarter(starter)}
+                >
+                  {starter.label}
+                </button>
+              ))}
+            </div>
+          </div>
         ) : (
           messages.map((m) => (
             <article
