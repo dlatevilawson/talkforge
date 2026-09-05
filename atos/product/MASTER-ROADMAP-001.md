@@ -70,7 +70,7 @@ Translate priorities into implementation phases with goal, dependencies, complex
 
 | Item | Goal | Dependencies | Complexity | Owner | Status |
 |---|---|---|---|---|---|
-| F1 Free / Pro billing | Stripe Checkout + Portal + webhooks; server SSOT; configurable free limits; Membership + Billing surfaces; calm end-of-free | Living Profile · CE practice · BS-016 | High | Eng / Founder | In Development |
+| F1 Free / Pro billing | Stripe Checkout + Portal + webhooks; server SSOT; configurable free limits; Free hold-to-talk + Pro hands-free Coach Forge; Membership + Billing surfaces; calm end-of-free | Living Profile · CE practice · BS-016 | High | Eng / Founder | In Development |
 | F2 Production Stripe cutover | Live keys, webhook endpoint, Price ID, migration applied, conversion analytics | F1 · prod hardening | Medium | Founder / Eng | Not started |
 
 ---

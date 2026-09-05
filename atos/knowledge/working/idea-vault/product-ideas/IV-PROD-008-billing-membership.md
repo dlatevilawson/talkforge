@@ -8,7 +8,7 @@
 | **Status** | In Development |
 | **Importance** | Critical |
 | **Owner** | Founder |
-| **Last Updated** | 2026-08-07 |
+| **Last Updated** | 2026-09-05 |
 | **Captured** | 2026-08-07 |
 | **AI Steward** | Atlas |
 
@@ -16,7 +16,7 @@
 
 ## Statement
 
-TalkForge sells preparation, confidence, and communication mastery — not AI. Production billing supports exactly two plans (Free and Pro) via Stripe Checkout + Customer Portal. Free is generous enough to experience a full coaching cycle; Pro removes practice limits. The payment experience must never feel like a paywall — it is the natural next step after members discover deliberate practice. Backend subscription state in Supabase is the source of truth; client state is never trusted.
+TalkForge sells preparation, confidence, and communication mastery — not AI. Production billing supports exactly two plans (Free and Pro) via Stripe Checkout + Customer Portal. Free is generous enough to experience a full coaching cycle with deliberate hold-to-talk; Pro removes practice limits and enables hands-free conversation with Coach Forge. The payment experience must never feel like a paywall — it is the natural next step after members discover deliberate practice. Backend subscription state in Supabase is the source of truth; client state is never trusted.
 
 ---
 
@@ -40,7 +40,7 @@ Without trustworthy membership, TalkForge cannot sustainably deliver Coach Forge
 
 | Field | Value |
 |---|---|
-| **Why we believe this** | Founder issued Production v1 Billing & Subscription Platform spec: Free/Pro only, configurable free limits, never interrupt live sessions, Membership page (not Pricing), Stripe Checkout/Portal/webhooks, calm failed-payment handling. |
+| **Why we believe this** | Founder issued Production v1 Billing & Subscription Platform spec: Free/Pro only, configurable free limits, never interrupt live sessions, Membership page (not Pricing), Stripe Checkout/Portal/webhooks, calm failed-payment handling. Founder directed Pro hands-free Coach Forge activation on 2026-09-05 as continuation of the existing CE voice stack. |
 | **Sources** | Founder insight · Product intuition · Doctrine document (Craft Law #001 · DES-001 · AMD-001) |
 | **Confidence** | High |
 
@@ -50,6 +50,7 @@ Without trustworthy membership, TalkForge cannot sustainably deliver Coach Forge
 
 - Do not build Team/Enterprise in v1.
 - Experiences never write identity (OWN-001). Billing may sync `profiles.role` user↔premium only.
+- Hands-free mode is selected from server entitlement at Realtime mint; a client plan claim never grants it.
 - Avoid dark patterns: no countdown timers, fake urgency, guilt messaging.
 - Blind spot: BS-016.
 
