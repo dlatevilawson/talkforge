@@ -13,6 +13,7 @@ import {
 import {
   buildHomeAlternatives,
   canStartTraining,
+  homeEntitlementFromPractice,
   isExplorerFromSessionHistory,
   practiceEntryHref,
   type HomeAlternative,
@@ -79,11 +80,9 @@ async function loadEntitlement(): Promise<HomeEntitlement> {
     const entRes = await fetch("/api/billing/entitlement", { cache: "no-store" });
     if (!entRes.ok) return { status: "unknown" };
     const entData = (await entRes.json()) as {
-      entitlement?: { canStartPractice?: boolean };
+      entitlement?: { canStartPractice?: boolean; reason?: string };
     };
-    return entData.entitlement?.canStartPractice === false
-      ? { status: "limited" }
-      : { status: "open" };
+    return homeEntitlementFromPractice(entData.entitlement);
   } catch {
     return { status: "unknown" };
   }

@@ -3,9 +3,8 @@ import "server-only";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { adminConfigured } from "@/lib/supabase/admin";
 import {
-  END_OF_FREE_SUPPORTING,
   STAFF_ROLES,
-  freeSessionsRemaining,
+  entitlementFromSessionCount,
   hasProAccess,
 } from "@/lib/billing/access";
 import { getBillingFreeLimits, getProPriceLabel, stripeBillingConfigured } from "@/lib/billing/config";
@@ -63,7 +62,7 @@ async function countCompletedSessions(
   const { count, error } = await query;
   if (error) {
     console.warn("[billing] session count failed", error.message);
-    return 0;
+    throw error;
   }
   return count ?? 0;
 }
@@ -144,38 +143,30 @@ export async function evaluatePracticeEntitlement(
     };
   }
 
-  const sessionsUsed = await countCompletedSessions(
-    userId,
-    limits.monthlyLimitEnabled
-  );
   const limit = limits.monthlyLimitEnabled
     ? limits.monthlyMaxSessions
     : limits.maxPracticeSessions;
-  const remaining = freeSessionsRemaining(sessionsUsed, limit);
+  const status = sub?.status ?? "free";
 
-  if (remaining > 0) {
-    return {
-      canStartPractice: true,
-      plan: "free",
-      status: sub?.status ?? "free",
-      reason: "free_remaining",
+  try {
+    const sessionsUsed = await countCompletedSessions(
+      userId,
+      limits.monthlyLimitEnabled
+    );
+    return entitlementFromSessionCount({
+      countFailed: false,
       sessionsUsed,
-      sessionsLimit: limit,
-      sessionsRemaining: remaining,
-      message: null,
-    };
+      limit,
+      status,
+    });
+  } catch {
+    return entitlementFromSessionCount({
+      countFailed: true,
+      sessionsUsed: 0,
+      limit,
+      status,
+    });
   }
-
-  return {
-    canStartPractice: false,
-    plan: "free",
-    status: sub?.status ?? "free",
-    reason: "free_limit_reached",
-    sessionsUsed,
-    sessionsLimit: limit,
-    sessionsRemaining: 0,
-    message: END_OF_FREE_SUPPORTING,
-  };
 }
 
 function statusLabel(status: BillingStatus, plan: BillingPlan): string {

@@ -36,6 +36,17 @@ export function canStartTraining(entitlement: HomeEntitlement): boolean {
   return entitlement.status === "open";
 }
 
+/** Billing unavailable is unknown — never a Founding Pass / complimentary-complete state. */
+export function homeEntitlementFromPractice(entitlement: {
+  canStartPractice?: boolean;
+  reason?: string;
+} | null | undefined): HomeEntitlement {
+  if (!entitlement) return { status: "unknown" };
+  if (entitlement.reason === "billing_unavailable") return { status: "unknown" };
+  if (entitlement.canStartPractice === false) return { status: "limited" };
+  return { status: "open" };
+}
+
 /**
  * CXA alternatives after the recommendation — never the primary CTA.
  * Unknown session history: no alternatives (do not invent Explorer vs return).
