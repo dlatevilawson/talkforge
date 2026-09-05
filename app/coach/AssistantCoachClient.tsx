@@ -10,7 +10,6 @@ import {
 } from "@/lib/assistant-coach/browser-mic";
 import {
   COACH_BOOT_ERROR,
-  COACH_COMPOSER_PLACEHOLDER,
   COACH_EMPTY_HINT,
   COACH_GATE_COPY,
   COACH_GATE_TITLE,
@@ -20,7 +19,10 @@ import {
   COACH_STATE_LISTENING,
   COACH_STATE_THINKING,
   COACH_STATE_TRANSCRIBING,
+  getCoachComposerPlaceholder,
+  inferCoachStarterId,
   type CoachStarter,
+  type CoachStarterId,
 } from "@/lib/assistant-coach/coach-copy";
 
 type ChatMessage = {
@@ -92,6 +94,8 @@ export default function AssistantCoachClient() {
   const [session, setSession] = useState<SessionState | null>(null);
   const [gate, setGate] = useState<GateState | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [selectedStarterId, setSelectedStarterId] =
+    useState<CoachStarterId | null>(null);
   const [draft, setDraft] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
   const [phase, setPhase] = useState<ComposerPhase>("idle");
@@ -134,6 +138,12 @@ export default function AssistantCoachClient() {
             )
           : [];
         setMessages(restored);
+        setSelectedStarterId(
+          inferCoachStarterId(
+            restored.find((message: ChatMessage) => message.role === "user")
+              ?.content
+          )
+        );
         setReady(true);
       } catch (err) {
         if (!cancelled) {
@@ -264,6 +274,7 @@ export default function AssistantCoachClient() {
   }
 
   function chooseStarter(starter: CoachStarter) {
+    setSelectedStarterId(starter.id);
     if (starter.message) {
       sendMessage(starter.message);
       return;
@@ -533,7 +544,7 @@ export default function AssistantCoachClient() {
                   }
                 }}
                 rows={1}
-                placeholder={COACH_COMPOSER_PLACEHOLDER}
+                placeholder={getCoachComposerPlaceholder(selectedStarterId)}
                 disabled={busy}
                 enterKeyHint="send"
               />

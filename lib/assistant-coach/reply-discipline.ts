@@ -6,9 +6,18 @@
  * A script dump / "all the above" curriculum does not.
  */
 import { isPracticableMoment } from "./confirmation.ts";
+import { COACH_STARTERS } from "./coach-copy.ts";
 
 export const UNDERSTANDING_FALLBACK =
-  "I hear you. Who is that conversation with — and what do you need to say or start?";
+  "Who is that conversation with — and what do you need to say or start?";
+
+const STARTER_MESSAGES = new Set(
+  COACH_STARTERS.flatMap((starter) =>
+    starter.message === null ? [] : [starter.message]
+  )
+);
+const DIRECT_QUESTION_START =
+  /^[“"'‘]*(?:who(?:'s| is)?|what(?:'s| is)?|when|where|why|how|which|is|are|do|does|did|can|could|would|will|have|has)\b/i;
 
 const NUMBERED_ITEM = /^\s*(?:\d+[\.)]|text\s*\d+[:.)]|option\s*\d+[:.)])\s+/im;
 const LIST_ITEM = /^\s*(?:\d+[\.)]|[-*•]|text\s*\d+[:.)]|option\s*\d+[:.)])\s+/gim;
@@ -55,6 +64,23 @@ function summaryLooksLikeCurriculum(intervention: unknown): boolean {
   return typeof summary === "string" && isCurriculumText(summary);
 }
 
+function directStarterQuestion(reply: string, lastUser: string): string {
+  if (!STARTER_MESSAGES.has(lastUser)) return reply;
+
+  const questionEnd = reply.indexOf("?");
+  if (questionEnd < 0) return reply;
+
+  const throughQuestion = reply.slice(0, questionEnd + 1);
+  let questionStart = 0;
+  for (const boundary of throughQuestion.matchAll(/[.!]\s+|\n+/g)) {
+    questionStart = (boundary.index ?? 0) + boundary[0].length;
+  }
+  if (questionStart === 0) return reply;
+
+  const question = throughQuestion.slice(questionStart).trim();
+  return DIRECT_QUESTION_START.test(question) ? question : reply;
+}
+
 export type DisciplinedCoachOutput = {
   reply: string;
   intervention: unknown;
@@ -82,6 +108,8 @@ export function disciplineAssistantCoachOutput(input: {
     intervention = null;
     withheldIntervention = true;
   }
+
+  reply = directStarterQuestion(reply, lastUser);
 
   if (isAllTheAbove(lastUser) || summaryLooksLikeCurriculum(intervention)) {
     intervention = null;

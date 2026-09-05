@@ -61,4 +61,4 @@ Account-first gating (current shipping truth) conflicts with “feel understood 
 
 Working Knowledge. Implementation authorized by Decision 059 for this track only. Phase 4B ships in small slices — not one monster change. Gate copy deferred (OD-10). Turn safety cap ≠ conversion gate.
 
-Founder-directed opening refinement (2026-09-05): Coach opens with “What conversation are you preparing for?” and optional starters for Interview, Salary negotiation, Difficult feedback, Setting a boundary, or custom input. This orients discovery toward a real communication moment without turning Coach into Forge rehearsal.
+Founder-directed opening refinement (2026-09-05): Coach opens with “What conversation are you preparing for?” and optional starters for Interview, Salary negotiation, Difficult feedback, Setting a boundary, or custom input. Starter context supplies concise composer guidance and survives session restore. Coach does not paraphrase the member’s opening; it moves directly to one useful discovery question. This orients discovery toward a real communication moment without turning Coach into Forge rehearsal.
