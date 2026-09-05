@@ -1240,7 +1240,7 @@ export default function VoiceArena({
       );
 
       if (!connection.usedSilentMicFallback) {
-        // Start muted; hold-to-talk opens only while the button is pressed.
+        // Start muted; Free opens on hold, Pro hands-free opens on listening.
         setMicrophoneEnabled(connection, false);
       }
 
@@ -1261,7 +1261,6 @@ export default function VoiceArena({
       usageIdRef.current = await startVoiceUsageTracking({
         practiceSessionId: practice.id,
         realtimeSessionId: realtimeSessionIdRef.current,
-        plan: planIsPro ? "pro" : "free",
         voiceMode: sessionVoiceMode,
         model:
           typeof tokenData.model === "string"
