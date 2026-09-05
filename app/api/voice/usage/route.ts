@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
+import { evaluatePracticeEntitlement } from "@/lib/billing/entitlements";
+import { resolveVoiceUsageStartCapability } from "@/lib/ce/voice-mode";
 import {
   completeVoiceUsage,
   recordVoiceUsageEvent,
@@ -13,7 +15,6 @@ type Body = {
   usageId?: string;
   practiceSessionId?: string | null;
   realtimeSessionId?: string | null;
-  plan?: "free" | "pro";
   voiceMode?: "hold" | "handsfree";
   model?: string;
   event?: "assistant_turn" | "user_speech" | "barge_in" | "assistant_text";
@@ -40,10 +41,14 @@ export async function POST(req: Request) {
 
   const action = body.action;
   if (action === "start") {
-    const plan = body.plan === "pro" ? "pro" : "free";
-    const voiceMode = body.voiceMode === "handsfree" ? "handsfree" : "hold";
-    // Hands-free start is Pro-only at the economics layer (defense in depth).
-    if (voiceMode === "handsfree" && plan !== "pro") {
+    const entitlement = await evaluatePracticeEntitlement(gate.userId);
+    const capability = resolveVoiceUsageStartCapability({
+      requestedVoiceMode:
+        body.voiceMode === "handsfree" ? "handsfree" : "hold",
+      entitlement,
+    });
+    // Server entitlement is authoritative. Never trust client plan claims.
+    if (!capability.allowed) {
       return NextResponse.json(
         { error: "Hands-free requires Pro." },
         { status: 403 }
@@ -53,8 +58,8 @@ export async function POST(req: Request) {
       userId: gate.userId,
       practiceSessionId: body.practiceSessionId,
       realtimeSessionId: body.realtimeSessionId,
-      plan,
-      voiceMode,
+      plan: capability.plan,
+      voiceMode: capability.voiceMode,
       model: body.model,
     });
     return NextResponse.json({ usageId: started?.id ?? null });

@@ -3,18 +3,18 @@
 | Field | Value |
 |---|---|
 | **Document ID** | BILL-001 |
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Status** | Working Knowledge — Founder-authorized Production v1 (IV-PROD-008) |
 | **Owner** | Founder |
 | **Related** | IV-PROD-008 · BS-016 · TIP-001 · OWN-001 · Craft Law #001 · DES-001 |
-| **Updated** | 2026-08-07 |
+| **Updated** | 2026-09-05 |
 
 ## Plans (only)
 
 | Plan | Access |
 |---|---|
-| **Free** | Account, explore, browse, talk with Forge, limited complete coaching sessions |
-| **Pro** | Unlimited practice/voice, longer sessions, memory, progress, future premium coaching |
+| **Free** | Account, explore, browse, deliberate hold-to-talk with Forge, limited complete coaching sessions |
+| **Pro** | Unlimited practice/voice, hands-free conversation with Coach Forge, longer sessions, memory, progress, future premium coaching |
 
 No Team / Enterprise in v1.
 
@@ -58,6 +58,8 @@ Apply migration: `supabase/migrations/20260807_member_subscriptions.sql`.
 - `canceled` with `cancel_at_period_end` until `current_period_end` → Pro access.
 - Otherwise Free; gate **starting** a new practice session when completed-session count ≥ free max.
 - Never revoke mid-session.
+- Realtime session mint selects hands-free only from server-confirmed Pro/staff entitlement; Free stays hold-to-talk.
+- Voice-usage tracking independently resolves server entitlement and ignores client plan claims.
 
 ## Surfaces
 

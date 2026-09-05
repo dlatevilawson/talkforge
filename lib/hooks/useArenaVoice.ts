@@ -48,7 +48,7 @@ type Options = {
  * Dual-engine mic logic for Live Arena.
  *
  * Hold mode: mic opens only while the button is held AND Forge is not live.
- * Hands-free mode: gated off until echo-reference yield is device-certified.
+ * Hands-free mode: Pro-only, with echo-reference-confirmed barge-in.
  */
 export function useArenaVoice({
   voiceMode,

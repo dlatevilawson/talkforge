@@ -17,7 +17,6 @@ export type VoiceUsageAdvice = {
 export async function startVoiceUsageTracking(input: {
   practiceSessionId?: string | null;
   realtimeSessionId?: string | null;
-  plan: "free" | "pro";
   voiceMode: "hold" | "handsfree";
   model?: string;
 }): Promise<string | null> {

@@ -117,8 +117,8 @@ export async function POST(req: Request) {
     entitlement.plan === "pro" ||
     entitlement.reason === "pro" ||
     entitlement.reason === "staff";
-  // Hands-free is gated off until speakerphone yield is certified.
-  // Pro members still get Pro entitlement — mic UX is hold-to-talk for all.
+  // Server entitlement selects the mic UX: Pro/staff hands-free, Free hold.
+  // The client cannot request or promote its own voice mode.
   const voiceMode = resolveArenaVoiceMode({ planIsPro });
   const handsFree = voiceMode === "handsfree";
   const payload = buildClientSecretRequest({
