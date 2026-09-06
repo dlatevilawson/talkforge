@@ -12,10 +12,11 @@ export const COACH_META_DESCRIPTION =
 export const COACH_OPENING =
   "What conversation are you preparing for?";
 
-export type CoachStarter = {
+type CoachStarterDefinition = {
   id: string;
   label: string;
   message: string | null;
+  placeholder: string;
 };
 
 export const COACH_STARTERS = [
@@ -23,34 +24,61 @@ export const COACH_STARTERS = [
     id: "interview",
     label: "Interview",
     message: "I’m preparing for an interview.",
+    placeholder: "Describe the role or company…",
   },
   {
     id: "salary-negotiation",
     label: "Salary negotiation",
     message: "I’m preparing for a salary negotiation.",
+    placeholder: "Who are you negotiating with…",
   },
   {
     id: "difficult-feedback",
     label: "Difficult feedback",
     message: "I’m preparing for a difficult feedback conversation.",
+    placeholder: "Who needs the feedback…",
   },
   {
     id: "setting-a-boundary",
     label: "Setting a boundary",
     message: "I’m preparing to set a boundary.",
+    placeholder: "Who is the boundary with…",
   },
   {
     id: "something-else",
     label: "Something else",
     message: null,
+    placeholder: "Describe the conversation…",
   },
-] as const satisfies readonly CoachStarter[];
+] as const satisfies readonly CoachStarterDefinition[];
+
+export type CoachStarter = (typeof COACH_STARTERS)[number];
+export type CoachStarterId = (typeof COACH_STARTERS)[number]["id"];
+
+export function inferCoachStarterId(
+  firstUserMessage: string | null | undefined
+): CoachStarterId | null {
+  const starter = COACH_STARTERS.find(
+    (candidate) =>
+      candidate.message !== null && candidate.message === firstUserMessage
+  );
+  return starter?.id ?? null;
+}
+
+export function getCoachComposerPlaceholder(
+  starterId: CoachStarterId | null
+): string {
+  return (
+    COACH_STARTERS.find((starter) => starter.id === starterId)?.placeholder ??
+    COACH_COMPOSER_PLACEHOLDER
+  );
+}
 
 export const COACH_EMPTY_HINT =
   "Choose a starting point, or speak or type your own.";
 
 export const COACH_COMPOSER_PLACEHOLDER =
-  "Name the conversation you’re preparing for…";
+  "Name your conversation…";
 
 export const COACH_STATE_LISTENING = "Listening…";
 
