@@ -382,7 +382,6 @@ export function requestOpeningSpeech(
     eventTitle?: string;
     isReturning?: boolean;
     mode?: "practice" | "assessment";
-    handoffSource?: string;
     practiceContext?: ForgePracticeContext | null;
   }
 ): void {
@@ -397,7 +396,6 @@ export function requestOpeningSpeech(
           welcomeHint,
           eventTitle: options?.eventTitle,
           isReturning: options?.isReturning,
-          handoffSource: options?.handoffSource,
           practiceContext: options?.practiceContext,
         });
 

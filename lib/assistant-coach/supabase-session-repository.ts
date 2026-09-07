@@ -6,10 +6,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import {
   mapDraftRow,
-  mapMessageRow,
   mapSessionRow,
   type AssistantCoachDraftRow,
-  type AssistantCoachMessageRow,
   type AssistantCoachSessionRow,
 } from "./session-mappers.ts";
 import {
@@ -29,7 +27,7 @@ function isUniqueViolation(error: { code?: string; message?: string } | null): b
   );
 }
 
-export { mapSessionRow, mapMessageRow, mapDraftRow };
+export { mapSessionRow, mapDraftRow };
 
 export function createSupabaseAssistantCoachSessionRepository(
   client: SupabaseClient = createAdminSupabaseClient()
@@ -46,8 +44,6 @@ export function createSupabaseAssistantCoachSessionRepository(
         anon_key_hash: input.anonKeyHash,
         user_id: null,
         status: "active",
-        turn_count: 0,
-        has_experienced_value: false,
         expires_at: expiresAt,
         claimed_at: null,
       };
@@ -119,6 +115,7 @@ export function createSupabaseAssistantCoachSessionRepository(
         .from("assistant_coach_sessions")
         .select("*")
         .eq("anon_key_hash", anonKeyHash)
+        // Historical recovery only: `gated` shares the deployed unique index.
         .in("status", ["active", "gated"])
         .is("user_id", null)
         .maybeSingle();
@@ -130,52 +127,37 @@ export function createSupabaseAssistantCoachSessionRepository(
       return data ? mapSessionRow(data as AssistantCoachSessionRow) : null;
     },
 
-    async listMessages(sessionId) {
-      const { data, error } = await client
-        .from("assistant_coach_messages")
-        .select("*")
-        .eq("session_id", sessionId)
-        .order("turn_index", { ascending: true });
-      if (error) {
-        throw new Error(
-          `assistant_coach_messages list failed: ${error.message}`
-        );
+    async normalizeLegacyGatedSession(sessionId, now = new Date()) {
+      const current = await repository.getSession(sessionId);
+      if (!current) return null;
+      if (
+        current.status !== "gated" ||
+        current.userId != null ||
+        isAnonSessionExpired(current, now)
+      ) {
+        return current;
       }
-      return (data as AssistantCoachMessageRow[] | null)?.map(mapMessageRow) ?? [];
-    },
 
-    async appendMessage(message) {
+      // Historical recovery only. The status/user/TTL predicates prevent this
+      // compatibility write from reviving or taking ownership of a row.
       const { data, error } = await client
-        .from("assistant_coach_messages")
-        .insert({
-          id: message.id,
-          session_id: message.sessionId,
-          turn_index: message.turnIndex,
-          role: message.role,
-          content: message.content,
-          model_meta: message.modelMeta ?? {},
-          created_at: message.createdAt,
-        })
+        .from("assistant_coach_sessions")
+        .update({ status: "active", updated_at: now.toISOString() })
+        .eq("id", sessionId)
+        .eq("status", "gated")
+        .is("user_id", null)
+        .gt("expires_at", now.toISOString())
         .select("*")
-        .single();
+        .maybeSingle();
       if (error) {
         throw new Error(
-          `assistant_coach_messages insert failed: ${error.message}`
+          `assistant_coach_sessions legacy gated recovery failed: ${error.message}`
         );
       }
-      if (message.role === "user") {
-        const current = await repository.getSession(message.sessionId);
-        if (current) {
-          await client
-            .from("assistant_coach_sessions")
-            .update({
-              turn_count: current.turnCount + 1,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", message.sessionId);
-        }
-      }
-      return mapMessageRow(data as AssistantCoachMessageRow);
+      if (data) return mapSessionRow(data as AssistantCoachSessionRow);
+
+      // A concurrent request may already have healed or expired the row.
+      return repository.getSession(sessionId);
     },
 
     async getDraft(sessionId) {
@@ -267,35 +249,7 @@ export function createSupabaseAssistantCoachSessionRepository(
       return data ? mapSessionRow(data as AssistantCoachSessionRow) : session;
     },
 
-    async updateSessionFlags(sessionId, patch) {
-      const current = await repository.getSession(sessionId);
-      if (!current) throw new Error("session not found");
-      const now = patch.now ?? new Date();
-      const update: Record<string, unknown> = {
-        updated_at: now.toISOString(),
-      };
-      // Sticky: once true, never clear via this helper.
-      if (patch.hasExperiencedValue === true || current.hasExperiencedValue) {
-        update.has_experienced_value = true;
-      }
-      if (patch.status) {
-        update.status = patch.status;
-      }
-      const { data, error } = await client
-        .from("assistant_coach_sessions")
-        .update(update)
-        .eq("id", sessionId)
-        .select("*")
-        .single();
-      if (error) {
-        throw new Error(
-          `assistant_coach_sessions flags update failed: ${error.message}`
-        );
-      }
-      return mapSessionRow(data as AssistantCoachSessionRow);
-    },
-
-    async getSessionByAnonKeyHashForClaim(anonKeyHash) {
+    async getSessionByAnonKeyHashForActivation(anonKeyHash) {
       const { data, error } = await client
         .from("assistant_coach_sessions")
         .select("*")
@@ -306,13 +260,13 @@ export function createSupabaseAssistantCoachSessionRepository(
         .maybeSingle();
       if (error) {
         throw new Error(
-          `assistant_coach_sessions claim lookup failed: ${error.message}`
+          `assistant_coach_sessions activation lookup failed: ${error.message}`
         );
       }
       return data ? mapSessionRow(data as AssistantCoachSessionRow) : null;
     },
 
-    async getLatestClaimedSessionByUserId(userId) {
+    async getLatestOwnedSessionByUserId(userId) {
       const { data, error } = await client
         .from("assistant_coach_sessions")
         .select("*")
@@ -323,13 +277,13 @@ export function createSupabaseAssistantCoachSessionRepository(
         .maybeSingle();
       if (error) {
         throw new Error(
-          `assistant_coach_sessions claimed lookup failed: ${error.message}`
+          `assistant_coach_sessions ownership lookup failed: ${error.message}`
         );
       }
       return data ? mapSessionRow(data as AssistantCoachSessionRow) : null;
     },
 
-    async claimSession(input) {
+    async transferSessionOwnership(input) {
       const current = await repository.getSession(input.sessionId);
       if (!current) throw new Error("session not found");
       const now = input.now ?? new Date();
@@ -337,13 +291,13 @@ export function createSupabaseAssistantCoachSessionRepository(
         return current;
       }
       if (current.userId != null && current.userId !== input.userId) {
-        const err = new Error("session claimed by another user");
-        err.name = "AssistantCoachClaimConflictError";
+        const err = new Error("session owned by another user");
+        err.name = "AssistantCoachOwnershipConflictError";
         throw err;
       }
       if (isAnonSessionExpired(current, now)) {
         const err = new Error("session expired");
-        err.name = "AssistantCoachClaimExpiredError";
+        err.name = "AssistantCoachOwnershipExpiredError";
         throw err;
       }
       const { data, error } = await client
@@ -361,7 +315,7 @@ export function createSupabaseAssistantCoachSessionRepository(
         .maybeSingle();
       if (error) {
         throw new Error(
-          `assistant_coach_sessions claim failed: ${error.message}`
+          `assistant_coach_sessions ownership transfer failed: ${error.message}`
         );
       }
       if (data) {
@@ -371,8 +325,8 @@ export function createSupabaseAssistantCoachSessionRepository(
       if (raced?.userId === input.userId && raced.status === "claimed") {
         return raced;
       }
-      const err = new Error("session claimed by another user");
-      err.name = "AssistantCoachClaimConflictError";
+      const err = new Error("session owned by another user");
+      err.name = "AssistantCoachOwnershipConflictError";
       throw err;
     },
   };

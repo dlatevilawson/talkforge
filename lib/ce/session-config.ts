@@ -16,9 +16,7 @@ import {
 import { resolveRealtimeTurnDetection } from "@/lib/ce/assessment-lifecycle";
 import { buildAssessmentSystemInstructions } from "@/lib/ce/assessment-prompt";
 import {
-  buildAcPracticeObjectiveLines,
   buildStructuredPracticeObjectiveLines,
-  isAcPracticeHandoff,
 } from "@/lib/ce/ac-practice-handoff";
 import type { ForgePracticeContext } from "@/lib/assistant-coach/practice-profile";
 
@@ -36,8 +34,6 @@ export type CeTrack = ForgeEvent["track"] | "hello";
 /** Session mode — assessment keeps the coach brain; app observes/persists. */
 export type CeSessionMode = "practice" | "assessment";
 
-export { isAcPracticeHandoff } from "@/lib/ce/ac-practice-handoff";
-
 export const CE_TRACK_TITLES: Record<CeTrack, string> = {
   hello: "Voice practice with Forge",
   system_design: "System design interview practice",
@@ -54,23 +50,11 @@ export function buildPracticeModeObjective(input?: {
   eventTitle?: string;
   successCriteria?: string;
   memory?: CoachPromptContext | null;
-  handoffSource?: string;
   practiceContext?: ForgePracticeContext | null;
 }): string {
   const track = input?.track ?? "system_design";
-  const confirmedPractice =
-    Boolean(input?.practiceContext) ||
-    isAcPracticeHandoff({
-      handoffSource: input?.handoffSource,
-      eventTitle: input?.eventTitle,
-    });
   const acLines = input?.practiceContext
     ? buildStructuredPracticeObjectiveLines(input.practiceContext)
-    : confirmedPractice
-    ? buildAcPracticeObjectiveLines({
-        eventTitle: input?.eventTitle ?? "",
-        successCriteria: input?.successCriteria,
-      })
     : null;
   const eventLine = acLines
     ? acLines.eventLine
@@ -144,15 +128,9 @@ export function buildSystemInstructions(input?: {
   memory?: CoachPromptContext | null;
   conciseMode?: boolean;
   mode?: CeSessionMode;
-  handoffSource?: string;
   practiceContext?: ForgePracticeContext | null;
 }): string {
-  const confirmedPractice =
-    Boolean(input?.practiceContext) ||
-    isAcPracticeHandoff({
-      handoffSource: input?.handoffSource,
-      eventTitle: input?.eventTitle,
-    });
+  const confirmedPractice = Boolean(input?.practiceContext);
   if (input?.mode === "assessment") {
     return buildAssessmentSystemInstructions({
       memoryBlock: input.memory ? formatCoachMemoryBlock(input.memory) : null,
@@ -169,11 +147,6 @@ export function buildSystemInstructions(input?: {
 
   const confirmedPracticeRule = input?.practiceContext
     ? buildStructuredPracticeObjectiveLines(input.practiceContext).disciplineRule
-    : confirmedPractice
-    ? buildAcPracticeObjectiveLines({
-        eventTitle: input?.eventTitle ?? "",
-        successCriteria: input?.successCriteria,
-      }).disciplineRule
     : "";
 
   return buildForgeSystemPrompt({
@@ -203,7 +176,6 @@ export function buildClientSecretRequest(input?: {
   conciseMode?: boolean;
   turnKind?: VoiceTurnKind;
   mode?: CeSessionMode;
-  handoffSource?: string;
   practiceContext?: ForgePracticeContext | null;
 }) {
   // Hands-free (gated): semantic_vad; client owns barge-in yield.

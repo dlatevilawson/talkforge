@@ -15,6 +15,7 @@ import { founderUserIdAllowlist, resolveEffectiveRole } from "@/lib/auth/allowli
 import type { UserRole } from "@/lib/auth/constants";
 import { canAccessFounderPortal, isValidRole } from "@/lib/auth/roles";
 import { recordLogin } from "@/lib/auth/session";
+import { allowsUnverifiedCoachContinuityUrl } from "@/lib/auth/public-routes";
 import { safeAuthNextPath } from "@/lib/auth/safe-next";
 import {
   checkRateLimit,
@@ -297,14 +298,12 @@ export async function loginAction(
     };
   }
 
-  if (profile && !profile.email_verified) {
-    if (
-      next === "/coach/activate" ||
-      next.startsWith("/coach/confirm") ||
-      next.startsWith("/app/practice")
-    ) {
-      return { ok: true, redirectTo: next };
-    }
+  if (
+    profile &&
+    !profile.email_verified &&
+    // Decision 060 continuity only; destination remains authenticated.
+    !allowsUnverifiedCoachContinuityUrl(next)
+  ) {
     return {
       ok: true,
       redirectTo: `/verify-email?email=${encodeURIComponent(email)}&next=${encodeURIComponent(next)}`,
@@ -327,11 +326,7 @@ export async function loginAction(
   }
 
   if (profile && !profile.onboarding_complete) {
-    if (
-      next === "/coach/activate" ||
-      next.startsWith("/coach/confirm") ||
-      next.startsWith("/app/practice")
-    ) {
+    if (next === "/coach/activate") {
       return { ok: true, redirectTo: next };
     }
     return { ok: true, redirectTo: "/onboarding" };

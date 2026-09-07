@@ -2,9 +2,6 @@ import { applyMemberPracticeProfileUpdate } from "../system1/member-writes.ts";
 import type { LivingProfile } from "../system1/types.ts";
 import { parseMemberPracticeProfile } from "./practice-profile.ts";
 import {
-  AssistantCoachClaimError,
-} from "./claim-merge.ts";
-import {
   isAnonSessionExpired,
   type AssistantCoachSession,
   type AssistantCoachSessionRepository,
@@ -13,6 +10,18 @@ import { COACH_WIZARD_PRACTICE_DESTINATION } from "./forge-handoff.ts";
 
 export const COACH_ACTIVATION_DESTINATION =
   COACH_WIZARD_PRACTICE_DESTINATION;
+
+export class AssistantCoachActivationError extends Error {
+  readonly code: string;
+  readonly status: number;
+
+  constructor(code: string, message: string, status = 400) {
+    super(message);
+    this.name = "AssistantCoachActivationError";
+    this.code = code;
+    this.status = status;
+  }
+}
 
 export type ActivationLivingProfileStore = {
   loadOrCreate(userId: string): Promise<LivingProfile>;
@@ -34,11 +43,11 @@ function requireActivationMethods(
   repository: AssistantCoachSessionRepository
 ): void {
   if (
-    typeof repository.getSessionByAnonKeyHashForClaim !== "function" ||
-    typeof repository.getLatestClaimedSessionByUserId !== "function" ||
-    typeof repository.claimSession !== "function"
+    typeof repository.getSessionByAnonKeyHashForActivation !== "function" ||
+    typeof repository.getLatestOwnedSessionByUserId !== "function" ||
+    typeof repository.transferSessionOwnership !== "function"
   ) {
-    throw new AssistantCoachClaimError(
+    throw new AssistantCoachActivationError(
       "activation_unavailable",
       "Coach activation is unavailable.",
       503
@@ -52,16 +61,16 @@ async function resolveSession(
   userId: string
 ): Promise<AssistantCoachSession | null> {
   const fromCookie = anonKeyHash
-    ? await repository.getSessionByAnonKeyHashForClaim!(anonKeyHash)
+    ? await repository.getSessionByAnonKeyHashForActivation!(anonKeyHash)
     : null;
   return (
     fromCookie ??
-    (await repository.getLatestClaimedSessionByUserId!(userId))
+    (await repository.getLatestOwnedSessionByUserId!(userId))
   );
 }
 
 /**
- * Decision 060 activation boundary. Claims only a verified wizard declaration,
+ * Decision 060 activation boundary. Transfers only a verified wizard draft,
  * then writes it through member authority with optimistic concurrency.
  */
 export async function activateAssistantCoachProfile(input: {
@@ -80,14 +89,14 @@ export async function activateAssistantCoachProfile(input: {
   );
 
   if (!session) {
-    throw new AssistantCoachClaimError(
+    throw new AssistantCoachActivationError(
       "activation_required",
       "Return to Coach and verify your profile.",
       404
     );
   }
   if (session.userId && session.userId !== input.userId) {
-    throw new AssistantCoachClaimError(
+    throw new AssistantCoachActivationError(
       "activation_unavailable",
       "This Coach profile cannot be activated.",
       409
@@ -95,7 +104,7 @@ export async function activateAssistantCoachProfile(input: {
   }
   if (session.userId == null && isAnonSessionExpired(session, now)) {
     await input.repository.markExpiredIfPast(session.id, now);
-    throw new AssistantCoachClaimError(
+    throw new AssistantCoachActivationError(
       "session_expired",
       "This Coach profile has expired. Start again.",
       410
@@ -107,23 +116,23 @@ export async function activateAssistantCoachProfile(input: {
     draft?.profileJson?.memberPracticeProfile
   );
   if (!draft || !verifiedDraft) {
-    throw new AssistantCoachClaimError(
+    throw new AssistantCoachActivationError(
       "verified_profile_required",
       "Return to Coach and choose Looks right.",
       409
     );
   }
 
-  const wasClaimed = session.userId === input.userId;
-  if (!wasClaimed) {
+  const wasAlreadyOwned = session.userId === input.userId;
+  if (!wasAlreadyOwned) {
     try {
-      session = await input.repository.claimSession!({
+      session = await input.repository.transferSessionOwnership!({
         sessionId: session.id,
         userId: input.userId,
         now,
       });
     } catch {
-      throw new AssistantCoachClaimError(
+      throw new AssistantCoachActivationError(
         "activation_unavailable",
         "This Coach profile cannot be activated.",
         409
@@ -159,13 +168,13 @@ export async function activateAssistantCoachProfile(input: {
       return {
         profile: saved,
         session,
-        alreadyActive: wasClaimed,
+        alreadyActive: wasAlreadyOwned,
         destination: COACH_ACTIVATION_DESTINATION,
       };
     }
   }
 
-  throw new AssistantCoachClaimError(
+  throw new AssistantCoachActivationError(
     "profile_conflict",
     "Your profile changed. Try again.",
     409

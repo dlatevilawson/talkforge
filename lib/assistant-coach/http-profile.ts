@@ -20,7 +20,7 @@ import {
   projectMemberPracticeProfile,
   validateMemberPracticeProfileSelection,
 } from "./practice-profile.ts";
-import { AssistantCoachClaimError } from "./claim-merge.ts";
+import { AssistantCoachActivationError } from "./activation.ts";
 import {
   AssistantCoachDraftConflictError,
   isAnonSessionExpired,
@@ -182,7 +182,7 @@ export async function handleAssistantCoachProfileRequest(
         code: "draft_conflict",
       });
     }
-    if (err instanceof AssistantCoachClaimError) {
+    if (err instanceof AssistantCoachActivationError) {
       return jsonResponse(err.status, { error: err.message, code: err.code });
     }
     console.error("assistant-coach profile save failed", err);
