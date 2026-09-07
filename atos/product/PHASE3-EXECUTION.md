@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| **Status** | Authorized continuum — Membership track (IV-PROD-008 / BILL-001) |
-| **Updated** | 2026-08-07 |
+| **Status** | Authorized continuum — deterministic Coach wizard track (Decision 060) |
+| **Updated** | 2026-09-07 |
 
 | Step | Package | Status |
 |---|---|---|
@@ -14,6 +14,6 @@
 | 17 | [TEST-001](TEST-001-user-testing-protocol.md) | Protocol ready |
 | 18 | [ITERATE-001](ITERATE-001-improvement-rule.md) | Active rule |
 | F | [BILL-001](BILL-001-billing-membership.md) | In Development — Free/Pro Stripe membership |
-| AC | [AC-JOURNEY-001](AC-JOURNEY-001-first-user-architecture.md) · [PHASE4B-AC](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md) | **Authorized** (Decision 059) — vertical slice: landing → `/coach` → value → claim → confirm → one Forge session |
+| AC | [AC-JOURNEY-001](AC-JOURNEY-001-first-user-architecture.md) · [PHASE4B-AC](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md) | **Authorized** (Decision 060; Decision 059 historical) — Pick moments → narrow audience/pattern/urgency → verify → auth/`member_practice_profile` activation → Forge |
 
 Master schedule: [MASTER-ROADMAP-001](MASTER-ROADMAP-001.md)

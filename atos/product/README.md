@@ -3,14 +3,14 @@
 | Field | Value |
 |---|---|
 | **Document ID** | PRODUCT-README |
-| **Version** | 1.3.1 |
+| **Version** | 1.4.0 |
 | **Status** | Authoritative |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Human Approver** | Founder |
 | **Dependencies** | RES-012, RES-013 |
 | **Approval History** | 2026-07-20 — Product layer opened; 2026-07-20 — CE-001 Critical (RES-013) |
-| **Change Log** | 2026-09-05 — Decision 059 AC first-user carve-out; 2026-08-01 — EXEC-001 company OS; Idea Vault Step 1 |
+| **Change Log** | 2026-09-07 — Decision 060 deterministic Coach wizard pivot; 2026-09-05 — Decision 059 AC first-user carve-out; 2026-08-01 — EXEC-001 company OS; Idea Vault Step 1 |
 
 Product doctrine built **on** ATOS (not inside constitutional Specs).
 
@@ -27,13 +27,14 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | **Craft** | [CRAFT-LAW-001](CRAFT-LAW-001.md) | Human / trustworthy / courageous | ✅ Canonical |
 | **Design** | [DES-001](DES-001-cognitive-load.md) | Reduce unnecessary cognitive load | ✅ Canonical |
 | **Experience** | [CXA-001](CXA-001-chief-experience-architect-charter.md) | Chief Experience Architect · member experience doctrine | ✅ Canonical (Decision 058) |
+| **Coach FTUE** | [AC-JOURNEY-001](AC-JOURNEY-001-first-user-architecture.md) · [PHASE4B-AC](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md) | Pick moments → narrow context → verify LP card → auth/`member_practice_profile` activation → Forge | **Authorized track (Decision 060)** |
 | **Design philosophy** | [THIP-001](THIP-001-human-interface-philosophy.md) | Enduring TalkForge Human Interface Philosophy | **Proposed — Founder Review; not yet Canonical** |
 | **Design system** | [TDS-001](TDS-001-talkforge-design-system.md) | Communication Gym visual and interaction specification | **Proposed — Founder Review; implementation frozen** |
 | **Behavior system** | [MBL-001](MBL-001-machine-behavior-language.md) | Machine Behavior Language · motion, timing, sound, haptics, lighting, recovery | **Proposed — Founder Review; implementation not authorized** |
-| **Audit** | [AUDIT-001](AUDIT-001-architecture-readiness.md) · [AUDIT-001.1](AUDIT-001.1-architecture-reaudit.md) · [AUDIT-001.2](AUDIT-001.2-conditional-go-reaudit.md) | Architecture readiness | **GO production migration/hardening · NO-GO features (Decision 059: AC first-user carve-out)** |
+| **Audit** | [AUDIT-001](AUDIT-001-architecture-readiness.md) · [AUDIT-001.1](AUDIT-001.1-architecture-reaudit.md) · [AUDIT-001.2](AUDIT-001.2-conditional-go-reaudit.md) | Architecture readiness | **GO production migration/hardening · NO-GO features (Decision 059 carve-out redirected by Decision 060)** |
 | **Remediation** | [REMEDIATE-001](REMEDIATE-001-architecture-remediation.md) | Architecture remediation report | **Applied** |
 | **Conditional remediation** | [REMEDIATE-002](REMEDIATE-002-conditional-go.md) | LP SSOT + readiness contracts | **Applied; production migration pending** |
-| **Final certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) | End-to-end architecture certification | **NO-GO general features · Decision 059 AC first-user carve-out** |
+| **Final certification** | [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) | End-to-end architecture certification | **NO-GO general features · Decision 060 controls the Decision 059 AC carve-out** |
 | **Ownership** | [OWN-001](OWN-001-identity-ownership-matrix.md) | LP · PCM · CoachMemory ownership | **Authoritative** |
 | **PR freeze** | [FREEZE-001](FREEZE-001-identity-pr-hold.md) | Hold colliding identity PRs | **Binding** |
 | **SYS1** | [SYS1-001](SYS1-001-system-1-foundation.md) | Truth / Living Profile foundation | **In tree** |
@@ -41,7 +42,7 @@ Product doctrine built **on** ATOS (not inside constitutional Specs).
 | **POM** | [POM-001](POM-001-personal-operating-model.md) | Personal Operating Model | **In tree** |
 | **LP Law** | [LP-LAW-001](LP-LAW-001-living-profile.md) | Living Profile SSOT | **In tree** |
 
-**Agent rule:** Company OS Approved (Decision 051). **EXEC-VERIFY-001:** general feature development remains NO-GO. **Decision 059** authorizes only the Assistant Coach first-user architecture (Phase 4B slices). It is not a general feature GO and does not lift FREEZE-001. Only required hardening fixes may proceed outside that carve-out; no held identity PR merge. Canonical admission still requires Constitutional Law #001.
+**Agent rule:** Company OS Approved (Decision 051). **EXEC-VERIFY-001:** general feature development remains NO-GO. Decision 059 historically authorizes only the Assistant Coach first-user track; **Decision 060 controls its active architecture**: Pick 1–3 moments → audience/pattern/urgency → deterministic LP verification → auth/`member_practice_profile` activation → Forge. Picks are member declarations. No desired outcome, discovery LLM, semantic gate, anonymous Coach turns, parallel profile, or duplicate post-auth confirmation. It is not a general feature GO and does not lift FREEZE-001. LP-LAW-001 / OWN-001 and auth-before-Forge remain binding. Only required hardening fixes may proceed outside that carve-out; no held identity PR merge. Canonical admission still requires Constitutional Law #001.
 
 ## Priority (RES-013)
 

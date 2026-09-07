@@ -1,509 +1,346 @@
-# AC-JOURNEY-001 — First-user journey & conversion architecture (Phase 4A)
+# AC-JOURNEY-001 — Deterministic first-user Coach card wizard (Phase 4A)
 
 | Field | Value |
 |---|---|
 | **Document ID** | AC-JOURNEY-001 |
-| **Status** | Working Knowledge — **OD-0…OD-10 decided** (Decision 059); Phase 4B sequenced |
-| **Plane** | Working Knowledge (not Canonical product doctrine) · **implementation authorized** for this track |
-| **Idea Vault** | [IV-PROD-009](../knowledge/working/idea-vault/product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md) |
+| **Status** | Working Knowledge — governance pivot approved (Decision 060); Phase 4B resequenced |
+| **Plane** | Working Knowledge (not Canonical product doctrine) · implementation authorized for this track |
+| **Idea Vault** | [IV-PROD-009](../knowledge/working/idea-vault/product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md) · [IV-UX-011](../knowledge/working/idea-vault/ux-ideas/IV-UX-011-deterministic-coach-card-wizard.md) |
+| **Blind spot** | [BS-018](../knowledge/working/blind-spot-register/bs-018.md) |
 | **Owner** | Founder |
 | **Created** | 2026-08-16 |
-| **Authority** | [Decision 059](../../atlas/decisions.md) · OWN-001 / FREEZE-001 (unrelated identity) still bind |
-| **Implementation** | Phase 4A = design. Phase 4B = small slices per [PHASE4B-AC-IMPLEMENTATION-SEQUENCE](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md) |
+| **Updated** | 2026-09-07 |
+| **Authority** | [Decision 060](../../atlas/decisions.md), superseding Decision 059 journey design · LP-LAW-001 · OWN-001 · FREEZE-001 |
+| **Implementation** | Small slices per [PHASE4B-AC-IMPLEMENTATION-SEQUENCE](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md) |
 
 ---
 
-## A. Current architecture audit
+## A. Controlling direction
 
-### A.1 What exists and can be reused
+Decision 059 remains the historical authorization for the Assistant Coach first-user track and its narrow exception to the general feature NO-GO. Formal Founder Decision 060 supersedes its active pre-account conversational discovery, discovery LLM, semantic `hasExperiencedValue` gate, anonymous Coach turns, turn-cap conversion, claim-then-confirm, and soft-verification continuity design.
 
-| Area | Shipping truth | Reuse for 4B |
-|---|---|---|
-| **Auth** | Supabase Auth + cookie SSR (`@supabase/ssr`); `proxy.ts` → `updateSession` | Keep as authenticated identity plane |
-| **Account** | `profiles` (role, onboarding_complete, email_verified) | Claim target |
-| **Session APIs** | `requireApiUser`, `readSession`, `/api/auth/session` | Gate authenticated AC/Forge routes |
-| **Living Profile** | `living_profiles` row per auth UUID; signup trigger + `ensurePersistedLivingProfile` | Authenticated persistence SSOT |
-| **LP member writes** | `PUT /api/living-profile` via `applyMemberLivingProfileUpdate` | Do not use for anonymous evidence |
-| **Assessment → LP** | `POST /api/assessment/complete` writes goals/challenges (+ optional empty purpose) | Remains parallel until AC replaces Assessment FTUE |
-| **System 1 Phase 1** | `evidenceLedger` / `profileInsights` **TS-only** (map defaults `[]`) | Needs migration before prod AC |
-| **Assistant Coach Phases 1–3** | `lib/assistant-coach/*` — runtime, validation, readiness, handoff, in-memory repo | Intelligence reused as-is |
-| **Forge** | `/app/practice` VoiceArena; requires auth + LP readiness + entitlement | Post-handoff only |
-| **Analytics** | GA4 + `trackAuthEvent` / billing events (`domain_action` snake_case) | Extend categories; no transcript text |
-| **Local guest leftovers** | `guest_*` detection + `migrateGuestPracticeData` (localStorage only; cloud guest **retired** HARDEN-005) | Pattern for claim, **not** revive cloud guests |
+The controlling path is:
 
-### A.2 What does **not** exist
+**Pick your moments → Narrow the context → deterministic Living Profile verification → Looks right → authentication for guests → activation → contextual Forge.**
 
-- Anonymous Supabase Auth (`signInAnonymously` unused)
-- Public pre-auth coaching surface
-- Assistant Coach HTTP API / UI
-- DB columns for `evidence_ledger` / `profile_insights`
-- Product analytics for landing → coach → value → gate → Forge
-- Atomic anonymous → authenticated claim for LP/evidence
+Decision 060 retains the signed HttpOnly cookie + server anonymous session, 14-day unclaimed TTL, no guest revival, Forge authentication requirement, Assessment demotion/retention, LP-LAW-001, OWN-001, and FREEZE-001. Frozen HARDEN checkpoints remain unchanged.
 
-### A.3 Shipping first-user path today (conflict)
-
-```
-Landing CTA "Prepare for today" → /signup
-→ verify email → /onboarding (optional focus)
-→ /app ContinuityHome
-→ Explorer: Assessment Forge OR open Forge practice
-```
-
-**Account gates first value.** Proxy: unauthenticated `/app/*` → `/signup`. Practice APIs: `requireApiUser`. Guest minting: **gone**.
-
-### A.4 Assistant Coach library (Phases 1–3)
-
-```
-runAssistantCoachTurn
-→ LLM { reply, observations }
-→ validate → addProfileEvidence → deriveProfileInsights
-→ evaluateForgeReadiness → buildForgeHandoffContext
-```
-
-Intelligence is identity-agnostic given a `LivingProfile` object. **Auth must not change this path** — only ownership of the profile/session rows.
-
-### A.5 Governance conflict — **resolved for this track (Decision 059)**
-
-AUDIT-001.2 / Decision 053 / EXEC-VERIFY-001 historically: **NO-GO feature expansion**; GO only for prod migration/hardening.  
-FREEZE-001 / OWN-001: identity PR hold; experiences never write identity.
-
-**Decision 059 (OD-0):** Explicitly **supersedes** that feature NO-GO **for the Assistant Coach first-user architecture only**. Unrelated feature expansion and held identity PR merges remain **NO-GO**. OWN-001 and FREEZE-001 (held identity PRs) stand.
+There is no desired-outcome field or question in this wizard.
 
 ---
 
-## B. Recommended first-user journey
+## B. Stable option catalog
 
-### B.1 Interaction sequence
+Labels are product contract. Stable IDs are persisted/API values and must not be silently renamed.
 
-1. **Landing** (`/`) — **primary** CTA = Assistant Coach (OD-5). Secondary only: Sign in / Founding Pass. Assessment not an equal competing CTA.
-2. **Start** — mint anonymous coach session (signed HttpOnly cookie + server row). Redirect `/coach` (public).
-3. **Anonymous Assistant Coach** — same `runAssistantCoachTurn` intelligence; server holds history + provisional LP.
-4. **Value in progress** — personalized replies grounded in validated evidence.
-5. **Save gate eligible** — server sets sticky `hasExperiencedValue` (deterministic; **semantic** conversion — not turn count).
-6. **Save gate shown** — modal with **placeholder** copy keys only (OD-10). Signup + Login. **No indefinite anonymous continue** after meaningful value (OD-1 hard gate).
-7. **Auth** — existing email/password flows; prefer **soft email verification** so value → account → continuation is not interrupted (OD-8).
-8. **Claim** — atomic attach of anonymous session → authenticated user. Signup changes **ownership**, not the coaching brain. Provisional evidence becomes the member Living Profile.
-9. **Confirm understanding** — human-readable Living Profile of what Coach understood (working on / where it gets difficult / identified moment / what to work on first). Member may **Edit** or **Looks right → Continue**. System 1 inferences are not identity until confirmed. Skip redundant onboarding intake (OD-7).
-10. **One contextual Forge session** — handoff is the identified moment (`/app/practice` title + success from confirmation). Forge does not start cold. Assessment is not default FTUE (OD-6).
-11. **Forge** — requires account/claim (OD-4); coaching-only; **read-only** LP/handoff context. Experiences never write identity (OWN-001).
+### B.1 Topics
 
-**Post-signup default is not “resume Assistant Coach mid-thread.”** After first value, the member confirms what TalkForge knows, then practices that moment. Assistant Coach may return later for a new struggle; it is not the full coaching product.
-
-**Product test for every engineering decision:** Does this help TalkForge **understand me** (Assistant Coach), **know me** (Living Profile), **train me** (Forge), or **show me I’m changing** (Progress)? Is the correct system responsible? If not, it is out of this slice.
-
-**This vertical slice (lock):** Landing CTA → `/coach` → value → signup → claim AC evidence → confirmation → one contextual Forge session. Do **not** build the practice→LP flywheel, redesign Progress, perfect AC prompts, or expand Forge in this slice.
-
-### B.2 What we deliberately remove from the happy path
-
-- Forcing Assessment as FTUE (Explorer assessment becomes optional fallback until retired).
-- Asking communication intake on `/onboarding` that AC already learned.
-- Gating the first Coach reply behind signup.
-
-### B.3 Progressive commitment
-
-| Stage | Ask for |
+| Stable ID | Exact label |
 |---|---|
-| Gate | Email + password (or existing login) only |
-| Post-claim | Optional display name if missing |
-| Never at gate | Purpose, principles, seasons, communication goals (AC owns these conversationally) |
-| Member settings later | Purpose / principles (member-owned identity) |
+| `job_interview` | Job interview |
+| `salary_raise_negotiation` | Salary / raise negotiation |
+| `giving_difficult_feedback` | Giving difficult feedback |
+| `setting_a_boundary` | Setting a boundary |
+| `pitch_or_presentation` | Pitch or presentation |
+| `handling_conflict` | Handling conflict |
+| `asking_for_something_i_need` | Asking for something I need |
+| `receiving_critical_feedback` | Receiving critical feedback |
+| `ending_a_relationship` | Ending a relationship |
+| `something_else` | Something else |
+
+Topic selection is ordered multi-select with minimum 1 and maximum 3. Only `something_else` may reveal bounded custom text. Custom text does not create a new catalog ID.
+
+### B.2 Audiences
+
+| Stable ID | Exact label |
+|---|---|
+| `manager_boss` | Manager/boss |
+| `peer_colleague` | Peer/colleague |
+| `client_customer` | Client/customer |
+| `recruiter_hr` | Recruiter/HR |
+| `business_partner` | Business partner |
+| `family_friend` | Family/friend |
+| `stranger_new_contact` | Stranger/new contact |
+
+Audience selection is ordered multi-select.
+
+### B.3 Patterns
+
+| Stable ID | Exact label |
+|---|---|
+| `freeze` | I freeze and don't know what to say |
+| `ramble` | I ramble and lose the thread |
+| `emotional_defensive` | I get emotional or defensive |
+| `harsh_aggressive` | I sound too harsh or aggressive |
+| `cave_under_pushback` | I cave as soon as they push back |
+| `avoid_entirely` | I avoid the conversation entirely |
+
+Pattern selection is single-select.
+
+### B.4 Urgency
+
+| Stable ID | Exact label |
+|---|---|
+| `today` | Today |
+| `this_week` | This week |
+| `next_2_weeks` | In the next 2 weeks |
+| `no_specific_deadline` | No specific deadline |
+
+Urgency selection is single-select.
 
 ---
 
-## C. State transition model
+## C. Three-phase wizard
 
-### C.1 Product states (server-authoritative where marked ★)
+### C.1 Phase 1 — “Pick your moments”
 
-| State | Meaning | Auth required | Survives refresh | Survives browser close |
-|---|---|---|---|---|
-| `VISITOR` | Landed; no coach session | No | N/A | N/A |
-| `ANON_SESSION_ACTIVE` ★ | Anonymous coach session + cookie | No | Yes (cookie + server row) | Yes until TTL |
-| `VALUE_IN_PROGRESS` ★ | Session active; value not yet met | No | Yes | Yes until TTL |
-| `SAVE_GATE_ELIGIBLE` ★ | `hasExperiencedValue` true | No | Yes | Yes until TTL |
-| `SAVE_GATE_SHOWN` | Client presented gate (telemetry) | No | Hard after value (OD-1) | Until claim / TTL |
-| `AUTH_IN_PROGRESS` | Signup/login UI | No→Yes | Auth cookies | Yes |
-| `CLAIMED` ★ | Anonymous owned by `user_id`; evidence merged to member LP | Yes | Yes | Yes |
-| `LP_CONFIRM` | Member reviews/edits inferred understanding | Yes | Yes | Yes |
-| `FORGE_READY` ★ | Confirmed understanding + practice handoff available | Yes* | Yes | Yes |
-| `FORGE_ACTIVE` | In VoiceArena practice of the identified moment | Yes | Session-scoped | Per Forge rules |
-| `AC_ACTIVE_AUTH` | Optional later: AC for a **new** struggle (not first-user default) | Yes | Yes | Yes |
+Show the exact topic catalog in §B.1. The visitor selects 1–3 topics. Selection order is retained because Phase 3 uses the first selected topic. Selecting `something_else` may reveal one bounded custom-text field. No other phase or choice requires custom input.
 
-\* Forge requires claim (OD-4 / Decision 059). Anonymous Forge is out of scope.
+Continue is enabled only when topic cardinality is 1–3 and any selected `something_else` custom text passes deterministic bounds.
 
-### C.2 Transitions
+### C.2 Phase 2 — “Narrow the context”
 
-| From → To | Trigger | Reversible? |
-|---|---|---|
-| VISITOR → ANON_SESSION_ACTIVE | CTA start; server mints session | No (new session) |
-| ANON_SESSION_ACTIVE → VALUE_IN_PROGRESS | First validated useful evidence **or** N≥1 substantive turns with personalized ack | Soft |
-| VALUE_IN_PROGRESS → SAVE_GATE_ELIGIBLE | `hasExperiencedValue` algorithm | No (sticky once true) |
-| SAVE_GATE_ELIGIBLE → SAVE_GATE_SHOWN | Client shows gate when eligible | UI dismissible; **anon turns still blocked** after value (OD-1) |
-| SAVE_GATE_SHOWN → AUTH_IN_PROGRESS | Signup/Login click | Yes |
-| AUTH_IN_PROGRESS → CLAIMED | Successful auth + claim API | No |
-| CLAIMED → LP_CONFIRM | Redirect `/coach/confirm` | — |
-| LP_CONFIRM → FORGE_READY | Member confirms (Looks right / Edit then Continue) | Soft (edit) |
-| FORGE_READY → FORGE_ACTIVE | Continue → `/app/practice` with identified moment | Session |
-| (later) * → AC_ACTIVE_AUTH | New struggle; not the first-user happy path | Soft |
+Phase 2 contains exactly three questions:
 
-### C.3 Client vs server
+1. **“Who are these conversations with?”** ordered multi-select from §B.2.
+2. **“What trips you up most?”** single-select from §B.3.
+3. **“When is this happening?”** single-select from §B.4.
 
-| Concern | Owner |
-|---|---|
-| Anonymous session id cookie (`tf_ac_anon`) | Server-set HttpOnly Secure |
-| Session row, messages, provisional LP | Server DB |
-| `hasExperiencedValue`, readiness | Server (derived; cache on session) |
-| Gate UI visibility | Client, driven by server flags |
-| Claim | Server RPC (idempotent) |
+The primary CTA is exactly **Diagnose**. Diagnose performs deterministic template projection only. It does not call an LLM, infer System 1 evidence, or judge commercial value.
 
-### C.4 Data at each stage
+### C.3 Phase 3 — deterministic Living Profile verification card
 
-| Stage | Data present |
-|---|---|
-| ANON_* | `assistant_coach_sessions`, messages, provisional `living_profiles_anon` or session-scoped LP blob, evidence, insights |
-| CLAIMED+ | Same rows re-keyed / copied to `user_id`; member `living_profiles` |
+Phase 3 renders, without an LLM:
+
+- focus areas derived from the selected topics/audiences/urgency by governed deterministic mappings;
+- a selected-pattern template keyed only by the chosen pattern stable ID;
+- the initial Forge target composed from the **first selected topic + first selected audience**.
+
+The card verifies member declarations; it is not a clinical diagnosis, System 1 inference, score, or transformation claim.
+
+Actions:
+
+- **Adjust** → return to Phase 2 with topic, audience, pattern, and urgency selections prefilled; Phase 1 topics remain editable through normal back navigation.
+- **Looks right** → guests enter the auth gate; authenticated members activate immediately.
+
+Phase 3 is the one pre-auth verification. There is no duplicate post-auth confirmation.
 
 ---
 
-## D. Proposed data architecture
+## D. State model
 
-### D.1 Recommendation summary
-
-| Store | Shape | Why |
-|---|---|---|
-| `assistant_coach_sessions` | Normalized table | Query, TTL, claim, analytics |
-| `assistant_coach_messages` | Normalized table | History continuity, audit |
-| `living_profiles` | Existing + **JSONB** `evidence_ledger`, `profile_insights` | Matches TS model; versioned with LP; not a third identity store |
-| Anonymous binding | `anon_key` (hashed) on session; optional `living_profiles_drafts` | Avoid orphan LP rows on `profiles` FK |
-
-### D.2 Why JSONB on `living_profiles` (for ledger/insights)
-
-- System 1 already models them as arrays on `LivingProfile`.
-- Coach context builders load whole profile; no need for cross-row joins early.
-- Provenance already JSONB.
-- **Tradeoff:** analytics on evidence categories harder — mitigate with session-level counters / later extract tables if needed.
-- **Do not** put insights back into evidence (OWN / System 1 law).
-
-### D.3 Conceptual tables
-
-**`assistant_coach_sessions`**
-
-| Column | Notes |
-|---|---|
-| `id` uuid PK | |
-| `anon_key_hash` text null | Hash of cookie secret; unique while unclaimed |
-| `user_id` uuid null FK profiles | Set on claim |
-| `status` text | active \| gated \| claimed \| expired \| handed_off |
-| `turn_count` int | |
-| `evidence_captured` int | |
-| `has_experienced_value` bool | Server sticky |
-| `forge_ready` bool | Cached from evaluateForgeReadiness |
-| `expires_at` timestamptz | Anon TTL (e.g. 7–14 days) |
-| `claimed_at` timestamptz null | |
-| `version` bigint | Claim concurrency |
-| `created_at` / `updated_at` | |
-
-**`assistant_coach_messages`**
-
-| Column | Notes |
-|---|---|
-| `id`, `session_id` FK | |
-| `role` | user \| assistant |
-| `text` | |
-| `turn_index` | |
-| `created_at` | |
-
-**`living_profiles` additions**
-
-| Column | Notes |
-|---|---|
-| `evidence_ledger` jsonb not null default `[]` | |
-| `profile_insights` jsonb not null default `[]` | |
-
-**Anonymous draft profile (preferred over FK violation)**
-
-**`assistant_coach_profile_drafts`**
-
-| Column | Notes |
-|---|---|
-| `session_id` PK/FK | 1:1 with session |
-| `profile_json` jsonb | Full `LivingProfile`-shaped draft (`userId` temporary) |
-| `version` | |
-
-On claim: merge draft → member `living_profiles` (see F).
-
-### D.4 RLS sketch
-
-- Anon: access only via service role after cookie HMAC verify (browser never gets service key). Prefer **server routes only** — no direct anon Supabase client to these tables.
-- Auth: `user_id = auth.uid()` on claimed sessions and LP.
-
----
-
-## E. Value / gate eligibility algorithm
-
-### E.1 Principle
-
-LLM does **not** decide commercial UI. Server computes `hasExperiencedValue` from validated System 1 state + turn metadata.
-
-### E.2 Deterministic rule (v1.1 — intervention-backed value)
-
-```
-discoveryReady =
-  substantiveUserTurns >= 2
-  AND (
-    // Path V1 — understanding demonstrated (discovery)
-    (hasGroundedGoalOrOutcome AND hasGroundedContextOrFriction)
-    OR
-    // Path V2 — supported insight exists (discovery)
-    (count(profileInsights where status in {supported, tentative}
-          and kind in {root_pattern, focus_area, key_environment}) >= 1
-     AND evidenceLedger fact-categories >= 2)
-  )
-  AND NOT onlyVagueAspiration
-
-hasExperiencedValue =
-  discoveryReady
-  AND hasValidatedActionableIntervention  // session-scoped; sticky once true
-```
-
-**Discovery vs value:** Evidence/insights may accumulate as soon as the Coach understands the struggle. That alone is **not** experienced coaching value. Conversion requires at least one **validated actionable intervention** delivered by Coach (exercise, rehearsal, technique, strategy, usable wording/opener, pacing mechanism, or similar), represented as structured model JSON and checked server-side — **not** free-form reply prose.
-
-Intervention acceptance (deterministic):
-
-- `kind` ∈ {exercise, rehearsal, technique, strategy, wording, pacing, other}
-- `summary` length ≥ 24
-- `groundedInCategories` intersects grounded fact categories already on the evidence ledger
-- Reflection, summary, validation, or a follow-up question **without** a valid `intervention` object does **not** flip value
-
-Definitions:
-
-- **Grounded** = `ProfileEvidenceRecord` with category ≠ `interaction_signal`, confidence ≠ only uncertain, text length ≥ 8, passed validation.
-- **Goal/outcome** = `communication_goal` | `desired_outcome` that is **not** vague aspiration (`isVagueAspirationOnly`).
-- **Context/friction** = `communication_context` | `communication_friction` | `lived_example` | `observed_pattern`.
-- **onlyVagueAspiration** = ledger facts empty except low-confidence vague goals.
-- Interventions are **Coach deliverables**; they must not enter `evidence_ledger` as member identity/evidence.
-
-### E.3 Floors, conversion, and safety/economic limit
-
-| Guard | Rule |
-|---|---|
-| Earliest conversion eligibility | Never before turn 2 substantive user messages (still must pass §E.2) |
-| **Conversion gate** | **Semantic only:** sticky `hasExperiencedValue` (§E.2). Turn count does **not** decide conversion. |
-| Hard block anon (OD-1) | Once `hasExperiencedValue` is true → further anonymous turns require auth/claim. No soft continue-forever. |
-| Safety/economic limit | Configurable anon turn cap (default **10**). Stops/throttles unpaid abuse. **Not** the conversion gate — some users may need fewer or more turns before semantic value. |
-| Cap vs value | Cap alone may block further anon turns for economics; it must **not** be treated as “experienced value” for analytics/conversion. |
-
-### E.4 Explicit non-triggers
-
-- Message count alone
-- Discovery / understanding alone (goal+friction without an intervention)
-- LLM saying “ready to signup”
-- Free-form reply prose without a validated structured `intervention`
-- Reflection, summary, validation, or follow-up question alone
-- Forge readiness (later; stronger bar)
-- Interaction signals (“I don’t know”)
-- Living Profile “completeness” (not a conversion concept)
-
----
-
-## F. Account claim algorithm
-
-### F.1 Happy path (signup)
-
-1. Client holds `tf_ac_anon` cookie; completes signup/login.
-2. `POST /api/assistant-coach/claim` (auth required) with no body (cookie identifies anon).
-3. Server (transaction):
-   - Lock session by `anon_key_hash` where `user_id IS NULL` and not expired.
-   - If already `user_id = auth.uid()` → idempotent success (return session).
-   - If `user_id` other → 409 conflict.
-   - Ensure member `living_profiles` exists.
-   - **Merge** draft profile → member LP (F.2).
-   - Set `sessions.user_id`, `claimed_at`, clear anon association (rotate cookie to authenticated session id).
-   - Return session + merged profile. Client proceeds to **`/coach/confirm`**, not a resumed AC thread.
-
-### F.2 Merge rules (never silent overwrite)
-
-| Field | Rule |
-|---|---|
-| `purposeStatement` | Keep member if non-empty; else leave empty (AC must not invent purpose). Draft purpose ignored if any. |
-| `goals` / `challenges` / `strengths` | Union unique strings; prefer longer/more specific; cap N |
-| `evidence_ledger` | Concatenate; dedupe by `(category, normalized text)`; preserve timestamps |
-| `profile_insights` | Re-run `deriveProfileInsights` on merged ledger (source of truth), do not blindly concat competing claims |
-| `provenance` | Preserve member provenance; append claim event `anon_session_claimed` |
-| `personalPrinciples` / `seasons` | Member wins entirely |
-| `coachingIntensity` / style | Member if set; else draft |
-| Assessment `profile_source` | Do not downgrade `assessment` → draft; if member already `assessment`, keep and still append evidence |
-
-### F.3 Existing user logs in (already has LP)
-
-Same merge. If member already Forge-active with rich LP:
-
-- Append anon evidence as **additional** observations.
-- Recompute insights with competition/uncertainty preserved.
-- Surface UI: “We added what you just shared to your Living Profile.”
-
-### F.4 Idempotency / races
-
-- Claim keyed by `(anon_key_hash)` unique partial index where unclaimed.
-- Second claim same user: 200 idempotent.
-- Claim after expiry: 410; offer restart (OD-2).
-- Double-submit: transaction + version check.
-
-### F.5 What user must not experience
-
-- Blank new AC thread
-- Re-asking known goals/contexts as onboarding intake
-- Dumping into ContinuityHome / dashboard / Explorer as the first post-signup moment
-- Resuming Assistant Coach chat as the default after first value
-- A cold Forge session with no identified moment
-- Second empty Living Profile row
-
----
-
-## G. Failure / recovery matrix
-
-| Failure | User experience | Server | Integrity |
+| State | Meaning | Auth required | Persistence |
 |---|---|---|---|
-| Refresh mid-AC | Resume same thread | Load session by cookie | Intact |
-| Tab close / reopen within TTL | Resume | Cookie | Intact |
-| Cookie cleared | “Session lost — start again” | Cannot claim orphan without key | Orphan expires via TTL job |
-| Network blip on turn | Retry turn; show last good reply | Idempotent turn_id | No double evidence if turn_id deduped |
-| Model timeout | Soft apology + retry | No apply | Profile unchanged |
-| Malformed model JSON | Safe fail (Phase 3 behavior) | No apply | Unchanged |
-| Persist failure after model ok | “Saved locally — retry save”; do not advance gate on false value | Compensating retry | Prefer fail-closed on value flag |
-| Signup failure | Stay on gate with errors | No claim | Anon intact |
-| Email already registered | Prompt login; preserve anon cookie | — | Claim on login |
-| Login failure | Retry | — | Anon intact |
-| Anon expired at claim | Explain expiry; restart AC signed-in | 410 | No merge |
-| Claim OK, client misses response | Next `/coach` loads claimed session by user | Idempotent claim | OK |
-| Other device sign-in | No anon cookie there; sees auth LP only | — | Anon may remain until TTL unless user claims from original device |
-| Duplicate anon claim attempt | 409 or idempotent | Reject other user | OK |
+| `VISITOR` | No wizard session | No | None |
+| `PICK_MOMENTS` | Phase 1 topic selection | No | Signed cookie + guest draft |
+| `NARROW_CONTEXT` | Phase 2 audience/pattern/urgency | No | Signed cookie + guest draft |
+| `VERIFY_PROFILE` | Phase 3 deterministic verification card | No | Signed cookie + guest draft |
+| `AUTH_REQUIRED` | Guest selected Looks right | No→Yes | Guest draft until TTL |
+| `ACTIVATING` | Idempotent member activation | Yes | Server |
+| `FORGE_READY` | Member practice profile verified and handoff committed | Yes | Living Profile + handoff |
+| `FORGE_ACTIVE` | Contextual practice | Yes | Existing Forge rules |
+| `EXPIRED` | Unactivated guest draft beyond TTL | No | Purge |
+
+Transitions:
+
+| From → To | Trigger |
+|---|---|
+| `VISITOR → PICK_MOMENTS` | Primary CTA / session mint |
+| `PICK_MOMENTS → NARROW_CONTEXT` | Valid ordered topic selection (1–3) |
+| `NARROW_CONTEXT → VERIFY_PROFILE` | Valid audiences + pattern + urgency; Diagnose |
+| `VERIFY_PROFILE → NARROW_CONTEXT` | Adjust; values prefilled |
+| `VERIFY_PROFILE → AUTH_REQUIRED` | Guest selects Looks right |
+| `VERIFY_PROFILE → ACTIVATING` | Authenticated member selects Looks right |
+| `AUTH_REQUIRED → ACTIVATING` | Successful authentication |
+| `ACTIVATING → FORGE_READY` | Atomic LP activation + handoff |
+| `FORGE_READY → FORGE_ACTIVE` | Authorized practice entry |
+| any unactivated state → `EXPIRED` | 14-day TTL elapsed |
+
+Authentication never grants Forge until activation succeeds.
 
 ---
 
-## H. Privacy / security considerations
+## E. Living Profile contract
 
-1. **Pre-auth PII:** Conversations may include workplace details before account — minimize retention (TTL 7–14d), HTTPS-only cookies, no third-party transcript analytics.
-2. **Authorization:** All AC reads/writes via server routes; cookie HMAC / signed anon secret; never expose `evidence_ledger` internals beyond what’s needed for UI transcript.
-3. **Cross-user:** Claim refuses if session owned; RLS + service-role discipline.
-4. **Deletion:** “Delete my trial data” endpoint; auth account deletion cascades sessions.
-5. **Abandoned cleanup:** Cron expire `expires_at`, delete messages + drafts.
-6. **Children / sensitive:** Reuse existing ToS; no special AC exception.
-7. **HARDEN-005:** Do not revive `guest_*` cloud identities; use first-class anon session keys instead.
+### E.1 Authorized field
+
+Decision 060 authorizes one field inside the existing Living Profile:
+
+`member_practice_profile jsonb`
+
+This is not a parallel profile, shadow identity store, inferred System 1 profile, or client-owned blob. The Living Profile remains the SSOT.
+
+Conceptual payload:
+
+```json
+{
+  "topics": [
+    {
+      "id": "job_interview",
+      "customText": null
+    }
+  ],
+  "audiences": ["recruiter_hr"],
+  "pattern": "ramble",
+  "urgency": "this_week",
+  "verifiedAt": "ISO-8601 timestamp",
+  "updatedAt": "ISO-8601 timestamp",
+  "provenance": {
+    "kind": "member_declared",
+    "source": "coach_card_wizard",
+    "sourceSessionId": "server-owned reference"
+  }
+}
+```
+
+Required semantics:
+
+- `topics`: ordered array, 1–3 entries, stable IDs from §B.1; bounded `customText` allowed only for `something_else`;
+- `audiences`: ordered multi-select stable IDs from §B.2;
+- `pattern`: one stable ID from §B.3;
+- `urgency`: one stable ID from §B.4;
+- `verifiedAt`: timestamp when the member selects Looks right and activation commits;
+- `updatedAt`: timestamp of the latest authorized member update;
+- `provenance`: member-declared provenance, including wizard source and server-owned source-session reference.
+
+Database/API serialization may use snake_case column keys while the application model uses camelCase, but one canonical mapping must be documented and tested. The field itself is `member_practice_profile`.
+
+### E.2 Ownership law
+
+LP-LAW-001 and OWN-001 remain binding:
+
+- selections are member declarations, not System 1 inference;
+- the wizard cannot invent purpose, principles, season, personality, evidence, or insight;
+- anonymous draft values are provisional and cannot authorize Forge or serve as durable member identity;
+- activation uses the authorized member-declared LP write path;
+- member edits replace only this declared practice-profile projection and preserve unrelated richer LP values;
+- Forge reads this field/handoff and never writes identity.
 
 ---
 
-## I. Analytics event specification
+## F. Guest draft and security
 
-Extend GA4 with `event_category: "assistant_coach" | "conversion"`. **Never send message text, evidence quotes, or purpose.**
+Guest selections live only in provisional server-side draft storage bound to the signed HttpOnly anonymous session. Minimum draft state:
 
-| Event | When | Properties (non-PII) |
+| Field | Meaning |
+|---|---|
+| `session_id` / `anon_key_hash` | Signed-cookie server binding |
+| `phase` | Pick, narrow, verify, auth required, activated, expired |
+| `topics` | Ordered 1–3 stable IDs + optional bounded Something else text |
+| `audiences` | Ordered audience IDs |
+| `pattern` | One pattern ID |
+| `urgency` | One urgency ID |
+| `expires_at` | Created + 14 days while unactivated |
+| `user_id` / `activated_at` | Null until member activation |
+| `version` | Concurrency/idempotency |
+
+Security:
+
+- HttpOnly, Secure, SameSite-compatible signed/opaque cookie;
+- server row is authoritative; no direct anonymous database writes;
+- origin/CSRF checks and rate limits on mutations;
+- analytics exclude custom text and LP content;
+- no Supabase anonymous auth user, `guest_*` profile, cloud guest reassignment, guest revival, or archive recovery;
+- expired unactivated drafts are purged.
+
+---
+
+## G. Authentication and activation
+
+After **Looks right**:
+
+- authenticated member → activate immediately;
+- guest → signup/login; preserve the signed draft through auth/retry; activate only after successful authentication.
+
+Existing authentication/verification security remains authoritative. Decision 060 does not create the Decision 059 soft-verification exception.
+
+The server activation transaction:
+
+1. validates signed cookie, unexpired draft, catalogs, cardinality, and Phase 3 verification state;
+2. locks the unactivated draft;
+3. rejects ownership by another member and returns idempotent success for the same member;
+4. calls `ensurePersistedLivingProfile`;
+5. writes `member_practice_profile` through the authorized member-declared LP mutation path with member provenance and `verifiedAt` / `updatedAt`;
+6. constructs the read-only initial Forge target from first topic + first audience;
+7. marks the draft activated and rotates/clears anonymous binding;
+8. returns the contextual authenticated Forge destination.
+
+No `/coach/confirm`, repeated onboarding intake, desired-outcome question, or resumed Coach thread occurs after authentication.
+
+---
+
+## H. Deterministic projection contract
+
+Phase 3 output must be a pure governed projection:
+
+```text
+focusAreas = focusAreaMap(topics, audiences, urgency)
+patternTemplate = patternTemplateMap[pattern]
+initialForgeTarget = forgeTargetMap[first(topics), first(audiences)]
+```
+
+Requirements:
+
+- same ordered inputs + mapping version produce the same verification card;
+- unknown IDs fail closed;
+- no model call, free-form generation, inference, scoring, or semantic readiness/value evaluation;
+- selected labels remain visible so the member can detect mistakes;
+- mapping version is testable and changes are reviewable;
+- initial Forge target never silently substitutes a later topic/audience.
+
+---
+
+## I. Failure and recovery
+
+| Failure | Required behavior |
+|---|---|
+| Refresh/reopen within 14 days | Resume phase and exact ordered selections |
+| Invalid/tampered cookie | Start clean; disclose no session existence |
+| Invalid catalog/cardinality | Reject deterministically; do not advance |
+| Adjust | Return to Phase 2 prefilled |
+| Network failure | Retry idempotently; never advance falsely |
+| Signup failure/existing email | Preserve draft; retry or login |
+| Auth succeeds, response lost | Same-member activation retry returns committed Forge destination |
+| Draft expires before activation | Restart; no email/archive recovery |
+| Cross-member activation | Reject without disclosing details |
+| LP write fails | Do not authorize Forge; preserve safe retry |
+| Practice readiness/entitlement fails | Use existing authenticated remediation; never bypass |
+
+---
+
+## J. Analytics
+
+Allowed funnel:
+
+`wizard_started → moments_selected → context_narrowed → diagnose_clicked → profile_verified → auth_started → authenticated → practice_profile_activated → forge_started`
+
+Allowed properties: stable option IDs, selection counts, `something_else` boolean, phase, mapping version, non-PII source/retry reason.
+
+Never send bounded custom text, email, LP content, transcript, evidence, or inferred identity. There is no semantic-value, intervention, anonymous-turn, post-auth-confirmation, or Coach-resume event.
+
+---
+
+## K. Acceptance contract
+
+1. Phase 1 is exactly “Pick your moments,” exact topic catalog, ordered multi-select 1–3.
+2. Only Something else may reveal bounded custom text.
+3. Phase 2 is exactly “Narrow the context”: audience multi-select, pattern single-select, urgency single-select, exact catalogs, CTA Diagnose.
+4. Phase 3 deterministically shows focus areas, selected-pattern template, and initial Forge target from first topic + first audience.
+5. Adjust returns to Phase 2 prefilled.
+6. Looks right gates guests on authentication and activates authenticated members.
+7. `member_practice_profile` is one JSONB field inside Living Profile with topics/audiences/pattern/urgency, verified/update timestamps, and member provenance.
+8. Selections are member declarations, not System 1 inference.
+9. No desired-outcome question, LLM, semantic gate, anonymous Coach turns, or duplicate post-auth confirmation exists.
+10. Forge/practice APIs require authentication, successful activation, persisted LP readiness, and entitlement.
+11. Signed anonymous session, 14-day TTL, no guest revival, and Assessment retention/demotion remain.
+12. `guest-migration:check`, practice-readiness, auth, database deployment, and governance checks remain green.
+
+---
+
+## Change log
+
+| Version | Date | Change |
 |---|---|---|
-| `landing_viewed` | Landing paint | `cta_variant` |
-| `assistant_coach_cta_clicked` | Primary CTA | `from` |
-| `anonymous_coach_started` | Session minted | `session_id_hash` |
-| `assistant_coach_turn_completed` | Turn OK | `turn_index`, `accepted_obs`, `rejected_obs`, `difficulty` |
-| `assistant_coach_value_reached` | Flag flips true | `turn_index`, `path` (v1/v2) |
-| `account_gate_shown` | Gate render | `turn_index` |
-| `account_gate_auth_required` | Anon turn blocked post-value/cap | `turn_index`, `reason` (`value` \| `turn_cap`) |
-| `signup_started` / `signup_completed` | Existing + link `session_id_hash` | reuse auth_* |
-| `login_completed` | Existing + claim intent | |
-| `anonymous_session_claimed` | Claim OK | `merged_evidence_count`, `had_existing_lp` |
-| `assistant_coach_resumed` | Post-claim first turn | |
-| `forge_ready` | Readiness true | |
-| `forge_handoff_started` | User clicks continue to Forge | |
-| `forge_started` | Practice session begins | `mode` |
-
-Funnel:  
-`landing_viewed → cta → started → value_reached → gate_shown → signup/login → claimed → confirmed → forge_started`
-
----
-
-## J. Phase 4B implementation plan (reviewable steps)
-
-> **Authorized** by Decision 059. Exact slice order, security checklist, and DAG: **[PHASE4B-AC-IMPLEMENTATION-SEQUENCE](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md)**.
-
-Summary (do not implement as one PR):
-
-| Step | Scope |
-|---|---|
-| **4B.0** | Decision 059 + this OD resolution + sequence doc |
-| **4B.1** | LP `evidence_ledger` / `profile_insights` JSONB (+ OD-9 migration-path note) |
-| **4B.2** | Anon session / messages / drafts tables + 14d TTL |
-| **4B.3** | Signed HttpOnly cookie + session mint (no guests) |
-| **4B.4** | `POST /api/assistant-coach/turn` |
-| **4B.5** | Semantic `hasExperiencedValue` + configurable turn safety cap |
-| **4B.6** | Hard gate anon after value/cap |
-| **4B.7** | Claim + merge |
-| **4B.8** | Soft verify carve-out for `/coach` **and first `/app/practice` after AC confirm** |
-| **4B.9** | Skip redundant onboarding — **replaced by LP confirmation**, not a focus picker |
-| **4B.10–13** | `/coach` UI · landing primary CTA · demote Assessment FTUE · proxy allowlist |
-| **4B.14–15** | Analytics · expiry purge |
-| **Vertical slice** | Landing → `/coach` → value → signup → claim → confirm → **one** contextual Forge session (founder 2026-08-20). Not the flywheel. |
-| **Later** | Forge evidence → System 1 proposals → confirmation → readiness → next practice. Progress viewer last. |
-
-Do **not** in early 4B: delete Assessment, finalize gate copy, change VoiceArena VAD, expand billing, resurrect guests.
-
----
-
-## K. Founder decisions (OD-0…OD-10) — **DECIDED**
-
-Authority: **Decision 059** (2026-08-16).
-
-| ID | Decision | Binding answer |
-|---|---|---|
-| **OD-0** | Feature NO-GO vs this track | **GO** for this AC first-user architecture only; supersedes old NO-GO for this track. Unrelated features + held identity PRs remain NO-GO. |
-| **OD-1** | Anon continue after value | **Hard gate after meaningful value** (not immediate). Indefinite anon continue forbidden. |
-| **OD-2** | Anon TTL | **14 days** |
-| **OD-3** | Anon identity | **Signed HttpOnly cookie + server session.** Do not resurrect retired guest architecture. |
-| **OD-4** | Forge without claim | **Never.** Anon = Assistant Coach only. |
-| **OD-5** | Landing CTA | **AC primary.** No two equal competing onboarding CTAs. Assessment accessible elsewhere during transition. |
-| **OD-6** | Assessment FTUE | **Do not delete.** Remove as default FTUE; keep until AC proven in production. |
-| **OD-7** | Onboarding after claim | **Skip redundant** questions AC already learned; collect only missing account-required info. |
-| **OD-8** | Email verification | Prefer **soft verify** for continuity unless later Decision proves absolute need for verify-first. |
-| **OD-9** | Evidence storage | Initial **JSONB** ledger + insights OK if System 1 sole writer; design migration path to normalized evidence. |
-| **OD-10** | Gate copy | **Do not finalize** in architecture PRs; product/UI later. |
-
-**Turn cap clarification (Founder):** Ten turns = **configurable safety/economic limit**, not the conversion gate. Conversion remains semantic (`hasExperiencedValue`).
-
----
-
-## Conflicts with existing architecture (explicit)
-
-| Conflict | Resolution |
-|---|---|
-| Account-first proxy vs pre-auth `/coach` | Allowlist public AC routes (4B.13). |
-| HARDEN-005 guest retirement vs anonymous trial | **New** anon cookie+server session only — never `guest_*`. |
-| Assessment-as-discovery vs AC-as-discovery | AC primary; Assessment demoted, kept (OD-5/6). |
-| Practice readiness vs AC drafts | Forge still requires claimed LP + readiness (OD-4). |
-| Feature NO-GO vs AC journey | **Superseded for this track** by Decision 059 / OD-0. |
-| OWN-001 | AC writes evidence/insights only; never identity/purpose authority. |
-| Library-only AC | 4B adds API/UI without changing Core intelligence path. |
-| Hard `email_verified` redirect to `/verify-email` | Carve soft path for `/coach`, AC APIs, `/coach/confirm`, and the first AC-handoff `/app/practice` (OD-8 + vertical slice). Other `/app` routes may stay hard. |
-
----
-
-## Architectural invariant (binding for 4B+)
-
-> Assistant Coach does not belong to authentication.  
-> Authentication attaches ownership to an Assistant Coach session.  
-> Anonymous and authenticated users share the same intelligence/runtime.  
-> Auth changes identity, ownership, and persistence guarantees — not coaching brain.  
-> After first experienced value, the first-user path is **claim → confirm understanding → practice the identified moment**. Assistant Coach understands; Living Profile knows; Forge trains; Progress (later) shows change.
-
-Responsibility split remains:
-
-| Plane | Owner |
-|---|---|
-| Conversation + candidates | LLM / AC runtime |
-| Evidence acceptance | Validation |
-| Truth/memory | System 1 |
-| Accumulated understanding | Living Profile |
-| Onboarding understanding | Assistant Coach |
-| Coaching | Forge |
-| Identity | Authentication / member |
-
----
-
-## Stop (Phase 4A)
-
-Phase 4A design is complete; open decisions are closed. **Implement only via Phase 4B slices** in [PHASE4B-AC-IMPLEMENTATION-SEQUENCE](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md). Next code PR = **4B.1** (LP JSONB), not a monolith.
+| 1.0.0 | 2026-08-16 | Decision 059 conversational discovery/value-gate architecture |
+| 2.0.0 | 2026-09-07 | Decision 060 governance pivot |
+| 2.1.0 | 2026-09-07 | Corrected to approved Pick moments → Narrow context → deterministic LP verification contract; authorized `member_practice_profile` |

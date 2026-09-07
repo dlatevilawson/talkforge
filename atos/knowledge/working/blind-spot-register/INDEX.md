@@ -1,7 +1,7 @@
 # Blind Spot Register — Index
 
-| **Updated** | 2026-08-24 |
-| **Count** | 16 |
+| **Updated** | 2026-09-07 |
+| **Count** | 17 |
 
 | ID | Title | Status | Severity | Related |
 |---|---|---|---|---|
@@ -21,3 +21,4 @@
 | [BS-014](bs-014.md) | Coach excellence becomes theater without conversation evidence | Mitigating | High | IV-AI-006 · CFX-001 |
 | [BS-016](bs-016.md) | Billing becomes a paywall or second identity store | Mitigating | High | IV-PROD-008 · OWN-001 · BILL-001 |
 | [BS-017](bs-017.md) | Continuous Intelligence silently Canonicalizes or Atlas becomes sovereign | Open | High | IV-AI-010 · IV-LAW-011 |
+| [BS-018](bs-018.md) | Deterministic Coach wizard becomes coercive or writes identity by proxy | Mitigating | High | IV-UX-011 · IV-PROD-009 · OWN-001 |

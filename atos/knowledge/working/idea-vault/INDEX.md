@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | **Document ID** | IV-INDEX |
-| **Version** | 1.13.0 |
+| **Version** | 1.14.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
-| **Updated** | 2026-08-24 |
-| **Entry count** | 75 |
+| **Updated** | 2026-09-07 |
+| **Entry count** | 76 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
@@ -70,7 +70,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-PROD-006](product-ideas/IV-PROD-006-generation-4-coaching.md) | Generation-4 coaching — remember who you’re becoming | Approved | Critical | Medium | `product-ideas/IV-PROD-006-generation-4-coaching.md` |
 | [IV-PROD-007](product-ideas/IV-PROD-007-marketing-brain.md) | Marketing Brain (direct-response front door) | In Development | Critical | High | `product-ideas/IV-PROD-007-marketing-brain.md` |
 | [IV-PROD-008](product-ideas/IV-PROD-008-billing-membership.md) | Billing & Membership Platform (Free / Pro) | In Development | Critical | High | `product-ideas/IV-PROD-008-billing-membership.md` |
-| [IV-PROD-009](product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md) | First-user Assistant Coach journey (pre-account value) | Building | Critical | High | `product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md` |
+| [IV-PROD-009](product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md) | First-user Coach journey (deterministic cards → auth → Forge) | In Development | Critical | High | `product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md` |
 
 ## Features (9)
 
@@ -86,7 +86,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-FEAT-008](features/IV-FEAT-008-personal-principles.md) | Personal Principles | Reviewing | Important | Medium | `features/IV-FEAT-008-personal-principles.md` |
 | [IV-FEAT-009](features/IV-FEAT-009-current-season.md) | Primary + Secondary Season | Inbox | Important | Medium | `features/IV-FEAT-009-current-season.md` |
 
-## UX Ideas (10)
+## UX Ideas (11)
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
@@ -100,6 +100,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-UX-008](ux-ideas/IV-UX-008-machine-behavior-language.md) | Machine Behavior Language | In Development | Critical | High | `ux-ideas/IV-UX-008-machine-behavior-language.md` |
 | [IV-UX-009](ux-ideas/IV-UX-009-optional-visual-training-focus.md) | Optional visual training focus (Machines picker) | In Development | Critical | High | `ux-ideas/IV-UX-009-optional-visual-training-focus.md` |
 | [IV-UX-010](ux-ideas/IV-UX-010-first-walk-member-surfaces.md) | First-walk member surfaces — Progress, LP look, mobile lock | In Development | Important | High | `ux-ideas/IV-UX-010-first-walk-member-surfaces.md` |
+| [IV-UX-011](ux-ideas/IV-UX-011-deterministic-coach-card-wizard.md) | Deterministic Coach card wizard | In Development | Critical | High | `ux-ideas/IV-UX-011-deterministic-coach-card-wizard.md` |
 
 ## AI Ideas (10)
 
@@ -147,7 +148,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 
 ---
 
-## Critical ideas (49) — definitional weight
+## Critical ideas (50) — definitional weight
 
 | ID | Title | Status | Category |
 |---|---|---|---|
@@ -190,6 +191,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-UX-007](ux-ideas/IV-UX-007-phase-10-product-design.md) | Phase 10 Product Experience Design | In Development | UX Ideas |
 | [IV-UX-008](ux-ideas/IV-UX-008-machine-behavior-language.md) | Machine Behavior Language | In Development | UX Ideas |
 | [IV-UX-009](ux-ideas/IV-UX-009-optional-visual-training-focus.md) | Optional visual training focus (Machines picker) | In Development | UX Ideas |
+| [IV-UX-011](ux-ideas/IV-UX-011-deterministic-coach-card-wizard.md) | Deterministic Coach card wizard | In Development | UX Ideas |
 | [IV-AI-001](ai-ideas/IV-AI-001-hypothesize-never-assume.md) | May hypothesize; never assume | Approved | AI Ideas |
 | [IV-AI-002](ai-ideas/IV-AI-002-mentor-pacing.md) | Mentor pacing — understand before coaching | In Development | AI Ideas |
 | [IV-AI-006](ai-ideas/IV-AI-006-coach-forge-excellence.md) | Coach Forge Communication Excellence Assessment | In Development | AI Ideas |
@@ -197,7 +199,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-AI-008](ai-ideas/IV-AI-008-atlas-awareness-steward.md) | Atlas Awareness Steward — first to know, not the fixer | In Development | AI Ideas |
 | [IV-AI-010](ai-ideas/IV-AI-010-atos-continuous-intelligence.md) | ATOS Continuous Intelligence — governed company-learning loop | In Development | AI Ideas |
 | [IV-PROD-008](product-ideas/IV-PROD-008-billing-membership.md) | Billing & Membership Platform (Free / Pro) | In Development | Product Ideas |
-| [IV-PROD-009](product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md) | First-user Assistant Coach journey (pre-account value) | Building | Product Ideas |
+| [IV-PROD-009](product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md) | First-user Coach journey (deterministic cards → auth → Forge) | In Development | Product Ideas |
 | [IV-RES-004](research-ideas/IV-RES-004-transfer-outside-app.md) | Transfer outside the app is the scoreboard | Researching | Research Ideas |
 | [IV-FUT-003](future-ideas/IV-FUT-003-multi-year-mentor.md) | Multi-year mentor relationship vision | Future | Future Ideas |
 | [IV-REJ-001](rejected-ideas/IV-REJ-001-optimize-engagement.md) | Optimize for engagement / time-in-app | Rejected | Rejected Ideas |
