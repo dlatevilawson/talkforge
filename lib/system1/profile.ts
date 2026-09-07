@@ -27,6 +27,7 @@ export function emptyLivingProfile(
     provenance: [],
     evidenceLedger: [],
     profileInsights: [],
+    memberPracticeProfile: null,
     presenceScores: null,
     goals: [],
     strengths: [],

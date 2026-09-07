@@ -144,6 +144,7 @@ create table if not exists public.living_profiles (
   provenance jsonb not null default '[]'::jsonb,
   evidence_ledger jsonb not null default '[]'::jsonb,
   profile_insights jsonb not null default '[]'::jsonb,
+  member_practice_profile jsonb not null default '{}'::jsonb,
   presence_scores jsonb,
   goals text[] not null default '{}',
   strengths text[] not null default '{}',
@@ -164,6 +165,8 @@ comment on column public.living_profiles.evidence_ledger is
   'System 1 observable evidence ledger (JSONB). Not identity. Written only via System 1 helpers. OD-9: normalize later via dual-write/backfill if querying/auditing requires it.';
 comment on column public.living_profiles.profile_insights is
   'System 1 derived profile insights (JSONB). Must never re-enter evidence_ledger. OD-9: normalize later with the same dual-write path when needed.';
+comment on column public.living_profiles.member_practice_profile is
+  'Verified member-declared Coach card wizard selections with server-owned timestamps and provenance. Not System 1 evidence or insights; Forge reads but never writes.';
 comment on column public.living_profiles.presence_scores is
   'Inferred 1–10 skill scores from assessment conversation (test slice).';
 comment on column public.living_profiles.profile_source is

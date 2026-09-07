@@ -7,6 +7,7 @@ import { emptyLivingProfile } from "../system1/profile.ts";
 import { deriveProfileInsights } from "../system1/profile-intelligence.ts";
 import type { ProfileEvidenceRecord } from "../system1/profile-evidence.ts";
 import type { LivingProfile, ProvenanceRecord } from "../system1/types.ts";
+import { parseMemberPracticeProfile } from "./practice-profile.ts";
 
 const LIST_CAP = 8;
 
@@ -42,6 +43,9 @@ export function draftJsonToLivingProfile(
     profileInsights: Array.isArray(profileJson.profileInsights)
       ? (profileJson.profileInsights as LivingProfile["profileInsights"])
       : [],
+    memberPracticeProfile: parseMemberPracticeProfile(
+      profileJson.memberPracticeProfile
+    ),
     goals: Array.isArray(profileJson.goals)
       ? (profileJson.goals as string[])
       : [],
@@ -112,6 +116,9 @@ export function mergeDraftIntoMemberLivingProfile(input: {
   const now = (input.now ?? new Date()).toISOString();
   const member = input.member;
   const draft = input.draft;
+  const memberPracticeProfile =
+    parseMemberPracticeProfile(member.memberPracticeProfile) ??
+    parseMemberPracticeProfile(draft.memberPracticeProfile);
   const purposeStatement = member.purposeStatement?.trim()
     ? member.purposeStatement
     : "";
@@ -153,6 +160,7 @@ export function mergeDraftIntoMemberLivingProfile(input: {
     ),
     evidenceLedger,
     profileInsights,
+    memberPracticeProfile,
     provenance: [claimProvenance, ...(member.provenance ?? [])].slice(0, 200),
     profileSource:
       member.profileSource === "assessment"

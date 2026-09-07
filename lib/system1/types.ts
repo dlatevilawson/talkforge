@@ -11,6 +11,7 @@
 import type { PresenceScores, ProfileSource } from "./assessment.ts";
 import type { ProfileEvidenceRecord } from "./profile-evidence.ts";
 import type { ProfileInsight } from "./profile-intelligence.ts";
+import type { MemberPracticeProfile } from "../assistant-coach/practice-profile.ts";
 
 /** Provenance for any Living Profile claim (Law #014). */
 export type EvidenceSourceKind =
@@ -126,6 +127,11 @@ export type LivingProfile = {
    * System 1 is the sole writer/authority (Decision 059 / OD-9).
    */
   profileInsights: ProfileInsight[];
+  /**
+   * Verified member declarations from the Decision 060 card wizard.
+   * This is identity-plane data; Forge may read it but experiences never write it.
+   */
+  memberPracticeProfile: MemberPracticeProfile | null;
   /** Assessment test slice — inferred 1–10 scores (null if incomplete/unscored). */
   presenceScores: PresenceScores | null;
   /** Assessment test slice — goals surfaced in conversation. */
