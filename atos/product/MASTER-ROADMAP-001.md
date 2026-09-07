@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | MASTER-ROADMAP-001 |
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Status** | **Complete — EXEC-001 Step 12** |
-| **Updated** | 2026-08-24 |
+| **Updated** | 2026-09-07 |
 | **Depends on** | DEP-MAP-001 · PRIORITY-001 · CAT-001 · VERIFY-001 · CONST-001 · Idea Vault |
 | **Related** | ROADMAP-001 (north star narrative) |
 
@@ -57,7 +57,7 @@ Translate priorities into implementation phases with goal, dependencies, complex
 | D3 Moments / Timeline | Continuity visible | A3 | Medium | Eng | Not started |
 | D4 Canvas | Parked | — | Low | Eng | Future |
 | D5 Discovery | Parked | D1 trust | Medium | Eng | Future |
-| D6 Coach interaction | First principle (CFP-001) + excellence gate (CFX-001) | IV-AI-007 · IV-AI-002 · IV-AI-006 | Medium | Eng | In Development |
+| D6 Coach interaction | Seven-topic card grid → one anonymous private Forge preview → post-session auth/claim | IV-PROD-010 · Decision 060 · CFP-001 · CFX-001 | High | Eng | Authorized — implementation not in this governance package |
 
 ## Phase E — Validate & Iterate (EXEC Steps 17–18)
 
@@ -70,8 +70,23 @@ Translate priorities into implementation phases with goal, dependencies, complex
 
 | Item | Goal | Dependencies | Complexity | Owner | Status |
 |---|---|---|---|---|---|
-| F1 Free / Pro billing | Stripe Checkout + Portal + webhooks; server SSOT; configurable free limits; Free hold-to-talk + Pro hands-free Coach Forge; Membership + Billing surfaces; calm end-of-free | Living Profile · CE practice · BS-016 | High | Eng / Founder | In Development |
+| F1 Free / Pro billing | Stripe Checkout + Portal + webhooks; server SSOT; Free 3 complete sessions/calendar month; anonymous preview excluded; Free hold-to-talk + Pro hands-free Coach Forge | Living Profile · CE practice · IV-PROD-010 · BS-015 · BS-016 | High | Eng / Founder | In Development |
 | F2 Production Stripe cutover | Live keys, webhook endpoint, Price ID, migration applied, conversion analytics | F1 · prod hardening | Medium | Founder / Eng | Not started |
+
+---
+
+## Decision 060 — Final Coach preview track
+
+| Item | Goal | Dependencies | Complexity | Owner | Status |
+|---|---|---|---|---|---|
+| AC0 Governance | Decision, Idea Vault, blind spot, billing, architecture, sequence, indexes | Founder Decision 060 | Medium | Founder / Atlas | Complete in governance package |
+| AC1 Topic choice | Shared `TopicCard` visuals + independent exact seven-topic Coach catalog | AC0 · IV-UX-006 | Medium | Eng / CXA | Not started |
+| AC2 Anonymous preview | Exactly one browser-bound private Forge session before auth | AC1 · CE reliability · BS-015 | High | Eng | Not started |
+| AC3 Post-session claim | Signup/signin only after session; preserve transcript/topic | AC2 · Auth · session history | High | Eng | Not started |
+| AC4 Free allowance | Three complete sessions/calendar month; preview excluded | AC2 · AC3 · BILL-001 | High | Eng | Not started |
+| AC5 Hardening/retirement | Server Realtime economics; retire semantic/wizard active paths; no guests | AC2–AC4 · HARDEN-005 | High | Eng | Not started |
+
+Controlling sequence: [PHASE4B-AC-IMPLEMENTATION-SEQUENCE](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md). Decision 059 remains historical; its Assistant Coach discovery/semantic-gate journey is not an implementation dependency. The unmerged wizard stack is not on this roadmap.
 
 ---
 

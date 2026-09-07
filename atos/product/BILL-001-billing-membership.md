@@ -3,20 +3,22 @@
 | Field | Value |
 |---|---|
 | **Document ID** | BILL-001 |
-| **Version** | 1.1.0 |
+| **Version** | 1.2.0 |
 | **Status** | Working Knowledge — Founder-authorized Production v1 (IV-PROD-008) |
 | **Owner** | Founder |
-| **Related** | IV-PROD-008 · BS-016 · TIP-001 · OWN-001 · Craft Law #001 · DES-001 |
-| **Updated** | 2026-09-05 |
+| **Related** | IV-PROD-008 · IV-PROD-010 · BS-015 · BS-016 · TIP-001 · OWN-001 · Craft Law #001 · DES-001 |
+| **Updated** | 2026-09-07 |
 
 ## Plans (only)
 
 | Plan | Access |
 |---|---|
-| **Free** | Account, explore, browse, deliberate hold-to-talk with Forge, limited complete coaching sessions |
+| **Free** | Account, explore, browse, deliberate hold-to-talk with Forge, **3 complete coaching sessions per calendar month** |
 | **Pro** | Unlimited practice/voice, hands-free conversation with Coach Forge, longer sessions, memory, progress, future premium coaching |
 
 No Team / Enterprise in v1.
+
+Before authentication, a browser may receive **one anonymous private Forge preview session** through the Decision 060 Coach path. That preview is separate from membership and does not consume the Free monthly allowance, including after it is claimed.
 
 ## Philosophy
 
@@ -28,10 +30,10 @@ Earn subscriptions through value. Never interrupt a live session. Never lock the
 
 | Variable | Purpose |
 |---|---|
-| `BILLING_FREE_MAX_SESSIONS` | Max completed free practice sessions (default 3) |
+| `BILLING_FREE_MAX_SESSIONS` | Legacy total-limit compatibility only; Decision 060 monthly allowance is controlling |
 | `BILLING_FREE_MAX_SESSION_SECONDS` | Soft guidance for free session length (default 900) |
-| `BILLING_FREE_MONTHLY_LIMIT_ENABLED` | Optional monthly free cap (default false) |
-| `BILLING_FREE_MONTHLY_MAX_SESSIONS` | Monthly free sessions when enabled |
+| `BILLING_FREE_MONTHLY_LIMIT_ENABLED` | Monthly allowance enforcement; Decision 060 requires enabled in production |
+| `BILLING_FREE_MONTHLY_MAX_SESSIONS` | Monthly Free sessions; controlling default **3** |
 | `STRIPE_SECRET_KEY` | Server Stripe key |
 | `STRIPE_WEBHOOK_SECRET` | Webhook signing secret |
 | `STRIPE_PRO_PRICE_ID` | Preferred — Stripe `price_…` **or** `prod_…` (Product IDs auto-resolve to an active monthly Price) |
@@ -56,10 +58,26 @@ Apply migration: `supabase/migrations/20260807_member_subscriptions.sql`.
 - Founder / admin / system → always Pro access.
 - Stripe status `active` | `trialing` | `past_due` → Pro access (past_due = Smart Retries grace).
 - `canceled` with `cancel_at_period_end` until `current_period_end` → Pro access.
-- Otherwise Free; gate **starting** a new practice session when completed-session count ≥ free max.
+- Otherwise Free; gate **starting** a new practice session when the server-authoritative completed-session count reaches **3 in the current calendar month**.
+- Define and document one server calendar-month timezone boundary in implementation; apply it consistently to count and rollover.
+- A Decision 060 anonymous preview is classified separately and never increments Free monthly usage, before or after claim.
+- Anonymous preview entitlement is one best-effort browser-bound session through a signed HttpOnly cookie + server record. It is not member identity and cannot prove one preview per person.
 - Never revoke mid-session.
 - Realtime session mint selects hands-free only from server-confirmed Pro/staff entitlement; Free stays hold-to-talk.
-- Voice-usage tracking independently resolves server entitlement and ignores client plan claims.
+- Realtime mint, reconnect, concurrent-session handling, and voice-usage tracking independently resolve server entitlement and ignore client plan/preview/count claims.
+- Anonymous preview Forge mints require a valid unused server preview entitlement plus rate, concurrency, duration, token, and spend controls.
+
+## Coach preview boundary (Decision 060)
+
+- `/coach` presents the seven-topic grid and grants one anonymous private Forge preview before auth.
+- Signup/signin appears only after that session closes.
+- Post-session billing copy is exact: **“Save your progress and get 3 free sessions every month — no credit card required.”**
+- The post-session actions are **“Create account,” “Sign in,”** and **“Maybe later.”** The composer/input is disabled while the prompt is visible.
+- After **“Maybe later,”** further input remains disabled; show **“Ready to practice again? Create an account for 3 free sessions every month.”** with **“Get started”** linking to auth.
+- Claim preserves the preview transcript/topic without converting it into a billable or Free-counted member session.
+- The preview writes no Living Profile identity and creates no billing identity.
+- No `guest_*` revival, cross-device archive recovery, or client-authoritative entitlement.
+- Do not market browser-bound enforcement as a provable one-person limit.
 
 ## Surfaces
 

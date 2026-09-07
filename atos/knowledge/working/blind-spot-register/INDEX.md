@@ -1,7 +1,7 @@
 # Blind Spot Register — Index
 
-| **Updated** | 2026-08-24 |
-| **Count** | 16 |
+| **Updated** | 2026-09-07 |
+| **Count** | 17 |
 
 | ID | Title | Status | Severity | Related |
 |---|---|---|---|---|
@@ -19,5 +19,6 @@
 | [BS-012](bs-012.md) | Living Profile creation is lazy, not atomic with signup | Mitigating | Medium | TIP-001 · OWN-001 |
 | [BS-013](bs-013.md) | Realtime mint bypasses readiness contract | Mitigating | Medium | CE-001 · BS-005 |
 | [BS-014](bs-014.md) | Coach excellence becomes theater without conversation evidence | Mitigating | High | IV-AI-006 · CFX-001 |
+| [BS-015](bs-015.md) | Anonymous Coach preview cannot prove one person | Accepted Risk | High | IV-PROD-010 · IV-PROD-008 · HARDEN-005 |
 | [BS-016](bs-016.md) | Billing becomes a paywall or second identity store | Mitigating | High | IV-PROD-008 · OWN-001 · BILL-001 |
 | [BS-017](bs-017.md) | Continuous Intelligence silently Canonicalizes or Atlas becomes sovereign | Open | High | IV-AI-010 · IV-LAW-011 |
