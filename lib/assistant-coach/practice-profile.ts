@@ -36,18 +36,18 @@ export const PRACTICE_AUDIENCE_CATALOG = [
 ] as const;
 
 export const PRACTICE_PATTERN_CATALOG = [
-  { id: "freeze", label: "freeze" },
-  { id: "ramble", label: "ramble" },
-  { id: "emotional_defensive", label: "emotional/defensive" },
-  { id: "harsh_aggressive", label: "harsh/aggressive" },
-  { id: "cave_under_pushback", label: "cave under pushback" },
-  { id: "avoid_entirely", label: "avoid entirely" },
+  { id: "freeze", label: "I freeze and don't know what to say" },
+  { id: "ramble", label: "I ramble and lose the thread" },
+  { id: "emotional_defensive", label: "I get emotional or defensive" },
+  { id: "harsh_aggressive", label: "I sound too harsh or aggressive" },
+  { id: "cave_under_pushback", label: "I cave as soon as they push back" },
+  { id: "avoid_entirely", label: "I avoid the conversation entirely" },
 ] as const;
 
 export const PRACTICE_URGENCY_CATALOG = [
   { id: "today", label: "Today" },
   { id: "this_week", label: "This week" },
-  { id: "next_2_weeks", label: "Next 2 weeks" },
+  { id: "next_2_weeks", label: "In the next 2 weeks" },
   { id: "no_specific_deadline", label: "No specific deadline" },
 ] as const;
 
@@ -110,6 +110,32 @@ const patternById = new Map(
 const urgencyById = new Map(
   PRACTICE_URGENCY_CATALOG.map((item) => [item.id, item])
 );
+
+const patternTemplateById: Record<PracticePatternId, string> = {
+  freeze: "You tend to freeze when the stakes are high.",
+  ramble: "You tend to ramble and lose the thread when the pressure rises.",
+  emotional_defensive:
+    "You tend to get emotional or defensive when a conversation gets difficult.",
+  harsh_aggressive:
+    "You tend to sound too harsh or aggressive when you need to be heard.",
+  cave_under_pushback: "You tend to cave when someone pushes back.",
+  avoid_entirely: "You tend to avoid conversations that feel difficult.",
+};
+
+const topicTargetPhraseById: Record<
+  Exclude<PracticeTopicId, "something_else">,
+  string
+> = {
+  job_interview: "a job interview",
+  salary_raise_negotiation: "a salary / raise negotiation",
+  giving_difficult_feedback: "giving difficult feedback",
+  setting_a_boundary: "setting a boundary",
+  pitch_or_presentation: "a pitch or presentation",
+  handling_conflict: "handling conflict",
+  asking_for_something_i_need: "asking for something you need",
+  receiving_critical_feedback: "receiving critical feedback",
+  ending_a_relationship: "ending a relationship",
+};
 
 function asRecord(value: unknown, field: string): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -339,8 +365,12 @@ export function projectMemberPracticeProfile(
   const audienceLabels = selection.audiences.map(
     (audience) => audienceById.get(audience)!.label
   );
-  const patternLabel = patternById.get(selection.pattern)!.label;
   const urgencyLabel = urgencyById.get(selection.urgency)!.label;
+  const firstTopic = selection.topics[0];
+  const targetPhrase =
+    firstTopic.id === "something_else"
+      ? `the moment “${firstTopic.customText}”`
+      : topicTargetPhraseById[firstTopic.id];
 
   return {
     mappingVersion: PRACTICE_PROFILE_CATALOG_VERSION,
@@ -349,7 +379,7 @@ export function projectMemberPracticeProfile(
       audiences: audienceLabels,
       urgency: urgencyLabel,
     },
-    patternTemplate: `Practice staying effective when you tend to ${patternLabel}.`,
-    initialForgeTarget: `${topicLabels[0]} with ${audienceLabels[0]}`,
+    patternTemplate: patternTemplateById[selection.pattern],
+    initialForgeTarget: `Practice ${targetPhrase} with ${audienceLabels[0]}.`,
   };
 }
