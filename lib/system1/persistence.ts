@@ -15,6 +15,7 @@ import {
 import type { ProfileEvidenceRecord } from "./profile-evidence.ts";
 import type { ProfileInsight } from "./profile-intelligence.ts";
 import type { LivingProfile } from "./types.ts";
+import { parseMemberPracticeProfile } from "../assistant-coach/practice-profile.ts";
 
 export type LivingProfileRow = {
   user_id: string;
@@ -30,6 +31,7 @@ export type LivingProfileRow = {
   provenance?: LivingProfile["provenance"] | null;
   evidence_ledger?: ProfileEvidenceRecord[] | null;
   profile_insights?: ProfileInsight[] | null;
+  member_practice_profile?: unknown;
   presence_scores?: LivingProfile["presenceScores"] | null;
   goals?: string[] | null;
   strengths?: string[] | null;
@@ -40,7 +42,7 @@ export type LivingProfileRow = {
 
 /** Canonical select list including Phase 4B.1 intelligence columns. */
 export const LIVING_PROFILE_SELECT =
-  "user_id, version, display_name, preferred_nickname, purpose_statement, personal_principles, seasons, coaching_intensity, preferred_coaching_style, mattering_conversation_ids, provenance, evidence_ledger, profile_insights, presence_scores, goals, strengths, challenges, profile_source, updated_at";
+  "user_id, version, display_name, preferred_nickname, purpose_statement, personal_principles, seasons, coaching_intensity, preferred_coaching_style, mattering_conversation_ids, provenance, evidence_ledger, profile_insights, member_practice_profile, presence_scores, goals, strengths, challenges, profile_source, updated_at";
 
 function mapProfileSource(value: unknown): ProfileSource | null {
   if (
@@ -77,6 +79,9 @@ export function mapLivingProfileRow(row: LivingProfileRow): LivingProfile {
     provenance: row.provenance ?? [],
     evidenceLedger: asEvidenceLedger(row.evidence_ledger),
     profileInsights: asProfileInsights(row.profile_insights),
+    memberPracticeProfile: parseMemberPracticeProfile(
+      row.member_practice_profile
+    ),
     presenceScores: normalizePresenceScores(row.presence_scores),
     goals: normalizeStringList(row.goals, 8),
     strengths: normalizeStringList(row.strengths, 8),
@@ -87,9 +92,9 @@ export function mapLivingProfileRow(row: LivingProfileRow): LivingProfile {
 }
 
 /**
- * Member-authorized DB payload. Intentionally omits evidence_ledger and
- * profile_insights so member PUT cannot overwrite System 1 intelligence
- * (columns left unchanged on UPDATE; DB defaults apply on INSERT).
+ * Member-authorized DB payload. Includes the validated member-declared practice
+ * profile, but intentionally omits evidence_ledger and profile_insights so
+ * member writes cannot overwrite System 1 intelligence.
  */
 export function memberLivingProfileDbPayload(profile: LivingProfile): {
   display_name: string;
@@ -101,6 +106,7 @@ export function memberLivingProfileDbPayload(profile: LivingProfile): {
   preferred_coaching_style: string;
   mattering_conversation_ids: string[];
   provenance: LivingProfile["provenance"];
+  member_practice_profile: LivingProfile["memberPracticeProfile"];
   updated_at: string;
 } {
   return {
@@ -113,6 +119,7 @@ export function memberLivingProfileDbPayload(profile: LivingProfile): {
     preferred_coaching_style: profile.preferredCoachingStyle,
     mattering_conversation_ids: profile.matteringConversationIds,
     provenance: profile.provenance,
+    member_practice_profile: profile.memberPracticeProfile,
     updated_at: profile.updatedAt,
   };
 }
@@ -149,6 +156,7 @@ export function livingProfileToRow(profile: LivingProfile): LivingProfileRow {
     provenance: profile.provenance,
     evidence_ledger: profile.evidenceLedger ?? [],
     profile_insights: profile.profileInsights ?? [],
+    member_practice_profile: profile.memberPracticeProfile ?? {},
     presence_scores: profile.presenceScores,
     goals: profile.goals,
     strengths: profile.strengths,

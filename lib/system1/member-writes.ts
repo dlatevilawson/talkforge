@@ -9,6 +9,10 @@ import type {
   ProvenanceRecord,
 } from "./types.ts";
 import { canWriteLivingProfileField } from "./types.ts";
+import {
+  createVerifiedMemberPracticeProfile,
+  type MemberPracticeProfileSelection,
+} from "../assistant-coach/practice-profile.ts";
 
 export type MemberLivingProfileInput = {
   displayName?: string;
@@ -32,14 +36,15 @@ function newId(prefix: string): string {
 function memberProvenance(
   fieldPath: string,
   claim: string,
-  now: string
+  now: string,
+  evidenceRefs: string[] = ["member_settings"]
 ): ProvenanceRecord {
   const provenance: ProvenanceRecord = {
     id: newId("prov"),
     fieldPath,
     claim,
     sourceKind: "member_declared",
-    evidenceRefs: ["member_settings"],
+    evidenceRefs,
     confidence: "high",
     createdAt: now,
     updatedAt: now,
@@ -51,6 +56,37 @@ function memberProvenance(
   }
 
   return provenance;
+}
+
+/**
+ * Authorized server-side activation for the member-declared wizard profile.
+ * The caller supplies the trusted server session reference; client-controlled
+ * timestamps, provenance, evidence, and insights are not accepted.
+ */
+export function applyMemberPracticeProfileUpdate(
+  current: LivingProfile,
+  selection: MemberPracticeProfileSelection,
+  context: { sourceSessionId: string; now?: Date }
+): LivingProfile {
+  const memberPracticeProfile = createVerifiedMemberPracticeProfile({
+    selection,
+    sourceSessionId: context.sourceSessionId,
+    now: context.now,
+  });
+  const now = memberPracticeProfile.updatedAt;
+  const provenance = memberProvenance(
+    "memberPracticeProfile",
+    "Member verified Coach card wizard practice profile",
+    now,
+    [`assistant_coach:${memberPracticeProfile.provenance.sourceSessionId}`]
+  );
+
+  return {
+    ...current,
+    memberPracticeProfile,
+    provenance: [provenance, ...current.provenance].slice(0, 200),
+    updatedAt: now,
+  };
 }
 
 /**
