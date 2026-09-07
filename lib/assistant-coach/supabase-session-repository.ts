@@ -15,6 +15,7 @@ import {
 import {
   defaultAnonExpiresAt,
   isAnonSessionExpired,
+  AssistantCoachDraftVersionConflictError,
   AssistantCoachUniqueConflictError,
   type AssistantCoachSessionRepository,
   type CreateAssistantCoachSessionInput,
@@ -210,6 +211,30 @@ export function createSupabaseAssistantCoachSessionRepository(
         throw new Error(
           `assistant_coach_profile_drafts save failed: ${error.message}`
         );
+      }
+      return mapDraftRow(data as AssistantCoachDraftRow);
+    },
+
+    async compareAndSwapDraft(sessionId, expectedVersion, profileJson, now) {
+      const updatedAt = (now ?? new Date()).toISOString();
+      const { data, error } = await client
+        .from("assistant_coach_profile_drafts")
+        .update({
+          profile_json: profileJson,
+          version: expectedVersion + 1,
+          updated_at: updatedAt,
+        })
+        .eq("session_id", sessionId)
+        .eq("version", expectedVersion)
+        .select("*")
+        .maybeSingle();
+      if (error) {
+        throw new Error(
+          `assistant_coach_profile_drafts compare-and-swap failed: ${error.message}`
+        );
+      }
+      if (!data) {
+        throw new AssistantCoachDraftVersionConflictError();
       }
       return mapDraftRow(data as AssistantCoachDraftRow);
     },

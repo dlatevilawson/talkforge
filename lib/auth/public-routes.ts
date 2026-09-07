@@ -17,6 +17,14 @@ export const ASSISTANT_COACH_AUTH_PATH_PREFIXES = [
   "/api/assistant-coach/confirm",
 ] as const;
 
+/** Decision 060 guest Forge surface. Exact matches only. */
+export const GUEST_FORGE_PUBLIC_PATHS = [
+  "/forge",
+  "/api/forge/preview",
+  "/api/forge/preview/transcript",
+  "/api/forge/preview/complete",
+] as const;
+
 /** Existing member/staff surfaces that require auth at the proxy. */
 export const PROXY_AUTH_REQUIRED_PREFIXES = [
   "/founder",
@@ -37,11 +45,16 @@ export function isAssistantCoachAuthPath(pathname: string): boolean {
   );
 }
 
+export function isGuestForgePublicPath(pathname: string): boolean {
+  return (GUEST_FORGE_PUBLIC_PATHS as readonly string[]).includes(pathname);
+}
+
 /**
  * Whether the Next.js proxy should require a Supabase session for this path.
  * Public AC routes must remain false even if they look “app-like”.
  */
 export function proxyRequiresAuth(pathname: string): boolean {
+  if (isGuestForgePublicPath(pathname)) return false;
   if (isAssistantCoachPublicPath(pathname)) return false;
   // Claim is enforced in the API via requireApiUser; proxy may still allow
   // the request through so the route can return 401 JSON (not HTML redirect).

@@ -382,14 +382,21 @@ export function requestOpeningSpeech(
     isReturning?: boolean;
     mode?: "practice" | "assessment";
     handoffSource?: string;
+    guestOpeningContext?: string;
   }
 ): void {
   if (dc.readyState !== "open") {
     throw new Error("Data channel not open — cannot request opening speech.");
   }
 
-  const instructions =
-    options?.mode === "assessment"
+  const instructions = options?.guestOpeningContext
+    ? [
+        "Speak now as Forge — the coach, not a chatbot.",
+        "This is a private one-session preview.",
+        options.guestOpeningContext,
+        "Ask exactly one short scenario-relevant first question, then wait. No product tour, topic menu, profile intake, or form.",
+      ].join(" ")
+    : options?.mode === "assessment"
       ? buildAssessmentOpeningSpeechInstructions()
       : buildOpeningSpeechInstructions({
           welcomeHint,

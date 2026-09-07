@@ -80,6 +80,15 @@ export class AssistantCoachUniqueConflictError extends Error {
   }
 }
 
+export class AssistantCoachDraftVersionConflictError extends Error {
+  readonly code = "AC_DRAFT_VERSION_CONFLICT";
+
+  constructor() {
+    super("Assistant Coach draft changed concurrently.");
+    this.name = "AssistantCoachDraftVersionConflictError";
+  }
+}
+
 export function isAssistantCoachUniqueConflictError(
   err: unknown
 ): err is AssistantCoachUniqueConflictError {
@@ -109,6 +118,12 @@ export type AssistantCoachSessionRepository = {
   getDraft(sessionId: string): Promise<AssistantCoachProfileDraft | null>;
   saveDraft(
     draft: Omit<AssistantCoachProfileDraft, "updatedAt"> & { updatedAt?: string }
+  ): Promise<AssistantCoachProfileDraft>;
+  compareAndSwapDraft(
+    sessionId: string,
+    expectedVersion: number,
+    profileJson: Record<string, unknown>,
+    now?: Date
   ): Promise<AssistantCoachProfileDraft>;
   markExpiredIfPast(sessionId: string, now?: Date): Promise<AssistantCoachSession | null>;
   /**
@@ -275,6 +290,22 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
         updatedAt: draft.updatedAt ?? new Date().toISOString(),
       };
       drafts.set(draft.sessionId, row);
+      return structuredClone(row);
+    },
+
+    async compareAndSwapDraft(sessionId, expectedVersion, profileJson, now) {
+      const current = drafts.get(sessionId);
+      if (!current) throw new Error("draft not found");
+      if (current.version !== expectedVersion) {
+        throw new AssistantCoachDraftVersionConflictError();
+      }
+      const row: AssistantCoachProfileDraft = {
+        sessionId,
+        profileJson,
+        version: expectedVersion + 1,
+        updatedAt: (now ?? new Date()).toISOString(),
+      };
+      drafts.set(sessionId, row);
       return structuredClone(row);
     },
 
