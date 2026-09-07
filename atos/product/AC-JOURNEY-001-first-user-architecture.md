@@ -11,6 +11,8 @@
 | **Authority** | [Decision 059](../../atlas/decisions.md) · OWN-001 / FREEZE-001 (unrelated identity) still bind |
 | **Implementation** | Phase 4A = design. Phase 4B = small slices per [PHASE4B-AC-IMPLEMENTATION-SEQUENCE](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md) |
 
+> **Founder production correction (2026-09-07):** Assistant Coach is diagnosis-only. It may ask one focused question and record validated observations, but it must never provide an intervention, advice, wording, rehearsal, or strategy. The intervention-backed semantic value gate in §E is suspended; only the anonymous safety/economic turn cap may block continuation. This correction governs the shipping conversational path while the deterministic card-wizard supersession is implemented.
+
 ---
 
 ## A. Current architecture audit

@@ -5,8 +5,8 @@
  * Semantic boundary (Decision 059 / AC-JOURNEY):
  * - Discovery (goal + friction / insights) may accumulate immediately in the
  *   evidence ledger and draft profile. Discovery alone is NOT experienced value.
- * - hasExperiencedValue = discovery readiness AND at least one validated
- *   actionable Coach intervention grounded in that evidence.
+ * - Diagnosis alone never constitutes delivered coaching value.
+ * - Assistant Coach cannot set hasExperiencedValue or trigger a semantic gate.
  * - It does NOT mean Living Profile is complete.
  * - It does NOT mean a training plan is ready.
  * - Living Profile remains evidence-driven across future interactions.
@@ -134,6 +134,6 @@ export function computeDiscoveryReady(
 export function computeHasExperiencedValue(
   input: SemanticValueInput
 ): boolean {
-  if (!input.hasActionableIntervention) return false;
-  return computeDiscoveryReady(input);
+  void input;
+  return false;
 }

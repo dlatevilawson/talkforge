@@ -2,22 +2,18 @@
  * Server-side guard so Coach cannot train like Forge even if the model ignores
  * the prompt. Prompt text is not enough — the founder walk already proved that.
  *
- * Does not change #153 conversion: a single grounded first move still counts.
- * A script dump / "all the above" curriculum does not.
+ * Assistant Coach diagnoses only. Every intervention is withheld, and only one
+ * focused diagnostic question may be stored or shown.
  */
-import { isPracticableMoment } from "./confirmation.ts";
-import { COACH_STARTERS } from "./coach-copy.ts";
-
 export const UNDERSTANDING_FALLBACK =
-  "Who is that conversation with — and what do you need to say or start?";
+  "What feels hardest about handling this conversation?";
 
-const STARTER_MESSAGES = new Set<string>(
-  COACH_STARTERS.flatMap((starter) =>
-    starter.message === null ? [] : [starter.message]
-  )
-);
 const DIRECT_QUESTION_START =
   /^[“"'‘]*(?:who(?:'s| is)?|what(?:'s| is)?|when|where|why|how|which|is|are|do|does|did|can|could|would|will|have|has)\b/i;
+const FIRST_PERSON_DIALOGUE =
+  /\b(?:I|I['’]m|I['’]d|I['’]ll|my|mine|we|we['’]re|we['’]ll|our|ours)\b/i;
+const COACHING_QUESTION =
+  /^[“"'‘]*(?:can|could|would|will)\s+you\s+(?:say|tell|try|practice|rehearse|use|start|open)\b/i;
 
 const NUMBERED_ITEM = /^\s*(?:\d+[\.)]|text\s*\d+[:.)]|option\s*\d+[:.)])\s+/im;
 const LIST_ITEM = /^\s*(?:\d+[\.)]|[-*•]|text\s*\d+[:.)]|option\s*\d+[:.)])\s+/gim;
@@ -40,45 +36,24 @@ export function isCurriculumText(text: string): boolean {
   return numbered.length >= 3;
 }
 
-function clipCurriculumReply(reply: string): string {
-  const lines = reply.split(/\n+/);
-  const kept: string[] = [];
-  for (const line of lines) {
-    if (LIST_ITEM.test(line) || NUMBERED_ITEM.test(line)) break;
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    if (CURRICULUM_TELL.test(trimmed)) break;
-    kept.push(trimmed);
-    if (kept.join(" ").length >= 280) break;
-  }
-  const clipped = kept.join(" ").trim();
-  if (clipped.length >= 24 && !isCurriculumText(clipped)) {
-    return clipped;
-  }
-  return UNDERSTANDING_FALLBACK;
-}
-
-function summaryLooksLikeCurriculum(intervention: unknown): boolean {
-  if (!intervention || typeof intervention !== "object") return false;
-  const summary = (intervention as { summary?: unknown }).summary;
-  return typeof summary === "string" && isCurriculumText(summary);
-}
-
-function directStarterQuestion(reply: string, lastUser: string): string {
-  if (!STARTER_MESSAGES.has(lastUser)) return reply;
-
+function extractDiagnosticQuestion(reply: string): string {
   const questionEnd = reply.indexOf("?");
-  if (questionEnd < 0) return reply;
+  if (questionEnd < 0) return UNDERSTANDING_FALLBACK;
 
   const throughQuestion = reply.slice(0, questionEnd + 1);
   let questionStart = 0;
   for (const boundary of throughQuestion.matchAll(/[.!]\s+|\n+/g)) {
     questionStart = (boundary.index ?? 0) + boundary[0].length;
   }
-  if (questionStart === 0) return reply;
-
   const question = throughQuestion.slice(questionStart).trim();
-  return DIRECT_QUESTION_START.test(question) ? question : reply;
+  if (
+    !DIRECT_QUESTION_START.test(question) ||
+    FIRST_PERSON_DIALOGUE.test(question) ||
+    COACHING_QUESTION.test(question)
+  ) {
+    return UNDERSTANDING_FALLBACK;
+  }
+  return question;
 }
 
 export type DisciplinedCoachOutput = {
@@ -96,38 +71,11 @@ export function disciplineAssistantCoachOutput(input: {
   intervention: unknown;
   userMessages: string[];
 }): DisciplinedCoachOutput {
-  const lastUser = input.userMessages.at(-1)?.trim() ?? "";
-  let reply = input.reply.trim();
-  let intervention = input.intervention ?? null;
-  let clippedCurriculum = false;
-  let withheldIntervention = false;
-
-  if (isCurriculumText(reply)) {
-    reply = clipCurriculumReply(input.reply);
-    clippedCurriculum = true;
-    intervention = null;
-    withheldIntervention = true;
-  }
-
-  reply = directStarterQuestion(reply, lastUser);
-
-  if (isAllTheAbove(lastUser) || summaryLooksLikeCurriculum(intervention)) {
-    intervention = null;
-    withheldIntervention = true;
-  }
-
-  // Multi-select / stacked options are not a speaking moment.
-  if (
-    intervention != null &&
-    lastUser &&
-    !isPracticableMoment(lastUser) &&
-    isAllTheAbove(lastUser)
-  ) {
-    intervention = null;
-    withheldIntervention = true;
-  }
-
-  if (!reply) reply = UNDERSTANDING_FALLBACK;
-
-  return { reply, intervention, clippedCurriculum, withheldIntervention };
+  void input.userMessages;
+  return {
+    reply: extractDiagnosticQuestion(input.reply.trim()),
+    intervention: null,
+    clippedCurriculum: isCurriculumText(input.reply),
+    withheldIntervention: input.intervention != null,
+  };
 }
