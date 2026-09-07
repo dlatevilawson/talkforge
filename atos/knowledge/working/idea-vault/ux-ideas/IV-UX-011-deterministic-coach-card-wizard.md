@@ -67,9 +67,9 @@ Only `something_else` may reveal bounded custom text.
 
 **Phase 2 — Narrow the context:**
 
-- Q1 audience, multi-select: `manager_boss` (Manager/boss), `peer_colleague` (Peer/colleague), `client_customer` (Client/customer), `recruiter_hr` (Recruiter/HR), `business_partner` (Business partner), `family_friend` (Family/friend), `stranger_new_contact` (Stranger/new contact).
-- Q2 pattern, single-select: `freeze` (freeze), `ramble` (ramble), `emotional_defensive` (emotional/defensive), `harsh_aggressive` (harsh/aggressive), `cave_under_pushback` (cave under pushback), `avoid_entirely` (avoid entirely).
-- Q3 urgency, single-select: `today` (Today), `this_week` (This week), `next_2_weeks` (Next 2 weeks), `no_specific_deadline` (No specific deadline).
+- “Who are these conversations with?”, multi-select: `manager_boss` (Manager/boss), `peer_colleague` (Peer/colleague), `client_customer` (Client/customer), `recruiter_hr` (Recruiter/HR), `business_partner` (Business partner), `family_friend` (Family/friend), `stranger_new_contact` (Stranger/new contact).
+- “What trips you up most?”, single-select: `freeze` (I freeze and don't know what to say), `ramble` (I ramble and lose the thread), `emotional_defensive` (I get emotional or defensive), `harsh_aggressive` (I sound too harsh or aggressive), `cave_under_pushback` (I cave as soon as they push back), `avoid_entirely` (I avoid the conversation entirely).
+- “When is this happening?”, single-select: `today` (Today), `this_week` (This week), `next_2_weeks` (In the next 2 weeks), `no_specific_deadline` (No specific deadline).
 - CTA: **Diagnose**.
 
 **Phase 3 — Living Profile verification:** deterministically show focus areas, the selected-pattern template, and initial Forge target from first topic + first audience. **Adjust** returns to Phase 2 prefilled. **Looks right** gates guests on auth and activates immediately for members.

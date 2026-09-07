@@ -68,12 +68,12 @@ Audience selection is ordered multi-select.
 
 | Stable ID | Exact label |
 |---|---|
-| `freeze` | freeze |
-| `ramble` | ramble |
-| `emotional_defensive` | emotional/defensive |
-| `harsh_aggressive` | harsh/aggressive |
-| `cave_under_pushback` | cave under pushback |
-| `avoid_entirely` | avoid entirely |
+| `freeze` | I freeze and don't know what to say |
+| `ramble` | I ramble and lose the thread |
+| `emotional_defensive` | I get emotional or defensive |
+| `harsh_aggressive` | I sound too harsh or aggressive |
+| `cave_under_pushback` | I cave as soon as they push back |
+| `avoid_entirely` | I avoid the conversation entirely |
 
 Pattern selection is single-select.
 
@@ -83,7 +83,7 @@ Pattern selection is single-select.
 |---|---|
 | `today` | Today |
 | `this_week` | This week |
-| `next_2_weeks` | Next 2 weeks |
+| `next_2_weeks` | In the next 2 weeks |
 | `no_specific_deadline` | No specific deadline |
 
 Urgency selection is single-select.
@@ -102,9 +102,9 @@ Continue is enabled only when topic cardinality is 1–3 and any selected `somet
 
 Phase 2 contains exactly three questions:
 
-1. **Audience:** ordered multi-select from §B.2.
-2. **Pattern:** single-select from §B.3.
-3. **Urgency:** single-select from §B.4.
+1. **“Who are these conversations with?”** ordered multi-select from §B.2.
+2. **“What trips you up most?”** single-select from §B.3.
+3. **“When is this happening?”** single-select from §B.4.
 
 The primary CTA is exactly **Diagnose**. Diagnose performs deterministic template projection only. It does not call an LLM, infer System 1 evidence, or judge commercial value.
 
