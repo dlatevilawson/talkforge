@@ -5,7 +5,7 @@
 | **Document ID** | MASTER-ROADMAP-001 |
 | **Version** | 1.0.0 |
 | **Status** | **Complete — EXEC-001 Step 12** |
-| **Updated** | 2026-08-24 |
+| **Updated** | 2026-09-07 |
 | **Depends on** | DEP-MAP-001 · PRIORITY-001 · CAT-001 · VERIFY-001 · CONST-001 · Idea Vault |
 | **Related** | ROADMAP-001 (north star narrative) |
 
@@ -72,6 +72,21 @@ Translate priorities into implementation phases with goal, dependencies, complex
 |---|---|---|---|---|---|
 | F1 Free / Pro billing | Stripe Checkout + Portal + webhooks; server SSOT; configurable free limits; Free hold-to-talk + Pro hands-free Coach Forge; Membership + Billing surfaces; calm end-of-free | Living Profile · CE practice · BS-016 | High | Eng / Founder | In Development |
 | F2 Production Stripe cutover | Live keys, webhook endpoint, Price ID, migration applied, conversion analytics | F1 · prod hardening | Medium | Founder / Eng | Not started |
+
+---
+
+## Assistant Coach first-user track (Decision 060)
+
+Decision 059 remains the historical track authorization. Decision 060 controls the active journey and supersedes conversational discovery/value-gate design.
+
+| Item | Goal | Dependencies | Complexity | Owner | Status |
+|---|---|---|---|---|---|
+| AC1 Deterministic card wizard | Pick 1–3 moments → narrow audiences/pattern/urgency → verify deterministic LP card; Adjust prefilled | IV-UX-011 · BS-018 · DES-001 | Medium | Eng / CXA | Authorized |
+| AC2 Auth activation | Preserve provisional selections in signed anon session (14-day TTL); Looks right requires guest auth, then writes Living Profile `member_practice_profile` | AC1 · AUTH-001 · HARDEN-005 · LP-LAW-001 | High | Eng | Authorized |
+| AC3 Contextual Forge handoff | Member-declared JSONB + provenance/timestamps; initial target from first topic + first audience; no post-auth confirmation | AC2 · OWN-001 · practice readiness | High | Eng | Authorized |
+| AC4 Assessment transition | Keep Assessment reachable; remove it as default/equal FTUE | AC1–AC3 | Medium | Eng / CXA | Authorized |
+
+No desired-outcome question, discovery LLM, semantic value gate, anonymous Coach turns, parallel profile, guest revival, duplicate post-auth confirmation, or soft-verification continuity is authorized by this track.
 
 ---
 

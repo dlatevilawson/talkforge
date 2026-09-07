@@ -1076,6 +1076,80 @@ Authoritative — ✅ Decided 2026-08-16 (Founder OD-0…OD-10)
 
 ---
 
+# Decision 060
+
+Decision Alias:
+COACH-WIZARD-PIVOT-001
+
+Title:
+Supersede conversational first-user discovery with a deterministic Coach card wizard; require authentication before Forge.
+
+Reason:
+
+Formal Founder direction A chooses a deterministic first-user path over the Decision 059 conversational discovery and semantic value-gate design. Visitors select 1–3 communication moments, narrow audience/pattern/urgency context, and verify a deterministic Living Profile card before authentication and contextual Forge. This makes the path reproducible, lowers cognitive load, keeps declarations under member control, and removes model-dependent conversion logic.
+
+Decision 059 remains an Authoritative historical record of the prior direction and its track-specific feature carve-out. This Decision supersedes only its active journey design: pre-account discovery LLM, semantic `hasExperiencedValue` gate, intervention/turn conversion logic, claim-then-confirm flow, and soft-verification continuity into Coach. It does not alter LP-LAW-001, OWN-001, FREEZE-001, the general feature NO-GO, or frozen HARDEN certifications.
+
+Alternatives Considered:
+
+Direction B—continue conversational discovery, provide model-generated value before signup, then apply a semantic value gate—rejected by Formal Founder direction.
+
+Require authentication before showing any wizard choices—rejected because provisional deterministic selections can be safely retained in the existing signed anonymous session without granting Forge or writing member identity.
+
+Keep a post-auth Living Profile confirmation screen—rejected as duplicate confirmation because the member already declared and reviewed the selections in the wizard.
+
+Remove Assessment—rejected; it remains available but demoted from default FTUE.
+
+Blind Spots:
+
+[BS-018](../atos/knowledge/working/blind-spot-register/bs-018.md): the fixed catalogs may exclude a member’s moment or audience, provisional selections may be mistaken for inference, or auth may lose the handoff.
+
+BS-001 / OWN-001: deterministic input can still invent or overwrite identity if implementation bypasses member-write authority.
+
+Risks:
+
+Removing conversational discovery may collect less nuance before the first practice; mitigate with bounded custom text for “Something else” and let Forge train the verified member-declared target without diagnosing the member.
+
+Legacy semantic-gate and discovery implementation may coexist with the wizard and create conflicting paths; the Phase 4B sequence must explicitly retire or bypass those active-path components.
+
+Authentication failure may strand provisional selections; retain the signed HttpOnly cookie + server anonymous session for 14 days and make activation idempotent.
+
+Final Decision:
+
+**APPROVE Formal Founder direction A.** The controlling first-user journey is:
+
+1. **Phase 1 — “Pick your moments”:** select 1–3 topic cards from the exact catalog: Job interview; Salary / raise negotiation; Giving difficult feedback; Setting a boundary; Pitch or presentation; Handling conflict; Asking for something I need; Receiving critical feedback; Ending a relationship; Something else. Only “Something else” may reveal bounded custom text.
+2. **Phase 2 — “Narrow the context”:** Q1 audiences is multi-select from Manager/boss, Peer/colleague, Client/customer, Recruiter/HR, Business partner, Family/friend, Stranger/new contact. Q2 pattern is single-select from freeze, ramble, emotional/defensive, harsh/aggressive, cave under pushback, avoid entirely. Q3 urgency is single-select from Today, This week, Next 2 weeks, No specific deadline. CTA: **Diagnose**.
+3. **Phase 3 — deterministic Living Profile verification card:** show focus areas, the selected-pattern template, and an initial Forge target formed from the first selected topic + first selected audience. **Adjust** returns to Phase 2 prefilled. **Looks right** sends guests to authentication and activates immediately for authenticated members.
+4. Authentication is required to activate guest selections in the member Living Profile and before any Forge route or practice API.
+5. Authorize one `member_practice_profile` JSONB field inside the existing Living Profile—not a parallel profile—with topics, audiences, pattern, urgency, `verified_at`, `updated_at`, and member provenance. Unauthenticated values remain only in provisional guest draft storage until activation.
+6. These values are member declarations, not System 1 inference. Activation uses LP-LAW-001 / OWN-001 member-write authority, preserves richer existing member values, and does not infer purpose or identity.
+7. After successful activation, route directly to contextual Forge. Do not add a duplicate post-auth confirmation or repeat wizard intake.
+
+No desired-outcome question, discovery LLM, semantic value gate, `hasExperiencedValue`, intervention threshold, anonymous Coach turns, or turn-count conversion logic governs this path. The signed HttpOnly anonymous session and 14-day TTL remain only for provisional wizard continuity and auth retry. No guest revival or cross-device archive recovery is authorized. Assessment remains reachable but demoted from default FTUE.
+
+The Decision 059 carve-out remains scoped to this first-user track, now implemented under this superseding architecture. Unrelated feature work and held identity PR merges remain NO-GO.
+
+Future Review Date:
+
+After the first production deterministic wizard → auth activation → contextual Forge slice is validated; review catalog fit, “Something else” usage, auth completion, and whether Assessment remains necessary.
+
+Volumes:
+
+`atos/product/AC-JOURNEY-001-first-user-architecture.md`
+`atos/product/PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md`
+`atos/knowledge/working/idea-vault/ux-ideas/IV-UX-011-deterministic-coach-card-wizard.md`
+`atos/knowledge/working/idea-vault/product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md`
+`atos/knowledge/working/blind-spot-register/bs-018.md`
+`atos/product/OWN-001-identity-ownership-matrix.md`
+`atos/product/LP-LAW-001-living-profile.md`
+`atos/product/HARDEN-005-guest-migration-authorization.md` (frozen historical; unchanged)
+
+Status:
+Authoritative — ✅ Formal Founder direction A decided 2026-09-07; supersedes Decision 059 journey design while preserving its historical record
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

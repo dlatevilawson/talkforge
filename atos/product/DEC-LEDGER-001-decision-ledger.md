@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | **Document ID** | DEC-LEDGER-001 |
-| **Version** | 1.1.0 |
+| **Version** | 1.3.0 |
 | **Status** | **Active — EXEC-001 Step 3 Complete** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
-| **Updated** | 2026-08-04 |
+| **Updated** | 2026-09-07 |
 | **Live ledger** | [`atlas/decisions.md`](../../atlas/decisions.md) |
 | **Authority** | EXEC-001 Step 3 · CONST-001 · Constitutional Law #001 |
 | **Plane** | Operational Canonical record (decisions) — not Idea Vault |
@@ -91,6 +91,7 @@ Authoritative — {state}
 | 052 | Admit Craft Law #001 + Design Principle #001 | Canonical |
 | 058 / CXA-001 | Admit Chief Experience Architect Charter | Canonical |
 | 059 / AC-JOURNEY-GO-001 | Authorize AC first-user architecture; supersede feature NO-GO for this track only | Authoritative |
+| 060 / COACH-WIZARD-PIVOT-001 | Pick moments → narrow context → verify `member_practice_profile`; auth before Forge | Authoritative |
 
 Full history: `atlas/decisions.md`.
 
@@ -113,3 +114,4 @@ Full history: `atlas/decisions.md`.
 | 1.0.0 | 2026-08-02 | EXEC-001 Step 3 — Decision Ledger formalized |
 | 1.1.0 | 2026-08-04 | Indexed Decision 058 / CXA-001 constitutional admission |
 | 1.2.0 | 2026-08-16 | Indexed Decision 059 / AC first-user GO carve-out (OD-0…10) |
+| 1.3.0 | 2026-09-07 | Indexed Decision 060 / deterministic Coach wizard governance pivot |
