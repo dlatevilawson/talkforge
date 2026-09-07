@@ -5,11 +5,15 @@
 
 /** Public Assistant Coach surfaces (anon OK). */
 export const ASSISTANT_COACH_PUBLIC_PATH_PREFIXES = [
-  "/coach",
   "/api/assistant-coach/session",
   "/api/assistant-coach/profile",
   "/api/assistant-coach/turn",
   "/api/assistant-coach/transcribe",
+] as const;
+
+export const ASSISTANT_COACH_PUBLIC_PAGE_PATHS = [
+  "/coach",
+  "/coach/confirm",
 ] as const;
 
 /** Auth-required AC surfaces (claim / confirm). */
@@ -22,13 +26,19 @@ export const ASSISTANT_COACH_AUTH_PATH_PREFIXES = [
 export const PROXY_AUTH_REQUIRED_PREFIXES = [
   "/founder",
   "/app",
+  "/coach/activate",
   "/onboarding",
   "/change-password",
 ] as const;
 
 export function isAssistantCoachPublicPath(pathname: string): boolean {
+  if (
+    ASSISTANT_COACH_PUBLIC_PAGE_PATHS.some((path) => pathname === path)
+  ) {
+    return true;
+  }
   return ASSISTANT_COACH_PUBLIC_PATH_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(`${p}/`)
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   );
 }
 

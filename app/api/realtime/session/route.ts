@@ -3,6 +3,7 @@ import { requireApiUser } from "@/lib/auth/api-guard";
 import { evaluatePracticeEntitlement } from "@/lib/billing/entitlements";
 import { loadCoachPromptContextForUser } from "@/lib/coach/memory-server";
 import { applyConfirmedPracticeHandoff } from "@/lib/ce/ac-practice-handoff";
+import { applyStructuredPracticeHandoff } from "@/lib/ce/ac-practice-handoff";
 import {
   buildClientSecretRequest,
   type CeSessionMode,
@@ -12,6 +13,11 @@ import { resolveArenaVoiceMode } from "@/lib/ce/voice-mode";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { AC_HANDOFF_SOURCE } from "@/lib/assistant-coach/confirmation";
 import { evaluatePracticeRouteAccess } from "@/lib/system2/server-readiness";
+import { ensurePersistedLivingProfile } from "@/lib/system1/ensure-living-profile";
+import {
+  isCoachWizardHandoffSource,
+  resolveCoachWizardPracticeContext,
+} from "@/lib/assistant-coach/forge-handoff";
 
 export const runtime = "nodejs";
 
@@ -46,11 +52,13 @@ export async function POST(req: Request) {
   } catch {
     body = {};
   }
+  const mode: CeSessionMode =
+    body.mode === "assessment" ? "assessment" : "practice";
+  const wizardHandoff =
+    mode === "practice" && isCoachWizardHandoffSource(body.source);
   const eventTitle =
     typeof body.eventTitle === "string" ? body.eventTitle.trim() : "";
-  const acHandoff =
-    body.source === AC_HANDOFF_SOURCE && eventTitle.length > 0;
-  if (!readiness.allowed && !acHandoff) {
+  if (!readiness.allowed) {
     return NextResponse.json(
       {
         error: "Living Profile readiness required before starting Coach Forge.",
@@ -62,6 +70,28 @@ export async function POST(req: Request) {
 
   // BILL-001 / BS-016 — server entitlement before mint (start only).
   const supabase = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user || user.id !== gate.userId) {
+    return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+  }
+  const ensured = await ensurePersistedLivingProfile(supabase, user);
+  const practiceContext = resolveCoachWizardPracticeContext({
+    source: body.source,
+    mode,
+    memberPracticeProfile: ensured.profile?.memberPracticeProfile,
+  });
+  if (wizardHandoff && !practiceContext) {
+    return NextResponse.json(
+      { error: "Verified Coach profile required.", code: "PROFILE_REQUIRED" },
+      { status: 409 }
+    );
+  }
+  const acHandoff =
+    !practiceContext &&
+    body.source === AC_HANDOFF_SOURCE &&
+    eventTitle.length > 0;
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
@@ -101,10 +131,10 @@ export async function POST(req: Request) {
   }
 
   const track = normalizeTrack(body.track);
-  const mode: CeSessionMode =
-    body.mode === "assessment" ? "assessment" : "practice";
   const memory = await loadCoachPromptContextForUser(gate.userId);
-  const memoryForSession = acHandoff
+  const memoryForSession = practiceContext
+    ? applyStructuredPracticeHandoff(memory, practiceContext)
+    : acHandoff
     ? applyConfirmedPracticeHandoff(memory, {
         eventTitle,
         successCriteria:
@@ -123,15 +153,16 @@ export async function POST(req: Request) {
   const handsFree = voiceMode === "handsfree";
   const payload = buildClientSecretRequest({
     track,
-    eventTitle: eventTitle || undefined,
+    eventTitle: practiceContext ? undefined : eventTitle || undefined,
     successCriteria:
-      typeof body.successCriteria === "string"
+      !practiceContext && typeof body.successCriteria === "string"
         ? body.successCriteria
         : undefined,
     memory: memoryForSession,
     handsFree,
     mode,
     handoffSource: acHandoff ? AC_HANDOFF_SOURCE : undefined,
+    practiceContext,
   });
 
   try {
@@ -179,6 +210,7 @@ export async function POST(req: Request) {
         sessionsRemaining: entitlement.sessionsRemaining,
         sessionsLimit: entitlement.sessionsLimit,
       },
+      practiceContext,
       memory: {
         firstName: memoryForSession.firstName,
         isReturning: memoryForSession.isReturning,

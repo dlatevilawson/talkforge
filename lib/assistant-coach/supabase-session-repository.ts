@@ -15,6 +15,7 @@ import {
 import {
   defaultAnonExpiresAt,
   isAnonSessionExpired,
+  AssistantCoachDraftConflictError,
   AssistantCoachUniqueConflictError,
   type AssistantCoachSessionRepository,
   type CreateAssistantCoachSessionInput,
@@ -193,6 +194,26 @@ export function createSupabaseAssistantCoachSessionRepository(
 
     async saveDraft(draft) {
       const updatedAt = draft.updatedAt ?? new Date().toISOString();
+      if (draft.expectedVersion != null) {
+        const { data, error } = await client
+          .from("assistant_coach_profile_drafts")
+          .update({
+            profile_json: draft.profileJson,
+            version: draft.version,
+            updated_at: updatedAt,
+          })
+          .eq("session_id", draft.sessionId)
+          .eq("version", draft.expectedVersion)
+          .select("*")
+          .maybeSingle();
+        if (error) {
+          throw new Error(
+            `assistant_coach_profile_drafts save failed: ${error.message}`
+          );
+        }
+        if (!data) throw new AssistantCoachDraftConflictError();
+        return mapDraftRow(data as AssistantCoachDraftRow);
+      }
       const { data, error } = await client
         .from("assistant_coach_profile_drafts")
         .upsert(
@@ -329,6 +350,7 @@ export function createSupabaseAssistantCoachSessionRepository(
         .from("assistant_coach_sessions")
         .update({
           user_id: input.userId,
+          anon_key_hash: null,
           status: "claimed",
           claimed_at: now.toISOString(),
           updated_at: now.toISOString(),

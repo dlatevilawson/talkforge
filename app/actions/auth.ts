@@ -15,7 +15,7 @@ import { founderUserIdAllowlist, resolveEffectiveRole } from "@/lib/auth/allowli
 import type { UserRole } from "@/lib/auth/constants";
 import { canAccessFounderPortal, isValidRole } from "@/lib/auth/roles";
 import { recordLogin } from "@/lib/auth/session";
-import { safeNextPath } from "@/lib/auth/safe-next";
+import { safeAuthNextPath } from "@/lib/auth/safe-next";
 import {
   checkRateLimit,
   clientKeyFromHeaders,
@@ -146,7 +146,10 @@ export async function signupAction(
   }
 
   const { email, password, displayName } = parsed.data;
-  const next = safeNextPath(String(formData.get("next") ?? ""), "/onboarding");
+  const next = safeAuthNextPath(
+    String(formData.get("next") ?? ""),
+    "/onboarding"
+  );
   const supabase = await createServerSupabaseClient();
 
   const { data, error } = await supabase.auth.signUp({
@@ -203,7 +206,10 @@ export async function loginAction(
   const password = String(formData.get("password") ?? "");
   const portal = String(formData.get("portal") ?? "app");
   const defaultNext = portal === "founder" ? "/founder" : "/app";
-  const next = safeNextPath(String(formData.get("next") ?? ""), defaultNext);
+  const next = safeAuthNextPath(
+    String(formData.get("next") ?? ""),
+    defaultNext
+  );
   const remember = String(formData.get("remember") ?? "") === "on";
 
   const emailErr = validateEmail(email);
@@ -292,7 +298,11 @@ export async function loginAction(
   }
 
   if (profile && !profile.email_verified) {
-    if (next.startsWith("/coach/confirm") || next.startsWith("/app/practice")) {
+    if (
+      next === "/coach/activate" ||
+      next.startsWith("/coach/confirm") ||
+      next.startsWith("/app/practice")
+    ) {
       return { ok: true, redirectTo: next };
     }
     return {
@@ -317,7 +327,11 @@ export async function loginAction(
   }
 
   if (profile && !profile.onboarding_complete) {
-    if (next.startsWith("/coach/confirm") || next.startsWith("/app/practice")) {
+    if (
+      next === "/coach/activate" ||
+      next.startsWith("/coach/confirm") ||
+      next.startsWith("/app/practice")
+    ) {
       return { ok: true, redirectTo: next };
     }
     return { ok: true, redirectTo: "/onboarding" };
@@ -415,8 +429,10 @@ export async function changePasswordAction(
 
   const password = String(formData.get("password") ?? "");
   const confirm = String(formData.get("confirmPassword") ?? "");
-  const nextRaw = String(formData.get("next") ?? "/app");
-  const next = nextRaw.startsWith("/") ? nextRaw : "/app";
+  const next = safeAuthNextPath(
+    String(formData.get("next") ?? "/app"),
+    "/app"
+  );
 
   const policyErr = assertPasswordPolicy(password);
   if (policyErr) {
@@ -580,10 +596,14 @@ export async function resendVerificationAction(
   }
 
   const supabase = await createServerSupabaseClient();
+  const next = safeAuthNextPath(
+    String(formData.get("next") ?? ""),
+    "/onboarding"
+  );
   const { error } = await supabase.auth.resend({
     type: "signup",
     email: emailFromForm,
-    options: { emailRedirectTo: authCallbackUrl("/onboarding") },
+    options: { emailRedirectTo: authCallbackUrl(next) },
   });
 
   if (error) {
@@ -624,7 +644,7 @@ export async function verifyEmailOtpAction(
     };
   }
 
-  const next = safeNextPath(
+  const next = safeAuthNextPath(
     String(formData.get("next") ?? ""),
     "/onboarding"
   );
@@ -737,7 +757,7 @@ export async function verifyEmailLinkAction(
   if (type === "recovery") {
     return { ok: true, redirectTo: "/reset-password" };
   }
-  const next = safeNextPath(
+  const next = safeAuthNextPath(
     String(formData.get("next") ?? ""),
     "/onboarding"
   );

@@ -164,12 +164,7 @@ function guardWithoutSupabase(
   fallback: NextResponse
 ): NextResponse {
   const { pathname } = request.nextUrl;
-  if (
-    pathname.startsWith("/app") ||
-    pathname.startsWith("/founder") ||
-    pathname.startsWith("/onboarding") ||
-    pathname.startsWith("/change-password")
-  ) {
+  if (proxyRequiresAuth(pathname)) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("next", pathname);

@@ -53,6 +53,15 @@ export type AssistantCoachProfileDraft = {
   updatedAt: string;
 };
 
+export class AssistantCoachDraftConflictError extends Error {
+  readonly code = "AC_DRAFT_VERSION_CONFLICT";
+
+  constructor() {
+    super("Assistant Coach draft changed concurrently.");
+    this.name = "AssistantCoachDraftConflictError";
+  }
+}
+
 export type CreateAssistantCoachSessionInput = {
   id?: string;
   anonKeyHash: string;
@@ -108,7 +117,10 @@ export type AssistantCoachSessionRepository = {
   ): Promise<AssistantCoachMessage>;
   getDraft(sessionId: string): Promise<AssistantCoachProfileDraft | null>;
   saveDraft(
-    draft: Omit<AssistantCoachProfileDraft, "updatedAt"> & { updatedAt?: string }
+    draft: Omit<AssistantCoachProfileDraft, "updatedAt"> & {
+      updatedAt?: string;
+      expectedVersion?: number;
+    }
   ): Promise<AssistantCoachProfileDraft>;
   markExpiredIfPast(sessionId: string, now?: Date): Promise<AssistantCoachSession | null>;
   /**
@@ -268,6 +280,13 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
       if (!sessions.has(draft.sessionId)) {
         throw new Error("session not found");
       }
+      const current = drafts.get(draft.sessionId);
+      if (
+        draft.expectedVersion != null &&
+        current?.version !== draft.expectedVersion
+      ) {
+        throw new AssistantCoachDraftConflictError();
+      }
       const row: AssistantCoachProfileDraft = {
         sessionId: draft.sessionId,
         profileJson: draft.profileJson,
@@ -353,7 +372,14 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
         err.name = "AssistantCoachClaimExpiredError";
         throw err;
       }
+      if (
+        session.anonKeyHash &&
+        activeAnon.get(session.anonKeyHash) === session.id
+      ) {
+        activeAnon.delete(session.anonKeyHash);
+      }
       session.userId = input.userId;
+      session.anonKeyHash = null;
       session.status = "claimed";
       session.claimedAt = now.toISOString();
       session.updatedAt = now.toISOString();

@@ -4,6 +4,7 @@ import {
   FORGE_TURN_MAX_OUTPUT_TOKENS,
 } from "@/lib/coach/philosophy";
 import type { AssessmentSlotId } from "./assessment-lifecycle";
+import type { ForgePracticeContext } from "../assistant-coach/practice-profile";
 import {
   buildAssessmentClosingSpeechInstructions,
   buildAssessmentOpeningSpeechInstructions,
@@ -382,6 +383,7 @@ export function requestOpeningSpeech(
     isReturning?: boolean;
     mode?: "practice" | "assessment";
     handoffSource?: string;
+    practiceContext?: ForgePracticeContext | null;
   }
 ): void {
   if (dc.readyState !== "open") {
@@ -396,6 +398,7 @@ export function requestOpeningSpeech(
           eventTitle: options?.eventTitle,
           isReturning: options?.isReturning,
           handoffSource: options?.handoffSource,
+          practiceContext: options?.practiceContext,
         });
 
   dc.send(

@@ -17,8 +17,10 @@ import { resolveRealtimeTurnDetection } from "@/lib/ce/assessment-lifecycle";
 import { buildAssessmentSystemInstructions } from "@/lib/ce/assessment-prompt";
 import {
   buildAcPracticeObjectiveLines,
+  buildStructuredPracticeObjectiveLines,
   isAcPracticeHandoff,
 } from "@/lib/ce/ac-practice-handoff";
+import type { ForgePracticeContext } from "@/lib/assistant-coach/practice-profile";
 
 /** OpenAI Realtime model for CE-M1+. */
 export const CE_REALTIME_MODEL = "gpt-realtime-2.1";
@@ -53,13 +55,18 @@ export function buildPracticeModeObjective(input?: {
   successCriteria?: string;
   memory?: CoachPromptContext | null;
   handoffSource?: string;
+  practiceContext?: ForgePracticeContext | null;
 }): string {
   const track = input?.track ?? "system_design";
-  const confirmedPractice = isAcPracticeHandoff({
-    handoffSource: input?.handoffSource,
-    eventTitle: input?.eventTitle,
-  });
-  const acLines = confirmedPractice
+  const confirmedPractice =
+    Boolean(input?.practiceContext) ||
+    isAcPracticeHandoff({
+      handoffSource: input?.handoffSource,
+      eventTitle: input?.eventTitle,
+    });
+  const acLines = input?.practiceContext
+    ? buildStructuredPracticeObjectiveLines(input.practiceContext)
+    : confirmedPractice
     ? buildAcPracticeObjectiveLines({
         eventTitle: input?.eventTitle ?? "",
         successCriteria: input?.successCriteria,
@@ -138,11 +145,14 @@ export function buildSystemInstructions(input?: {
   conciseMode?: boolean;
   mode?: CeSessionMode;
   handoffSource?: string;
+  practiceContext?: ForgePracticeContext | null;
 }): string {
-  const confirmedPractice = isAcPracticeHandoff({
-    handoffSource: input?.handoffSource,
-    eventTitle: input?.eventTitle,
-  });
+  const confirmedPractice =
+    Boolean(input?.practiceContext) ||
+    isAcPracticeHandoff({
+      handoffSource: input?.handoffSource,
+      eventTitle: input?.eventTitle,
+    });
   if (input?.mode === "assessment") {
     return buildAssessmentSystemInstructions({
       memoryBlock: input.memory ? formatCoachMemoryBlock(input.memory) : null,
@@ -157,7 +167,9 @@ export function buildSystemInstructions(input?: {
     "- Prefer waiting and reflecting over filling silence with coaching.",
   ].join("\n");
 
-  const confirmedPracticeRule = confirmedPractice
+  const confirmedPracticeRule = input?.practiceContext
+    ? buildStructuredPracticeObjectiveLines(input.practiceContext).disciplineRule
+    : confirmedPractice
     ? buildAcPracticeObjectiveLines({
         eventTitle: input?.eventTitle ?? "",
         successCriteria: input?.successCriteria,
@@ -192,6 +204,7 @@ export function buildClientSecretRequest(input?: {
   turnKind?: VoiceTurnKind;
   mode?: CeSessionMode;
   handoffSource?: string;
+  practiceContext?: ForgePracticeContext | null;
 }) {
   // Hands-free (gated): semantic_vad; client owns barge-in yield.
   // Hold-to-talk: create_response OFF — mid-hold thinking pauses must NOT

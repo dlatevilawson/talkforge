@@ -8,6 +8,7 @@ import {
   type ComponentType,
   type ReactNode,
 } from "react";
+import { useRouter } from "next/navigation";
 import {
   PRACTICE_AUDIENCE_CATALOG,
   PRACTICE_PATTERN_CATALOG,
@@ -25,6 +26,7 @@ import {
   type PracticeTopicSelection,
   type PracticeUrgencyId,
 } from "@/lib/assistant-coach/practice-profile";
+import { COACH_WIZARD_PRACTICE_DESTINATION } from "@/lib/assistant-coach/forge-handoff";
 
 type WizardPhase = 1 | 2 | 3;
 
@@ -272,6 +274,7 @@ function isCompleteSelection(value: {
 }
 
 export default function AssistantCoachClient() {
+  const router = useRouter();
   const customInputId = useId();
   const [wizard, setWizard] = useState<WizardState>(EMPTY_WIZARD);
   const [restored, setRestored] = useState(false);
@@ -397,6 +400,10 @@ export default function AssistantCoachClient() {
           );
         }
         setServerProjection(body.projection);
+        if (body.destination === COACH_WIZARD_PRACTICE_DESTINATION) {
+          router.replace(COACH_WIZARD_PRACTICE_DESTINATION);
+          return;
+        }
         setWizard((current) => ({ ...current, verified: true }));
       } catch (error) {
         setSaveError(

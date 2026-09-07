@@ -16,10 +16,13 @@ import { SESSION_NO_STORE_HEADERS } from "./http-session.ts";
 import {
   PracticeProfileValidationError,
   createVerifiedMemberPracticeProfile,
+  parseMemberPracticeProfile,
   projectMemberPracticeProfile,
   validateMemberPracticeProfileSelection,
 } from "./practice-profile.ts";
+import { AssistantCoachClaimError } from "./claim-merge.ts";
 import {
+  AssistantCoachDraftConflictError,
   isAnonSessionExpired,
   type AssistantCoachSessionRepository,
 } from "./session-repository.ts";
@@ -28,15 +31,29 @@ export type ProfileRouteDeps = {
   adminConfigured: () => boolean;
   requireCookieSecret: () => string;
   createRepository: () => AssistantCoachSessionRepository;
+  resolveAuthUserId?: () => Promise<string | null>;
+  activateAuthenticated?: (input: {
+    anonKeyHash: string;
+    userId: string;
+  }) => Promise<{ destination: string }>;
   now?: () => Date;
 };
 
-function jsonResponse(status: number, body: Record<string, unknown>): Response {
+function jsonResponse(
+  status: number,
+  body: Record<string, unknown>,
+  clearAnonCookie = false
+): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
       "content-type": "application/json; charset=utf-8",
       ...SESSION_NO_STORE_HEADERS,
+      ...(clearAnonCookie
+        ? {
+            "set-cookie": `${ASSISTANT_COACH_ANON_COOKIE_NAME}=; Path=/; Max-Age=0; SameSite=Lax; HttpOnly`,
+          }
+        : {}),
     },
   });
 }
@@ -110,17 +127,45 @@ export async function handleAssistantCoachProfileRequest(
     });
     const projection = projectMemberPracticeProfile(validatedSelection);
 
-    await repository.saveDraft({
-      sessionId: session.id,
-      version: draft.version + 1,
-      profileJson: {
-        ...draft.profileJson,
-        memberPracticeProfile: profile,
-      },
-      updatedAt: now.toISOString(),
-    });
+    const existing = parseMemberPracticeProfile(
+      draft.profileJson.memberPracticeProfile
+    );
+    const sameSelection =
+      existing &&
+      JSON.stringify({
+        topics: existing.topics,
+        audiences: existing.audiences,
+        pattern: existing.pattern,
+        urgency: existing.urgency,
+      }) === JSON.stringify(validatedSelection);
+    const savedProfile = sameSelection ? existing : profile;
+    if (!sameSelection) {
+      await repository.saveDraft({
+        sessionId: session.id,
+        version: draft.version + 1,
+        expectedVersion: draft.version,
+        profileJson: {
+          ...draft.profileJson,
+          memberPracticeProfile: profile,
+        },
+        updatedAt: now.toISOString(),
+      });
+    }
 
-    return jsonResponse(200, { profile, projection });
+    const userId = await deps.resolveAuthUserId?.();
+    if (userId && deps.activateAuthenticated) {
+      const activated = await deps.activateAuthenticated({
+        anonKeyHash: hashAnonSecret(parsed.rawSecret),
+        userId,
+      });
+      return jsonResponse(
+        200,
+        { profile: savedProfile, projection, destination: activated.destination },
+        true
+      );
+    }
+
+    return jsonResponse(200, { profile: savedProfile, projection });
   } catch (err) {
     if (err instanceof AssistantCoachConfigError) {
       return jsonResponse(503, { error: err.message });
@@ -130,6 +175,15 @@ export async function handleAssistantCoachProfileRequest(
         error: err.message,
         code: "invalid_selection",
       });
+    }
+    if (err instanceof AssistantCoachDraftConflictError) {
+      return jsonResponse(409, {
+        error: "Coach profile changed. Try again.",
+        code: "draft_conflict",
+      });
+    }
+    if (err instanceof AssistantCoachClaimError) {
+      return jsonResponse(err.status, { error: err.message, code: err.code });
     }
     console.error("assistant-coach profile save failed", err);
     return jsonResponse(500, {

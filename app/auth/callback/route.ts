@@ -5,6 +5,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { PROFILE_SELECT, mapProfile } from "@/lib/auth/profile";
 import { adminConfigured, createAdminSupabaseClient } from "@/lib/supabase/admin";
 import type { EmailOtpType } from "@supabase/supabase-js";
+import { safeAuthNextPath } from "@/lib/auth/safe-next";
 
 /**
  * Supabase Auth callback — email verification, password recovery, future OAuth.
@@ -17,9 +18,7 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const typeParam = searchParams.get("type");
-  const nextParam = searchParams.get("next");
-  const next =
-    nextParam && nextParam.startsWith("/") ? nextParam : "/onboarding";
+  const next = safeAuthNextPath(searchParams.get("next"), "/onboarding");
   const site = getSiteUrl() || origin;
 
   if (!getSupabaseConfigStatus().configured) {
