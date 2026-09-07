@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import PresenceRing, {
-  type PresenceRingState,
-} from "@/app/components/arena/PresenceRing";
+import PresenceRing from "@/app/components/arena/PresenceRing";
 import ArenaConversation from "@/app/components/arena/ArenaConversation";
 import BecomeProMemberButton from "@/app/components/billing/BecomeProMemberButton";
 import {
@@ -120,7 +118,6 @@ type VoiceArenaProps = {
   successCriteria?: string;
   autoStart?: boolean;
   mode?: CeSessionMode;
-  handoffSource?: string;
   guestPreview?: {
     topicId: string;
     reconnectToken: string;
@@ -169,7 +166,6 @@ export default function VoiceArena({
   successCriteria,
   autoStart = false,
   mode = "practice",
-  handoffSource,
   guestPreview,
 }: VoiceArenaProps) {
   const router = useRouter();
@@ -571,6 +567,8 @@ export default function VoiceArena({
         duckRemoteForgeAudio(connectionRef.current);
         cancelForgeResponse(connectionRef.current);
         activeResponseIdRef.current = null;
+        // Event-handler timestamp; this path never runs during render.
+        // eslint-disable-next-line react-hooks/purity
         ignoreForgeAudioUntilRef.current = Date.now() + 1200;
         pushEvent("Natural yield · Forge gave the floor");
       } else if (transition.duckForgeAudio) {
@@ -644,9 +642,12 @@ export default function VoiceArena({
     },
   });
   const voiceRef = useRef(voice);
-  voiceRef.current = voice;
-  handsFreeRef.current = handsFree;
-  phaseRef.current = phase;
+
+  useEffect(() => {
+    voiceRef.current = voice;
+    handsFreeRef.current = handsFree;
+    phaseRef.current = phase;
+  }, [handsFree, phase, voice]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -1183,9 +1184,7 @@ export default function VoiceArena({
           mode: isGuestPreview ? "guest_preview" : mode,
           source: isGuestPreview
             ? "coach_guest_preview"
-            : isAssessment
-              ? undefined
-              : handoffSource,
+            : undefined,
           topic: isGuestPreview ? guestPreview?.topicId : undefined,
           reconnectToken: isGuestPreview
             ? guestPreview?.reconnectToken
@@ -1241,7 +1240,7 @@ export default function VoiceArena({
       realtimeSessionIdRef.current = tokenData.session_id ?? null;
       welcomeHintRef.current = tokenData.memory?.welcomeHint?.trim() || "";
       if (tokenData.memory?.isReturning && tokenData.memory.firstName) {
-        const titledStart = Boolean(eventTitle?.trim()) || handoffSource === "ac";
+        const titledStart = Boolean(eventTitle?.trim());
         setWelcomeLine(
           `Welcome back, ${tokenData.memory.firstName}${
             !titledStart && tokenData.memory.lastScenarioTitle
@@ -1340,7 +1339,6 @@ export default function VoiceArena({
           ? false
           : Boolean(tokenData.memory?.isReturning),
         mode,
-        handoffSource: isAssessment ? undefined : handoffSource,
         guestOpeningContext: isGuestPreview
           ? tokenData.openingContext
           : undefined,
@@ -1786,24 +1784,6 @@ export default function VoiceArena({
     sessionReady || phase === "connecting" || phase === "minting";
 
   const micLive = voice.micLive;
-
-  const ringState: PresenceRingState =
-    phase === "momentum"
-      ? "wrap"
-      : handsFree &&
-          (turnState === "forge_speaking" || turnState === "forge_thinking")
-        ? "forge_speaking"
-        : phase === "speaking"
-          ? "forge_speaking"
-          : phase === "listening" ||
-              micLive ||
-              voice.userSpeaking ||
-              (handsFree &&
-                (turnState === "user_speaking" || turnState === "interrupted"))
-            ? "listening"
-            : phase === "minting" || phase === "connecting" || isJoining
-              ? "connecting"
-              : "idle";
 
   const assessmentTerminalUi =
     isAssessment &&

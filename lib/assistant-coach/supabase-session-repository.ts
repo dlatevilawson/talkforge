@@ -47,7 +47,6 @@ export function createSupabaseAssistantCoachSessionRepository(
         user_id: null,
         status: "active",
         turn_count: 0,
-        has_experienced_value: false,
         expires_at: expiresAt,
         claimed_at: null,
       };
@@ -119,6 +118,7 @@ export function createSupabaseAssistantCoachSessionRepository(
         .from("assistant_coach_sessions")
         .select("*")
         .eq("anon_key_hash", anonKeyHash)
+        // "gated" is a deployed legacy status, not Decision 060 gate policy.
         .in("status", ["active", "gated"])
         .is("user_id", null)
         .maybeSingle();
@@ -242,7 +242,7 @@ export function createSupabaseAssistantCoachSessionRepository(
     async markExpiredIfPast(sessionId, now = new Date()) {
       const session = await repository.getSession(sessionId);
       if (!session) return null;
-      // Never overwrite claimed / handed_off / member-linked rows.
+      // Never overwrite claimed or member-linked rows.
       if (session.userId != null) {
         return session;
       }
@@ -271,32 +271,28 @@ export function createSupabaseAssistantCoachSessionRepository(
       return data ? mapSessionRow(data as AssistantCoachSessionRow) : session;
     },
 
-    async updateSessionFlags(sessionId, patch) {
-      const current = await repository.getSession(sessionId);
-      if (!current) throw new Error("session not found");
-      const now = patch.now ?? new Date();
-      const update: Record<string, unknown> = {
-        updated_at: now.toISOString(),
-      };
-      // Sticky: once true, never clear via this helper.
-      if (patch.hasExperiencedValue === true || current.hasExperiencedValue) {
-        update.has_experienced_value = true;
-      }
-      if (patch.status) {
-        update.status = patch.status;
-      }
+    async normalizeLegacyGatedSession(sessionId, now = new Date()) {
       const { data, error } = await client
         .from("assistant_coach_sessions")
-        .update(update)
+        .update({
+          status: "active",
+          updated_at: now.toISOString(),
+        })
         .eq("id", sessionId)
+        .eq("status", "gated")
+        .is("user_id", null)
+        .gt("expires_at", now.toISOString())
         .select("*")
-        .single();
+        .maybeSingle();
       if (error) {
         throw new Error(
-          `assistant_coach_sessions flags update failed: ${error.message}`
+          `assistant_coach_sessions legacy status normalization failed: ${error.message}`
         );
       }
-      return mapSessionRow(data as AssistantCoachSessionRow);
+      if (data) return mapSessionRow(data as AssistantCoachSessionRow);
+      const current = await repository.getSession(sessionId);
+      if (!current) throw new Error("session not found");
+      return current;
     },
 
     async getSessionByAnonKeyHashForClaim(anonKeyHash) {
@@ -311,23 +307,6 @@ export function createSupabaseAssistantCoachSessionRepository(
       if (error) {
         throw new Error(
           `assistant_coach_sessions claim lookup failed: ${error.message}`
-        );
-      }
-      return data ? mapSessionRow(data as AssistantCoachSessionRow) : null;
-    },
-
-    async getLatestClaimedSessionByUserId(userId) {
-      const { data, error } = await client
-        .from("assistant_coach_sessions")
-        .select("*")
-        .eq("user_id", userId)
-        .eq("status", "claimed")
-        .order("claimed_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      if (error) {
-        throw new Error(
-          `assistant_coach_sessions claimed lookup failed: ${error.message}`
         );
       }
       return data ? mapSessionRow(data as AssistantCoachSessionRow) : null;

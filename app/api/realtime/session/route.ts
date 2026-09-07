@@ -10,7 +10,6 @@ import {
 } from "@/lib/auth/rate-limit";
 import { evaluatePracticeEntitlement } from "@/lib/billing/entitlements";
 import { loadCoachPromptContextForUser } from "@/lib/coach/memory-server";
-import { applyConfirmedPracticeHandoff } from "@/lib/ce/ac-practice-handoff";
 import {
   buildClientSecretRequest,
   type CeSessionMode,
@@ -18,7 +17,6 @@ import {
 } from "@/lib/ce/session-config";
 import { resolveArenaVoiceMode } from "@/lib/ce/voice-mode";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { AC_HANDOFF_SOURCE } from "@/lib/assistant-coach/confirmation";
 import { evaluatePracticeRouteAccess } from "@/lib/system2/server-readiness";
 import {
   authorizeGuestForgeMint,
@@ -80,13 +78,10 @@ export async function POST(req: Request) {
   }
 
   // Same readiness boundary as /app/practice (BS-013).
-  // AC first-practice handoff: confirmed moment is the starting context.
   const readiness = await evaluatePracticeRouteAccess();
   const eventTitle =
     typeof body.eventTitle === "string" ? body.eventTitle.trim() : "";
-  const acHandoff =
-    body.source === AC_HANDOFF_SOURCE && eventTitle.length > 0;
-  if (!readiness.allowed && !acHandoff) {
+  if (!readiness.allowed) {
     return NextResponse.json(
       {
         error: "Living Profile readiness required before starting Coach Forge.",
@@ -140,15 +135,6 @@ export async function POST(req: Request) {
   const mode: CeSessionMode =
     body.mode === "assessment" ? "assessment" : "practice";
   const memory = await loadCoachPromptContextForUser(gate.userId);
-  const memoryForSession = acHandoff
-    ? applyConfirmedPracticeHandoff(memory, {
-        eventTitle,
-        successCriteria:
-          typeof body.successCriteria === "string"
-            ? body.successCriteria
-            : undefined,
-      })
-    : memory;
   const planIsPro =
     entitlement.plan === "pro" ||
     entitlement.reason === "pro" ||
@@ -164,10 +150,9 @@ export async function POST(req: Request) {
       typeof body.successCriteria === "string"
         ? body.successCriteria
         : undefined,
-    memory: memoryForSession,
+    memory,
     handsFree,
     mode,
-    handoffSource: acHandoff ? AC_HANDOFF_SOURCE : undefined,
   });
 
   try {
@@ -216,12 +201,12 @@ export async function POST(req: Request) {
         sessionsLimit: entitlement.sessionsLimit,
       },
       memory: {
-        firstName: memoryForSession.firstName,
-        isReturning: memoryForSession.isReturning,
-        sessionsCompleted: memoryForSession.sessionsCompleted,
-        welcomeHint: memoryForSession.welcomeHint,
-        adaptiveInsight: memoryForSession.adaptiveInsight,
-        lastScenarioTitle: memoryForSession.lastScenarioTitle,
+        firstName: memory.firstName,
+        isReturning: memory.isReturning,
+        sessionsCompleted: memory.sessionsCompleted,
+        welcomeHint: memory.welcomeHint,
+        adaptiveInsight: memory.adaptiveInsight,
+        lastScenarioTitle: memory.lastScenarioTitle,
       },
     });
   } catch (error) {

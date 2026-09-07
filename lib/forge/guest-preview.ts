@@ -180,6 +180,19 @@ export async function bootstrapGuestForgePreview(input: {
 }): Promise<GuestForgePreviewView> {
   const now = input.now ?? new Date();
   assertSession(input.session, now);
+  if (input.session.status === "gated") {
+    const normalized = await input.repository.normalizeLegacyGatedSession(
+      input.session.id,
+      now
+    );
+    if (normalized.status !== "active") {
+      throw new GuestForgePreviewError(
+        "session_invalid",
+        "The anonymous Coach session could not be prepared.",
+        401
+      );
+    }
+  }
   const topic = coachTopicById(input.topicId);
   if (!topic) {
     throw new GuestForgePreviewError(
