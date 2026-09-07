@@ -100,6 +100,19 @@ export type PracticeProfileProjection = {
   initialForgeTarget: string;
 };
 
+/** Read-only Forge handoff derived only from a verified Living Profile field. */
+export type ForgePracticeContext = {
+  readonly source: "verified_member_practice_profile";
+  readonly catalogVersion: typeof PRACTICE_PROFILE_CATALOG_VERSION;
+  readonly primaryTopic: Readonly<{ id: PracticeTopicId; label: string }>;
+  readonly primaryAudience: Readonly<{
+    id: PracticeAudienceId;
+    label: string;
+  }>;
+  readonly pattern: Readonly<{ id: PracticePatternId; label: string }>;
+  readonly urgency: Readonly<{ id: PracticeUrgencyId; label: string }>;
+};
+
 export class PracticeProfileValidationError extends Error {
   constructor(message: string) {
     super(message);
@@ -417,5 +430,37 @@ export function projectMemberPracticeProfile(
     },
     patternTemplate: patternTemplateById[selection.pattern],
     initialForgeTarget: `Practice ${targetPhrase} with ${audienceLabels[0]}.`,
+  };
+}
+
+export function buildForgePracticeContext(
+  value: unknown
+): ForgePracticeContext | null {
+  const profile = parseMemberPracticeProfile(value);
+  if (!profile) return null;
+  const primaryTopic = profile.topics[0];
+  const primaryAudience = profile.audiences[0];
+  return {
+    source: "verified_member_practice_profile",
+    catalogVersion: PRACTICE_PROFILE_CATALOG_VERSION,
+    primaryTopic: {
+      id: primaryTopic.id,
+      label:
+        primaryTopic.id === "something_else"
+          ? primaryTopic.customText!
+          : topicById.get(primaryTopic.id)!.label,
+    },
+    primaryAudience: {
+      id: primaryAudience,
+      label: audienceById.get(primaryAudience)!.label,
+    },
+    pattern: {
+      id: profile.pattern,
+      label: patternById.get(profile.pattern)!.label,
+    },
+    urgency: {
+      id: profile.urgency,
+      label: urgencyById.get(profile.urgency)!.label,
+    },
   };
 }

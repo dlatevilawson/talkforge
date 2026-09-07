@@ -98,6 +98,7 @@ import {
 } from "@/lib/session";
 import { getUser } from "@/lib/storage";
 import type { PracticeSession } from "@/lib/types";
+import type { ForgePracticeContext } from "@/lib/assistant-coach/practice-profile";
 
 type WrapStage = "coaching" | "membership";
 
@@ -108,6 +109,7 @@ type VoiceArenaProps = {
   autoStart?: boolean;
   mode?: CeSessionMode;
   handoffSource?: string;
+  practiceContext?: ForgePracticeContext | null;
 };
 
 type AssessmentWrap = {
@@ -152,9 +154,13 @@ export default function VoiceArena({
   autoStart = false,
   mode = "practice",
   handoffSource,
+  practiceContext,
 }: VoiceArenaProps) {
   const router = useRouter();
   const isAssessment = mode === "assessment";
+  const structuredTitle = practiceContext
+    ? `${practiceContext.primaryTopic.label} with ${practiceContext.primaryAudience.label}`
+    : "";
   const connectionRef = useRef<RealtimeConnection | null>(null);
   const turnsRef = useRef<TranscriptTurn[]>([]);
   const voiceSessionIdRef = useRef<string | null>(null);
@@ -1130,7 +1136,8 @@ export default function VoiceArena({
 
       const scenarioTitle = isAssessment
         ? "Living Profile assessment"
-        : eventTitle?.trim() ||
+        : structuredTitle ||
+          eventTitle?.trim() ||
           CE_TRACK_TITLES[track] ||
           "Voice practice with Forge";
 
@@ -1162,6 +1169,7 @@ export default function VoiceArena({
           welcomeHint?: string;
           lastScenarioTitle?: string;
         };
+        practiceContext?: ForgePracticeContext | null;
       };
 
       if (!tokenRes.ok || !tokenData.value) {
@@ -1180,9 +1188,17 @@ export default function VoiceArena({
       }
 
       realtimeSessionIdRef.current = tokenData.session_id ?? null;
+      const authoritativePracticeContext =
+        tokenData.practiceContext?.source ===
+        "verified_member_practice_profile"
+          ? tokenData.practiceContext
+          : null;
       welcomeHintRef.current = tokenData.memory?.welcomeHint?.trim() || "";
       if (tokenData.memory?.isReturning && tokenData.memory.firstName) {
-        const titledStart = Boolean(eventTitle?.trim()) || handoffSource === "ac";
+        const titledStart =
+          Boolean(authoritativePracticeContext) ||
+          Boolean(eventTitle?.trim()) ||
+          handoffSource === "ac";
         setWelcomeLine(
           `Welcome back, ${tokenData.memory.firstName}${
             !titledStart && tokenData.memory.lastScenarioTitle
@@ -1250,8 +1266,10 @@ export default function VoiceArena({
         scenarioTitle,
         missionPrompt: isAssessment
           ? "Short discovery interview so Forge can get a sense of you."
-          : successCriteria?.trim() ||
-            "Practice clear, warm, confident communication out loud with Forge.",
+          : authoritativePracticeContext
+            ? `Practice ${authoritativePracticeContext.primaryTopic.label} with ${authoritativePracticeContext.primaryAudience.label}.`
+            : successCriteria?.trim() ||
+              "Practice clear, warm, confident communication out loud with Forge.",
         modality: "voice",
       });
       practiceSessionRef.current = practice;
@@ -1280,6 +1298,9 @@ export default function VoiceArena({
           : Boolean(tokenData.memory?.isReturning),
         mode,
         handoffSource: isAssessment ? undefined : handoffSource,
+        practiceContext: isAssessment
+          ? undefined
+          : authoritativePracticeContext,
       });
       pushEvent(
         tokenData.memory?.isReturning
@@ -1771,7 +1792,9 @@ export default function VoiceArena({
               <h1 className="mt-4 max-w-xl text-4xl font-semibold tracking-tight sm:text-5xl">
                 {isAssessment
                   ? "A few quick questions"
-                  : eventTitle?.trim() || "I’m ready when you are"}
+                  : structuredTitle ||
+                    eventTitle?.trim() ||
+                    "I’m ready when you are"}
               </h1>
               <p className="mt-5 max-w-md text-base leading-7 text-white/50">
                 {isAssessment
@@ -1787,7 +1810,7 @@ export default function VoiceArena({
                   {welcomeLine}
                 </p>
               ) : null}
-              {successCriteria?.trim() && (
+              {!practiceContext && successCriteria?.trim() && (
                 <p className="mt-4 max-w-md text-sm leading-6 text-white/40">
                   You’re aiming for: {successCriteria.trim()}
                 </p>

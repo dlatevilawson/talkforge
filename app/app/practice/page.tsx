@@ -8,6 +8,12 @@ import {
 } from "@/lib/assistant-coach/confirmation";
 import { evaluatePracticeRouteAccess } from "@/lib/system2/server-readiness";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { ensurePersistedLivingProfile } from "@/lib/system1/ensure-living-profile";
+import {
+  COACH_WIZARD_HANDOFF_SOURCE,
+  isCoachWizardHandoffSource,
+  resolveCoachWizardPracticeContext,
+} from "@/lib/assistant-coach/forge-handoff";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 
@@ -27,22 +33,34 @@ export default async function VoicePage({
   const params = await searchParams;
   const title = first(params.title);
   const source = first(params.source);
-  const acHandoff = isAssistantCoachPracticeHandoff({ source, title });
+  const modeRaw = first(params.mode);
+  const mode: CeSessionMode =
+    modeRaw === "assessment" ? "assessment" : "practice";
+  const wizardHandoff =
+    mode === "practice" && isCoachWizardHandoffSource(source);
 
   const access = await evaluatePracticeRouteAccess();
   if (!access.allowed) {
-    if (acHandoff && access.reason !== "unauthenticated") {
-      // Confirmed AC moment is the starting context for this entry path.
-      // Do not send the member through ContinuityHome / focus picker.
-    } else {
-      redirect(`/app?gate=${access.reason}`);
-    }
+    redirect(`/app?gate=${access.reason}`);
   }
 
   const supabase = await createServerSupabaseClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  if (!user) redirect("/login?next=/app/practice");
+  const ensured = await ensurePersistedLivingProfile(supabase, user);
+  const practiceContext = resolveCoachWizardPracticeContext({
+    source,
+    mode,
+    memberPracticeProfile: ensured.profile?.memberPracticeProfile,
+  });
+  if (wizardHandoff && !practiceContext) {
+    redirect("/coach?activation=retry");
+  }
+  const acHandoff =
+    !wizardHandoff &&
+    isAssistantCoachPracticeHandoff({ source, title });
   if (user) {
     const { data: profile } = await supabase
       .from("profiles")
@@ -69,18 +87,21 @@ export default async function VoicePage({
     trackRaw === "hello"
       ? trackRaw
       : "hello";
-  const modeRaw = first(params.mode);
-  const mode: CeSessionMode =
-    modeRaw === "assessment" ? "assessment" : "practice";
-
   return (
     <VoiceArena
       track={track}
-      eventTitle={title}
-      successCriteria={first(params.success)}
-      autoStart={first(params.start) === "1"}
+      eventTitle={practiceContext ? undefined : title}
+      successCriteria={practiceContext ? undefined : first(params.success)}
+      autoStart={wizardHandoff || first(params.start) === "1"}
       mode={mode}
-      handoffSource={acHandoff ? AC_HANDOFF_SOURCE : undefined}
+      handoffSource={
+        wizardHandoff
+          ? COACH_WIZARD_HANDOFF_SOURCE
+          : acHandoff
+            ? AC_HANDOFF_SOURCE
+            : undefined
+      }
+      practiceContext={practiceContext}
     />
   );
 }
