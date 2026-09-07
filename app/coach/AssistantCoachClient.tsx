@@ -1,59 +1,178 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useTransition } from "react";
 import {
-  CoachMicError,
-  requestCoachMicrophoneStream,
-  startCoachRecording,
-  stopMediaStream,
-  type CoachRecordingSession,
-} from "@/lib/assistant-coach/browser-mic";
+  useEffect,
+  useId,
+  useState,
+  useTransition,
+  type ComponentType,
+  type ReactNode,
+} from "react";
 import {
-  COACH_BOOT_ERROR,
-  COACH_EMPTY_HINT,
-  COACH_GATE_COPY,
-  COACH_GATE_TITLE,
-  COACH_OPENING,
-  COACH_PRODUCT_NAME,
-  COACH_STARTERS,
-  COACH_STATE_LISTENING,
-  COACH_STATE_THINKING,
-  COACH_STATE_TRANSCRIBING,
-  getCoachComposerPlaceholder,
-  inferCoachStarterId,
-  type CoachStarter,
-  type CoachStarterId,
-} from "@/lib/assistant-coach/coach-copy";
+  PRACTICE_AUDIENCE_CATALOG,
+  PRACTICE_PATTERN_CATALOG,
+  PRACTICE_PROFILE_CUSTOM_TEXT_MAX_LENGTH,
+  PRACTICE_TOPIC_CATALOG,
+  PRACTICE_URGENCY_CATALOG,
+  projectMemberPracticeProfile,
+  validateMemberPracticeProfileSelection,
+  type MemberPracticeProfileSelection,
+  type PracticeAudienceId,
+  type PracticePatternId,
+  type PracticeProfileProjection,
+  type PracticeTopicId,
+  type PracticeTopicSelection,
+  type PracticeUrgencyId,
+} from "@/lib/assistant-coach/practice-profile";
 
-type ChatMessage = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
+type WizardPhase = 1 | 2 | 3;
+
+type WizardState = {
+  sessionId: string | null;
+  phase: WizardPhase;
+  topics: PracticeTopicSelection[];
+  audiences: PracticeAudienceId[];
+  pattern: PracticePatternId | null;
+  urgency: PracticeUrgencyId | null;
+  verified: boolean;
 };
 
-type GateState = {
-  hasExperiencedValue: boolean;
-  mustAuthenticateToContinue: boolean;
-  copyKey: string;
-};
-
-type SessionState = {
-  id: string;
-  status: string;
-  turnCount: number;
-  hasExperiencedValue: boolean;
-  expiresAt: string;
-};
-
-type ComposerPhase = "idle" | "recording" | "transcribing" | "thinking";
-
+const WIZARD_STORAGE_KEY = "tf_coach_card_wizard_v1";
 const MINT_KEY_STORAGE = "tf_ac_mint_key_v1";
+
+const EMPTY_WIZARD: WizardState = {
+  sessionId: null,
+  phase: 1,
+  topics: [],
+  audiences: [],
+  pattern: null,
+  urgency: null,
+  verified: false,
+};
+
+function IconFrame({ children }: { children: ReactNode }) {
+  return (
+    <svg
+      className="ac-topic-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {children}
+    </svg>
+  );
+}
+
+function BriefcaseIcon() {
+  return (
+    <IconFrame>
+      <rect x="3" y="7" width="18" height="13" rx="2" />
+      <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2" />
+    </IconFrame>
+  );
+}
+
+function TrendingUpIcon() {
+  return (
+    <IconFrame>
+      <path d="M3 17l6-6 4 4 8-9M15 6h6v6" />
+    </IconFrame>
+  );
+}
+
+function MessageSquareWarningIcon() {
+  return (
+    <IconFrame>
+      <path d="M20 15a3 3 0 0 1-3 3H9l-5 3v-5a3 3 0 0 1-1-2V7a3 3 0 0 1 3-3h11a3 3 0 0 1 3 3zM12 7v4M12 14h.01" />
+    </IconFrame>
+  );
+}
+
+function ShieldIcon() {
+  return (
+    <IconFrame>
+      <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z" />
+    </IconFrame>
+  );
+}
+
+function MicIcon() {
+  return (
+    <IconFrame>
+      <rect x="9" y="2" width="6" height="12" rx="3" />
+      <path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8" />
+    </IconFrame>
+  );
+}
+
+function ZapIcon() {
+  return (
+    <IconFrame>
+      <path d="M13 2L3 14h9l-1 8 10-12h-9z" />
+    </IconFrame>
+  );
+}
+
+function HandIcon() {
+  return (
+    <IconFrame>
+      <path d="M7 11V6a2 2 0 0 1 4 0v4-6a2 2 0 0 1 4 0v6-4a2 2 0 0 1 4 0v8a8 8 0 0 1-8 8h-1a7 7 0 0 1-6-3l-2-3a2 2 0 0 1 3-3z" />
+    </IconFrame>
+  );
+}
+
+function EarIcon() {
+  return (
+    <IconFrame>
+      <path d="M6 10a6 6 0 1 1 10 4c-2 2-2 6-5 6a3 3 0 0 1-3-3M10 11a2 2 0 1 1 3 2c-1 1-1 3-2 3" />
+    </IconFrame>
+  );
+}
+
+function ScissorsIcon() {
+  return (
+    <IconFrame>
+      <circle cx="6" cy="7" r="3" />
+      <circle cx="6" cy="17" r="3" />
+      <path d="M8.5 8.5L21 3M8.5 15.5L21 21M11 12l3-1.5" />
+    </IconFrame>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <IconFrame>
+      <path d="M12 5v14M5 12h14" />
+    </IconFrame>
+  );
+}
+
+const TOPIC_ICON_BY_ID: Record<
+  PracticeTopicId,
+  ComponentType
+> = {
+  job_interview: BriefcaseIcon,
+  salary_raise_negotiation: TrendingUpIcon,
+  giving_difficult_feedback: MessageSquareWarningIcon,
+  setting_a_boundary: ShieldIcon,
+  pitch_or_presentation: MicIcon,
+  handling_conflict: ZapIcon,
+  asking_for_something_i_need: HandIcon,
+  receiving_critical_feedback: EarIcon,
+  ending_a_relationship: ScissorsIcon,
+  something_else: PlusIcon,
+};
 
 function createMintKey(): string {
   const bytes = new Uint8Array(32);
   crypto.getRandomValues(bytes);
   let binary = "";
-  for (const b of bytes) binary += String.fromCharCode(b);
+  for (const byte of bytes) binary += String.fromCharCode(byte);
   return btoa(binary)
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
@@ -74,499 +193,545 @@ function getOrCreateMintKey(): string {
   }
 }
 
-function createClientTurnId(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `cturn_${crypto.randomUUID()}`;
+function isCatalogId<T extends string>(
+  value: unknown,
+  catalog: readonly { id: T }[]
+): value is T {
+  return typeof value === "string" && catalog.some((item) => item.id === value);
+}
+
+function restoreWizardState(raw: string | null): WizardState {
+  if (!raw) return EMPTY_WIZARD;
+  try {
+    const value = JSON.parse(raw) as Record<string, unknown>;
+    const topics = Array.isArray(value.topics)
+      ? value.topics
+          .map((item): PracticeTopicSelection | null => {
+            if (!item || typeof item !== "object") return null;
+            const topic = item as Record<string, unknown>;
+            if (!isCatalogId(topic.id, PRACTICE_TOPIC_CATALOG)) return null;
+            const customText =
+              typeof topic.customText === "string" ? topic.customText : null;
+            return { id: topic.id, customText };
+          })
+          .filter((item): item is PracticeTopicSelection => item !== null)
+          .filter(
+            (item, index, all) =>
+              all.findIndex((candidate) => candidate.id === item.id) === index
+          )
+          .slice(0, 3)
+      : [];
+    const audiences = Array.isArray(value.audiences)
+      ? value.audiences
+          .filter((id): id is PracticeAudienceId =>
+            isCatalogId(id, PRACTICE_AUDIENCE_CATALOG)
+          )
+          .filter((id, index, all) => all.indexOf(id) === index)
+      : [];
+    const pattern = isCatalogId(value.pattern, PRACTICE_PATTERN_CATALOG)
+      ? value.pattern
+      : null;
+    const urgency = isCatalogId(value.urgency, PRACTICE_URGENCY_CATALOG)
+      ? value.urgency
+      : null;
+    const requestedPhase =
+      value.phase === 2 || value.phase === 3 ? value.phase : 1;
+    const sessionId =
+      typeof value.sessionId === "string" && value.sessionId
+        ? value.sessionId
+        : null;
+    const selection = { topics, audiences, pattern, urgency };
+    const complete = isCompleteSelection(selection);
+    return {
+      ...selection,
+      sessionId,
+      phase: requestedPhase === 3 && !complete ? 2 : requestedPhase,
+      verified: Boolean(value.verified) && complete,
+    };
+  } catch {
+    return EMPTY_WIZARD;
   }
-  return `cturn_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function isValidTopicSelection(topics: PracticeTopicSelection[]): boolean {
+  if (topics.length < 1 || topics.length > 3) return false;
+  const custom = topics.find((topic) => topic.id === "something_else");
+  if (!custom) return true;
+  const length = custom.customText?.trim().length ?? 0;
+  return length >= 1 && length <= PRACTICE_PROFILE_CUSTOM_TEXT_MAX_LENGTH;
+}
+
+function isCompleteSelection(value: {
+  topics: PracticeTopicSelection[];
+  audiences: PracticeAudienceId[];
+  pattern: PracticePatternId | null;
+  urgency: PracticeUrgencyId | null;
+}): value is MemberPracticeProfileSelection {
+  if (
+    !isValidTopicSelection(value.topics) ||
+    value.audiences.length < 1 ||
+    !value.pattern ||
+    !value.urgency
+  ) {
+    return false;
+  }
+  try {
+    validateMemberPracticeProfileSelection(value);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export default function AssistantCoachClient() {
-  const formId = useId();
-  const threadRef = useRef<HTMLElement | null>(null);
-  const composerInputRef = useRef<HTMLTextAreaElement | null>(null);
-  const nearBottomRef = useRef(true);
-  const streamRef = useRef<MediaStream | null>(null);
-  const recordingRef = useRef<CoachRecordingSession | null>(null);
-
+  const customInputId = useId();
+  const [wizard, setWizard] = useState<WizardState>(EMPTY_WIZARD);
+  const [restored, setRestored] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
   const [bootError, setBootError] = useState<string | null>(null);
-  const [ready, setReady] = useState(false);
-  const [session, setSession] = useState<SessionState | null>(null);
-  const [gate, setGate] = useState<GateState | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [selectedStarterId, setSelectedStarterId] =
-    useState<CoachStarterId | null>(null);
-  const [draft, setDraft] = useState("");
-  const [sendError, setSendError] = useState<string | null>(null);
-  const [phase, setPhase] = useState<ComposerPhase>("idle");
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [serverProjection, setServerProjection] =
+    useState<PracticeProfileProjection | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const gated = Boolean(gate?.mustAuthenticateToContinue);
-  const busy = phase !== "idle" || pending;
+  useEffect(() => {
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      setWizard(restoreWizardState(sessionStorage.getItem(WIZARD_STORAGE_KEY)));
+      setRestored(true);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!restored) return;
+    try {
+      sessionStorage.setItem(WIZARD_STORAGE_KEY, JSON.stringify(wizard));
+    } catch {
+      // Browser storage can be unavailable; the signed server session remains.
+    }
+  }, [restored, wizard]);
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    void (async () => {
       try {
-        const mintKey = getOrCreateMintKey();
-        const res = await fetch("/api/assistant-coach/session", {
+        const response = await fetch("/api/assistant-coach/session", {
           method: "POST",
-          headers: {
-            "Idempotency-Key": mintKey,
-          },
+          headers: { "Idempotency-Key": getOrCreateMintKey() },
           credentials: "same-origin",
         });
-        const body = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          console.error("Coach session boot failed", body);
-          throw new Error(COACH_BOOT_ERROR);
+        if (!response.ok) throw new Error("Coach could not get ready.");
+        const body = await response.json();
+        const sessionId =
+          typeof body?.session?.id === "string" ? body.session.id : null;
+        if (!sessionId) throw new Error("Coach could not get ready.");
+        if (!cancelled) {
+          setWizard((current) =>
+            current.sessionId && current.sessionId !== sessionId
+              ? { ...EMPTY_WIZARD, sessionId }
+              : { ...current, sessionId }
+          );
+          setSessionReady(true);
         }
-        if (cancelled) return;
-        setSession(body.session);
-        setGate(body.gate ?? null);
-        const restored = Array.isArray(body.messages)
-          ? body.messages.map(
-              (m: {
-                id: string;
-                role: "user" | "assistant";
-                content: string;
-              }) => ({
-                id: m.id,
-                role: m.role,
-                content: m.content,
-              })
-            )
-          : [];
-        setMessages(restored);
-        setSelectedStarterId(
-          inferCoachStarterId(
-            restored.find((message: ChatMessage) => message.role === "user")
-              ?.content
-          )
-        );
-        setReady(true);
-      } catch (err) {
+      } catch (error) {
         if (!cancelled) {
           setBootError(
-            err instanceof Error ? err.message : COACH_BOOT_ERROR
+            error instanceof Error ? error.message : "Coach could not get ready."
           );
         }
       }
     })();
     return () => {
       cancelled = true;
-      recordingRef.current?.cancel();
-      recordingRef.current = null;
-      stopMediaStream(streamRef.current);
-      streamRef.current = null;
     };
   }, []);
 
-  useEffect(() => {
-    const root = document.documentElement;
-    const applyViewport = () => {
-      const vv = window.visualViewport;
-      const height = vv?.height ?? window.innerHeight;
-      const top = vv?.offsetTop ?? 0;
-      root.style.setProperty("--ac-vvh", `${Math.round(height)}px`);
-      root.style.setProperty("--ac-vvt", `${Math.round(top)}px`);
-    };
-    applyViewport();
-    const vv = window.visualViewport;
-    vv?.addEventListener("resize", applyViewport);
-    vv?.addEventListener("scroll", applyViewport);
-    window.addEventListener("orientationchange", applyViewport);
-    return () => {
-      vv?.removeEventListener("resize", applyViewport);
-      vv?.removeEventListener("scroll", applyViewport);
-      window.removeEventListener("orientationchange", applyViewport);
-      root.style.removeProperty("--ac-vvh");
-      root.style.removeProperty("--ac-vvt");
-    };
-  }, []);
-
-  useEffect(() => {
-    const thread = threadRef.current;
-    if (!thread) return;
-    const onScroll = () => {
-      const remaining =
-        thread.scrollHeight - thread.scrollTop - thread.clientHeight;
-      nearBottomRef.current = remaining < 96;
-    };
-    onScroll();
-    thread.addEventListener("scroll", onScroll, { passive: true });
-    return () => thread.removeEventListener("scroll", onScroll);
-  }, [ready]);
-
-  useEffect(() => {
-    const thread = threadRef.current;
-    if (!thread || !nearBottomRef.current) return;
-    thread.scrollTop = thread.scrollHeight;
-  }, [messages, phase, pending]);
-
-  function growComposer(el: HTMLTextAreaElement) {
-    el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 120)}px`;
+  function toggleTopic(id: PracticeTopicId) {
+    setSaveError(null);
+    setWizard((current) => {
+      const selected = current.topics.some((topic) => topic.id === id);
+      const topics = selected
+        ? current.topics.filter((topic) => topic.id !== id)
+        : current.topics.length < 3
+          ? [...current.topics, { id, customText: null }]
+          : current.topics;
+      return { ...current, topics, verified: false };
+    });
   }
 
-  function sendMessage(text: string) {
-    const trimmed = text.trim();
-    if (!trimmed || pending || gated) return;
-    setSendError(null);
-    const clientTurnId = createClientTurnId();
-    const optimisticId = `local_${clientTurnId}`;
-    setMessages((prev) => [
-      ...prev,
-      { id: optimisticId, role: "user", content: trimmed },
-    ]);
-    setDraft("");
-    setPhase("thinking");
-    if (composerInputRef.current) {
-      composerInputRef.current.style.height = "auto";
-    }
+  function toggleAudience(id: PracticeAudienceId) {
+    setSaveError(null);
+    setWizard((current) => {
+      const selected = current.audiences.includes(id);
+      return {
+        ...current,
+        audiences: selected
+          ? current.audiences.filter((audience) => audience !== id)
+          : [...current.audiences, id],
+        verified: false,
+      };
+    });
+  }
 
+  function completeProfile() {
+    if (!isCompleteSelection(wizard)) return;
+    setServerProjection(null);
+    setSaveError(null);
+    setWizard((current) => ({ ...current, phase: 3, verified: false }));
+  }
+
+  function saveProfile() {
+    if (!isCompleteSelection(wizard) || pending) return;
+    setSaveError(null);
     startTransition(async () => {
       try {
-        const res = await fetch("/api/assistant-coach/turn", {
+        const response = await fetch("/api/assistant-coach/profile", {
           method: "POST",
           headers: { "content-type": "application/json" },
           credentials: "same-origin",
-          body: JSON.stringify({ message: trimmed, clientTurnId }),
+          body: JSON.stringify({
+            selection: {
+              topics: wizard.topics,
+              audiences: wizard.audiences,
+              pattern: wizard.pattern,
+              urgency: wizard.urgency,
+            },
+          }),
         });
-        const body = await res.json().catch(() => ({}));
-        if (res.status === 403 && body.code === "must_authenticate") {
-          if (body.session) setSession(body.session);
-          if (body.gate) setGate(body.gate);
-          setSendError(null);
-          return;
-        }
-        if (!res.ok) {
+        const body = await response.json().catch(() => ({}));
+        if (!response.ok) {
           throw new Error(
             typeof body.error === "string"
               ? body.error
-              : "Unable to complete that turn."
+              : "Coach could not save your profile."
           );
         }
-        setSession(body.session);
-        setGate(body.gate ?? null);
-        setMessages((prev) => {
-          const withoutOptimistic = prev.filter((m) => m.id !== optimisticId);
-          return [
-            ...withoutOptimistic,
-            { id: `${clientTurnId}_user`, role: "user", content: trimmed },
-            {
-              id: `${clientTurnId}_assistant`,
-              role: "assistant",
-              content: body.reply,
-            },
-          ];
-        });
-      } catch (err) {
-        setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
-        setDraft(trimmed);
-        setSendError(
-          err instanceof Error ? err.message : "Unable to complete that turn."
+        setServerProjection(body.projection);
+        setWizard((current) => ({ ...current, verified: true }));
+      } catch (error) {
+        setSaveError(
+          error instanceof Error
+            ? error.message
+            : "Coach could not save your profile."
         );
-      } finally {
-        setPhase("idle");
       }
     });
   }
 
-  function chooseStarter(starter: CoachStarter) {
-    setSelectedStarterId(starter.id);
-    if (starter.message) {
-      sendMessage(starter.message);
-      return;
-    }
-    composerInputRef.current?.focus();
-  }
-
-  function onSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    if (busy || gated) return;
-    sendMessage(draft);
-  }
-
-  async function startRecording() {
-    if (busy || gated) return;
-    setSendError(null);
-    try {
-      const stream = await requestCoachMicrophoneStream();
-      streamRef.current = stream;
-      recordingRef.current = startCoachRecording(stream);
-      setPhase("recording");
-    } catch (err) {
-      stopMediaStream(streamRef.current);
-      streamRef.current = null;
-      recordingRef.current = null;
-      setPhase("idle");
-      setSendError(
-        err instanceof CoachMicError
-          ? err.message
-          : "Unable to access the microphone."
-      );
-    }
-  }
-
-  function cancelRecording() {
-    recordingRef.current?.cancel();
-    recordingRef.current = null;
-    stopMediaStream(streamRef.current);
-    streamRef.current = null;
-    setPhase("idle");
-  }
-
-  async function finishRecording() {
-    if (phase !== "recording" || !recordingRef.current) return;
-    const sessionRec = recordingRef.current;
-    recordingRef.current = null;
-    setPhase("transcribing");
-    try {
-      const blob = await sessionRec.stop();
-      stopMediaStream(streamRef.current);
-      streamRef.current = null;
-      if (!blob.size) {
-        setPhase("idle");
-        setSendError("Nothing was recorded. Try again.");
-        return;
-      }
-      const form = new FormData();
-      form.append(
-        "audio",
-        blob,
-        blob.type.includes("mp4") ? "coach.m4a" : "coach.webm"
-      );
-      const res = await fetch("/api/assistant-coach/transcribe", {
-        method: "POST",
-        credentials: "same-origin",
-        body: form,
-      });
-      const body = await res.json().catch(() => ({}));
-      if (res.status === 403 && body.code === "must_authenticate") {
-        if (body.session) setSession(body.session);
-        if (body.gate) setGate(body.gate);
-        setPhase("idle");
-        return;
-      }
-      if (!res.ok) {
-        throw new Error(
-          typeof body.error === "string"
-            ? body.error
-            : "Unable to transcribe recording."
-        );
-      }
-      const text = typeof body.text === "string" ? body.text.trim() : "";
-      if (!text) {
-        setPhase("idle");
-        setSendError("Could not understand that recording. Try again.");
-        return;
-      }
-      setDraft(text);
-      setPhase("idle");
-    } catch (err) {
-      stopMediaStream(streamRef.current);
-      streamRef.current = null;
-      setPhase("idle");
-      setSendError(
-        err instanceof Error ? err.message : "Unable to transcribe recording."
-      );
-    }
-  }
-
-  const statusLabel =
-    phase === "recording"
-      ? COACH_STATE_LISTENING
-      : phase === "transcribing"
-        ? COACH_STATE_TRANSCRIBING
-        : phase === "thinking" || pending
-          ? COACH_STATE_THINKING
-          : null;
-
   if (bootError) {
     return (
       <main className="ac-shell">
-        <div className="ac-panel">
+        <header className="ac-header">
           <p className="ac-kicker">TalkForge</p>
-          <h1 className="ac-title">{COACH_PRODUCT_NAME}</h1>
-          <p className="ac-error" role="alert">
-            {bootError}
-          </p>
-        </div>
+          <h1 className="ac-title">Coach</h1>
+        </header>
+        <p className="ac-error" role="alert">
+          {bootError}
+        </p>
       </main>
     );
   }
 
-  if (!ready) {
+  if (!restored || !sessionReady) {
     return (
       <main className="ac-shell">
-        <div className="ac-panel">
+        <header className="ac-header">
           <p className="ac-kicker">TalkForge</p>
-          <h1 className="ac-title">{COACH_PRODUCT_NAME}</h1>
-          <p className="ac-muted">Getting ready…</p>
-        </div>
+          <h1 className="ac-title">Coach</h1>
+        </header>
+        <p className="ac-muted">Getting ready…</p>
       </main>
     );
   }
 
+  const complete = isCompleteSelection(wizard);
+  const localProjection = complete
+    ? projectMemberPracticeProfile(wizard)
+    : null;
+  const projection = serverProjection ?? localProjection;
+
   return (
-    <main
-      className={
-        messages.length > 0
-          ? "ac-shell ac-shell-chat ac-has-messages"
-          : "ac-shell ac-shell-chat"
-      }
-    >
+    <main className="ac-shell ac-wizard">
       <header className="ac-header">
         <p className="ac-kicker">TalkForge</p>
-        <h1 className="ac-title">{COACH_PRODUCT_NAME}</h1>
-        {messages.length === 0 ? (
-          <p className="ac-lede">{COACH_OPENING}</p>
-        ) : null}
+        <h1 className="ac-title">Coach</h1>
+        <p className="ac-step" aria-live="polite">
+          Step {wizard.phase} of 3
+        </p>
       </header>
 
-      <section
-        ref={threadRef}
-        className="ac-thread"
-        aria-label="Conversation"
-      >
-        {messages.length === 0 ? (
-          <div className="ac-empty-state">
-            <p className="ac-empty">{COACH_EMPTY_HINT}</p>
-            <div
-              className="ac-starters"
-              role="group"
-              aria-label="Common conversation types"
-            >
-              {COACH_STARTERS.map((starter) => (
+      {wizard.phase === 1 ? (
+        <section className="ac-phase" aria-labelledby="pick-moments-title">
+          <div className="ac-phase-heading">
+            <h2 id="pick-moments-title">Pick your moments</h2>
+            <p>Choose up to three conversations you want to feel ready for.</p>
+            <p className="ac-count" aria-live="polite">
+              {wizard.topics.length} of 3 selected
+            </p>
+          </div>
+          <div className="ac-card-grid" role="group" aria-label="Conversation moments">
+            {PRACTICE_TOPIC_CATALOG.map((topic) => {
+              const selected = wizard.topics.some(
+                (selection) => selection.id === topic.id
+              );
+              const TopicIcon = TOPIC_ICON_BY_ID[topic.id];
+              return (
                 <button
-                  key={starter.id}
+                  key={topic.id}
                   type="button"
-                  className="ac-starter"
-                  disabled={busy}
-                  onClick={() => chooseStarter(starter)}
+                  className="ac-choice-card"
+                  aria-pressed={selected}
+                  disabled={!selected && wizard.topics.length === 3}
+                  onClick={() => toggleTopic(topic.id)}
                 >
-                  {starter.label}
+                  <span className="ac-choice-main">
+                    <TopicIcon />
+                    <span>{topic.label}</span>
+                  </span>
+                  {selected ? <span aria-hidden="true">✓</span> : null}
+                </button>
+              );
+            })}
+          </div>
+          {wizard.topics.some((topic) => topic.id === "something_else") ? (
+            <div className="ac-custom-field">
+              <label htmlFor={customInputId}>What moment do you have in mind?</label>
+              <textarea
+                id={customInputId}
+                rows={3}
+                maxLength={PRACTICE_PROFILE_CUSTOM_TEXT_MAX_LENGTH}
+                value={
+                  wizard.topics.find((topic) => topic.id === "something_else")
+                    ?.customText ?? ""
+                }
+                onChange={(event) => {
+                  const customText = event.target.value;
+                  setWizard((current) => ({
+                    ...current,
+                    topics: current.topics.map((topic) =>
+                      topic.id === "something_else"
+                        ? { ...topic, customText }
+                        : topic
+                    ),
+                    verified: false,
+                  }));
+                }}
+              />
+              <p className="ac-field-note">
+                {(wizard.topics.find((topic) => topic.id === "something_else")
+                  ?.customText?.length ?? 0)}{" "}
+                / {PRACTICE_PROFILE_CUSTOM_TEXT_MAX_LENGTH}
+              </p>
+            </div>
+          ) : null}
+          <div className="ac-actions">
+            <button
+              type="button"
+              className="ac-btn ac-btn-primary"
+              disabled={!isValidTopicSelection(wizard.topics)}
+              onClick={() =>
+                setWizard((current) => ({ ...current, phase: 2 }))
+              }
+            >
+              Next
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {wizard.phase === 2 ? (
+        <section className="ac-phase" aria-labelledby="narrow-context-title">
+          <div className="ac-phase-heading">
+            <h2 id="narrow-context-title">Narrow the context</h2>
+            <p>A few choices help Coach shape where you begin.</p>
+          </div>
+
+          <fieldset className="ac-question">
+            <legend>Who are these conversations with?</legend>
+            <p className="ac-question-note">Choose all that fit.</p>
+            <div className="ac-card-grid ac-card-grid-compact">
+              {PRACTICE_AUDIENCE_CATALOG.map((audience) => {
+                const selected = wizard.audiences.includes(audience.id);
+                return (
+                  <button
+                    key={audience.id}
+                    type="button"
+                    className="ac-choice-card"
+                    aria-pressed={selected}
+                    onClick={() => toggleAudience(audience.id)}
+                  >
+                    <span>{audience.label}</span>
+                    {selected ? <span aria-hidden="true">✓</span> : null}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+
+          <fieldset className="ac-question">
+            <legend>What trips you up most?</legend>
+            <div className="ac-card-grid" role="radiogroup">
+              {PRACTICE_PATTERN_CATALOG.map((pattern) => (
+                <button
+                  key={pattern.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={wizard.pattern === pattern.id}
+                  className="ac-choice-card"
+                  onClick={() =>
+                    setWizard((current) => ({
+                      ...current,
+                      pattern: pattern.id,
+                      verified: false,
+                    }))
+                  }
+                >
+                  <span>{pattern.label}</span>
+                  {wizard.pattern === pattern.id ? (
+                    <span aria-hidden="true">✓</span>
+                  ) : null}
                 </button>
               ))}
             </div>
-          </div>
-        ) : (
-          messages.map((m) => (
-            <article
-              key={m.id}
-              className={
-                m.role === "user" ? "ac-bubble ac-bubble-user" : "ac-bubble"
+          </fieldset>
+
+          <fieldset className="ac-question">
+            <legend>When is this happening?</legend>
+            <div className="ac-card-grid ac-card-grid-compact" role="radiogroup">
+              {PRACTICE_URGENCY_CATALOG.map((urgency) => (
+                <button
+                  key={urgency.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={wizard.urgency === urgency.id}
+                  className="ac-choice-card"
+                  onClick={() =>
+                    setWizard((current) => ({
+                      ...current,
+                      urgency: urgency.id,
+                      verified: false,
+                    }))
+                  }
+                >
+                  <span>{urgency.label}</span>
+                  {wizard.urgency === urgency.id ? (
+                    <span aria-hidden="true">✓</span>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <div className="ac-actions ac-actions-split">
+            <button
+              type="button"
+              className="ac-btn"
+              onClick={() =>
+                setWizard((current) => ({ ...current, phase: 1 }))
               }
             >
-              <p className="ac-role">
-                {m.role === "user" ? "You" : COACH_PRODUCT_NAME}
-              </p>
-              <p className="ac-copy">{m.content}</p>
-            </article>
-          ))
-        )}
-        {statusLabel ? (
-          <p
-            className={
-              phase === "recording"
-                ? "ac-muted ac-status ac-status-live"
-                : "ac-muted ac-status ac-thinking"
-            }
-            aria-live="polite"
-          >
-            {statusLabel}
-          </p>
-        ) : null}
-      </section>
-
-      {gated ? (
-        <aside className="ac-gate" role="status">
-          <h2 className="ac-gate-title">{COACH_GATE_TITLE}</h2>
-          <p className="ac-gate-copy">{COACH_GATE_COPY}</p>
-          <div className="ac-gate-actions">
-            <a className="ac-btn ac-btn-primary" href="/signup?next=/coach/confirm">
-              Create account
-            </a>
-            <a className="ac-btn" href="/login?next=/coach/confirm">
-              Sign in
-            </a>
+              Back
+            </button>
+            <button
+              type="button"
+              className="ac-btn ac-btn-primary"
+              disabled={!complete}
+              onClick={completeProfile}
+            >
+              Diagnose
+            </button>
           </div>
-        </aside>
-      ) : (
-        <form id={formId} className="ac-composer" onSubmit={onSubmit}>
-          <label className="sr-only" htmlFor={`${formId}-input`}>
-            Message
-          </label>
-          {phase === "recording" ? (
-            <div className="ac-composer-dock">
-              <p className="ac-muted ac-status ac-status-live" aria-live="polite">
-                {COACH_STATE_LISTENING}
-              </p>
+        </section>
+      ) : null}
+
+      {wizard.phase === 3 && projection ? (
+        <section className="ac-phase" aria-labelledby="coach-profile-title">
+          <div className="ac-profile-card">
+            <p className="ac-profile-label">Your Coach profile</p>
+            <h2 id="coach-profile-title">A clear place to begin</h2>
+
+            <div className="ac-profile-section">
+              <h3>Focus areas</h3>
+              <dl className="ac-profile-list">
+                <div>
+                  <dt>Moments</dt>
+                  <dd>{projection.focusAreas.topics.join(", ")}</dd>
+                </div>
+                <div>
+                  <dt>People</dt>
+                  <dd>{projection.focusAreas.audiences.join(", ")}</dd>
+                </div>
+                <div>
+                  <dt>Timing</dt>
+                  <dd>{projection.focusAreas.urgency}</dd>
+                </div>
+              </dl>
+            </div>
+
+            <div className="ac-profile-section">
+              <h3>Your practice pattern</h3>
+              <p>{projection.patternTemplate}</p>
+            </div>
+
+            <div className="ac-profile-section ac-profile-target">
+              <h3>Your first target</h3>
+              <p>{projection.initialForgeTarget}</p>
+            </div>
+          </div>
+
+          {wizard.verified ? (
+            <aside className="ac-auth-gate" role="status">
+              <h2>Keep this profile with you</h2>
+              <p>Create an account or sign in to start coaching in Forge.</p>
+              <div className="ac-actions">
+                <a
+                  className="ac-btn ac-btn-primary"
+                  href="/signup?next=/coach/activate"
+                >
+                  Create account
+                </a>
+                <a className="ac-btn" href="/login?next=/coach/activate">
+                  Sign in
+                </a>
+              </div>
+            </aside>
+          ) : (
+            <div className="ac-actions ac-actions-split">
               <button
                 type="button"
-                className="ac-btn ac-btn-danger"
-                onClick={cancelRecording}
+                className="ac-btn"
+                disabled={pending}
+                onClick={() =>
+                  setWizard((current) => ({
+                    ...current,
+                    phase: 2,
+                    verified: false,
+                  }))
+                }
               >
-                Cancel
+                Adjust
               </button>
               <button
                 type="button"
                 className="ac-btn ac-btn-primary"
-                onClick={() => void finishRecording()}
+                disabled={pending}
+                onClick={saveProfile}
               >
-                Done
-              </button>
-            </div>
-          ) : (
-            <div className="ac-composer-dock">
-              <button
-                type="button"
-                className="ac-btn ac-btn-icon ac-mic"
-                onClick={() => void startRecording()}
-                disabled={busy}
-                aria-label="Speak with Coach"
-              >
-                Speak
-              </button>
-              <textarea
-                ref={composerInputRef}
-                id={`${formId}-input`}
-                value={draft}
-                onChange={(e) => {
-                  setDraft(e.target.value);
-                  growComposer(e.target);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    if (!busy && draft.trim()) sendMessage(draft);
-                  }
-                }}
-                rows={1}
-                placeholder={getCoachComposerPlaceholder(selectedStarterId)}
-                disabled={busy}
-                enterKeyHint="send"
-              />
-              <button
-                type="submit"
-                className="ac-btn ac-btn-primary ac-btn-icon"
-                disabled={busy || !draft.trim()}
-                aria-label={
-                  phase === "thinking" || pending ? "Sending" : "Send"
-                }
-              >
-                {phase === "thinking" || pending ? "…" : "Send"}
+                {pending ? "Saving…" : "Looks right"}
               </button>
             </div>
           )}
-          {sendError ? (
+          {saveError ? (
             <p className="ac-error" role="alert">
-              {sendError}
+              {saveError}
             </p>
           ) : null}
-        </form>
-      )}
+        </section>
+      ) : null}
     </main>
   );
 }

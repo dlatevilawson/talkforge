@@ -1,406 +1,333 @@
 .ac-shell {
   box-sizing: border-box;
   min-height: 100dvh;
-  width: 100%;
-  max-width: min(44rem, 100%);
+  width: min(100%, 64rem);
   margin: 0 auto;
-  padding: 1.5rem max(1.1rem, env(safe-area-inset-right)) 2.5rem
-    max(1.1rem, env(safe-area-inset-left));
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  overflow-x: hidden;
-  background:
-    radial-gradient(
-      40rem 24rem at 12% -10%,
-      rgba(201, 155, 74, 0.12),
-      transparent 60%
-    ),
-    linear-gradient(180deg, #070708 0%, #050505 100%);
+  padding:
+    max(1.5rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right))
+    max(2.5rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
   color: var(--tf-fg);
 }
 
-.ac-header {
+.ac-wizard {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
-  flex-shrink: 0;
+  gap: 1.5rem;
 }
 
-.ac-kicker {
+.ac-header {
+  position: relative;
+  display: grid;
+  gap: 0.35rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.ac-kicker,
+.ac-title,
+.ac-step,
+.ac-phase-heading h2,
+.ac-phase-heading p,
+.ac-count,
+.ac-question-note,
+.ac-field-note,
+.ac-profile-card h2,
+.ac-profile-card h3,
+.ac-profile-card p,
+.ac-auth-gate h2,
+.ac-auth-gate p,
+.ac-muted,
+.ac-error {
   margin: 0;
-  font-size: 0.75rem;
+}
+
+.ac-kicker,
+.ac-profile-label {
+  color: var(--tf-gold);
+  font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--tf-gold);
 }
 
 .ac-title {
-  margin: 0.15rem 0 0;
-  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  font-size: clamp(1.65rem, 5vw, 2.25rem);
   font-weight: 560;
   letter-spacing: -0.03em;
 }
 
-.ac-lede,
+.ac-step {
+  color: var(--tf-muted);
+  font-size: 0.82rem;
+}
+
+.ac-phase {
+  display: grid;
+  gap: 1.5rem;
+  animation: ac-enter 180ms ease-out both;
+}
+
+.ac-phase-heading {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.ac-phase-heading h2 {
+  font-size: clamp(1.6rem, 5vw, 2.5rem);
+  letter-spacing: -0.035em;
+}
+
+.ac-phase-heading p,
+.ac-question-note,
 .ac-muted,
-.ac-empty,
-.ac-copy,
-.ac-gate-copy,
-.ac-meta,
-.ac-role {
-  margin: 0;
-  max-width: 100%;
-  overflow-wrap: break-word;
+.ac-auth-gate p {
   color: var(--tf-muted);
   line-height: 1.55;
 }
 
-.ac-lede {
-  color: #d4d4d8;
-  max-width: 36rem;
+.ac-count {
+  color: #e7c680;
+  font-size: 0.86rem;
+  font-weight: 600;
 }
 
-.ac-shell-chat {
-  position: fixed;
-  top: var(--ac-vvt, 0px);
-  left: 0;
-  right: 0;
-  margin-left: auto;
-  margin-right: auto;
-  width: auto;
-  max-width: 44rem;
-  height: var(--ac-vvh, 100dvh);
-  max-height: var(--ac-vvh, 100dvh);
-  min-height: 0;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  padding: 0.55rem max(0.9rem, env(safe-area-inset-right))
-    max(0.55rem, env(safe-area-inset-bottom))
-    max(0.9rem, env(safe-area-inset-left));
-  box-sizing: border-box;
+.ac-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 
-html:has(.ac-shell-chat),
-body:has(.ac-shell-chat) {
-  overflow: hidden;
-  overflow-x: hidden;
-  height: var(--ac-vvh, 100dvh);
-  overscroll-behavior: none;
-  max-width: 100%;
+.ac-card-grid-compact {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.ac-shell-chat .ac-header {
-  gap: 0.35rem;
-}
-
-.ac-shell-chat .ac-lede {
-  font-size: 0.95rem;
-}
-
-.ac-has-messages .ac-title {
-  font-size: 1.15rem;
-}
-
-.ac-has-messages .ac-kicker {
-  font-size: 0.65rem;
-}
-
-.ac-has-messages .ac-header {
-  gap: 0.12rem;
-}
-
-.ac-thread {
-  flex: 1 1 auto;
-  min-height: 0;
+.ac-choice-card {
   display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  padding: 0.25rem 0 1rem;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-}
-
-.ac-empty-state {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.ac-starters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
   align-items: center;
-}
-
-.ac-starter {
-  min-height: 2.75rem;
-  max-width: 100%;
-  border: 1px solid rgba(201, 155, 74, 0.28);
-  border-radius: 999px;
-  background: rgba(201, 155, 74, 0.055);
-  color: #e4e4e7;
-  padding: 0.65rem 0.95rem;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 4.25rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.9rem;
+  background: rgba(15, 15, 17, 0.74);
+  color: #f4f4f5;
   font: inherit;
-  font-size: 0.9rem;
-  line-height: 1.15;
+  line-height: 1.35;
+  text-align: left;
   cursor: pointer;
   touch-action: manipulation;
   transition:
-    border-color 160ms ease,
-    background-color 160ms ease,
-    color 160ms ease;
+    border-color 140ms ease,
+    background-color 140ms ease,
+    transform 140ms ease;
 }
 
-.ac-starter:hover {
-  border-color: rgba(201, 155, 74, 0.52);
-  background: rgba(201, 155, 74, 0.1);
-  color: #fff;
+.ac-choice-main {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.ac-starter:focus-visible {
-  outline: 2px solid rgba(224, 183, 101, 0.82);
-  outline-offset: 2px;
+.ac-topic-icon {
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: 0 0 1.35rem;
+  color: #d8b66d;
 }
 
-.ac-starter:disabled {
-  opacity: 0.45;
+.ac-choice-card:hover:not(:disabled) {
+  border-color: rgba(214, 179, 106, 0.62);
+  background: rgba(201, 155, 74, 0.09);
+}
+
+.ac-choice-card[aria-pressed="true"],
+.ac-choice-card[aria-checked="true"] {
+  border-color: #d6b36a;
+  background: rgba(201, 155, 74, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(214, 179, 106, 0.2);
+}
+
+.ac-choice-card:focus-visible,
+.ac-btn:focus-visible,
+.ac-custom-field textarea:focus-visible {
+  outline: 3px solid #e7c680;
+  outline-offset: 3px;
+}
+
+.ac-choice-card:disabled {
+  opacity: 0.38;
   cursor: not-allowed;
 }
 
-.ac-bubble {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.85rem 0 0.2rem;
-  animation: ac-in 280ms ease-out both;
+.ac-custom-field {
+  display: grid;
+  gap: 0.5rem;
 }
 
-.ac-bubble-user {
-  border-top-color: rgba(201, 155, 74, 0.28);
-}
-
-.ac-role {
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 0.35rem;
-  color: #a1a1aa;
-}
-
-.ac-bubble-user .ac-role {
-  color: var(--tf-gold);
-}
-
-.ac-copy {
+.ac-custom-field label,
+.ac-question legend {
   color: #f4f4f5;
-  white-space: pre-wrap;
+  font-weight: 600;
 }
 
-.ac-composer {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  flex-shrink: 0;
-  position: relative;
-  bottom: auto;
-  padding-top: 0.55rem;
-  background: linear-gradient(180deg, transparent, #050505 18%);
-}
-
-.ac-composer-dock {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.45rem;
-}
-
-.ac-composer-dock .ac-muted {
-  flex: 1 1 auto;
-  padding: 0.55rem 0.2rem;
-}
-
-.ac-shell-chat .ac-composer textarea,
-.ac-composer-dock textarea {
-  flex: 1 1 auto;
-  width: auto;
-  min-width: 0;
-  min-height: 2.75rem;
-  max-height: 7.5rem;
-  height: 2.75rem;
-  resize: none;
-  font-size: 16px;
-  line-height: 1.35;
-  border-radius: 1.35rem;
-  padding: 0.7rem 0.95rem;
-}
-
-.ac-btn-icon {
-  min-width: 2.75rem;
-  height: 2.75rem;
-  padding: 0 0.85rem;
-  border-radius: 999px;
-  flex-shrink: 0;
-  font-size: 0.85rem;
-}
-
-.ac-shell-chat .ac-gate {
-  flex-shrink: 0;
-}
-
-.ac-composer textarea {
+.ac-custom-field textarea {
+  box-sizing: border-box;
   width: 100%;
+  min-height: 6rem;
   resize: vertical;
-  min-height: 5.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(12, 12, 14, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0.8rem;
+  background: rgba(10, 10, 12, 0.9);
   color: #f4f4f5;
-  border-radius: 0.75rem;
-  padding: 0.9rem 1rem;
+  padding: 0.8rem 0.9rem;
   font: inherit;
+  font-size: 1rem;
 }
 
-.ac-composer textarea:focus {
-  outline: 2px solid rgba(201, 155, 74, 0.45);
-  outline-offset: 1px;
+.ac-field-note {
+  color: var(--tf-muted);
+  font-size: 0.78rem;
+  text-align: right;
 }
 
-.ac-composer-actions {
+.ac-question {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.ac-question legend {
+  padding: 0;
+  font-size: 1.08rem;
+  margin-bottom: 0.15rem;
+}
+
+.ac-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem;
-  align-items: center;
+  gap: 0.75rem;
+}
+
+.ac-actions-split {
+  justify-content: space-between;
 }
 
 .ac-btn {
+  box-sizing: border-box;
+  min-height: 3rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
   background: transparent;
   color: #f4f4f5;
-  border-radius: 999px;
-  padding: 0.7rem 1.15rem;
+  padding: 0.72rem 1.35rem;
   font: inherit;
+  font-weight: 600;
   text-decoration: none;
   cursor: pointer;
 }
 
+.ac-btn-primary {
+  border-color: transparent;
+  background: linear-gradient(180deg, #dfc17e, #bd8b39);
+  color: #111;
+}
+
 .ac-btn:disabled {
-  opacity: 0.45;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
-.ac-btn-primary {
-  background: linear-gradient(180deg, #d6b36a, #b98634);
-  border-color: transparent;
-  color: #111;
-  font-weight: 600;
+.ac-profile-card {
+  display: grid;
+  gap: 1.4rem;
+  padding: clamp(1.15rem, 4vw, 2rem);
+  border: 1px solid rgba(214, 179, 106, 0.36);
+  border-radius: 1.2rem;
+  background:
+    radial-gradient(circle at top right, rgba(201, 155, 74, 0.12), transparent 38%),
+    rgba(12, 12, 14, 0.88);
 }
 
-.ac-btn-danger {
-  border-color: rgba(248, 113, 113, 0.45);
-  color: #fecaca;
+.ac-profile-card h2 {
+  font-size: clamp(1.55rem, 5vw, 2.25rem);
+  letter-spacing: -0.03em;
 }
 
-.ac-mic {
-  min-width: 3.25rem;
-}
-
-.ac-status-live {
-  color: #f5d28a;
-  animation: ac-pulse 1.1s ease-in-out infinite;
-}
-
-.ac-gate {
-  border-top: 1px solid rgba(201, 155, 74, 0.35);
-  padding-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  animation: ac-in 320ms ease-out both;
-}
-
-.ac-gate-title {
-  margin: 0;
-  font-size: 1.25rem;
-  letter-spacing: -0.02em;
-}
-
-.ac-gate-actions {
-  display: flex;
-  flex-wrap: wrap;
+.ac-profile-section {
+  display: grid;
   gap: 0.65rem;
-  width: 100%;
-  min-width: 0;
+  padding-top: 1.1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
 }
 
-.ac-gate-actions .ac-btn {
-  min-width: 0;
-}
-
-.ac-confirm {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-}
-
-.ac-confirm-card {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(12, 12, 14, 0.72);
-  border-radius: 1rem;
-  padding: 1rem 1.1rem;
-}
-
-.ac-confirm-label {
-  margin: 0 0 0.45rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
+.ac-profile-section h3 {
+  color: #d4d4d8;
+  font-size: 0.8rem;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--tf-gold);
 }
 
-.ac-confirm-input {
-  width: 100%;
-  resize: vertical;
-  min-height: 4.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(12, 12, 14, 0.92);
+.ac-profile-section p,
+.ac-profile-list dd {
   color: #f4f4f5;
-  border-radius: 0.75rem;
-  padding: 0.75rem 0.9rem;
-  font: inherit;
+  line-height: 1.55;
+}
+
+.ac-profile-list {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+}
+
+.ac-profile-list div {
+  display: grid;
+  grid-template-columns: minmax(5rem, 0.28fr) 1fr;
+  gap: 0.8rem;
+}
+
+.ac-profile-list dt {
+  color: var(--tf-muted);
+}
+
+.ac-profile-list dd {
+  margin: 0;
+}
+
+.ac-profile-target p {
+  color: #f0cf89;
+  font-size: 1.12rem;
+}
+
+.ac-auth-gate {
+  display: grid;
+  gap: 0.8rem;
+  padding: 1.1rem 0 0;
+  border-top: 1px solid rgba(214, 179, 106, 0.35);
+}
+
+.ac-auth-gate h2 {
+  font-size: 1.25rem;
 }
 
 .ac-error {
   color: #fca5a5;
-  margin: 0;
+  line-height: 1.5;
 }
 
-.ac-panel {
-  margin-top: 18vh;
-}
-
-.ac-thinking {
-  animation: ac-pulse 1.2s ease-in-out infinite;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-@keyframes ac-in {
+@keyframes ac-enter {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
@@ -408,38 +335,65 @@ body:has(.ac-shell-chat) {
   }
 }
 
-@keyframes ac-pulse {
-  0%,
-  100% {
-    opacity: 0.45;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-@media (max-width: 420px) {
-  .ac-composer-dock {
-    gap: 0.25rem;
-  }
-
-  .ac-composer-dock .ac-btn-icon {
-    min-width: 2.75rem;
-    padding-inline: 0.5rem;
-    font-size: 0.75rem;
-  }
-
-  .ac-composer-dock .ac-mic {
-    min-width: 2.75rem;
-  }
-
-  .ac-shell-chat .ac-composer textarea {
-    padding-inline: 0.75rem;
-  }
-}
-
-@media (min-width: 720px) {
+@media (max-width: 540px) {
   .ac-shell {
-    padding-top: 2.5rem;
+    width: 100%;
+    padding-inline:
+      max(0.9rem, env(safe-area-inset-left))
+      max(0.9rem, env(safe-area-inset-right));
+  }
+
+  .ac-card-grid,
+  .ac-card-grid-compact {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+
+  .ac-choice-card {
+    min-height: 3.7rem;
+  }
+
+  .ac-choice-main {
+    gap: 0.65rem;
+  }
+
+  .ac-actions .ac-btn,
+  .ac-actions .ac-btn-primary {
+    flex: 1 1 auto;
+  }
+
+  .ac-profile-list div {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+}
+
+@media (max-width: 390px) {
+  .ac-shell {
+    padding-top: max(1.1rem, env(safe-area-inset-top));
+  }
+
+  .ac-phase {
+    gap: 1.2rem;
+  }
+
+  .ac-choice-card {
+    padding-inline: 0.85rem;
+  }
+}
+
+@media (min-width: 541px) and (max-width: 800px) {
+  .ac-card-grid-compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ac-phase {
+    animation: none;
+  }
+
+  .ac-choice-card {
+    transition: none;
   }
 }

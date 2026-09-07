@@ -7,6 +7,7 @@
 export const ASSISTANT_COACH_PUBLIC_PATH_PREFIXES = [
   "/coach",
   "/api/assistant-coach/session",
+  "/api/assistant-coach/profile",
   "/api/assistant-coach/turn",
   "/api/assistant-coach/transcribe",
 ] as const;
