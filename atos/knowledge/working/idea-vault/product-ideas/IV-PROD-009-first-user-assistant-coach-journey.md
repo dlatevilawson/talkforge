@@ -8,7 +8,7 @@
 | **Status** | Building |
 | **Importance** | Critical |
 | **Owner** | Founder |
-| **Last Updated** | 2026-09-05 |
+| **Last Updated** | 2026-09-07 |
 | **Captured** | 2026-08-16 |
 | **AI Steward** | Atlas |
 
@@ -62,3 +62,5 @@ Account-first gating (current shipping truth) conflicts with “feel understood 
 Working Knowledge. Implementation authorized by Decision 059 for this track only. Phase 4B ships in small slices — not one monster change. Gate copy deferred (OD-10). Turn safety cap ≠ conversion gate.
 
 Founder-directed opening refinement (2026-09-05): Coach opens with “What conversation are you preparing for?” and optional starters for Interview, Salary negotiation, Difficult feedback, Setting a boundary, or custom input. Starter context supplies concise composer guidance and survives session restore. Coach does not paraphrase the member’s opening; it moves directly to one useful discovery question. This orients discovery toward a real communication moment without turning Coach into Forge rehearsal.
+
+Founder-directed diagnosis boundary (2026-09-07): Assistant Coach diagnoses only. It asks one focused question per turn and never supplies advice, wording, scripts, rehearsal, strategies, or any other intervention. Forge remains the sole coaching surface. Model-proposed interventions are discarded server-side and diagnosis does not trigger the retired semantic value gate; the anonymous turn cap remains as the safety/economic boundary.

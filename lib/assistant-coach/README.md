@@ -17,25 +17,25 @@
 | Item | Value |
 |---|---|
 | User-facing name | **Coach** (internal modules remain `assistant-coach`) |
-| Opening | “What conversation are you preparing for?” + optional high-stakes conversation starters; replies move directly to one useful question without restating the member |
+| Assignment | **Diagnosis only.** Every reply is one focused question; Assistant Coach never provides advice, wording, rehearsal, or interventions |
+| Opening | “What conversation are you preparing for?” + optional high-stakes conversation starters; replies move directly to one useful diagnostic question |
 | Input | **Voice + text** into the same turn API |
 | Composer guidance | Concise starter-specific prompts after selection or session restore; custom input remains open |
 | Voice path | Browser `MediaRecorder` → `POST /api/assistant-coach/transcribe` (server OpenAI STT) → transcript in composer → existing turn API |
 | Not used | Forge VoiceArena / Realtime WebRTC (auth-gated duplex practice) |
 | States | Listening (mic only) · Transcribing · Coach is thinking… |
-| Gate | Restrained product copy; after value → signup → **confirm understanding** → one Forge session |
+| Gate | Anonymous safety/economic turn cap only; diagnosis never triggers a semantic value gate |
 
-## Semantic value ≠ Living Profile completeness
+## Diagnosis ≠ coaching value
 
 | Concept | Meaning |
 |---|---|
 | Discovery readiness | Grounded goal+friction (or insight + ≥2 fact categories) after ≥2 substantive user turns — evidence may accumulate immediately |
-| Actionable intervention | Structured model `intervention` validated server-side (exercise / rehearsal / technique / strategy / wording / pacing) grounded in ledger facts — **not** reply prose alone |
-| `hasExperiencedValue` | Sticky conversion signal: **discovery + ≥1 validated intervention** (value-before-auth) |
-| Hard gate | Anon may not continue after value **or** turn cap (Decision 059) |
-| Living Profile / draft evidence | Continues accumulating; never “complete” merely because value flipped |
-| Training plan / Forge readiness | Later, stronger bars — not this gate |
-| Turn cap | Independent safety/economic limit (default 10) — not conversion |
+| Intervention | Always rejected as `diagnosis_only`, regardless of model output |
+| `hasExperiencedValue` | Retired for Assistant Coach diagnosis; legacy persisted values do not drive the UI or block under-cap sessions |
+| Living Profile / draft evidence | Continues accumulating from validated observations; never “complete” because of diagnosis |
+| Training / rehearsal | Forge only |
+| Turn cap | Sole anonymous safety/economic gate (default 10) |
 
 ## 4B.2 rules
 

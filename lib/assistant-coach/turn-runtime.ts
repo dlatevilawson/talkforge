@@ -27,11 +27,6 @@ import {
 } from "./gate-flags.ts";
 import { AssistantCoachConfigError } from "./config.ts";
 import { getAssistantCoachAnonTurnCap } from "./config.ts";
-import { computeHasExperiencedValue } from "./semantic-value.ts";
-import {
-  messageHasAcceptedIntervention,
-  validateCoachIntervention,
-} from "./intervention.ts";
 import {
   isAnonSessionExpired,
   type AssistantCoachMessage,
@@ -231,14 +226,12 @@ export async function runAssistantCoachTurn(
     }
   }
 
-  // 4B.6 — hard gate BEFORE model spend for anonymous sessions.
+  // Diagnosis-only Coach has no semantic value gate. The turn cap remains the
+  // sole anonymous safety/economic stop before model spend.
   const turnCap = getAssistantCoachAnonTurnCap();
   const isAnonymous = session.userId == null;
   if (isAnonymous) {
-    const blocked =
-      session.hasExperiencedValue ||
-      session.status === "gated" ||
-      session.turnCount >= turnCap;
+    const blocked = session.turnCount >= turnCap;
     if (blocked) {
       let gated = session;
       if (
@@ -375,12 +368,6 @@ export async function runAssistantCoachTurn(
     personalPrinciples: principlesBefore,
   };
 
-  // Validate intervention against post-turn ledger (grounding must exist).
-  const interventionDecision = validateCoachIntervention(
-    disciplined.intervention,
-    workingProfile.evidenceLedger ?? []
-  );
-
   const userMessage = await repository.appendMessage({
     sessionId: session.id,
     turnIndex,
@@ -403,18 +390,10 @@ export async function runAssistantCoachTurn(
       observationCount: decisions.length,
       acceptedCount: decisions.filter((d) => d.accepted).length,
       rejectedCount: decisions.filter((d) => !d.accepted).length,
-      interventionAccepted: interventionDecision.accepted === true,
+      interventionAccepted: false,
       clippedCurriculum: disciplined.clippedCurriculum,
       withheldIntervention: disciplined.withheldIntervention,
-      ...(interventionDecision.accepted
-        ? {
-            interventionKind: interventionDecision.kind,
-            interventionSummary: interventionDecision.summary,
-            interventionGrounding: interventionDecision.groundedInCategories,
-          }
-        : interventionDecision.reason
-          ? { interventionRejectReason: interventionDecision.reason }
-          : {}),
+      interventionRejectReason: "diagnosis_only",
     },
     createdAt: new Date(now.getTime() + 1).toISOString(),
   });
@@ -430,31 +409,18 @@ export async function runAssistantCoachTurn(
 
   let updated = (await repository.getSession(session.id)) ?? session;
 
-  // 4B.5 — sticky semantic value (never clears once true).
   const messagesAfter = await repository.listMessages(session.id);
-  const priorIntervention = messagesAfter.some(
-    (m) =>
-      m.role === "assistant" &&
-      messageHasAcceptedIntervention(m.modelMeta ?? undefined)
-  );
-  const experienced = computeHasExperiencedValue({
-    evidenceLedger: workingProfile.evidenceLedger ?? [],
-    profileInsights: workingProfile.profileInsights ?? [],
-    messages: messagesAfter,
-    hasActionableIntervention: priorIntervention,
-  });
+  // Heal sessions gated by the retired intervention-backed value rule.
   if (
-    experienced &&
-    !updated.hasExperiencedValue &&
+    isAnonymous &&
+    updated.status === "gated" &&
+    updated.turnCount < turnCap &&
     typeof repository.updateSessionFlags === "function"
   ) {
     updated = await repository.updateSessionFlags(session.id, {
-      hasExperiencedValue: true,
+      status: "active",
       now,
     });
-  } else if (experienced && !updated.hasExperiencedValue) {
-    // Memory repos always have updateSessionFlags; keep fail-soft for partial mocks.
-    updated = { ...updated, hasExperiencedValue: true };
   }
 
   const capForGate = getAssistantCoachAnonTurnCap();

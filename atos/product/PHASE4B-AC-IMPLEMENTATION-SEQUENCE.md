@@ -8,6 +8,8 @@
 | **Law** | Ship **one slice per PR**. No monster change. Do not revive `guest_*` cloud identity. |
 | **Created** | 2026-08-16 |
 
+> **Founder production correction (2026-09-07):** The shipping conversational Assistant Coach is diagnosis-only. Model interventions are always rejected, `hasExperiencedValue` no longer gates diagnosis, and only the anonymous safety/economic turn cap may block continuation. This correction supersedes the intervention/value portions of 4B.5–4B.6 while the deterministic card-wizard replacement is implemented.
+
 ---
 
 ## Binding constraints (every slice)

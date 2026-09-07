@@ -19,6 +19,8 @@ export const ASSISTANT_COACH_ALLOW_MOCK_MODEL_ENV =
 export const ASSISTANT_COACH_MODEL_NOT_CONFIGURED_PUBLIC =
   "Assistant Coach model is not configured.";
 
+export const ASSISTANT_COACH_MAX_OUTPUT_TOKENS = 400;
+
 export type AssistantCoachModelMode =
   | "openai"
   | "explicit_mock"
@@ -59,16 +61,11 @@ export function resolveAssistantCoachModelMode(
  */
 export function createExplicitMockAssistantCoachModel(): AssistantCoachModel {
   return async ({ message, coachContext }) => {
-    const focus = coachContext.activeFocusAreas[0] || "your communication";
+    void message;
+    void coachContext;
     return {
-      reply: `I'm listening. You said you're working through something around ${focus}. Who is that conversation with, and what do you need to say or start?`,
-      observations: [
-        {
-          text: `You said: ${message.slice(0, 220)}`,
-          category: "communication_context",
-          confidence: "medium",
-        },
-      ],
+      reply: "What feels hardest about handling this conversation?",
+      observations: [],
     };
   };
 }
@@ -79,6 +76,9 @@ function createLiveOpenAiModel(apiKey: string): AssistantCoachModel {
   return async ({ message, history, coachContext }) => {
     const completion = await client.responses.create({
       model: "gpt-5",
+      reasoning: { effort: "minimal" },
+      text: { verbosity: "low" },
+      max_output_tokens: ASSISTANT_COACH_MAX_OUTPUT_TOKENS,
       input: buildAssistantCoachTurnPrompt({
         message,
         history,
