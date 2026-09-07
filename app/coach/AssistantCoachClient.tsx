@@ -14,8 +14,9 @@ import {
   PRACTICE_PROFILE_CUSTOM_TEXT_MAX_LENGTH,
   PRACTICE_TOPIC_CATALOG,
   PRACTICE_URGENCY_CATALOG,
+  isCompleteMemberPracticeProfileSelection,
   projectMemberPracticeProfile,
-  validateMemberPracticeProfileSelection,
+  selectMemberPracticeProfileSelection,
   type MemberPracticeProfileSelection,
   type PracticeAudienceId,
   type PracticePatternId,
@@ -267,20 +268,7 @@ function isCompleteSelection(value: {
   pattern: PracticePatternId | null;
   urgency: PracticeUrgencyId | null;
 }): value is MemberPracticeProfileSelection {
-  if (
-    !isValidTopicSelection(value.topics) ||
-    value.audiences.length < 1 ||
-    !value.pattern ||
-    !value.urgency
-  ) {
-    return false;
-  }
-  try {
-    validateMemberPracticeProfileSelection(value);
-    return true;
-  } catch {
-    return false;
-  }
+  return isCompleteMemberPracticeProfileSelection(value);
 }
 
 export default function AssistantCoachClient() {
@@ -378,14 +366,17 @@ export default function AssistantCoachClient() {
   }
 
   function completeProfile() {
-    if (!isCompleteSelection(wizard)) return;
+    const selectionAtClick = selectMemberPracticeProfileSelection(wizard);
+    const completeAtClick = isCompleteSelection(selectionAtClick);
+    if (!completeAtClick) return;
     setServerProjection(null);
     setSaveError(null);
     setWizard((current) => ({ ...current, phase: 3, verified: false }));
   }
 
   function saveProfile() {
-    if (!isCompleteSelection(wizard) || pending) return;
+    const selection = selectMemberPracticeProfileSelection(wizard);
+    if (!isCompleteSelection(selection) || pending) return;
     setSaveError(null);
     startTransition(async () => {
       try {
@@ -394,12 +385,7 @@ export default function AssistantCoachClient() {
           headers: { "content-type": "application/json" },
           credentials: "same-origin",
           body: JSON.stringify({
-            selection: {
-              topics: wizard.topics,
-              audiences: wizard.audiences,
-              pattern: wizard.pattern,
-              urgency: wizard.urgency,
-            },
+            selection,
           }),
         });
         const body = await response.json().catch(() => ({}));
@@ -448,9 +434,10 @@ export default function AssistantCoachClient() {
     );
   }
 
-  const complete = isCompleteSelection(wizard);
+  const selection = selectMemberPracticeProfileSelection(wizard);
+  const complete = isCompleteSelection(selection);
   const localProjection = complete
-    ? projectMemberPracticeProfile(wizard)
+    ? projectMemberPracticeProfile(selection)
     : null;
   const projection = serverProjection ?? localProjection;
 
