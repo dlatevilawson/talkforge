@@ -24,7 +24,6 @@ const AUTH_NEXT_EXACT_PATHS = new Set([
   "/change-password",
   "/reset-password",
   "/coach/activate",
-  "/coach/confirm",
 ]);
 
 /**

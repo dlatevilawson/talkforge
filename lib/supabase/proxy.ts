@@ -11,7 +11,11 @@ import {
   canAccessFounderPortal,
   isValidRole,
 } from "@/lib/auth/roles";
-import { proxyRequiresAuth } from "@/lib/auth/public-routes";
+import {
+  allowsUnverifiedCoachContinuity,
+  proxyRequiresAuth,
+  unauthenticatedAuthDestination,
+} from "@/lib/auth/public-routes";
 
 /**
  * Refresh Supabase Auth cookies and enforce route authorization.
@@ -60,12 +64,7 @@ export async function updateSession(request: NextRequest) {
   if (!userId) {
     // Single production auth system: members → signup, staff areas → login.
     // Founder Portal is NOT a separate login — role is checked after auth.
-    const dest =
-      pathname.startsWith("/founder") ||
-      pathname.startsWith("/change-password") ||
-      pathname.startsWith("/onboarding")
-        ? "/login"
-        : "/signup";
+    const dest = unauthenticatedAuthDestination(pathname);
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = dest;
     redirectUrl.searchParams.set("next", pathname);
@@ -103,28 +102,28 @@ export async function updateSession(request: NextRequest) {
   if (
     profile &&
     !profile.email_verified &&
-    !pathname.startsWith("/verify-email")
+    !pathname.startsWith("/verify-email") &&
+    // Continuity-only soft verification; authentication was enforced above.
+    !allowsUnverifiedCoachContinuity(
+      pathname,
+      request.nextUrl.searchParams
+    )
   ) {
-    // OD-8 + first-user vertical slice: do not hard-block confirm or the
-    // first contextual Forge session. Other /app routes still require verify.
-    const allowUnverified =
-      pathname.startsWith("/app/practice") ||
-      pathname.startsWith("/coach");
-    if (!allowUnverified) {
-      const redirectUrl = request.nextUrl.clone();
-      redirectUrl.pathname = "/verify-email";
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user?.email) {
-        redirectUrl.searchParams.set("email", user.email);
-      }
-      redirectUrl.searchParams.set(
-        "next",
-        pathname.startsWith("/app") ? pathname : "/coach/confirm"
-      );
-      return NextResponse.redirect(redirectUrl);
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/verify-email";
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user?.email) {
+      redirectUrl.searchParams.set("email", user.email);
     }
+    redirectUrl.searchParams.set(
+      "next",
+      pathname.startsWith("/app") || pathname === "/coach/activate"
+        ? pathname
+        : "/app"
+    );
+    return NextResponse.redirect(redirectUrl);
   }
 
   if (pathname.startsWith("/founder")) {

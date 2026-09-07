@@ -1,13 +1,13 @@
 /**
  * Phase 4B.3 — anonymous session mint / restore (server-only).
  *
- * VISITOR → verify cookie → hash secret → load active/gated unclaimed session
+ * VISITOR → verify cookie → hash secret → load active unowned session
  *         → else mint with Idempotency-Key (required when cookieless)
  *
  * Concurrency: cookieless mints MUST share the same Idempotency-Key so
  * anon_key_hash collisions collapse to one active session via the unique index.
  *
- * No turn API, LLM, UI, or claim logic.
+ * No model runtime, UI, or activation logic.
  */
 import {
   AnonMintKeyError,
@@ -36,8 +36,6 @@ export type PublicAnonSessionView = {
   id: string;
   status: AssistantCoachSession["status"];
   expiresAt: string;
-  turnCount: number;
-  hasExperiencedValue: boolean;
   outcome: AnonSessionOutcome;
 };
 
@@ -79,8 +77,6 @@ function toPublic(
     id: session.id,
     status: session.status,
     expiresAt: session.expiresAt,
-    turnCount: session.turnCount,
-    hasExperiencedValue: session.hasExperiencedValue,
     outcome,
   };
 }
@@ -90,6 +86,7 @@ function isRestorableAnonSession(
   now: Date
 ): boolean {
   if (session.userId != null) return false;
+  // `gated` is accepted only to recover historical persisted rows.
   if (session.status !== "active" && session.status !== "gated") return false;
   if (isAnonSessionExpired(session, now)) return false;
   return true;
@@ -99,14 +96,22 @@ function isRestorableAnonSession(
  * Session + profile draft are created as a pair. Never adopt/restore a row
  * that is missing its draft (partial write or in-flight concurrent insert).
  */
-async function isCompleteRestorableAnonSession(
+async function resolveCompleteRestorableAnonSession(
   repository: AssistantCoachSessionRepository,
   session: AssistantCoachSession,
   now: Date
-): Promise<boolean> {
-  if (!isRestorableAnonSession(session, now)) return false;
+): Promise<AssistantCoachSession | null> {
+  if (!isRestorableAnonSession(session, now)) return null;
   const draft = await repository.getDraft(session.id);
-  return draft != null;
+  if (!draft) return null;
+  if (session.status === "active") return session;
+
+  // Historical recovery only: no gate/value decision is made here.
+  const healed = await repository.normalizeLegacyGatedSession(session.id, now);
+  return healed && isRestorableAnonSession(healed, now) &&
+    healed.status === "active"
+    ? healed
+    : null;
 }
 
 function resolveMintRawSecret(
@@ -142,22 +147,26 @@ async function mintNewSession(
 
   // Fast path: another concurrent request already created this hash.
   const preexisting = await repository.getSessionByAnonKeyHash(anonKeyHash);
-  if (
-    preexisting &&
-    (await isCompleteRestorableAnonSession(repository, preexisting, now))
-  ) {
+  const restorablePreexisting = preexisting
+    ? await resolveCompleteRestorableAnonSession(
+        repository,
+        preexisting,
+        now
+      )
+    : null;
+  if (restorablePreexisting) {
     const sealedCookie = sealAnonCookieValue(rawSecret, cookieSecret);
-    const cookieAttributes = buildAnonCookieAttributes(preexisting.expiresAt, {
-      now,
-      secure: options.secureCookie,
-    });
+    const cookieAttributes = buildAnonCookieAttributes(
+      restorablePreexisting.expiresAt,
+      { now, secure: options.secureCookie }
+    );
     return {
-      session: preexisting,
+      session: restorablePreexisting,
       rawSecret,
       sealedCookie,
       cookieAttributes,
       outcome: "restored",
-      publicSession: toPublic(preexisting, "restored"),
+      publicSession: toPublic(restorablePreexisting, "restored"),
     };
   }
 
@@ -191,22 +200,26 @@ async function mintNewSession(
         : new Error("failed to mint anonymous Assistant Coach session");
     }
     const existing = await repository.getSessionByAnonKeyHash(anonKeyHash);
-    if (
-      existing &&
-      (await isCompleteRestorableAnonSession(repository, existing, now))
-    ) {
+    const restorableExisting = existing
+      ? await resolveCompleteRestorableAnonSession(
+          repository,
+          existing,
+          now
+        )
+      : null;
+    if (restorableExisting) {
       const sealedCookie = sealAnonCookieValue(rawSecret, cookieSecret);
-      const cookieAttributes = buildAnonCookieAttributes(existing.expiresAt, {
-        now,
-        secure: options.secureCookie,
-      });
+      const cookieAttributes = buildAnonCookieAttributes(
+        restorableExisting.expiresAt,
+        { now, secure: options.secureCookie }
+      );
       return {
-        session: existing,
+        session: restorableExisting,
         rawSecret,
         sealedCookie,
         cookieAttributes,
         outcome: "restored",
-        publicSession: toPublic(existing, "restored"),
+        publicSession: toPublic(restorableExisting, "restored"),
       };
     }
     // Unique conflict but winner is incomplete (no draft yet / draft failed)
@@ -222,7 +235,7 @@ async function mintNewSession(
 
 /**
  * Resolve the caller's anonymous AC session from the signed cookie, or mint.
- * Invalid/expired/claimed/unknown cookies mint a fresh session (no auth redirect)
+ * Invalid/expired/owned/unknown cookies mint a fresh session (no auth redirect)
  * when a valid Idempotency-Key is supplied.
  */
 export async function ensureAnonAssistantCoachSession(
@@ -255,25 +268,30 @@ export async function ensureAnonAssistantCoachSession(
           mintOpts
         );
       }
-      if (await isCompleteRestorableAnonSession(repository, existing, now)) {
+      const restorable = await resolveCompleteRestorableAnonSession(
+        repository,
+        existing,
+        now
+      );
+      if (restorable) {
         const sealedCookie = sealAnonCookieValue(
           parsed.rawSecret,
           cookieSecret
         );
-        const cookieAttributes = buildAnonCookieAttributes(existing.expiresAt, {
+        const cookieAttributes = buildAnonCookieAttributes(restorable.expiresAt, {
           now,
           secure: options.secureCookie,
         });
         return {
-          session: existing,
+          session: restorable,
           rawSecret: parsed.rawSecret,
           sealedCookie,
           cookieAttributes,
           outcome: "restored",
-          publicSession: toPublic(existing, "restored"),
+          publicSession: toPublic(restorable, "restored"),
         };
       }
-      // Claimed / handed_off / incomplete draft / unexpected — do not restore.
+      // Owned / handed_off / incomplete draft / unexpected — do not restore.
       return mintNewSession(
         repository,
         cookieSecret,

@@ -2,10 +2,6 @@ import VoiceArena from "@/app/components/VoiceArena";
 import EndOfFreePractice from "@/app/components/billing/EndOfFreePractice";
 import type { CeSessionMode, CeTrack } from "@/lib/ce/session-config";
 import { evaluatePracticeEntitlement } from "@/lib/billing/entitlements";
-import {
-  AC_HANDOFF_SOURCE,
-  isAssistantCoachPracticeHandoff,
-} from "@/lib/assistant-coach/confirmation";
 import { evaluatePracticeRouteAccess } from "@/lib/system2/server-readiness";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { ensurePersistedLivingProfile } from "@/lib/system1/ensure-living-profile";
@@ -31,7 +27,6 @@ export default async function VoicePage({
 }) {
   await connection();
   const params = await searchParams;
-  const title = first(params.title);
   const source = first(params.source);
   const modeRaw = first(params.mode);
   const mode: CeSessionMode =
@@ -58,9 +53,6 @@ export default async function VoicePage({
   if (wizardHandoff && !practiceContext) {
     redirect("/coach?activation=retry");
   }
-  const acHandoff =
-    !wizardHandoff &&
-    isAssistantCoachPracticeHandoff({ source, title });
   if (user) {
     const { data: profile } = await supabase
       .from("profiles")
@@ -90,16 +82,12 @@ export default async function VoicePage({
   return (
     <VoiceArena
       track={track}
-      eventTitle={practiceContext ? undefined : title}
+      eventTitle={practiceContext ? undefined : first(params.title)}
       successCriteria={practiceContext ? undefined : first(params.success)}
       autoStart={wizardHandoff || first(params.start) === "1"}
       mode={mode}
       handoffSource={
-        wizardHandoff
-          ? COACH_WIZARD_HANDOFF_SOURCE
-          : acHandoff
-            ? AC_HANDOFF_SOURCE
-            : undefined
+        wizardHandoff ? COACH_WIZARD_HANDOFF_SOURCE : undefined
       }
       practiceContext={practiceContext}
     />

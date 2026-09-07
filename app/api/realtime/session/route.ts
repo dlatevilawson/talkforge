@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
 import { evaluatePracticeEntitlement } from "@/lib/billing/entitlements";
 import { loadCoachPromptContextForUser } from "@/lib/coach/memory-server";
-import { applyConfirmedPracticeHandoff } from "@/lib/ce/ac-practice-handoff";
 import { applyStructuredPracticeHandoff } from "@/lib/ce/ac-practice-handoff";
 import {
   buildClientSecretRequest,
@@ -11,7 +10,6 @@ import {
 } from "@/lib/ce/session-config";
 import { resolveArenaVoiceMode } from "@/lib/ce/voice-mode";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { AC_HANDOFF_SOURCE } from "@/lib/assistant-coach/confirmation";
 import { evaluatePracticeRouteAccess } from "@/lib/system2/server-readiness";
 import { ensurePersistedLivingProfile } from "@/lib/system1/ensure-living-profile";
 import {
@@ -88,10 +86,6 @@ export async function POST(req: Request) {
       { status: 409 }
     );
   }
-  const acHandoff =
-    !practiceContext &&
-    body.source === AC_HANDOFF_SOURCE &&
-    eventTitle.length > 0;
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
@@ -134,14 +128,6 @@ export async function POST(req: Request) {
   const memory = await loadCoachPromptContextForUser(gate.userId);
   const memoryForSession = practiceContext
     ? applyStructuredPracticeHandoff(memory, practiceContext)
-    : acHandoff
-    ? applyConfirmedPracticeHandoff(memory, {
-        eventTitle,
-        successCriteria:
-          typeof body.successCriteria === "string"
-            ? body.successCriteria
-            : undefined,
-      })
     : memory;
   const planIsPro =
     entitlement.plan === "pro" ||
@@ -161,7 +147,6 @@ export async function POST(req: Request) {
     memory: memoryForSession,
     handsFree,
     mode,
-    handoffSource: acHandoff ? AC_HANDOFF_SOURCE : undefined,
     practiceContext,
   });
 

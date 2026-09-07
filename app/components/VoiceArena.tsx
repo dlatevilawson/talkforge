@@ -1197,8 +1197,7 @@ export default function VoiceArena({
       if (tokenData.memory?.isReturning && tokenData.memory.firstName) {
         const titledStart =
           Boolean(authoritativePracticeContext) ||
-          Boolean(eventTitle?.trim()) ||
-          handoffSource === "ac";
+          Boolean(eventTitle?.trim());
         setWelcomeLine(
           `Welcome back, ${tokenData.memory.firstName}${
             !titledStart && tokenData.memory.lastScenarioTitle
@@ -1297,7 +1296,6 @@ export default function VoiceArena({
           ? false
           : Boolean(tokenData.memory?.isReturning),
         mode,
-        handoffSource: isAssessment ? undefined : handoffSource,
         practiceContext: isAssessment
           ? undefined
           : authoritativePracticeContext,

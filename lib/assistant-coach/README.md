@@ -1,112 +1,44 @@
-# Assistant Coach — Coach wizard and session persistence
+# Assistant Coach — deterministic wizard
 
-| Slice | Status |
+Decision 060 defines one active first-user path:
+
+**Pick your moments → Narrow the context → verify the deterministic profile → authenticate → activate → contextual Forge.**
+
+## Active runtime
+
+| Area | Contract |
 |---|---|
-| **4B.2** | Session / messages / profile_drafts schema + in-memory repository |
-| **4B.3** | Signed HttpOnly anon cookie + server session mint/restore |
-| **4B.4** | `POST /api/assistant-coach/turn` + identity-agnostic `runAssistantCoachTurn` |
-| **4B.5** | Sticky semantic value + anon turn cap flags |
-| **4B.6** | Hard gate anon continuation |
-| **4B.10** | Public `/coach` UI (product surface: **Coach**, voice + text) |
-| **4B.W6** | Shipping Decision 060 three-phase card wizard UI + verified guest draft |
-| **Decision 060 activation** | Verified wizard → auth → `/coach/activate` → member Living Profile → contextual Forge |
-| **Vertical slice** | Landing CTA → `/coach` → verify → auth when needed → immediate Forge |
-| **4B.13** | Proxy allowlist for public Coach |
-| Later | Analytics, expiry, flywheel (Forge evidence → System 1), Progress |
+| Public page | `/coach` three-phase card wizard |
+| Public APIs | `/api/assistant-coach/session` and `/api/assistant-coach/profile` |
+| Auth boundary | Exact return to protected `/coach/activate`; continuity-only soft email verification |
+| Guest continuity | Signed HttpOnly anonymous cookie, server session/draft, 14-day TTL |
+| Profile | Exact catalogs and deterministic projection in `practice-profile.ts` |
+| Activation | Same-user ownership transfer and authorized `member_practice_profile` Living Profile write |
+| Forge handoff | Marker-only `/app/practice?source=coach_wizard&start=1`; context reloads from the authenticated Living Profile |
+| Lifecycle | Expired unactivated drafts purge through the existing reset lifecycle |
 
-## Shipping product surface (`/coach`)
+The wizard stores only provisional member declarations before authentication.
+Activation validates the verified draft, preserves unrelated Living Profile
+fields, records member provenance, and transfers ownership idempotently. Forge
+reads the structured topic, audience, pattern, and urgency; it never writes
+identity.
 
-| Item | Value |
-|---|---|
-| User-facing name | **Coach** (internal modules remain `assistant-coach`) |
-| Phase 1 | **Pick your moments**; ordered 1–3 exact topic cards; only Something else reveals bounded text |
-| Phase 2 | **Narrow the context**; audiences multi-select, pattern single-select, urgency single-select |
-| Phase 3 | Deterministic **Your Coach profile** with focus areas, practice pattern, and first target |
-| Verification | **Adjust** returns to Phase 2 prefilled; **Looks right** writes the verified declaration to the provisional draft |
-| Restore | Client state mirrors to `sessionStorage`; the signed HttpOnly session owns the server draft and TTL |
-| Guest boundary | Create account / sign in returns only to protected `/coach/activate`; activation has no second confirmation screen |
-| Signed-in boundary | **Looks right** verifies, activates with optimistic concurrency, and returns `/app/practice` directly |
-| Activation safety | Signed cookie + live session + verified paired draft + ownership; existing verified member profile always wins; retry is idempotent |
-| Forge handoff | Marker-only `/app/practice?source=coach_wizard&start=1`; only marked entry reloads structured topic/audience/pattern/urgency from the Living Profile; generic practice remains generic |
-| API | `POST /api/assistant-coach/profile` validates cookie, active TTL, paired draft, exact selection, and draft version |
-| Not used by wizard | Chat, turns, transcription, messages, model calls, System 1 evidence, or semantic value gate |
+Soft email verification applies only after authentication to
+`/coach/activate` and `/app/practice?source=coach_wizard`. It preserves the
+first Forge handoff; it does not bypass authentication, account status,
+onboarding, Living Profile readiness, entitlement, or server-authoritative
+Realtime checks.
 
-The legacy conversational endpoints remain in the repository for retirement
-sequencing, but the shipping `/coach` UI does not call them.
+Historical `gated` session rows remain covered by the deployed non-destructive
+schema/index. Session restore may find an unowned, unexpired row in that status
+and heal it to `active`; this is storage recovery only and carries no value,
+turn, or conversion semantics.
 
-## Semantic value ≠ Living Profile completeness
+The former conversational discovery, model-generated discovery response,
+anonymous coaching endpoints, browser recording path, value/conversion logic,
+and repeated post-auth review are retired. Historical database fields remain
+non-destructively for deployment compatibility but have no application
+runtime.
 
-| Concept | Meaning |
-|---|---|
-| Discovery readiness | Grounded goal+friction (or insight + ≥2 fact categories) after ≥2 substantive user turns — evidence may accumulate immediately |
-| Actionable intervention | Structured model `intervention` validated server-side (exercise / rehearsal / technique / strategy / wording / pacing) grounded in ledger facts — **not** reply prose alone |
-| `hasExperiencedValue` | Sticky conversion signal: **discovery + ≥1 validated intervention** (value-before-auth) |
-| Hard gate | Anon may not continue after value **or** turn cap (Decision 059) |
-| Living Profile / draft evidence | Continues accumulating; never “complete” merely because value flipped |
-| Training plan / Forge readiness | Later, stronger bars — not this gate |
-| Turn cap | Independent safety/economic limit (default 10) — not conversion |
-
-## 4B.2 rules
-
-1. Tables are **service_role / server-only** (RLS on; no anon/authenticated policies).
-2. Anonymous TTL default is **14 days** (`ASSISTANT_COACH_ANON_TTL_DAYS`).
-3. Draft profiles live in `assistant_coach_profile_drafts`, **not** `living_profiles`, until claim.
-4. Do not resurrect `guest_*` cloud identity.
-5. System 1 remains the intelligence writer for evidence/insights inside draft JSON.
-
-## 4B.3 — anon identity
-
-| Item | Value |
-|---|---|
-| Cookie name | `tf_ac_anon` |
-| Cookie value | `v1.<opaqueSecret>.<hmac>` (HMAC-SHA256, timing-safe verify) |
-| DB binding | `sha256(opaqueSecret)` hex → `assistant_coach_sessions.anon_key_hash` |
-| Attributes | HttpOnly · Secure (prod) · SameSite=Lax · Path=/ · Max-Age = remaining TTL |
-| Route | `GET\|POST /api/assistant-coach/session` |
-| Mint key | Required when cookie missing/invalid: `Idempotency-Key` (43–128 URL-safe chars) |
-| Env | `ASSISTANT_COACH_ANON_COOKIE_SECRET` (server-only, ≥32 chars; fail closed if missing) |
-
-### Restore algorithm
-
-1. Read `tf_ac_anon` server-side.
-2. Verify HMAC; malformed/tampered → mint fresh (no auth redirect).
-3. Hash opaque secret; lookup **active/gated + `user_id IS NULL`** by `anon_key_hash`.
-4. Reject expired (`expires_at` / `status=expired`) — mark expired, mint fresh (no resurrection).
-5. Reject claimed / member-linked — mint fresh anonymous session.
-6. Otherwise restore same session and re-seal cookie.
-
-### Concurrency
-
-- Cookieless mint **requires** `Idempotency-Key` (or `X-AC-Mint-Key`): 43–128 URL-safe chars (≈256-bit).
-- That key **is** the raw anon secret → `anon_key_hash = sha256(key)`.
-- Concurrent/repeated mints with the same key collapse to one active row via the unique partial index (and a pre-insert lookup).
-- Only `AssistantCoachUniqueConflictError` (Postgres `23505` on the active anon hash) may adopt the winning session; unrelated persistence failures must propagate.
-- Adopt/restore also requires the paired `assistant_coach_profile_drafts` row. Session-without-draft is never treated as a successful mint.
-- On draft insert failure after session insert, the adapter deletes the session row (best-effort) and throws.
-- Distinct keys still create distinct sessions (different visitors / intentional new mints).
-- Valid cookie restore does not require a mint key.
-
-### 4B.4 — turn API
-
-| Item | Value |
-|---|---|
-| Route | `POST /api/assistant-coach/turn` |
-| Auth | Valid `tf_ac_anon` cookie (required). Optional member auth enriches claimed sessions. |
-| Body | `{ message, clientTurnId? }` |
-| Runtime | `runAssistantCoachTurn` — injectable model; System 1 evidence/insights only |
-| Model | OpenAI `gpt-5` via `OPENAI_API_KEY`. Preview/Production **fail closed** if missing (no silent mock). Local mock only with explicit `ASSISTANT_COACH_ALLOW_MOCK_MODEL=true`. |
-| Response | `{ reply, session, gate, idempotentReplay }` — `gate` is **flags only** (4B.5/4B.6 own policy/enforcement) |
-
-### Transcribe API
-
-| Item | Value |
-|---|---|
-| Route | `POST /api/assistant-coach/transcribe` |
-| Auth | Valid `tf_ac_anon` cookie |
-| Body | `multipart/form-data` field `audio` |
-| Model | `gpt-4o-mini-transcribe` (server-only) |
-| Gate | Hard-gated sessions receive `403 must_authenticate` (no STT spend) |
-
-### Non-goals (still deferred)
-
-Claim continuity (4B.7), soft verify, onboarding skip, landing CTA (4B.11), Forge handoff (4B.16), finalized OD-10 marketing gate copy.
+Assessment remains independent and continues to use its own Realtime audio and
+transcription infrastructure.

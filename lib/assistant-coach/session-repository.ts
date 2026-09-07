@@ -11,6 +11,7 @@ export const ASSISTANT_COACH_ANON_TTL_DAYS = 14;
 
 export const ASSISTANT_COACH_SESSION_STATUSES = [
   "active",
+  // Deprecated storage compatibility only. Never use as a wizard/value gate.
   "gated",
   "claimed",
   "expired",
@@ -20,34 +21,20 @@ export const ASSISTANT_COACH_SESSION_STATUSES = [
 export type AssistantCoachSessionStatus =
   (typeof ASSISTANT_COACH_SESSION_STATUSES)[number];
 
-export type AssistantCoachMessageRole = "user" | "assistant";
-
 export type AssistantCoachSession = {
   id: string;
   anonKeyHash: string | null;
   userId: string | null;
   status: AssistantCoachSessionStatus;
-  turnCount: number;
-  hasExperiencedValue: boolean;
   expiresAt: string;
   claimedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
 
-export type AssistantCoachMessage = {
-  id: string;
-  sessionId: string;
-  turnIndex: number;
-  role: AssistantCoachMessageRole;
-  content: string;
-  modelMeta: Record<string, unknown>;
-  createdAt: string;
-};
-
 export type AssistantCoachProfileDraft = {
   sessionId: string;
-  /** LivingProfile-shaped provisional JSON — not living_profiles until claim. */
+  /** Provisional wizard declaration — not Living Profile identity until activation. */
   profileJson: Record<string, unknown>;
   version: number;
   updatedAt: string;
@@ -82,7 +69,7 @@ export class AssistantCoachUniqueConflictError extends Error {
   constructor(anonKeyHash: string, message?: string) {
     super(
       message ??
-        "anon_key_hash already has an active/gated Assistant Coach session."
+        "anon_key_hash already has an active or legacy gated Assistant Coach session."
     );
     this.name = "AssistantCoachUniqueConflictError";
     this.anonKeyHash = anonKeyHash;
@@ -108,13 +95,14 @@ export type AssistantCoachSessionRepository = {
   getSessionByAnonKeyHash(
     anonKeyHash: string
   ): Promise<AssistantCoachSession | null>;
-  listMessages(sessionId: string): Promise<AssistantCoachMessage[]>;
-  appendMessage(
-    message: Omit<AssistantCoachMessage, "id" | "createdAt"> & {
-      id?: string;
-      createdAt?: string;
-    }
-  ): Promise<AssistantCoachMessage>;
+  /**
+   * Historical recovery only: heal an unowned, unexpired `gated` row to
+   * `active`. This carries no semantic-value or turn policy.
+   */
+  normalizeLegacyGatedSession(
+    sessionId: string,
+    now?: Date
+  ): Promise<AssistantCoachSession | null>;
   getDraft(sessionId: string): Promise<AssistantCoachProfileDraft | null>;
   saveDraft(
     draft: Omit<AssistantCoachProfileDraft, "updatedAt"> & {
@@ -124,27 +112,16 @@ export type AssistantCoachSessionRepository = {
   ): Promise<AssistantCoachProfileDraft>;
   markExpiredIfPast(sessionId: string, now?: Date): Promise<AssistantCoachSession | null>;
   /**
-   * Sticky server flags (4B.5+). Never clears hasExperiencedValue once true.
-   */
-  updateSessionFlags?(
-    sessionId: string,
-    patch: {
-      hasExperiencedValue?: boolean;
-      status?: AssistantCoachSessionStatus;
-      now?: Date;
-    }
-  ): Promise<AssistantCoachSession>;
-  /**
-   * Lookup by cookie hash for claim — includes gated + already-claimed rows.
+   * Lookup by cookie hash for activation ownership transfer.
    * Anonymous restore still uses getSessionByAnonKeyHash (unclaimed only).
    */
-  getSessionByAnonKeyHashForClaim?(
+  getSessionByAnonKeyHashForActivation?(
     anonKeyHash: string
   ): Promise<AssistantCoachSession | null>;
-  getLatestClaimedSessionByUserId?(
+  getLatestOwnedSessionByUserId?(
     userId: string
   ): Promise<AssistantCoachSession | null>;
-  claimSession?(input: {
+  transferSessionOwnership?(input: {
     sessionId: string;
     userId: string;
     now?: Date;
@@ -177,9 +154,11 @@ export function isAnonSessionExpired(
  * In-memory repository mirroring 4B.2 table semantics for unit tests.
  * Not a production store — 4B.3+ will add a Supabase service-role adapter.
  */
-export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSessionRepository {
+export function createMemoryAssistantCoachSessionRepository(options?: {
+  /** Tests historical persisted rows only; production creation is always active. */
+  initialSessionStatus?: "active" | "gated";
+}): AssistantCoachSessionRepository {
   const sessions = new Map<string, AssistantCoachSession>();
-  const messages = new Map<string, AssistantCoachMessage[]>();
   const drafts = new Map<string, AssistantCoachProfileDraft>();
   const activeAnon = new Map<string, string>();
 
@@ -198,9 +177,7 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
         id: input.id ?? newId("acs"),
         anonKeyHash: input.anonKeyHash,
         userId: null,
-        status: "active",
-        turnCount: 0,
-        hasExperiencedValue: false,
+        status: options?.initialSessionStatus ?? "active",
         expiresAt: defaultAnonExpiresAt(now, ttlDays).toISOString(),
         claimedAt: null,
         createdAt: iso,
@@ -208,7 +185,6 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
       };
       sessions.set(session.id, session);
       activeAnon.set(input.anonKeyHash, session.id);
-      messages.set(session.id, []);
       drafts.set(session.id, {
         sessionId: session.id,
         profileJson: input.profileJson ?? {},
@@ -228,47 +204,26 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
       if (!id) return null;
       const row = sessions.get(id);
       if (!row) return null;
-      // Anonymous restore surface: active/gated + unclaimed only.
+      // `gated` is visible only so the service can heal historical rows.
       if (row.userId != null) return null;
       if (row.status !== "active" && row.status !== "gated") return null;
       return structuredClone(row);
     },
 
-    async listMessages(sessionId) {
-      const rows = messages.get(sessionId) ?? [];
-      return structuredClone(rows).sort((a, b) => a.turnIndex - b.turnIndex);
-    },
-
-    async appendMessage(message) {
-      if (!sessions.has(message.sessionId)) {
-        throw new Error("session not found");
-      }
-      const list = messages.get(message.sessionId) ?? [];
+    async normalizeLegacyGatedSession(sessionId, now = new Date()) {
+      const session = sessions.get(sessionId);
+      if (!session) return null;
       if (
-        list.some(
-          (m) => m.turnIndex === message.turnIndex && m.role === message.role
-        )
+        session.status !== "gated" ||
+        session.userId != null ||
+        isAnonSessionExpired(session, now)
       ) {
-        throw new Error("duplicate (session_id, turn_index, role)");
+        return structuredClone(session);
       }
-      const row: AssistantCoachMessage = {
-        id: message.id ?? newId("acm"),
-        sessionId: message.sessionId,
-        turnIndex: message.turnIndex,
-        role: message.role,
-        content: message.content,
-        modelMeta: message.modelMeta ?? {},
-        createdAt: message.createdAt ?? new Date().toISOString(),
-      };
-      list.push(row);
-      messages.set(message.sessionId, list);
-      const session = sessions.get(message.sessionId)!;
-      if (message.role === "user") {
-        session.turnCount += 1;
-        session.updatedAt = new Date().toISOString();
-        sessions.set(session.id, session);
-      }
-      return structuredClone(row);
+      session.status = "active";
+      session.updatedAt = now.toISOString();
+      sessions.set(session.id, session);
+      return structuredClone(session);
     },
 
     async getDraft(sessionId) {
@@ -319,22 +274,7 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
       return structuredClone(session);
     },
 
-    async updateSessionFlags(sessionId, patch) {
-      const session = sessions.get(sessionId);
-      if (!session) throw new Error("session not found");
-      const now = patch.now ?? new Date();
-      if (patch.hasExperiencedValue === true) {
-        session.hasExperiencedValue = true;
-      }
-      if (patch.status) {
-        session.status = patch.status;
-      }
-      session.updatedAt = now.toISOString();
-      sessions.set(session.id, session);
-      return structuredClone(session);
-    },
-
-    async getSessionByAnonKeyHashForClaim(anonKeyHash) {
+    async getSessionByAnonKeyHashForActivation(anonKeyHash) {
       for (const row of sessions.values()) {
         if (row.anonKeyHash !== anonKeyHash) continue;
         if (row.status === "expired") continue;
@@ -343,19 +283,19 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
       return null;
     },
 
-    async getLatestClaimedSessionByUserId(userId) {
-      const claimed = [...sessions.values()].filter(
+    async getLatestOwnedSessionByUserId(userId) {
+      const owned = [...sessions.values()].filter(
         (s) => s.userId === userId && s.status === "claimed"
       );
-      claimed.sort((a, b) =>
+      owned.sort((a, b) =>
         String(b.claimedAt ?? b.updatedAt).localeCompare(
           String(a.claimedAt ?? a.updatedAt)
         )
       );
-      return claimed[0] ? structuredClone(claimed[0]) : null;
+      return owned[0] ? structuredClone(owned[0]) : null;
     },
 
-    async claimSession(input) {
+    async transferSessionOwnership(input) {
       const session = sessions.get(input.sessionId);
       if (!session) throw new Error("session not found");
       const now = input.now ?? new Date();
@@ -363,13 +303,13 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
         return structuredClone(session);
       }
       if (session.userId != null && session.userId !== input.userId) {
-        const err = new Error("session claimed by another user");
-        err.name = "AssistantCoachClaimConflictError";
+        const err = new Error("session owned by another user");
+        err.name = "AssistantCoachOwnershipConflictError";
         throw err;
       }
       if (isAnonSessionExpired(session, now)) {
         const err = new Error("session expired");
-        err.name = "AssistantCoachClaimExpiredError";
+        err.name = "AssistantCoachOwnershipExpiredError";
         throw err;
       }
       if (

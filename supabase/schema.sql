@@ -172,7 +172,10 @@ comment on column public.living_profiles.presence_scores is
 comment on column public.living_profiles.profile_source is
   'How the current snapshot was captured: quick_pick | assessment | incomplete.';
 
--- Assistant Coach anonymous session plane (Phase 4B.2) — server/service_role only.
+-- Assistant Coach anonymous wizard session plane — server/service_role only.
+-- Decision 060 retains session ownership/TTL and profile drafts. The historical
+-- turn_count / has_experienced_value columns and messages table are deprecated;
+-- active application code does not read or write them.
 create table if not exists public.assistant_coach_sessions (
   id uuid primary key default gen_random_uuid(),
   anon_key_hash text,
@@ -219,6 +222,15 @@ create table if not exists public.assistant_coach_messages (
 
 create index if not exists assistant_coach_messages_session_id_idx
   on public.assistant_coach_messages (session_id, turn_index);
+
+comment on column public.assistant_coach_sessions.turn_count is
+  'Deprecated historical conversational Coach counter; retained non-destructively and unused after Decision 060.';
+comment on column public.assistant_coach_sessions.has_experienced_value is
+  'Deprecated historical conversational Coach gate; retained non-destructively and unused after Decision 060.';
+comment on column public.assistant_coach_sessions.status is
+  'Session lifecycle. Legacy gated rows are recoverable to active only when unowned and unexpired; gated has no Decision 060 value semantics.';
+comment on table public.assistant_coach_messages is
+  'Deprecated historical conversational Coach storage; retained non-destructively and unused after Decision 060.';
 
 create table if not exists public.assistant_coach_profile_drafts (
   session_id uuid primary key
