@@ -9,7 +9,8 @@
 | **4B.6** | Hard gate anon continuation |
 | **4B.10** | Public `/coach` UI (product surface: **Coach**, voice + text) |
 | **4B.W6** | Shipping Decision 060 three-phase card wizard UI + verified guest draft |
-| **Vertical slice** | Landing CTA → `/coach` → value → signup → **claim** → **confirm** → one Forge session |
+| **Decision 060 activation** | Verified wizard → auth → `/coach/activate` → member Living Profile → contextual Forge |
+| **Vertical slice** | Landing CTA → `/coach` → verify → auth when needed → immediate Forge |
 | **4B.13** | Proxy allowlist for public Coach |
 | Later | Analytics, expiry, flywheel (Forge evidence → System 1), Progress |
 
@@ -23,9 +24,12 @@
 | Phase 3 | Deterministic **Your Coach profile** with focus areas, practice pattern, and first target |
 | Verification | **Adjust** returns to Phase 2 prefilled; **Looks right** writes the verified declaration to the provisional draft |
 | Restore | Client state mirrors to `sessionStorage`; the signed HttpOnly session owns the server draft and TTL |
-| Guest boundary | Create account / sign in returns to `/coach/activate` (activation ships in the next slice) |
-| API | `POST /api/assistant-coach/profile` validates cookie, active TTL, paired draft, and exact selection contract |
-| Not used | Chat, turns, transcription, messages, model calls, System 1 evidence, semantic value gate, activation, or Forge handoff |
+| Guest boundary | Create account / sign in returns only to protected `/coach/activate`; activation has no second confirmation screen |
+| Signed-in boundary | **Looks right** verifies, activates with optimistic concurrency, and returns `/app/practice` directly |
+| Activation safety | Signed cookie + live session + verified paired draft + ownership; existing verified member profile always wins; retry is idempotent |
+| Forge handoff | Marker-only `/app/practice?source=coach_wizard&start=1`; only marked entry reloads structured topic/audience/pattern/urgency from the Living Profile; generic practice remains generic |
+| API | `POST /api/assistant-coach/profile` validates cookie, active TTL, paired draft, exact selection, and draft version |
+| Not used by wizard | Chat, turns, transcription, messages, model calls, System 1 evidence, or semantic value gate |
 
 The legacy conversational endpoints remain in the repository for retirement
 sequencing, but the shipping `/coach` UI does not call them.

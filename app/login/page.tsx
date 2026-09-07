@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import LoginForm from "@/app/components/auth/LoginForm";
-import { safeNextPath } from "@/lib/auth/safe-next";
+import { safeAuthNextPath } from "@/lib/auth/safe-next";
 
 export default async function LoginPage({
   searchParams,
@@ -8,7 +8,7 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string; error?: string; notice?: string }>;
 }) {
   const params = await searchParams;
-  const next = safeNextPath(params.next, "/app");
+  const next = safeAuthNextPath(params.next, "/app");
   const notice =
     params.notice === "verified"
       ? "Email verified. You can sign in now."

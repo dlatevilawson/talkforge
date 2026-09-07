@@ -91,7 +91,7 @@ export default function VerifyEmailPanel({
     <AuthShell
       eyebrow="Email verification"
       title="Verify your email"
-      description="Open your TalkForge email and tap Verify, or enter the 6-digit code below. After verification you’ll continue to onboarding."
+      description="Open your TalkForge email and tap Verify, or enter the 6-digit code below. Then we’ll continue."
       footer={
         <Link href="/login" className="text-zinc-200 underline">
           Back to sign in
@@ -186,6 +186,7 @@ export default function VerifyEmailPanel({
         <div className="border-t border-white/10 pt-6">
           <form action={resendAction} className="space-y-4">
             <input type="hidden" name="email" value={email} />
+            <input type="hidden" name="next" value={next} />
             <AuthAlert
               message={resendState.message}
               tone={resendState.ok ? "success" : "error"}
