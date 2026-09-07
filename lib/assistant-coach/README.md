@@ -1,4 +1,4 @@
-# Assistant Coach — session persistence (Phase 4B.2+)
+# Assistant Coach — Coach wizard and session persistence
 
 | Slice | Status |
 |---|---|
@@ -8,22 +8,27 @@
 | **4B.5** | Sticky semantic value + anon turn cap flags |
 | **4B.6** | Hard gate anon continuation |
 | **4B.10** | Public `/coach` UI (product surface: **Coach**, voice + text) |
+| **4B.W6** | Shipping Decision 060 three-phase card wizard UI + verified guest draft |
 | **Vertical slice** | Landing CTA → `/coach` → value → signup → **claim** → **confirm** → one Forge session |
 | **4B.13** | Proxy allowlist for public Coach |
 | Later | Analytics, expiry, flywheel (Forge evidence → System 1), Progress |
 
-## Product surface (`/coach`)
+## Shipping product surface (`/coach`)
 
 | Item | Value |
 |---|---|
 | User-facing name | **Coach** (internal modules remain `assistant-coach`) |
-| Opening | “What conversation are you preparing for?” + optional high-stakes conversation starters; replies move directly to one useful question without restating the member |
-| Input | **Voice + text** into the same turn API |
-| Composer guidance | Concise starter-specific prompts after selection or session restore; custom input remains open |
-| Voice path | Browser `MediaRecorder` → `POST /api/assistant-coach/transcribe` (server OpenAI STT) → transcript in composer → existing turn API |
-| Not used | Forge VoiceArena / Realtime WebRTC (auth-gated duplex practice) |
-| States | Listening (mic only) · Transcribing · Coach is thinking… |
-| Gate | Restrained product copy; after value → signup → **confirm understanding** → one Forge session |
+| Phase 1 | **Pick your moments**; ordered 1–3 exact topic cards; only Something else reveals bounded text |
+| Phase 2 | **Narrow the context**; audiences multi-select, pattern single-select, urgency single-select |
+| Phase 3 | Deterministic **Your Coach profile** with focus areas, practice pattern, and first target |
+| Verification | **Adjust** returns to Phase 2 prefilled; **Looks right** writes the verified declaration to the provisional draft |
+| Restore | Client state mirrors to `sessionStorage`; the signed HttpOnly session owns the server draft and TTL |
+| Guest boundary | Create account / sign in returns to `/coach/activate` (activation ships in the next slice) |
+| API | `POST /api/assistant-coach/profile` validates cookie, active TTL, paired draft, and exact selection contract |
+| Not used | Chat, turns, transcription, messages, model calls, System 1 evidence, semantic value gate, activation, or Forge handoff |
+
+The legacy conversational endpoints remain in the repository for retirement
+sequencing, but the shipping `/coach` UI does not call them.
 
 ## Semantic value ≠ Living Profile completeness
 

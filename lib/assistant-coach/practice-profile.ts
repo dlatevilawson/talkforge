@@ -72,6 +72,13 @@ export type MemberPracticeProfileSelection = {
   urgency: PracticeUrgencyId;
 };
 
+export type MemberPracticeProfileSelectionDraft = {
+  topics: PracticeTopicSelection[];
+  audiences: PracticeAudienceId[];
+  pattern: PracticePatternId | null;
+  urgency: PracticeUrgencyId | null;
+};
+
 export type MemberPracticeProfile = MemberPracticeProfileSelection & {
   verifiedAt: string;
   updatedAt: string;
@@ -250,6 +257,35 @@ export function validateMemberPracticeProfileSelection(
       "urgency"
     ),
   };
+}
+
+/**
+ * Copies only member-controlled selection fields from UI or transport state.
+ * Strict validators and projectors must receive this boundary object, never
+ * their caller's wider state object.
+ */
+export function selectMemberPracticeProfileSelection(
+  value: MemberPracticeProfileSelectionDraft
+): MemberPracticeProfileSelectionDraft {
+  return {
+    topics: value.topics,
+    audiences: value.audiences,
+    pattern: value.pattern,
+    urgency: value.urgency,
+  };
+}
+
+export function isCompleteMemberPracticeProfileSelection(
+  value: MemberPracticeProfileSelectionDraft
+): value is MemberPracticeProfileSelection {
+  try {
+    validateMemberPracticeProfileSelection(
+      selectMemberPracticeProfileSelection(value)
+    );
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** Server boundary: adds verification timestamps and trusted source reference. */
