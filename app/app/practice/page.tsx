@@ -10,6 +10,7 @@ import { evaluatePracticeRouteAccess } from "@/lib/system2/server-readiness";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
+import { coachTopicById } from "@/lib/assistant-coach/coach-topics";
 
 export default async function VoicePage({
   searchParams,
@@ -21,12 +22,14 @@ export default async function VoicePage({
     start?: string | string[];
     mode?: string | string[];
     source?: string | string[];
+    topic?: string | string[];
   }>;
 }) {
   await connection();
   const params = await searchParams;
   const title = first(params.title);
   const source = first(params.source);
+  const coachTopic = coachTopicById(first(params.topic));
   const acHandoff = isAssistantCoachPracticeHandoff({ source, title });
 
   const access = await evaluatePracticeRouteAccess();
@@ -35,7 +38,10 @@ export default async function VoicePage({
       // Confirmed AC moment is the starting context for this entry path.
       // Do not send the member through ContinuityHome / focus picker.
     } else {
-      redirect(`/app?gate=${access.reason}`);
+      const topicQuery = coachTopic
+        ? `&topic=${encodeURIComponent(coachTopic.id)}`
+        : "";
+      redirect(`/app?gate=${access.reason}${topicQuery}`);
     }
   }
 
@@ -76,8 +82,8 @@ export default async function VoicePage({
   return (
     <VoiceArena
       track={track}
-      eventTitle={title}
-      successCriteria={first(params.success)}
+      eventTitle={coachTopic?.label ?? title}
+      successCriteria={coachTopic?.context ?? first(params.success)}
       autoStart={first(params.start) === "1"}
       mode={mode}
       handoffSource={acHandoff ? AC_HANDOFF_SOURCE : undefined}

@@ -292,7 +292,11 @@ export async function loginAction(
   }
 
   if (profile && !profile.email_verified) {
-    if (next.startsWith("/coach/confirm") || next.startsWith("/app/practice")) {
+    if (
+      next.startsWith("/coach/confirm") ||
+      next.startsWith("/app/practice") ||
+      next.startsWith("/forge/preview/claim")
+    ) {
       return { ok: true, redirectTo: next };
     }
     return {
@@ -317,7 +321,11 @@ export async function loginAction(
   }
 
   if (profile && !profile.onboarding_complete) {
-    if (next.startsWith("/coach/confirm") || next.startsWith("/app/practice")) {
+    if (
+      next.startsWith("/coach/confirm") ||
+      next.startsWith("/app/practice") ||
+      next.startsWith("/forge/preview/claim")
+    ) {
       return { ok: true, redirectTo: next };
     }
     return { ok: true, redirectTo: "/onboarding" };

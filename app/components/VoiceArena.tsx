@@ -101,6 +101,16 @@ import type { PracticeSession } from "@/lib/types";
 import {
   clampGuestPreviewDurationSeconds,
 } from "@/lib/forge/guest-preview-duration";
+import { previewClaimReturnPath } from "@/lib/forge/preview-claim";
+import {
+  GUEST_PREVIEW_COMPLETE_BODY,
+  GUEST_PREVIEW_COMPLETE_HEADLINE,
+  GUEST_PREVIEW_CREATE_ACCOUNT_CTA,
+  GUEST_PREVIEW_DISMISSED_BODY,
+  GUEST_PREVIEW_GET_STARTED_CTA,
+  GUEST_PREVIEW_MAYBE_LATER_CTA,
+  GUEST_PREVIEW_SIGN_IN_CTA,
+} from "@/lib/forge/post-session-copy";
 
 type WrapStage = "coaching" | "membership";
 
@@ -223,6 +233,9 @@ export default function VoiceArena({
   const [sessionPersisted, setSessionPersisted] = useState(false);
   const [completionError, setCompletionError] = useState("");
   const [completionRetryPending, setCompletionRetryPending] = useState(false);
+  const [guestAuthPrompt, setGuestAuthPrompt] = useState<
+    "prompt" | "dismissed" | null
+  >(null);
   const [welcomeLine, setWelcomeLine] = useState("");
   const [remoteAudioBlocked, setRemoteAudioBlocked] = useState(false);
   const [complimentaryComplete, setComplimentaryComplete] = useState(false);
@@ -1540,6 +1553,7 @@ export default function VoiceArena({
           guestPreviewVersionRef.current = completionData.preview.version;
         }
         setSessionPersisted(true);
+        setGuestAuthPrompt("prompt");
         pushEvent("Guest preview secured · complete");
       } catch (error) {
         console.warn("[voice] guest preview completion failed", error);
@@ -1953,7 +1967,87 @@ export default function VoiceArena({
             </>
           ) : phase === "momentum" ? (
             <>
-              {complimentaryComplete && wrapStage === "membership" ? (
+              {isGuestPreview && guestPreview && guestAuthPrompt ? (
+                <div
+                  role={guestAuthPrompt === "prompt" ? "dialog" : "region"}
+                  aria-modal={guestAuthPrompt === "prompt" ? "true" : undefined}
+                  aria-labelledby="guest-preview-complete-title"
+                  className="flex w-full max-w-lg flex-1 flex-col items-center justify-center pb-8"
+                >
+                  <PresenceRing state="wrap" label="Rep Complete" />
+                  {guestAuthPrompt === "prompt" ? (
+                    <>
+                      <h1
+                        id="guest-preview-complete-title"
+                        className="mt-8 text-3xl font-semibold tracking-tight sm:text-4xl"
+                      >
+                        {GUEST_PREVIEW_COMPLETE_HEADLINE}
+                      </h1>
+                      <p className="mt-4 max-w-md text-base leading-7 text-white/60">
+                        {GUEST_PREVIEW_COMPLETE_BODY}
+                      </p>
+                      <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
+                        <Link
+                          href={`/signup?next=${encodeURIComponent(
+                            previewClaimReturnPath(guestPreview.topicId)
+                          )}`}
+                          className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                        >
+                          {GUEST_PREVIEW_CREATE_ACCOUNT_CTA}
+                        </Link>
+                        <Link
+                          href={`/login?next=${encodeURIComponent(
+                            previewClaimReturnPath(guestPreview.topicId)
+                          )}`}
+                          className="rounded-full border border-white/15 px-8 py-3.5 text-sm text-white/80 transition hover:bg-white/10"
+                        >
+                          {GUEST_PREVIEW_SIGN_IN_CTA}
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => setGuestAuthPrompt("dismissed")}
+                          className="px-8 py-2 text-sm text-white/50 transition hover:text-white/75"
+                        >
+                          {GUEST_PREVIEW_MAYBE_LATER_CTA}
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h1
+                        id="guest-preview-complete-title"
+                        className="mt-8 max-w-md text-2xl font-semibold leading-9"
+                      >
+                        {GUEST_PREVIEW_DISMISSED_BODY}
+                      </h1>
+                      <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
+                        <Link
+                          href={`/signup?next=${encodeURIComponent(
+                            previewClaimReturnPath(guestPreview.topicId)
+                          )}`}
+                          className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                        >
+                          {GUEST_PREVIEW_GET_STARTED_CTA}
+                        </Link>
+                        <Link
+                          href="/coach"
+                          className="rounded-full border border-white/15 px-8 py-3.5 text-sm text-white/70 transition hover:bg-white/10"
+                        >
+                          Back to Coach
+                        </Link>
+                      </div>
+                    </>
+                  )}
+                  <button
+                    type="button"
+                    disabled
+                    aria-disabled="true"
+                    className="mt-8 w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-white/30"
+                  >
+                    Practice input is closed for this completed preview.
+                  </button>
+                </div>
+              ) : complimentaryComplete && wrapStage === "membership" ? (
                 <>
                   <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#c9a95f]">
                     Coach Forge

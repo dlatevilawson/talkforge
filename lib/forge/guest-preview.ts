@@ -108,7 +108,9 @@ function emptyPreview(
   };
 }
 
-function readPreview(draft: AssistantCoachProfileDraft): GuestForgePreview | null {
+export function readGuestForgePreview(
+  draft: AssistantCoachProfileDraft
+): GuestForgePreview | null {
   const value = draft.profileJson.forgePreview;
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const candidate = value as Partial<GuestForgePreview>;
@@ -196,7 +198,7 @@ export async function bootstrapGuestForgePreview(input: {
         503
       );
     }
-    const existing = readPreview(draft);
+    const existing = readGuestForgePreview(draft);
     if (existing) {
       if (existing.topicId !== topic.id) {
         throw new GuestForgePreviewError(
@@ -250,7 +252,7 @@ export async function bootstrapGuestForgePreview(input: {
         nextJson(draft, emptyPreview(topic.id, transcriptBaseIndex)),
         now
       );
-      return view(saved, readPreview(saved)!);
+      return view(saved, readGuestForgePreview(saved)!);
     } catch (error) {
       if (!(error instanceof AssistantCoachDraftVersionConflictError)) throw error;
     }
@@ -282,7 +284,7 @@ export async function authorizeGuestForgeMint(input: {
     throw new GuestForgePreviewError("invalid_topic", "Invalid Coach topic.", 400);
   }
   const draft = await input.repository.getDraft(input.session.id);
-  const preview = draft && readPreview(draft);
+  const preview = draft && readGuestForgePreview(draft);
   if (!draft || !preview) {
     throw new GuestForgePreviewError(
       "session_invalid",
@@ -368,7 +370,7 @@ export async function settleGuestForgeMint(input: {
   now?: Date;
 }): Promise<GuestForgePreviewView> {
   const draft = await input.repository.getDraft(input.sessionId);
-  const preview = draft && readPreview(draft);
+  const preview = draft && readGuestForgePreview(draft);
   if (!draft || !preview || preview.mintLeaseId !== input.mintLeaseId) {
     throw new GuestForgePreviewError(
       "version_conflict",
@@ -491,7 +493,7 @@ export async function persistGuestForgeTranscript(input: {
   const digest = transcriptDigest(input.turns);
   assertSession(input.session, now);
   const draft = await input.repository.getDraft(input.session.id);
-  const preview = draft && readPreview(draft);
+  const preview = draft && readGuestForgePreview(draft);
   if (!draft || !preview || preview.status !== "active") {
     if (preview?.status === "completed" || preview?.status === "claimed") {
       terminalError(preview);
@@ -623,7 +625,7 @@ export async function completeGuestForgePreview(input: {
   const now = input.now ?? new Date();
   assertSession(input.session, now);
   const draft = await input.repository.getDraft(input.session.id);
-  const preview = draft && readPreview(draft);
+  const preview = draft && readGuestForgePreview(draft);
   if (!draft || !preview) {
     throw new GuestForgePreviewError("session_invalid", "No preview exists.", 409);
   }

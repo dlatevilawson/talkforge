@@ -15,6 +15,7 @@ export const ASSISTANT_COACH_PUBLIC_PATH_PREFIXES = [
 export const ASSISTANT_COACH_AUTH_PATH_PREFIXES = [
   "/api/assistant-coach/claim",
   "/api/assistant-coach/confirm",
+  "/api/forge/preview/claim",
 ] as const;
 
 /** Decision 060 guest Forge surface. Exact matches only. */
