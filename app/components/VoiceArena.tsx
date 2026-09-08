@@ -1620,9 +1620,7 @@ export default function VoiceArena({
       } catch (error) {
         console.warn("[voice] guest preview completion failed", error);
         setCompletionError(
-          error instanceof Error
-            ? error.message
-            : "Your wrap is ready, but the preview did not save."
+          "Your wrap is ready. Create an account to keep this preview."
         );
       } finally {
         setCompletionRetryPending(false);
