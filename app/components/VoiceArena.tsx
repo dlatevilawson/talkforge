@@ -1135,11 +1135,20 @@ export default function VoiceArena({
     }, 1_000);
   }
 
+  function guestStartWasAborted(startGeneration: number) {
+    return (
+      !mountedRef.current ||
+      lifecycleGenerationRef.current !== startGeneration ||
+      (isGuestPreview && guestStopStartedRef.current)
+    );
+  }
+
   async function handleStart() {
     if (phase === "minting" || phase === "connecting" || phase === "speaking") {
       return;
     }
     lifecycleGenerationRef.current += 1;
+    const startGeneration = lifecycleGenerationRef.current;
 
     setError("");
     setMicMode(null);
@@ -1258,6 +1267,9 @@ export default function VoiceArena({
       if (!tokenRes.ok || !tokenData.value) {
         throw new Error(tokenData.error || "Could not start session.");
       }
+      if (guestStartWasAborted(startGeneration)) {
+        return;
+      }
 
       const planIsPro = tokenData.entitlement?.plan === "pro";
       const sessionVoiceMode: ArenaVoiceMode =
@@ -1330,6 +1342,11 @@ export default function VoiceArena({
         onServerEvent: handleServerEvent,
       });
 
+      if (guestStartWasAborted(startGeneration)) {
+        disconnectRealtime(connection);
+        return;
+      }
+
       connectionRef.current = connection;
       setLiveConnection(connection);
       pushEvent(
@@ -1367,6 +1384,13 @@ export default function VoiceArena({
         });
       }
 
+      if (guestStartWasAborted(startGeneration)) {
+        disconnectRealtime(connection);
+        connectionRef.current = null;
+        setLiveConnection(null);
+        return;
+      }
+
       setPhase("speaking");
       const openingBudget = outputBudgetForTurn("opening", false);
       applyOutputBudget(connection, openingBudget);
@@ -1393,6 +1417,12 @@ export default function VoiceArena({
         );
       }
     } catch (err) {
+      if (guestStartWasAborted(startGeneration)) {
+        disconnectRealtime(connectionRef.current);
+        connectionRef.current = null;
+        setLiveConnection(null);
+        return;
+      }
       console.error(err);
       const usageId = usageIdRef.current;
       usageIdRef.current = null;
