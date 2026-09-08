@@ -1665,6 +1665,11 @@ export default function VoiceArena({
 
   async function handleStop() {
     clearGuestDurationWatch();
+    if (joinGateTimerRef.current) {
+      clearTimeout(joinGateTimerRef.current);
+      joinGateTimerRef.current = null;
+    }
+    setJoinGateHold(false);
     if (isGuestPreview) {
       if (guestStopStartedRef.current) return;
       guestStopStartedRef.current = true;
@@ -1837,10 +1842,11 @@ export default function VoiceArena({
   }
 
   const isJoining =
-    joinGateHold ||
-    phase === "minting" ||
-    phase === "connecting" ||
-    (autoStart && phase === "idle" && !error);
+    phase !== "momentum" &&
+    (joinGateHold ||
+      phase === "minting" ||
+      phase === "connecting" ||
+      (autoStart && phase === "idle" && !error));
   const sessionReady =
     phase === "speaking" ||
     phase === "listening" ||
