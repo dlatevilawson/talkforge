@@ -4,6 +4,7 @@ import { getSupabaseConfigStatus } from "@/lib/supabase/config";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { PROFILE_SELECT, mapProfile } from "@/lib/auth/profile";
 import { adminConfigured, createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { safeNextPath } from "@/lib/auth/safe-next";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
 /**
@@ -18,8 +19,7 @@ export async function GET(request: Request) {
   const tokenHash = searchParams.get("token_hash");
   const typeParam = searchParams.get("type");
   const nextParam = searchParams.get("next");
-  const next =
-    nextParam && nextParam.startsWith("/") ? nextParam : "/onboarding";
+  const next = safeNextPath(nextParam, "/onboarding");
   const site = getSiteUrl() || origin;
 
   if (!getSupabaseConfigStatus().configured) {

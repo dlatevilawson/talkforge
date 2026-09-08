@@ -1,20 +1,23 @@
 /**
- * Phase 4B.2 — Assistant Coach anonymous session repository (schema companion).
+ * Signed anonymous session repository for the Coach card → Forge preview.
  *
  * Types + in-memory repository for unit tests.
  * Production adapter: supabase-session-repository.ts (service_role only).
- * Cookie mint/restore: session-service.ts + /api/assistant-coach/session (4B.3).
- * No turn API / LLM / UI in this module.
+ * Cookie mint/restore: session-service.ts. The schema retains historical
+ * columns and status values for deployment compatibility.
  */
 
 export const ASSISTANT_COACH_ANON_TTL_DAYS = 14;
 
 export const ASSISTANT_COACH_SESSION_STATUSES = [
   "active",
+  /**
+   * Legacy persistence compatibility only. This is not a semantic/value gate.
+   * Existing rows are healed to active when a Decision 060 preview bootstraps.
+   */
   "gated",
   "claimed",
   "expired",
-  "handed_off",
 ] as const;
 
 export type AssistantCoachSessionStatus =
@@ -28,7 +31,6 @@ export type AssistantCoachSession = {
   userId: string | null;
   status: AssistantCoachSessionStatus;
   turnCount: number;
-  hasExperiencedValue: boolean;
   expiresAt: string;
   claimedAt: string | null;
   createdAt: string;
@@ -47,7 +49,7 @@ export type AssistantCoachMessage = {
 
 export type AssistantCoachProfileDraft = {
   sessionId: string;
-  /** LivingProfile-shaped provisional JSON — not living_profiles until claim. */
+  /** Server-owned JSON state for the one-use Forge preview. */
   profileJson: Record<string, unknown>;
   version: number;
   updatedAt: string;
@@ -77,6 +79,15 @@ export class AssistantCoachUniqueConflictError extends Error {
     );
     this.name = "AssistantCoachUniqueConflictError";
     this.anonKeyHash = anonKeyHash;
+  }
+}
+
+export class AssistantCoachDraftVersionConflictError extends Error {
+  readonly code = "AC_DRAFT_VERSION_CONFLICT";
+
+  constructor() {
+    super("Assistant Coach draft changed concurrently.");
+    this.name = "AssistantCoachDraftVersionConflictError";
   }
 }
 
@@ -110,27 +121,23 @@ export type AssistantCoachSessionRepository = {
   saveDraft(
     draft: Omit<AssistantCoachProfileDraft, "updatedAt"> & { updatedAt?: string }
   ): Promise<AssistantCoachProfileDraft>;
-  markExpiredIfPast(sessionId: string, now?: Date): Promise<AssistantCoachSession | null>;
-  /**
-   * Sticky server flags (4B.5+). Never clears hasExperiencedValue once true.
-   */
-  updateSessionFlags?(
+  compareAndSwapDraft(
     sessionId: string,
-    patch: {
-      hasExperiencedValue?: boolean;
-      status?: AssistantCoachSessionStatus;
-      now?: Date;
-    }
+    expectedVersion: number,
+    profileJson: Record<string, unknown>,
+    now?: Date
+  ): Promise<AssistantCoachProfileDraft>;
+  markExpiredIfPast(sessionId: string, now?: Date): Promise<AssistantCoachSession | null>;
+  normalizeLegacyGatedSession(
+    sessionId: string,
+    now?: Date
   ): Promise<AssistantCoachSession>;
   /**
-   * Lookup by cookie hash for claim — includes gated + already-claimed rows.
+   * Lookup by cookie hash for claim — includes already-claimed rows.
    * Anonymous restore still uses getSessionByAnonKeyHash (unclaimed only).
    */
   getSessionByAnonKeyHashForClaim?(
     anonKeyHash: string
-  ): Promise<AssistantCoachSession | null>;
-  getLatestClaimedSessionByUserId?(
-    userId: string
   ): Promise<AssistantCoachSession | null>;
   claimSession?(input: {
     sessionId: string;
@@ -162,16 +169,23 @@ export function isAnonSessionExpired(
 }
 
 /**
- * In-memory repository mirroring 4B.2 table semantics for unit tests.
- * Not a production store — 4B.3+ will add a Supabase service-role adapter.
+ * In-memory repository mirroring the retained table semantics for unit tests.
+ * Not a production store.
  */
-export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSessionRepository {
+export type MemoryAssistantCoachSessionRepository =
+  AssistantCoachSessionRepository & {
+    seedLegacyGatedSession(
+      input: CreateAssistantCoachSessionInput
+    ): Promise<AssistantCoachSession>;
+  };
+
+export function createMemoryAssistantCoachSessionRepository(): MemoryAssistantCoachSessionRepository {
   const sessions = new Map<string, AssistantCoachSession>();
   const messages = new Map<string, AssistantCoachMessage[]>();
   const drafts = new Map<string, AssistantCoachProfileDraft>();
   const activeAnon = new Map<string, string>();
 
-  return {
+  const repository: MemoryAssistantCoachSessionRepository = {
     async createSession(input) {
       const now = input.now ?? new Date();
       const ttlDays = input.ttlDays ?? ASSISTANT_COACH_ANON_TTL_DAYS;
@@ -188,7 +202,6 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
         userId: null,
         status: "active",
         turnCount: 0,
-        hasExperiencedValue: false,
         expiresAt: defaultAnonExpiresAt(now, ttlDays).toISOString(),
         claimedAt: null,
         createdAt: iso,
@@ -216,7 +229,7 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
       if (!id) return null;
       const row = sessions.get(id);
       if (!row) return null;
-      // Anonymous restore surface: active/gated + unclaimed only.
+      // Anonymous restore includes gated strictly for deployed-row compatibility.
       if (row.userId != null) return null;
       if (row.status !== "active" && row.status !== "gated") return null;
       return structuredClone(row);
@@ -278,6 +291,22 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
       return structuredClone(row);
     },
 
+    async compareAndSwapDraft(sessionId, expectedVersion, profileJson, now) {
+      const current = drafts.get(sessionId);
+      if (!current) throw new Error("draft not found");
+      if (current.version !== expectedVersion) {
+        throw new AssistantCoachDraftVersionConflictError();
+      }
+      const row: AssistantCoachProfileDraft = {
+        sessionId,
+        profileJson,
+        version: expectedVersion + 1,
+        updatedAt: (now ?? new Date()).toISOString(),
+      };
+      drafts.set(sessionId, row);
+      return structuredClone(row);
+    },
+
     async markExpiredIfPast(sessionId, now = new Date()) {
       const session = sessions.get(sessionId);
       if (!session) return null;
@@ -300,18 +329,18 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
       return structuredClone(session);
     },
 
-    async updateSessionFlags(sessionId, patch) {
+    async normalizeLegacyGatedSession(sessionId, now = new Date()) {
       const session = sessions.get(sessionId);
       if (!session) throw new Error("session not found");
-      const now = patch.now ?? new Date();
-      if (patch.hasExperiencedValue === true) {
-        session.hasExperiencedValue = true;
+      if (
+        session.status === "gated" &&
+        session.userId == null &&
+        !isAnonSessionExpired(session, now)
+      ) {
+        session.status = "active";
+        session.updatedAt = now.toISOString();
+        sessions.set(session.id, session);
       }
-      if (patch.status) {
-        session.status = patch.status;
-      }
-      session.updatedAt = now.toISOString();
-      sessions.set(session.id, session);
       return structuredClone(session);
     },
 
@@ -322,18 +351,6 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
         return structuredClone(row);
       }
       return null;
-    },
-
-    async getLatestClaimedSessionByUserId(userId) {
-      const claimed = [...sessions.values()].filter(
-        (s) => s.userId === userId && s.status === "claimed"
-      );
-      claimed.sort((a, b) =>
-        String(b.claimedAt ?? b.updatedAt).localeCompare(
-          String(a.claimedAt ?? a.updatedAt)
-        )
-      );
-      return claimed[0] ? structuredClone(claimed[0]) : null;
     },
 
     async claimSession(input) {
@@ -360,5 +377,14 @@ export function createMemoryAssistantCoachSessionRepository(): AssistantCoachSes
       sessions.set(session.id, session);
       return structuredClone(session);
     },
+
+    async seedLegacyGatedSession(input) {
+      const session = await repository.createSession(input);
+      const stored = sessions.get(session.id)!;
+      stored.status = "gated";
+      sessions.set(stored.id, stored);
+      return structuredClone(stored);
+    },
   };
+  return repository;
 }

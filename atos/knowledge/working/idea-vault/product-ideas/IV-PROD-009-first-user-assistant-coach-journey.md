@@ -5,10 +5,10 @@
 | **ID** | IV-PROD-009 |
 | **Title** | First-user Assistant Coach journey (pre-account value) |
 | **Category** | Product Ideas |
-| **Status** | Building |
+| **Status** | Archived |
 | **Importance** | Critical |
 | **Owner** | Founder |
-| **Last Updated** | 2026-09-05 |
+| **Last Updated** | 2026-09-07 |
 | **Captured** | 2026-08-16 |
 | **AI Steward** | Atlas |
 
@@ -17,6 +17,8 @@
 ## Statement
 
 Visitors should experience Assistant Coach and receive a meaningful understanding moment before creating an account. Authentication attaches ownership and persistence to an already-started understanding session — it does not gate first value. Forge remains coaching-only and receives a validated Living Profile / handoff context after Assistant Coach is ready.
+
+**Historical status:** Decision 060 supersedes this journey’s active mechanics. The controlling final approach is [IV-PROD-010](IV-PROD-010-single-session-coach-preview.md): a seven-topic `/coach` card grid enters one anonymous private Forge preview, followed by optional auth claim. This entry remains intact as the Working Knowledge record behind Decision 059.
 
 ---
 
@@ -32,8 +34,8 @@ Account-first gating (current shipping truth) conflicts with “feel understood 
 |---|---|
 | **Depends on** | IV-PROD-001 · IV-PROD-004 · IV-AI-001 · Assistant Coach Phases 1–3 (lib) |
 | **Supports** | IV-PROD-007 · IV-PROD-008 · IV-FUT-004 |
-| **Related** | IV-PROD-005 · AUTH-001 · HARDEN-005 · OWN-001 · FREEZE-001 · Decision 059 |
-| **Conflicts (shipping)** | Account-first proxy gates · guest retirement · Assessment-as-FTUE — **resolved by Decision 059 / Phase 4B** |
+| **Related** | IV-PROD-005 · IV-PROD-010 · AUTH-001 · HARDEN-005 · OWN-001 · FREEZE-001 · Decision 059 · Decision 060 |
+| **Conflicts (shipping)** | Superseded by Decision 060 final Coach approach; retained historically |
 
 ---
 
@@ -51,14 +53,14 @@ Account-first gating (current shipping truth) conflicts with “feel understood 
 
 | Field | Value |
 |---|---|
-| Blind spot review | Covered in Decision 059 + AC-JOURNEY-001; revisit after first prod slices |
-| Roadmap link | Spec: [AC-JOURNEY-001](../../../product/AC-JOURNEY-001-first-user-architecture.md) · Sequence: [PHASE4B-AC](../../../product/PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md) |
-| Priority | Critical — next code slice **4B.1** |
+| Blind spot review | Historical Decision 059 review; active approach uses BS-015 |
+| Roadmap link | Historical architecture superseded by Decision 060 / IV-PROD-010 |
+| Priority | Archived — do not implement |
 
 ---
 
 ## Notes
 
-Working Knowledge. Implementation authorized by Decision 059 for this track only. Phase 4B ships in small slices — not one monster change. Gate copy deferred (OD-10). Turn safety cap ≠ conversion gate.
+Working Knowledge historical record. Decision 059 authorized this track, but Decision 060 supersedes its journey mechanics. Do not implement the conversational discovery, provisional LP, semantic gate, claim-before-Forge, confirmation, or second-Forge handoff from this entry.
 
 Founder-directed opening refinement (2026-09-05): Coach opens with “What conversation are you preparing for?” and optional starters for Interview, Salary negotiation, Difficult feedback, Setting a boundary, or custom input. Starter context supplies concise composer guidance and survives session restore. Coach does not paraphrase the member’s opening; it moves directly to one useful discovery question. This orients discovery toward a real communication moment without turning Coach into Forge rehearsal.

@@ -16,6 +16,7 @@ import type {
   MembershipView,
   PracticeEntitlement,
 } from "@/lib/billing/types";
+import { utcCalendarMonthBounds } from "@/lib/billing/monthly-sessions";
 
 function mapRow(row: Record<string, unknown> | null): MemberSubscription | null {
   if (!row || typeof row.user_id !== "string") return null;
@@ -53,10 +54,10 @@ async function countCompletedSessions(
     .not("completed_at", "is", null);
 
   if (monthlyOnly) {
-    const start = new Date();
-    start.setUTCDate(1);
-    start.setUTCHours(0, 0, 0, 0);
-    query = query.gte("completed_at", start.toISOString());
+    const bounds = utcCalendarMonthBounds();
+    query = query
+      .gte("completed_at", bounds.startInclusive)
+      .lt("completed_at", bounds.endExclusive);
   }
 
   const { count, error } = await query;

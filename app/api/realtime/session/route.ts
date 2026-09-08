@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
+import {
+  requireAssistantCoachAnonCookieSecret,
+} from "@/lib/assistant-coach/config";
+import { createSupabaseAssistantCoachSessionRepository } from "@/lib/assistant-coach/supabase-session-repository";
 import { requireApiUser } from "@/lib/auth/api-guard";
+import {
+  checkRateLimit,
+  clientKeyFromHeaders,
+} from "@/lib/auth/rate-limit";
 import { evaluatePracticeEntitlement } from "@/lib/billing/entitlements";
 import { loadCoachPromptContextForUser } from "@/lib/coach/memory-server";
-import { applyConfirmedPracticeHandoff } from "@/lib/ce/ac-practice-handoff";
 import {
   buildClientSecretRequest,
   type CeSessionMode,
@@ -10,8 +17,24 @@ import {
 } from "@/lib/ce/session-config";
 import { resolveArenaVoiceMode } from "@/lib/ce/voice-mode";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { AC_HANDOFF_SOURCE } from "@/lib/assistant-coach/confirmation";
 import { evaluatePracticeRouteAccess } from "@/lib/system2/server-readiness";
+import {
+  authorizeGuestForgeMint,
+  GUEST_FORGE_PREVIEW_MODE,
+  GUEST_FORGE_PREVIEW_SOURCE,
+  guestForgeTopicContext,
+  settleGuestForgeMint,
+} from "@/lib/forge/guest-preview";
+import {
+  assertSameOrigin,
+  guestPreviewErrorResponse,
+  guestPreviewJson,
+  resolveGuestPreviewSession,
+} from "@/lib/forge/guest-preview-http";
+import { adminConfigured } from "@/lib/supabase/admin";
+import {
+  clampGuestPreviewDurationSeconds,
+} from "@/lib/forge/guest-preview-duration";
 
 export const runtime = "nodejs";
 
@@ -21,6 +44,9 @@ type SessionBody = {
   successCriteria?: string;
   mode?: CeSessionMode | string;
   source?: string;
+  topic?: string;
+  reconnectToken?: string;
+  previewVersion?: number;
 };
 
 /**
@@ -29,14 +55,6 @@ type SessionBody = {
  * Billing SSOT gates starting practice (BILL-001) — never mid-session.
  */
 export async function POST(req: Request) {
-  const gate = await requireApiUser();
-  if (!gate.ok) {
-    return NextResponse.json({ error: gate.error }, { status: gate.status });
-  }
-
-  // Same readiness boundary as /app/practice (BS-013).
-  // AC first-practice handoff: confirmed moment is the starting context.
-  const readiness = await evaluatePracticeRouteAccess();
   let body: SessionBody = {};
   try {
     const json = (await req.json()) as unknown;
@@ -46,11 +64,24 @@ export async function POST(req: Request) {
   } catch {
     body = {};
   }
+
+  if (
+    body.source === GUEST_FORGE_PREVIEW_SOURCE &&
+    body.mode === GUEST_FORGE_PREVIEW_MODE
+  ) {
+    return handleGuestPreviewRealtime(req, body);
+  }
+
+  const gate = await requireApiUser();
+  if (!gate.ok) {
+    return NextResponse.json({ error: gate.error }, { status: gate.status });
+  }
+
+  // Same readiness boundary as /app/practice (BS-013).
+  const readiness = await evaluatePracticeRouteAccess();
   const eventTitle =
     typeof body.eventTitle === "string" ? body.eventTitle.trim() : "";
-  const acHandoff =
-    body.source === AC_HANDOFF_SOURCE && eventTitle.length > 0;
-  if (!readiness.allowed && !acHandoff) {
+  if (!readiness.allowed) {
     return NextResponse.json(
       {
         error: "Living Profile readiness required before starting Coach Forge.",
@@ -104,15 +135,6 @@ export async function POST(req: Request) {
   const mode: CeSessionMode =
     body.mode === "assessment" ? "assessment" : "practice";
   const memory = await loadCoachPromptContextForUser(gate.userId);
-  const memoryForSession = acHandoff
-    ? applyConfirmedPracticeHandoff(memory, {
-        eventTitle,
-        successCriteria:
-          typeof body.successCriteria === "string"
-            ? body.successCriteria
-            : undefined,
-      })
-    : memory;
   const planIsPro =
     entitlement.plan === "pro" ||
     entitlement.reason === "pro" ||
@@ -128,10 +150,9 @@ export async function POST(req: Request) {
       typeof body.successCriteria === "string"
         ? body.successCriteria
         : undefined,
-    memory: memoryForSession,
+    memory,
     handsFree,
     mode,
-    handoffSource: acHandoff ? AC_HANDOFF_SOURCE : undefined,
   });
 
   try {
@@ -180,12 +201,12 @@ export async function POST(req: Request) {
         sessionsLimit: entitlement.sessionsLimit,
       },
       memory: {
-        firstName: memoryForSession.firstName,
-        isReturning: memoryForSession.isReturning,
-        sessionsCompleted: memoryForSession.sessionsCompleted,
-        welcomeHint: memoryForSession.welcomeHint,
-        adaptiveInsight: memoryForSession.adaptiveInsight,
-        lastScenarioTitle: memoryForSession.lastScenarioTitle,
+        firstName: memory.firstName,
+        isReturning: memory.isReturning,
+        sessionsCompleted: memory.sessionsCompleted,
+        welcomeHint: memory.welcomeHint,
+        adaptiveInsight: memory.adaptiveInsight,
+        lastScenarioTitle: memory.lastScenarioTitle,
       },
     });
   } catch (error) {
@@ -194,6 +215,137 @@ export async function POST(req: Request) {
       { error: "Failed to reach OpenAI Realtime client_secrets." },
       { status: 502 }
     );
+  }
+}
+
+async function handleGuestPreviewRealtime(
+  req: Request,
+  body: SessionBody
+): Promise<Response> {
+  try {
+    assertSameOrigin(req);
+    if (!adminConfigured()) {
+      return guestPreviewJson(503, {
+        error: "Guest Forge preview store is not configured.",
+      });
+    }
+    const repository = createSupabaseAssistantCoachSessionRepository();
+    const session = await resolveGuestPreviewSession({
+      request: req,
+      repository,
+      cookieSecret: requireAssistantCoachAnonCookieSecret(),
+    });
+
+    const ip = clientKeyFromHeaders(req.headers);
+    const sessionRate = checkRateLimit(
+      `guest-forge-realtime:session:${session.id}`,
+      3,
+      10 * 60_000
+    );
+    const ipRate = checkRateLimit(
+      `guest-forge-realtime:ip:${ip}`,
+      8,
+      10 * 60_000
+    );
+    if (!sessionRate.ok || !ipRate.ok) {
+      return guestPreviewJson(429, {
+        error: "Guest Forge preview start limit reached. Try again later.",
+        retryAfterSec: Math.max(
+          sessionRate.retryAfterSec,
+          ipRate.retryAfterSec
+        ),
+      });
+    }
+
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return guestPreviewJson(503, {
+        error: "OPENAI_API_KEY is not configured. Cannot mint Realtime session.",
+      });
+    }
+    const context = guestForgeTopicContext(body.topic ?? "");
+    const authorization = await authorizeGuestForgeMint({
+      repository,
+      session,
+      topicId: body.topic ?? "",
+      reconnectToken: body.reconnectToken ?? "",
+      expectedVersion:
+        typeof body.previewVersion === "number"
+          ? body.previewVersion
+          : Number.NaN,
+    });
+    const payload = buildClientSecretRequest({
+      track: "hello",
+      eventTitle: context.eventTitle,
+      successCriteria: context.objective,
+      memory: null,
+      handsFree: false,
+      mode: "practice",
+    });
+
+    try {
+      const response = await fetch(
+        "https://api.openai.com/v1/realtime/client_secrets",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+      const data = (await response.json()) as {
+        value?: string;
+        expires_at?: number;
+        session?: { id?: string; model?: string };
+        error?: { message?: string };
+      };
+      if (!response.ok || !data.value) {
+        await settleGuestForgeMint({
+          repository,
+          sessionId: session.id,
+          mintLeaseId: authorization.mintLeaseId,
+          realtimeSessionId: null,
+        }).catch(() => undefined);
+        return guestPreviewJson(response.status >= 400 ? response.status : 502, {
+          error:
+            data.error?.message ??
+            `Failed to mint Realtime client secret (${response.status}).`,
+        });
+      }
+      const settled = await settleGuestForgeMint({
+        repository,
+        sessionId: session.id,
+        mintLeaseId: authorization.mintLeaseId,
+        realtimeSessionId: data.session?.id ?? null,
+      });
+      return guestPreviewJson(200, {
+        value: data.value,
+        expires_at: data.expires_at,
+        session_id: data.session?.id ?? null,
+        model: data.session?.model ?? payload.session.model,
+        track: "hello",
+        mode: GUEST_FORGE_PREVIEW_MODE,
+        source: GUEST_FORGE_PREVIEW_SOURCE,
+        voiceMode: "hold",
+        preview: settled,
+        openingContext: context.opening,
+        maxDurationSeconds: clampGuestPreviewDurationSeconds(
+          Number(process.env.GUEST_FORGE_PREVIEW_DURATION_SECONDS)
+        ),
+      });
+    } catch (error) {
+      await settleGuestForgeMint({
+        repository,
+        sessionId: session.id,
+        mintLeaseId: authorization.mintLeaseId,
+        realtimeSessionId: null,
+      }).catch(() => undefined);
+      throw error;
+    }
+  } catch (error) {
+    return guestPreviewErrorResponse(error);
   }
 }
 

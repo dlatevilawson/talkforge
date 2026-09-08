@@ -1,7 +1,7 @@
 /**
  * Phase 4B.3 — anonymous session mint / restore (server-only).
  *
- * VISITOR → verify cookie → hash secret → load active/gated unclaimed session
+ * VISITOR → verify cookie → hash secret → load active/legacy-gated session
  *         → else mint with Idempotency-Key (required when cookieless)
  *
  * Concurrency: cookieless mints MUST share the same Idempotency-Key so
@@ -37,7 +37,6 @@ export type PublicAnonSessionView = {
   status: AssistantCoachSession["status"];
   expiresAt: string;
   turnCount: number;
-  hasExperiencedValue: boolean;
   outcome: AnonSessionOutcome;
 };
 
@@ -80,7 +79,6 @@ function toPublic(
     status: session.status,
     expiresAt: session.expiresAt,
     turnCount: session.turnCount,
-    hasExperiencedValue: session.hasExperiencedValue,
     outcome,
   };
 }
@@ -90,13 +88,14 @@ function isRestorableAnonSession(
   now: Date
 ): boolean {
   if (session.userId != null) return false;
+  // "gated" is persistence compatibility only; no value/auth policy is read.
   if (session.status !== "active" && session.status !== "gated") return false;
   if (isAnonSessionExpired(session, now)) return false;
   return true;
 }
 
 /**
- * Session + profile draft are created as a pair. Never adopt/restore a row
+ * Session + preview-state row are created as a pair. Never adopt/restore a row
  * that is missing its draft (partial write or in-flight concurrent insert).
  */
 async function isCompleteRestorableAnonSession(
@@ -213,7 +212,7 @@ async function mintNewSession(
     // or no longer restorable — do not mint success.
     if (existing) {
       throw new Error(
-        "anonymous Assistant Coach session unique conflict without a complete profile draft"
+        "anonymous Assistant Coach session unique conflict without complete preview state"
       );
     }
     throw err;
@@ -273,7 +272,7 @@ export async function ensureAnonAssistantCoachSession(
           publicSession: toPublic(existing, "restored"),
         };
       }
-      // Claimed / handed_off / incomplete draft / unexpected — do not restore.
+      // Claimed / incomplete preview state / unexpected — do not restore.
       return mintNewSession(
         repository,
         cookieSecret,

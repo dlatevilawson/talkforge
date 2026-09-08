@@ -14,7 +14,6 @@ export type AssistantCoachSessionRow = {
   user_id: string | null;
   status: string;
   turn_count: number;
-  has_experienced_value: boolean;
   expires_at: string;
   claimed_at: string | null;
   created_at: string;
@@ -47,7 +46,6 @@ export function mapSessionRow(
     userId: row.user_id,
     status: row.status as AssistantCoachSessionStatus,
     turnCount: row.turn_count,
-    hasExperiencedValue: row.has_experienced_value,
     expiresAt: row.expires_at,
     claimedAt: row.claimed_at,
     createdAt: row.created_at,

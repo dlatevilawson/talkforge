@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import PresenceRing, {
-  type PresenceRingState,
-} from "@/app/components/arena/PresenceRing";
+import PresenceRing from "@/app/components/arena/PresenceRing";
 import ArenaConversation from "@/app/components/arena/ArenaConversation";
 import BecomeProMemberButton from "@/app/components/billing/BecomeProMemberButton";
 import {
@@ -98,6 +96,19 @@ import {
 } from "@/lib/session";
 import { getUser } from "@/lib/storage";
 import type { PracticeSession } from "@/lib/types";
+import {
+  clampGuestPreviewDurationSeconds,
+} from "@/lib/forge/guest-preview-duration";
+import { previewClaimReturnPath } from "@/lib/forge/preview-claim";
+import {
+  GUEST_PREVIEW_COMPLETE_BODY,
+  GUEST_PREVIEW_COMPLETE_HEADLINE,
+  GUEST_PREVIEW_CREATE_ACCOUNT_CTA,
+  GUEST_PREVIEW_DISMISSED_BODY,
+  GUEST_PREVIEW_GET_STARTED_CTA,
+  GUEST_PREVIEW_MAYBE_LATER_CTA,
+  GUEST_PREVIEW_SIGN_IN_CTA,
+} from "@/lib/forge/post-session-copy";
 
 type WrapStage = "coaching" | "membership";
 
@@ -107,7 +118,11 @@ type VoiceArenaProps = {
   successCriteria?: string;
   autoStart?: boolean;
   mode?: CeSessionMode;
-  handoffSource?: string;
+  guestPreview?: {
+    topicId: string;
+    reconnectToken: string;
+    version: number;
+  };
 };
 
 type AssessmentWrap = {
@@ -151,10 +166,11 @@ export default function VoiceArena({
   successCriteria,
   autoStart = false,
   mode = "practice",
-  handoffSource,
+  guestPreview,
 }: VoiceArenaProps) {
   const router = useRouter();
   const isAssessment = mode === "assessment";
+  const isGuestPreview = Boolean(guestPreview);
   const connectionRef = useRef<RealtimeConnection | null>(null);
   const turnsRef = useRef<TranscriptTurn[]>([]);
   const voiceSessionIdRef = useRef<string | null>(null);
@@ -199,6 +215,9 @@ export default function VoiceArena({
   /** Keep joining chrome visible briefly so autoStart never flashes Hold-to-speak. */
   const [joinGateHold, setJoinGateHold] = useState(false);
   const joinGateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const guestDurationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
   const [liveConnection, setLiveConnection] =
     useState<RealtimeConnection | null>(null);
   const [momentum, setMomentum] = useState<Momentum | null>(null);
@@ -210,6 +229,9 @@ export default function VoiceArena({
   const [sessionPersisted, setSessionPersisted] = useState(false);
   const [completionError, setCompletionError] = useState("");
   const [completionRetryPending, setCompletionRetryPending] = useState(false);
+  const [guestAuthPrompt, setGuestAuthPrompt] = useState<
+    "prompt" | "dismissed" | null
+  >(null);
   const [welcomeLine, setWelcomeLine] = useState("");
   const [remoteAudioBlocked, setRemoteAudioBlocked] = useState(false);
   const [complimentaryComplete, setComplimentaryComplete] = useState(false);
@@ -221,6 +243,9 @@ export default function VoiceArena({
     AssessmentLifecycleState["assessmentStatus"] | null
   >(isAssessment ? "active" : null);
   const usageIdRef = useRef<string | null>(null);
+  const guestPreviewVersionRef = useRef(guestPreview?.version ?? 0);
+  const guestReplayIdRef = useRef<string | null>(null);
+  const guestCompletionIdRef = useRef<string | null>(null);
   const handsFreeRef = useRef(false);
   const phaseRef = useRef<Phase>("idle");
   /** After confirmed barge-in, ignore stale Forge audio events briefly. */
@@ -542,6 +567,8 @@ export default function VoiceArena({
         duckRemoteForgeAudio(connectionRef.current);
         cancelForgeResponse(connectionRef.current);
         activeResponseIdRef.current = null;
+        // Event-handler timestamp; this path never runs during render.
+        // eslint-disable-next-line react-hooks/purity
         ignoreForgeAudioUntilRef.current = Date.now() + 1200;
         pushEvent("Natural yield · Forge gave the floor");
       } else if (transition.duckForgeAudio) {
@@ -615,9 +642,12 @@ export default function VoiceArena({
     },
   });
   const voiceRef = useRef(voice);
-  voiceRef.current = voice;
-  handsFreeRef.current = handsFree;
-  phaseRef.current = phase;
+
+  useEffect(() => {
+    voiceRef.current = voice;
+    handsFreeRef.current = handsFree;
+    phaseRef.current = phase;
+  }, [handsFree, phase, voice]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -626,6 +656,10 @@ export default function VoiceArena({
       if (joinGateTimerRef.current) {
         clearTimeout(joinGateTimerRef.current);
         joinGateTimerRef.current = null;
+      }
+      if (guestDurationTimerRef.current) {
+        clearTimeout(guestDurationTimerRef.current);
+        guestDurationTimerRef.current = null;
       }
       lifecycleGenerationRef.current += 1;
       const usageId = usageIdRef.current;
@@ -636,11 +670,12 @@ export default function VoiceArena({
       disconnectRealtime(connectionRef.current);
       connectionRef.current = null;
       setLiveConnection(null);
-      setActiveVoiceSessionId(null);
+      if (!isGuestPreview) setActiveVoiceSessionId(null);
     };
-  }, []);
+  }, [isGuestPreview]);
 
   useEffect(() => {
+    if (isGuestPreview) return;
     let cancelled = false;
     void fetch("/api/billing/entitlement", { cache: "no-store" })
       .then((r) => r.json())
@@ -671,7 +706,7 @@ export default function VoiceArena({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isGuestPreview]);
 
   function pushEvent(label: string) {
     setEvents((prev) =>
@@ -683,6 +718,7 @@ export default function VoiceArena({
   }
 
   function persistTurns(nextTurns: TranscriptTurn[]) {
+    if (isGuestPreview) return;
     const id = voiceSessionIdRef.current;
     if (!id) return;
     saveVoiceTranscript({
@@ -1078,6 +1114,10 @@ export default function VoiceArena({
     if (joinGateTimerRef.current) {
       clearTimeout(joinGateTimerRef.current);
     }
+    if (guestDurationTimerRef.current) {
+      clearTimeout(guestDurationTimerRef.current);
+      guestDurationTimerRef.current = null;
+    }
     joinGateTimerRef.current = setTimeout(() => {
       joinGateTimerRef.current = null;
       setJoinGateHold(false);
@@ -1141,8 +1181,17 @@ export default function VoiceArena({
           track,
           eventTitle: isAssessment ? undefined : eventTitle,
           successCriteria: isAssessment ? undefined : successCriteria,
-          mode,
-          source: isAssessment ? undefined : handoffSource,
+          mode: isGuestPreview ? "guest_preview" : mode,
+          source: isGuestPreview
+            ? "coach_guest_preview"
+            : undefined,
+          topic: isGuestPreview ? guestPreview?.topicId : undefined,
+          reconnectToken: isGuestPreview
+            ? guestPreview?.reconnectToken
+            : undefined,
+          previewVersion: isGuestPreview
+            ? guestPreviewVersionRef.current
+            : undefined,
         }),
       });
       const tokenData = (await tokenRes.json()) as {
@@ -1162,6 +1211,9 @@ export default function VoiceArena({
           welcomeHint?: string;
           lastScenarioTitle?: string;
         };
+        preview?: { version?: number };
+        openingContext?: string;
+        maxDurationSeconds?: number;
       };
 
       if (!tokenRes.ok || !tokenData.value) {
@@ -1178,11 +1230,17 @@ export default function VoiceArena({
       if (typeof tokenData.entitlement?.sessionsRemaining === "number") {
         setRepsRemaining(tokenData.entitlement.sessionsRemaining);
       }
+      if (
+        isGuestPreview &&
+        typeof tokenData.preview?.version === "number"
+      ) {
+        guestPreviewVersionRef.current = tokenData.preview.version;
+      }
 
       realtimeSessionIdRef.current = tokenData.session_id ?? null;
       welcomeHintRef.current = tokenData.memory?.welcomeHint?.trim() || "";
       if (tokenData.memory?.isReturning && tokenData.memory.firstName) {
-        const titledStart = Boolean(eventTitle?.trim()) || handoffSource === "ac";
+        const titledStart = Boolean(eventTitle?.trim());
         setWelcomeLine(
           `Welcome back, ${tokenData.memory.firstName}${
             !titledStart && tokenData.memory.lastScenarioTitle
@@ -1244,29 +1302,31 @@ export default function VoiceArena({
         setMicrophoneEnabled(connection, false);
       }
 
-      // Do not create permanent history until Realtime is connected.
-      const practice = await createPracticeSession({
-        scenarioId: isAssessment ? "voice_assessment" : `voice_${track}`,
-        scenarioTitle,
-        missionPrompt: isAssessment
-          ? "Short discovery interview so Forge can get a sense of you."
-          : successCriteria?.trim() ||
-            "Practice clear, warm, confident communication out loud with Forge.",
-        modality: "voice",
-      });
-      practiceSessionRef.current = practice;
-      setSavedSessionId(practice.id);
-      pushEvent(`Session saved · ${practice.id.slice(0, 8)}`);
+      if (!isGuestPreview) {
+        // Do not create permanent history until Realtime is connected.
+        const practice = await createPracticeSession({
+          scenarioId: isAssessment ? "voice_assessment" : `voice_${track}`,
+          scenarioTitle,
+          missionPrompt: isAssessment
+            ? "Short discovery interview so Forge can get a sense of you."
+            : successCriteria?.trim() ||
+              "Practice clear, warm, confident communication out loud with Forge.",
+          modality: "voice",
+        });
+        practiceSessionRef.current = practice;
+        setSavedSessionId(practice.id);
+        pushEvent(`Session saved · ${practice.id.slice(0, 8)}`);
 
-      usageIdRef.current = await startVoiceUsageTracking({
-        practiceSessionId: practice.id,
-        realtimeSessionId: realtimeSessionIdRef.current,
-        voiceMode: sessionVoiceMode,
-        model:
-          typeof tokenData.model === "string"
-            ? tokenData.model
-            : CE_REALTIME_MODEL,
-      });
+        usageIdRef.current = await startVoiceUsageTracking({
+          practiceSessionId: practice.id,
+          realtimeSessionId: realtimeSessionIdRef.current,
+          voiceMode: sessionVoiceMode,
+          model:
+            typeof tokenData.model === "string"
+              ? tokenData.model
+              : CE_REALTIME_MODEL,
+        });
+      }
 
       setPhase("speaking");
       const openingBudget = outputBudgetForTurn("opening", false);
@@ -1279,13 +1339,25 @@ export default function VoiceArena({
           ? false
           : Boolean(tokenData.memory?.isReturning),
         mode,
-        handoffSource: isAssessment ? undefined : handoffSource,
+        guestOpeningContext: isGuestPreview
+          ? tokenData.openingContext
+          : undefined,
       });
       pushEvent(
         tokenData.memory?.isReturning
           ? `Forge opening · returning member · budget ${openingBudget}`
           : `Forge opening · first session · budget ${openingBudget}`
       );
+      if (isGuestPreview) {
+        const durationSeconds = clampGuestPreviewDurationSeconds(
+          tokenData.maxDurationSeconds
+        );
+        guestDurationTimerRef.current = setTimeout(() => {
+          guestDurationTimerRef.current = null;
+          pushEvent(`Guest preview limit reached · ${durationSeconds}s`);
+          void handleStop();
+        }, durationSeconds * 1_000);
+      }
     } catch (err) {
       console.error(err);
       const usageId = usageIdRef.current;
@@ -1416,6 +1488,84 @@ export default function VoiceArena({
     snapshot: TranscriptTurn[],
     wrap: Momentum
   ) {
+    if (isGuestPreview && guestPreview) {
+      setCompletionRetryPending(true);
+      setCompletionError("");
+      try {
+        guestReplayIdRef.current ??= crypto.randomUUID();
+        guestCompletionIdRef.current ??= crypto.randomUUID();
+        const boundedTurns = snapshot.slice(0, 40).map((turn) => ({
+          role: turn.role,
+          turnIndex: turn.turnIndex,
+          text: turn.text.slice(0, 2_000),
+        }));
+        const transcriptResponse = await fetch(
+          "/api/forge/preview/transcript",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              topic: guestPreview.topicId,
+              reconnectToken: guestPreview.reconnectToken,
+              version: guestPreviewVersionRef.current,
+              replayId: guestReplayIdRef.current,
+              turns: boundedTurns,
+            }),
+          }
+        );
+        const transcriptData = (await transcriptResponse.json()) as {
+          preview?: { version?: number };
+          error?: string;
+        };
+        if (!transcriptResponse.ok) {
+          throw new Error(
+            transcriptData.error || "Could not save preview transcript."
+          );
+        }
+        if (typeof transcriptData.preview?.version === "number") {
+          guestPreviewVersionRef.current = transcriptData.preview.version;
+        }
+        const completionResponse = await fetch(
+          "/api/forge/preview/complete",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              topic: guestPreview.topicId,
+              reconnectToken: guestPreview.reconnectToken,
+              version: guestPreviewVersionRef.current,
+              completionId: guestCompletionIdRef.current,
+            }),
+          }
+        );
+        const completionData = (await completionResponse.json()) as {
+          preview?: { version?: number };
+          error?: string;
+        };
+        if (!completionResponse.ok) {
+          throw new Error(
+            completionData.error || "Could not complete preview."
+          );
+        }
+        if (typeof completionData.preview?.version === "number") {
+          guestPreviewVersionRef.current = completionData.preview.version;
+        }
+        setSessionPersisted(true);
+        setGuestAuthPrompt("prompt");
+        pushEvent("Guest preview secured · complete");
+      } catch (error) {
+        console.warn("[voice] guest preview completion failed", error);
+        setCompletionError(
+          error instanceof Error
+            ? error.message
+            : "Your wrap is ready, but the preview did not save."
+        );
+      } finally {
+        setCompletionRetryPending(false);
+      }
+      return;
+    }
+
     const practice = practiceSessionRef.current;
     if (!practice) {
       setCompletionError(
@@ -1450,6 +1600,10 @@ export default function VoiceArena({
   }
 
   async function handleStop() {
+    if (guestDurationTimerRef.current) {
+      clearTimeout(guestDurationTimerRef.current);
+      guestDurationTimerRef.current = null;
+    }
     // Assessment: never leave members on a practice-style wrap that offers a
     // Living Profile when the interview did not structurally complete.
     if (isAssessment) {
@@ -1504,7 +1658,7 @@ export default function VoiceArena({
     // Snapshot transcript locally only — do not race completePracticeSession
     // with an in-flight persistActiveSession upsert.
     const id = voiceSessionIdRef.current;
-    if (id && turnsRef.current.length > 0) {
+    if (!isGuestPreview && id && turnsRef.current.length > 0) {
       saveVoiceTranscript({
         voiceSessionId: id,
         realtimeSessionId: realtimeSessionIdRef.current,
@@ -1527,7 +1681,7 @@ export default function VoiceArena({
     disconnectRealtime(connectionRef.current);
     connectionRef.current = null;
     setLiveConnection(null);
-    setActiveVoiceSessionId(null);
+    if (!isGuestPreview) setActiveVoiceSessionId(null);
     pushEvent("Ended");
 
     const snapshot = [...turnsRef.current];
@@ -1545,7 +1699,7 @@ export default function VoiceArena({
         "Try one clearer opening line in your next real conversation.",
     };
 
-    {
+    if (!isGuestPreview) {
       try {
         const res = await fetch("/api/session-momentum", {
           method: "POST",
@@ -1580,13 +1734,15 @@ export default function VoiceArena({
       } catch {
         setMomentum(wrap);
       }
+    } else {
+      setMomentum(wrap);
     }
 
     await persistCompletedVoiceSession(snapshot, wrap);
 
     // After the final complimentary session, check entitlement only once the
     // wrap is ready — upgrade moment follows coaching, never a meter.
-    try {
+    if (!isGuestPreview) try {
       const entRes = await fetch("/api/billing/entitlement", {
         cache: "no-store",
       });
@@ -1629,24 +1785,6 @@ export default function VoiceArena({
 
   const micLive = voice.micLive;
 
-  const ringState: PresenceRingState =
-    phase === "momentum"
-      ? "wrap"
-      : handsFree &&
-          (turnState === "forge_speaking" || turnState === "forge_thinking")
-        ? "forge_speaking"
-        : phase === "speaking"
-          ? "forge_speaking"
-          : phase === "listening" ||
-              micLive ||
-              voice.userSpeaking ||
-              (handsFree &&
-                (turnState === "user_speaking" || turnState === "interrupted"))
-            ? "listening"
-            : phase === "minting" || phase === "connecting" || isJoining
-              ? "connecting"
-              : "idle";
-
   const assessmentTerminalUi =
     isAssessment &&
     (assessmentStatusLabel === "complete" ||
@@ -1684,7 +1822,11 @@ export default function VoiceArena({
         : isJoining
           ? "JOINING"
           : "ASSESSMENT"
-    : isJoining
+    : isGuestPreview
+      ? isJoining
+        ? "JOINING"
+        : "GUEST PREVIEW · HOLD TO SPEAK"
+      : isJoining
       ? "JOINING"
       : handsFree
         ? "PRO HANDS-FREE"
@@ -1708,7 +1850,7 @@ export default function VoiceArena({
       <div className="relative mx-auto flex h-[100dvh] max-h-[100dvh] w-full max-w-3xl flex-col overflow-hidden px-5 pt-[max(1.25rem,env(safe-area-inset-top))] sm:px-8">
         <header className="grid shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-2">
           <Link
-            href="/app"
+            href={isGuestPreview ? "/coach" : "/app"}
             className="justify-self-start text-[10px] font-semibold uppercase tracking-[0.22em] text-[#D4AF37]/70 transition hover:text-[#D4AF37]"
           >
             TalkForge Arena
@@ -1778,7 +1920,9 @@ export default function VoiceArena({
                   ? "Nothing formal — Forge just wants a sense of you before anything else."
                   : handsFree
                     ? "Hands-free coaching is ready. Begin when you want an uninterrupted room."
-                    : isProUser
+                    : isGuestPreview
+                      ? "This is your private preview. Hold to speak when you’re ready."
+                      : isProUser
                       ? "You don’t have to perform here. Hold to speak when you’re ready."
                       : "You don’t have to perform here. Hold to speak when you’re ready — or unlock Hands-Free with Pro."}
               </p>
@@ -1803,7 +1947,87 @@ export default function VoiceArena({
             </>
           ) : phase === "momentum" ? (
             <>
-              {complimentaryComplete && wrapStage === "membership" ? (
+              {isGuestPreview && guestPreview && guestAuthPrompt ? (
+                <div
+                  role={guestAuthPrompt === "prompt" ? "dialog" : "region"}
+                  aria-modal={guestAuthPrompt === "prompt" ? "true" : undefined}
+                  aria-labelledby="guest-preview-complete-title"
+                  className="flex w-full max-w-lg flex-1 flex-col items-center justify-center pb-8"
+                >
+                  <PresenceRing state="wrap" label="Rep Complete" />
+                  {guestAuthPrompt === "prompt" ? (
+                    <>
+                      <h1
+                        id="guest-preview-complete-title"
+                        className="mt-8 text-3xl font-semibold tracking-tight sm:text-4xl"
+                      >
+                        {GUEST_PREVIEW_COMPLETE_HEADLINE}
+                      </h1>
+                      <p className="mt-4 max-w-md text-base leading-7 text-white/60">
+                        {GUEST_PREVIEW_COMPLETE_BODY}
+                      </p>
+                      <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
+                        <Link
+                          href={`/signup?next=${encodeURIComponent(
+                            previewClaimReturnPath(guestPreview.topicId)
+                          )}`}
+                          className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                        >
+                          {GUEST_PREVIEW_CREATE_ACCOUNT_CTA}
+                        </Link>
+                        <Link
+                          href={`/login?next=${encodeURIComponent(
+                            previewClaimReturnPath(guestPreview.topicId)
+                          )}`}
+                          className="rounded-full border border-white/15 px-8 py-3.5 text-sm text-white/80 transition hover:bg-white/10"
+                        >
+                          {GUEST_PREVIEW_SIGN_IN_CTA}
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => setGuestAuthPrompt("dismissed")}
+                          className="px-8 py-2 text-sm text-white/50 transition hover:text-white/75"
+                        >
+                          {GUEST_PREVIEW_MAYBE_LATER_CTA}
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h1
+                        id="guest-preview-complete-title"
+                        className="mt-8 max-w-md text-2xl font-semibold leading-9"
+                      >
+                        {GUEST_PREVIEW_DISMISSED_BODY}
+                      </h1>
+                      <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
+                        <Link
+                          href={`/signup?next=${encodeURIComponent(
+                            previewClaimReturnPath(guestPreview.topicId)
+                          )}`}
+                          className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
+                        >
+                          {GUEST_PREVIEW_GET_STARTED_CTA}
+                        </Link>
+                        <Link
+                          href="/coach"
+                          className="rounded-full border border-white/15 px-8 py-3.5 text-sm text-white/70 transition hover:bg-white/10"
+                        >
+                          Back to Coach
+                        </Link>
+                      </div>
+                    </>
+                  )}
+                  <button
+                    type="button"
+                    disabled
+                    aria-disabled="true"
+                    className="mt-8 w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 text-sm text-white/30"
+                  >
+                    Practice input is closed for this completed preview.
+                  </button>
+                </div>
+              ) : complimentaryComplete && wrapStage === "membership" ? (
                 <>
                   <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#c9a95f]">
                     Coach Forge
@@ -2062,14 +2286,16 @@ export default function VoiceArena({
                       </Link>
                     ) : (
                       <Link
-                        href="/app"
+                        href={isGuestPreview ? "/coach" : "/app"}
                         className="rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition hover:bg-white/90"
                       >
-                        Return home and begin again
+                        {isGuestPreview
+                          ? "Done for now"
+                          : "Return home and begin again"}
                       </Link>
                     )}
                     <Link
-                      href="/app"
+                      href={isGuestPreview ? "/coach" : "/app"}
                       className="rounded-full border border-white/10 px-6 py-3.5 text-sm text-white/50 transition hover:bg-white/10"
                     >
                       Done for now
@@ -2251,7 +2477,7 @@ export default function VoiceArena({
                                 Stop
                               </button>
                             </div>
-                            {!isProUser ? (
+                            {!isProUser && !isGuestPreview ? (
                               <Link
                                 href="/membership"
                                 className="text-[10px] uppercase tracking-[0.14em] text-[#D4AF37]/55 transition hover:text-[#D4AF37]/85"

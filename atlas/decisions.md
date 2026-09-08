@@ -1076,6 +1076,99 @@ Authoritative — ✅ Decided 2026-08-16 (Founder OD-0…OD-10)
 
 ---
 
+# Decision 060
+
+Decision Alias:
+COACH-PREVIEW-FINAL-001
+
+Title:
+Authorize the final Coach approach: seven-topic card grid → one anonymous private Forge preview → post-session auth and claim.
+
+Reason:
+
+The Founder approved practice itself as the first Coach value. `/coach` should make one simple request—choose one communication topic—then place the visitor directly into exactly one private Forge session. Authentication belongs after that completed experience, when it can preserve the topic and transcript without interrupting value.
+
+This final approach removes unnecessary discovery, profile intake, semantic conversion logic, and pre-practice authentication. It also establishes a sustainable Free allowance of three complete sessions per calendar month while keeping the anonymous preview outside that allowance.
+
+Decision 059 remains an Authoritative historical record. This Decision supersedes its active journey mechanics: pre-account Assistant Coach conversation, provisional Living Profile, semantic `hasExperiencedValue`/intervention gate, hard save gate, claim-before-Forge, LP confirmation, and post-claim first Forge handoff. The Decision 059 track-specific feature carve-out remains narrow; unrelated feature work and held identity PR merges remain NO-GO.
+
+Alternatives Considered:
+
+The unmerged five-PR deterministic card wizard—rejected. No wizard, narrowing questions, profile verification card, `member_practice_profile` schema, or pre-Forge authentication belongs in the final approach. That stack must not be merged, cherry-picked, or used as a dependency.
+
+Continue Decision 059 conversational Assistant Coach discovery and semantic value gate—rejected. The preview is the Forge session itself.
+
+Require signup/signin before Forge—rejected. Authentication occurs only after the anonymous preview session.
+
+Maintain one shared Coach/Living Profile topic catalog—rejected. **Option B is approved:** share the `TopicCard` component, styling, and iconography, but keep independent Coach and Living Profile catalogs so experience choices do not silently redefine identity.
+
+Promise one preview per person through device fingerprinting—rejected. The available mechanism is a best-effort browser-bound limit, not proof of personhood.
+
+Blind Spots:
+
+[BS-015](../atos/knowledge/working/blind-spot-register/bs-015.md): signed browser continuity cannot prove a durable person identity; cookie clearing and other browsers/devices can obtain another preview.
+
+BS-001 / OWN-001: a selected practice topic or transcript may be misused as identity; preview and claim must not write Living Profile identity.
+
+BS-016: preview or Free counting may diverge across session, billing, and Realtime boundaries; server entitlement must be authoritative everywhere.
+
+Risks:
+
+Anonymous Forge has direct model and voice cost. Mitigate with server-authoritative Realtime authorization, rate limits, concurrency/replay controls, and session duration/token/spend ceilings.
+
+Auth or claim failure can strand the preview. Preserve a signed HttpOnly server anonymous session for up to 14 days for same-browser retry, make claim idempotent, and never promise cross-device recovery.
+
+Shared visual cards could accidentally couple Coach and Living Profile taxonomies. Enforce separate catalogs, IDs, ordering, persistence, and tests.
+
+Final Decision:
+
+**APPROVE the final Coach approach and supersede Decision 059 journey mechanics.**
+
+1. `/coach` shows a single-step card grid with exactly seven labels: **Interview; Salary negotiation; Difficult feedback; Setting a boundary; Pitch / Presentation; Handling conflict; Something else.**
+2. Tapping one card enters exactly one anonymous, private Forge preview session for that topic.
+3. Signup and signin occur only after the Forge session reaches its normal coaching close. No auth, verification, upgrade, profile, or semantic gate may interrupt the preview.
+4. Successful signup/signin claim preserves the preview transcript and selected topic in the member account.
+5. Authenticated Free members receive **three complete sessions per calendar month**. The anonymous preview does **not** consume that allowance, before or after claim. Never interrupt an active session.
+6. **Option B:** reuse the shared `TopicCard` component, styling, states, and iconography; maintain an independent Coach catalog and Living Profile catalog.
+7. Living Profile remains the identity SSOT. The preview and claim write no identity, purpose, profile evidence, insights, or new profile field.
+8. Retain a signed HttpOnly cookie + server anonymous session and up to **14-day TTL** only where useful for same-browser session/auth-claim continuity and cleanup. This does not authorize repeated previews.
+9. Do not revive Supabase anonymous users, cloud `guest_*`, guest reassignment, archive recovery, or cross-device claim.
+10. One preview is a **best-effort browser-bound** limit backed by signed cookie plus rate/economic controls. It is not a provable one-person identity limit and must not be described as one.
+11. Realtime, preview, Free-month, Pro/staff, reconnect, and concurrent-session authorization remain server-authoritative. Client claims never grant cost-bearing access.
+12. No wizard, profile form, `member_practice_profile` schema, discovery LLM, semantic gate, `hasExperiencedValue`, intervention threshold, claim-before-Forge, or pre-Forge auth governs this path.
+
+**Founder-approved post-session contract (verbatim):**
+
+- Headline: **“You just completed your first rep.”**
+- Body: **“Save your progress and get 3 free sessions every month — no credit card required.”**
+- Primary CTA: **“Create account”**
+- Secondary CTA: **“Sign in”**
+- Tertiary: **“Maybe later”**
+
+While this auth prompt is visible, the composer/input is disabled. If the visitor chooses **“Maybe later,”** keep further input disabled and show **“Ready to practice again? Create an account for 3 free sessions every month.”** with **“Get started”** linking to auth. Do not paraphrase, optimize, or A/B-test this contract without a later Founder decision.
+
+**Governance scope:** This package authorizes and sequences the track but makes no schema or application-code change. Frozen HARDEN documents remain unchanged.
+
+Future Review Date:
+
+After the first production `/coach` card → anonymous Forge preview → post-session auth → claim slice is validated; review abuse cost, claim completion, calendar-month counting, and catalog fit.
+
+Volumes:
+
+`atos/product/AC-JOURNEY-001-first-user-architecture.md`
+`atos/product/PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md`
+`atos/knowledge/working/idea-vault/product-ideas/IV-PROD-010-single-session-coach-preview.md`
+`atos/knowledge/working/blind-spot-register/bs-015.md`
+`atos/product/BILL-001-billing-membership.md`
+`atos/product/OWN-001-identity-ownership-matrix.md`
+`atos/product/LP-LAW-001-living-profile.md`
+`atos/product/HARDEN-005-guest-migration-authorization.md` (frozen historical; unchanged)
+
+Status:
+Authoritative — ✅ Final Founder approach decided 2026-09-07; supersedes Decision 059 journey mechanics while preserving its historical record
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

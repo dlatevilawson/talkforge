@@ -4,12 +4,12 @@
 |---|---|
 | **Document ID** | EXEC-001 |
 | **Title** | TalkForge Execution Plan |
-| **Version** | 2.3.0 |
+| **Version** | 2.5.0 |
 | **Status** | **Active — Company OS APPROVED; Phase 3 under Remediation Freeze (AUDIT-001 NO-GO)** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
 | **Created** | 2026-08-01 |
-| **Updated** | 2026-08-02 |
+| **Updated** | 2026-09-07 |
 | **Authority** | Founder directive — company operating system |
 | **Related** | [Idea Vault](../knowledge/working/idea-vault/README.md) · [CONST-001](CONST-001-talkforge-constitution.md) · DEC-LEDGER-001 · MASTER-ROADMAP-001 · PHASE3-EXECUTION · KA-001 · ROADMAP-001 |
 
@@ -128,7 +128,7 @@ The company operating system is **Approved**. Phase 3 product implementation con
 
 Company OS is **Approved**. [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture-certification.md) remains **NO-GO** for **general** feature development. Hardening fixes may continue; no held identity PR merge under [FREEZE-001](FREEZE-001-identity-pr-hold.md).
 
-**Decision 059 carve-out:** Implement Assistant Coach first-user Phase 4B in **small slices** per [PHASE4B-AC-IMPLEMENTATION-SEQUENCE](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md) (next code slice: **4B.1** LP JSONB). Respect [OWN-001](OWN-001-identity-ownership-matrix.md); do not resurrect guests ([HARDEN-005](HARDEN-005-guest-migration-authorization.md)).
+**Decision 060 controlling carve-out:** Implement only the final Coach path in **small slices** per [PHASE4B-AC-IMPLEMENTATION-SEQUENCE](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md): `/coach` exact seven-topic grid → one anonymous private Forge preview → post-session signup/signin → transcript/topic claim. Free members receive three complete sessions per calendar month; preview is excluded. Decision 059 remains historical, but its Assistant Coach discovery/semantic-gate journey is superseded. Do not use the unmerged wizard stack. Respect [OWN-001](OWN-001-identity-ownership-matrix.md); preview writes no identity. Do not resurrect guests ([HARDEN-005](HARDEN-005-guest-migration-authorization.md)).
 
 
 ---
@@ -161,3 +161,4 @@ Company OS is **Approved**. [EXEC-VERIFY-001](EXEC-VERIFY-001-final-architecture
 | 2.2.0 | 2026-08-02 | Admitted CRAFT-LAW-001 + DES-001 (Decision 052) |
 | 2.3.0 | 2026-08-02 | AUDIT-001 Architecture Readiness Audit — NO-GO; Remediation Freeze (Decision 053) |
 | 2.4.0 | 2026-08-16 | Decision 059 — AC first-user GO carve-out; Phase 4B sequence |
+| 2.5.0 | 2026-09-07 | Decision 060 — final seven-topic Coach preview approach supersedes Decision 059 journey mechanics |

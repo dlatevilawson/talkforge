@@ -1,377 +1,219 @@
-# PHASE4B-AC-IMPLEMENTATION-SEQUENCE — Migration / API / Security slices
+# PHASE4B-AC-IMPLEMENTATION-SEQUENCE — Coach preview slices
 
 | Field | Value |
 |---|---|
 | **Document ID** | PHASE4B-AC-001 |
-| **Status** | Authoritative sequence under Decision 059 |
-| **Authority** | [Decision 059](../../atlas/decisions.md) · [AC-JOURNEY-001](AC-JOURNEY-001-first-user-architecture.md) · [IV-PROD-009](../knowledge/working/idea-vault/product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md) |
-| **Law** | Ship **one slice per PR**. No monster change. Do not revive `guest_*` cloud identity. |
-| **Created** | 2026-08-16 |
+| **Version** | 2.0.0 |
+| **Status** | Authoritative sequence under Decision 060 |
+| **Authority** | [Decision 060](../../atlas/decisions.md) · [AC-JOURNEY-001](AC-JOURNEY-001-first-user-architecture.md) · [IV-PROD-010](../knowledge/working/idea-vault/product-ideas/IV-PROD-010-single-session-coach-preview.md) |
+| **Law** | Small reviewable slices. No wizard-stack dependency. No `guest_*` revival. |
+| **Updated** | 2026-09-07 |
 
 ---
 
-## Binding constraints (every slice)
+## Controlling constraints
 
 | Constraint | Source |
 |---|---|
-| GO for this track only; unrelated features + held identity PRs remain NO-GO | Decision 059 / OD-0 |
-| Hard gate after semantic value; indefinite anon continue forbidden | OD-1 |
-| 14-day anon TTL | OD-2 |
-| Signed HttpOnly cookie + server anon session | OD-3 |
-| Forge requires claim/account | OD-4 |
-| AC = primary landing CTA; Assessment not equal competitor | OD-5 |
-| Assessment kept, demoted from default FTUE | OD-6 |
-| Skip redundant onboarding after claim | OD-7 |
-| Soft email verify for AC continuity | OD-8 |
-| JSONB evidence/insights; System 1 sole writer; migration path designed | OD-9 |
-| Gate copy placeholder only — no final marketing copy | OD-10 |
-| Turn safety cap configurable; conversion = `hasExperiencedValue` | Decision 059 |
-| OWN-001: never write identity/purpose as identity authority | OWN-001 |
-| Do not modify Forge coaching brain / Assessment lifecycle / VoiceArena VAD unless a later slice explicitly requires handoff wiring | Phase 1–3 non-goals |
+| `/coach` is one single-step seven-topic card grid | Decision 060 |
+| Tapping one card enters exactly one anonymous private Forge preview | Decision 060 |
+| Signup/signin only after the session | Decision 060 |
+| Claim preserves preview transcript and topic | Decision 060 |
+| Free = three complete sessions per calendar month | Decision 060 · BILL-001 |
+| Claimed or unclaimed preview does not consume Free allowance | Decision 060 · BILL-001 |
+| Option B: shared `TopicCard` visuals, independent Coach and LP catalogs | Decision 060 |
+| LP remains identity SSOT; preview writes no identity | LP-LAW-001 · OWN-001 |
+| Signed HttpOnly server anon session; 14-day claim TTL where appropriate | Decision 060 |
+| One preview is best-effort browser-bound, not provable person identity | BS-015 |
+| Realtime/economic authorization is server-authoritative | BILL-001 · Decision 060 |
+| No wizard, profile form, `member_practice_profile`, semantic gate, or pre-Forge auth | Decision 060 |
+| No cloud `guest_*`, archive recovery, or guest reassignment | HARDEN-005 |
+| Decision 059 remains historical; its journey mechanics are superseded | Decision 060 |
 
-**Founder 2026-08-20 — first vertical slice (this track):** connect Landing CTA → `/coach` → value → signup → claim → confirm understanding → **one** contextual Forge session (`title`/`success` query only). Post-signup is **not** resume-AC. Do not build the flywheel, Progress redesign, AC prompt polish, or Forge expansion in the same change.
+Exact Coach labels, including punctuation and casing:
+
+1. Interview
+2. Salary negotiation
+3. Difficult feedback
+4. Setting a boundary
+5. Pitch / Presentation
+6. Handling conflict
+7. Something else
 
 ---
 
-## Prerequisite
+## Prerequisite — governance only
 
-| ID | Deliverable | Done when |
-|---|---|---|
-| **4B.0** | Decision 059 + this sequence + AC-JOURNEY-001 OD resolution | Merged governance PR |
+### Slice C0 — Decision 060 package
+
+Update Decision Ledger, Idea Vault, Blind Spot Register, BILL-001, AC-JOURNEY-001, roadmap/execution indexes, and AGENTS.md. Do not change schema or code. Done when governance checks and `git diff --check` pass and the diff contains no frozen HARDEN document or plan artifact.
 
 ---
 
-## Exact implementation sequence
+## Implementation sequence
 
-### Slice 4B.1 — Living Profile JSONB columns (System 1 persistence)
+### Slice C1 — Independent Coach catalog + shared visual card
 
-**Goal:** Persist Phase 1 `evidenceLedger` / `profileInsights` for authenticated LPs.
-
-| Item | Spec |
+| Item | Requirement |
 |---|---|
-| Migration | `supabase/migrations/YYYYMMDD_living_profile_evidence_insights.sql` |
-| Columns | `living_profiles.evidence_ledger jsonb not null default '[]'::jsonb` · `living_profiles.profile_insights jsonb not null default '[]'::jsonb` |
-| Manifest | Append to `supabase/migrations/manifest.json` (SSOT) |
-| Code | `mapLivingProfileRow` / write paths load+save arrays; System 1 remains sole writer |
-| Migration path (OD-9) | Comment in migration + short note in `AC-JOURNEY-001` / this doc §“Future normalized evidence”: extract to `profile_evidence` / `profile_insights` tables later without changing System 1 API surface |
-| Tests | Round-trip map; System 1 unit tests unchanged behavior |
-| Non-goals | Anon sessions, APIs, UI, Assessment |
+| Shared UI | Extract or reuse `TopicCard` component, styling, states, accessibility, and iconography |
+| Coach catalog | New Coach-owned catalog with exactly the seven labels above |
+| LP catalog | Remains independently owned and unchanged |
+| Tests | Exact labels/order; catalog object/reference independence; keyboard and card activation |
+| Non-goals | Profile schema, persistence, auth, Forge session |
 
-**PR title pattern:** `4B.1: LP evidence_ledger + profile_insights JSONB`
+This is Option B. Do not import the Living Profile catalog into Coach or make either catalog an alias of the other.
 
----
+### Slice C2 — Preview entitlement contract
 
-### Slice 4B.2 — Anonymous session schema + TTL
-
-**Goal:** Server-side anonymous Coach session storage (no cookie mint yet).
-
-| Item | Spec |
+| Item | Requirement |
 |---|---|
-| Tables | `assistant_coach_sessions` · `assistant_coach_messages` · `assistant_coach_profile_drafts` (names may match AC-JOURNEY-001 §D) |
-| Session fields (min) | `id`, `anon_key_hash`, `user_id` nullable, `status`, `turn_count`, `has_experienced_value`, `expires_at` (now+14d), `claimed_at`, `created_at`, `updated_at`, draft LP jsonb or FK to drafts |
-| Messages | `session_id`, `turn_index`, `role`, `content`, `model_meta` jsonb, `created_at` |
-| Drafts | Provisional LP blob; **not** `living_profiles.user_id` until claim |
-| Indexes | `expires_at`, `anon_key_hash` unique for active, `user_id` |
-| RLS | Service-role / server-only writes preferred for anon; no client direct table access |
-| Tests | Migration file + in-memory repository unit tests (`lib/assistant-coach/session-repository.test.mjs`) |
-| Status | **Implemented locally** on `cursor/ac-4b2-anon-session-schema-ecce` (not production-applied) |
-| Non-goals | HTTP routes, cookies, UI |
+| Server record | Anonymous preview session with selected Coach topic, lifecycle, expiry, economic envelope, and preview classification |
+| Cookie | Signed, HttpOnly, Secure, SameSite, server-verifiable |
+| TTL | Up to 14 days for same-browser session/claim continuity |
+| Limit truth | One best-effort browser-bound preview; never claim person-level proof |
+| Ban | No Supabase anonymous user, `guest_*`, profile draft, Living Profile row, or `member_practice_profile` |
+| Tests | Mint/restore; tamper/expiry; same browser cannot mint a second preview; no guest imports |
 
-**PR:** `4B.2: Assistant Coach anon session tables + 14d TTL`
+Reuse existing safe signed-cookie/server-session substrate only where it fits this contract. Do not retain semantic-gate or Assistant Coach turn semantics merely because columns or code exist.
 
----
+### Slice C3 — Server-authoritative preview Forge authorization
 
-### Slice 4B.3 — Signed cookie + session mint (security substrate)
-
-**Goal:** OD-3 identity plane without guests.
-
-| Item | Spec |
+| Item | Requirement |
 |---|---|
-| Cookie | HttpOnly · Secure · SameSite=Lax (or Strict if compatible) · path `/` · name e.g. `tf_ac_anon` |
-| Payload | Opaque session id **or** signed token binding `session_id` + expiry; **server stores session truth** |
-| Secret | Env `ASSISTANT_COACH_ANON_COOKIE_SECRET` (or shared signing secret); rotate-friendly |
-| Mint | `GET/POST /api/assistant-coach/session` (or mint on first turn) creates row + sets cookie |
-| Lookup | Hash/compare cookie → session; reject expired (`status=expired` or `expires_at < now`) |
-| Explicit ban | No `signInAnonymously`, no `guest_*` profiles, no cloud guest reassignment |
-| Tests | Mint → read → reject tampered/expired; no guest path imports |
-| Status | **Implemented** — opaque signed cookie `v1.<secret>.<hmac>`, SHA-256 `anon_key_hash`, Supabase service-role adapter, `GET\|POST /api/assistant-coach/session`. Mint adopts only on typed unique-conflict; draft failure rolls back session and never returns 200. |
-| Non-goals | LLM turns, gate UI |
+| Entry | Selected valid Coach topic + unused server preview entitlement |
+| Realtime | Mint only after server independently verifies preview status and economic limits |
+| Scope | One private Forge session; no general anonymous `/app` or practice access |
+| Economics | Duration/token/spend/concurrency/reconnect controls enforced server-side |
+| Failure | Fail closed before cost-bearing work when truth is unavailable |
+| Tests | Forged client plan/topic/counter rejected; replay/concurrency bounded; authenticated entitlement unchanged |
 
-**PR:** `4B.3: Signed HttpOnly anon Coach cookie + session mint`
+Do not route through Assistant Coach discovery, model turns, intervention validation, `hasExperiencedValue`, or pre-Forge auth.
 
----
+### Slice C4 — `/coach` single-step card grid
 
-### Slice 4B.4 — Turn API (identity-agnostic runtime)
-
-**Goal:** Wire Phase 3 `runAssistantCoachTurn` to HTTP.
-
-| Item | Spec |
+| Item | Requirement |
 |---|---|
-| Route | `POST /api/assistant-coach/turn` |
-| Auth | Optional: anon cookie **or** authenticated member |
-| Body | `{ message, clientTurnId? }` |
-| Server | Load session draft/LP → runtime → validate observations → System 1 apply → persist messages + draft → return `{ reply, session, gate }` |
-| Idempotency | Dedup on `clientTurnId` / turn index |
-| Rate limit | Per session + IP (reuse shared limiter when available) |
-| Tests | Integration with injected model; evidence accepted/rejected; no identity writes |
-| Status | **Implemented** — `runAssistantCoachTurn` + `POST /api/assistant-coach/turn` (injectable model; OWN-001; idempotent `clientTurnId`; gate flags only) |
-| Non-goals | Hard gate enforcement beyond returning flags; landing CTA; Forge |
+| Route | Public `/coach` |
+| Surface | One responsive card grid; no stepper, wizard, profile form, thread, or diagnosis |
+| Action | One tap chooses topic and enters the preview Forge session |
+| “Something else” | Topic label may carry generic practice context; do not add a profile intake form in this slice |
+| Tests | Desktop/mobile render; exact seven cards; every card starts C3 path; no auth request before Forge |
 
-**PR:** `4B.4: Assistant Coach turn API`
+### Slice C5 — Post-session auth surface
 
----
-
-### Slice 4B.5 — Semantic value flag + configurable turn safety cap
-
-**Goal:** Separate conversion from economics.
-
-| Item | Spec |
+| Item | Requirement |
 |---|---|
-| Conversion | Server computes sticky `hasExperiencedValue` per AC-JOURNEY-001 §E (deterministic) |
-| Safety/economic cap | Env/config e.g. `ASSISTANT_COACH_ANON_TURN_CAP` default **10** — **not** conversion |
-| Gate payload | `{ hasExperiencedValue, anonTurnCount, turnCap, mustAuthenticateToContinue, copyKey: "placeholder" }` — **no finalized marketing copy (OD-10)** |
-| Tests | Matrix: value true before/after cap; cap alone does not set value; value alone can require auth even if under cap |
-| Status | **Implemented** — sticky `hasExperiencedValue` (AC-JOURNEY §E.2) + `ASSISTANT_COACH_ANON_TURN_CAP` (default 10); gate flags updated; no hard block |
-| Non-goals | UI modal copy polish |
+| Timing | Only after genuine Forge session close |
+| Headline | **“You just completed your first rep.”** |
+| Body | **“Save your progress and get 3 free sessions every month — no credit card required.”** |
+| Actions | Primary **“Create account”** · secondary **“Sign in”** · tertiary **“Maybe later”** |
+| Input state | Composer/input disabled while the auth prompt is visible |
+| Maybe later | Keep further input disabled; show **“Ready to practice again? Create an account for 3 free sessions every month.”** with **“Get started”** linking to auth |
+| Continuity | Preserve signed preview binding through auth |
+| Ban | No mid-session modal, semantic save gate, upgrade interruption, or profile confirmation |
+| Tests | Auth UI absent before/during session; exact-copy assertions; input disabled during prompt; Maybe later state keeps input disabled; Get started targets auth |
 
-**PR:** `4B.5: Semantic value gate + configurable anon turn cap`
+C5 must not paraphrase, optimize, or A/B-test this Founder-approved contract without a later Founder decision.
 
----
+### Slice C6 — Post-auth preview claim
 
-### Slice 4B.6 — Hard gate after meaningful value (OD-1)
-
-**Goal:** Anonymous users cannot continue indefinitely once value (or turn safety cap) requires auth.
-
-| Item | Spec |
+| Item | Requirement |
 |---|---|
-| Rule | If `hasExperiencedValue` **or** `turn_count >= turnCap` → further anon turns return **401/403** with `mustAuthenticateToContinue: true` (no new model spend) |
-| Before value & under cap | Anon turns allowed |
-| Status | Session may move to `gated` |
-| Tests | Anon blocked after value; auth user still can turn; under-cap pre-value OK |
-| Status | **Implemented** — anon turns return 403 `must_authenticate` after value/cap (before model); session → `gated`; idempotent replay still allowed |
-| Non-goals | Signup UI redesign |
+| Claim | Auth-required, signed-cookie-bound, idempotent, concurrent-safe |
+| Preserve | Full available preview transcript, selected Coach topic, timestamps, and preview classification |
+| Destination | Member practice history/session ownership—not Living Profile identity |
+| Billing | Exclude preview from Free monthly completed-session count |
+| Recovery | Same-browser within TTL only; no archive or cross-device guest recovery |
+| Tests | Signup and signin claim; retry; cross-account rejection; transcript/topic retained; LP unchanged |
 
-**PR:** `4B.6: Hard gate anon continuation after value/cap`
+### Slice C7 — Free calendar-month allowance
 
----
-
-### Slice 4B.7 — Claim API + merge (OD-4 continuity)
-
-**Goal:** Attach anon session to authenticated user atomically.
-
-| Item | Spec |
+| Item | Requirement |
 |---|---|
-| Route | `POST /api/assistant-coach/claim` (requires Supabase session) |
-| Steps | Validate cookie session (active **or gated**) → lock → merge draft evidence/insights into member LP via System 1 writers → set `user_id`, `status=claimed` → skip redundant onboarding → redirect `/coach/confirm` |
-| Post-claim | **Confirm understanding → one Forge session.** Do not resume AC mid-thread.
-| Conflicts | If session claimed by another user → 409; if member already has richer LP → merge rules in AC-JOURNEY-001 (prefer append evidence; never overwrite member purpose/identity) |
-| Forge | Still forbidden until claimed + practice readiness |
-| Tests | Merge matrix; double-claim idempotent; cross-user claim rejected; OWN-001: purpose untouched |
-| Non-goals | Full onboarding redesign |
+| Allowance | Three complete sessions per calendar month |
+| Boundary | Server-defined calendar-month timezone, documented and tested |
+| Counting | BILL-001 completion semantics; never count preview |
+| Active session | Never interrupt or revoke mid-session |
+| Realtime | Every mint independently resolves server entitlement |
+| Tests | Month rollover; exactly three starts/completions under defined semantics; claimed preview excluded; client claims ignored |
 
-**PR:** `4B.7: Claim anonymous Coach session → member LP`
+### Slice C8 — Abuse and economic hardening
 
----
-
-### Slice 4B.8 — Soft email verification carve-out (OD-8)
-
-**Goal:** Do not interrupt value → account → Coach continuation.
-
-| Item | Spec |
+| Item | Requirement |
 |---|---|
-| Proxy / auth | Allow `/coach`, `/coach/confirm`, AC APIs, and `/app/practice` after AC confirm when `email_verified = false`. Other `/app` routes may still hard-redirect to verify. |
-| UX | Optional soft remind banner on `/coach` (placeholder copy) |
-| Tests | Unverified user: claim + `/coach` turn OK; `/app` still redirected if current proxy requires verify |
-| Non-goals | Removing all verify gates site-wide |
+| Controls | Mint/start/reconnect rate limits, origin/CSRF, concurrency, replay, duration/token/spend ceilings |
+| Monitoring | Non-PII operational events; no transcript text |
+| Language | Never represent browser-bound control as provable one-person identity |
+| Privacy | No invasive fingerprinting without a later Founder decision |
+| Tests | Cookie clearing limitation documented; rate/economic fail-closed matrix |
 
-**PR:** `4B.8: Soft verify for Coach continuity`
+### Slice C9 — Funnel analytics and expiry
 
----
+Measure card selection, preview start/completion, post-session auth display, auth completion, claim, and member session starts without transcript/free-text payloads. Purge abandoned anonymous preview data after TTL under existing retention rules.
 
-### Slice 4B.9 — Skip redundant onboarding after claim (OD-7)
+### Slice C10 — Retire superseded active paths
 
-**Goal:** Only collect missing account-required fields.
+After the direct preview path is proven:
 
-| Item | Spec |
-|---|---|
-| Logic | Claim sets `onboarding_complete`. First member moment is `/coach/confirm` (human LP), not Training Focus picker. |
-| Required | Still collect fields the account product **requires** (e.g. display name if mandatory) — never re-ask AC-learned coaching content |
-| Tests | Claimed-with-evidence skips focus; empty claim still shows focus |
-| Non-goals | Redesigning entire onboarding brand |
+- remove or bypass the Assistant Coach conversational first-user path;
+- remove wizard/profile-contract dependencies if present on an implementation branch;
+- remove active semantic-gate, intervention, provisional-LP, confirm, and second-Forge handoff mechanics;
+- preserve migrations/history non-destructively when removal would be unsafe;
+- keep Decision 059 historical governance unchanged.
 
-**PR:** `4B.9: Skip redundant onboarding after AC claim`
-
----
-
-### Slice 4B.10 — Public `/coach` UI (minimal)
-
-**Goal:** Product surface for anon + authed Coach.
-
-| Item | Spec |
-|---|---|
-| Route | `/coach` (App Router) — **outside** `/app` so proxy does not force signup before first value |
-| UI | Minimal thread + input; gate modal uses **placeholder** keys only (OD-10) |
-| Dual ship | Craft Law #001 + DES-001 |
-| Tests | Playwright smoke: load → send (mocked API) → gate flag renders |
-| Status | **Implemented** — public `/coach` client exercises real session + turn APIs; mint key in sessionStorage; gate UI with placeholder copy |
-| Non-goals | Luxury polish pass; Assessment deletion |
-
-**PR:** `4B.10: Public /coach UI shell`
+Do not merge or use the five-PR wizard stack to accomplish this slice.
 
 ---
 
-### Slice 4B.11 — Landing primary CTA (OD-5)
+## Dependency order
 
-**Goal:** One primary onboarding CTA.
-
-| Item | Spec |
-|---|---|
-| Landing | Primary CTA → `/coach` (or mint+redirect) |
-| Secondary | Sign in / Founding Pass as secondary — **not** equal weight Assessment CTA |
-| Assessment | Link elsewhere (footer / Explorer) during transition |
-| Tests | Landing snapshot / e2e CTA href |
-| Non-goals | Final marketing headline (can keep interim product copy) |
-
-**PR:** `4B.11: Landing primary CTA → Assistant Coach`
-
----
-
-### Slice 4B.12 — Demote Assessment default FTUE (OD-6)
-
-**Goal:** Assessment remains; not the default first experience.
-
-| Item | Spec |
-|---|---|
-| Explorer / home | Do not auto-push Assessment as FTUE when AC available |
-| Keep | Assessment routes + APIs intact |
-| Tests | New-user path prefers Coach; Assessment still reachable |
-| Non-goals | Delete Assessment code |
-
-**PR:** `4B.12: Demote Assessment from default FTUE`
-
----
-
-### Slice 4B.13 — Proxy / route allowlist hardening
-
-**Goal:** Encode public Coach vs private Forge in middleware.
-
-| Item | Spec |
-|---|---|
-| Public | `/coach`, `/api/assistant-coach/session`, `/api/assistant-coach/turn` (anon OK) |
-| Auth required | `/api/assistant-coach/claim`, `/app/*`, practice APIs |
-| Checks | Update `auth:check` / practice-readiness scripts if they assume all coach paths under `/app` |
-| Tests | Unauth `/coach` 200; unauth `/app/practice` → signup/login; unauth claim → 401 |
-| Status | **Implemented** — `proxyRequiresAuth` allowlist keeps `/coach` + AC session/turn public; `/app`/`/founder` unchanged |
-| Non-goals | New identity products |
-
-**PR:** `4B.13: Proxy allowlist for public Coach`
-
-> **Note:** 4B.10 and 4B.13 may be ordered as 4B.13 immediately before or with 4B.10 if UI cannot ship without allowlist. Prefer allowlist **before** or **in the same PR as** first public UI.
-
----
-
-### Slice 4B.14 — Analytics funnel (no PII/transcripts)
-
-**Goal:** Measure conversion without logging Coach text.
-
-| Events | `assistant_coach_started`, `turn_completed` (counts only), `value_reached`, `account_gate_shown`, `signup_from_gate`, `login_from_gate`, `session_claimed`, `resumed`, `forge_ready`, `forge_started` |
-|---|---|
-| Ban | Transcript body, raw evidence text |
-| Tests | Event name allowlist unit test |
-
-**PR:** `4B.14: Assistant Coach funnel analytics`
-
----
-
-### Slice 4B.15 — Expiry job + deletion
-
-**Goal:** Enforce 14-day TTL operationally.
-
-| Item | Spec |
-|---|---|
-| Job | Mark expired; delete messages/drafts for unclaimed expired sessions |
-| Claim after expiry | 410 + restart path |
-| Tests | Clock-skew unit; delete cascade |
-
-**PR:** `4B.15: Anon Coach session expiry + purge`
-
----
-
-### Slice 4B.16 — Forge handoff read-only (minimal in vertical slice)
-
-**Goal:** Authenticated Forge receives the **identified moment** as existing `title` / `success` query params. No Forge Core / VAD / prompt changes.
-
-| Item | Spec |
-|---|---|
-| Input | Confirmation fields → `/app/practice?title=&success=&start=1` |
-| Gate | Claimed user + practice readiness (persisted LP) + entitlement |
-| Non-goals | Changing Forge Core judgment / Arena VAD; flywheel writes from Forge → LP |
-
-**PR (with vertical slice):** first contextual practice only.
-
----
-
-## Recommended merge order (dependency DAG)
-
-```
-4B.0 (done in governance PR)
-  → 4B.1 (LP JSONB)
-  → 4B.2 (session tables)
-  → 4B.3 (cookie mint)
-  → 4B.4 (turn API)
-  → 4B.5 (semantic value + turn cap)
-  → 4B.6 (hard gate)
-  → 4B.7 (claim)
-  → 4B.8 (soft verify)
-  → 4B.9 (onboarding skip)
-  → 4B.13 (proxy allowlist) ⇄ 4B.10 (UI)
-  → 4B.11 (landing CTA)
-  → 4B.12 (demote Assessment FTUE)
-  → 4B.14 (analytics)
-  → 4B.15 (expiry job)
-  → 4B.16 (Forge handoff)   # after AC stable in prod
+```text
+C0 governance
+  → C1 independent catalog/shared card
+  → C2 preview entitlement
+  → C3 preview Forge authorization
+  → C4 /coach grid
+  → C5 post-session auth
+  → C6 claim
+  → C7 Free monthly allowance
+  → C8 abuse/economic hardening
+  → C9 analytics/expiry
+  → C10 superseded-path retirement
 ```
 
-Parallelism allowed only where noted (e.g. analytics after turn API exists; expiry after 4B.2).
+C7 contract tests may begin after C2, but production integration must verify C6 exclusion semantics. C8 is cross-cutting and must gate the first cost-bearing preview release.
 
 ---
 
-## Security checklist (cross-cutting)
+## Security and integrity checklist
 
-- [ ] Cookie: HttpOnly, Secure, SameSite, short-lived binding, server session SSOT
-- [ ] No guest architecture resurrection (`guest-migration:check` still green)
-- [ ] Anon cannot call Forge / practice APIs
-- [ ] Claim requires authenticated Supabase user; CSRF/origin checks for mutating cookie routes
-- [ ] Rate limit anon mint + turn
-- [ ] Do not log transcripts in analytics
-- [ ] Soft verify only carves `/coach` + AC APIs — document residual `/app` verify hard gate
-- [ ] System 1 sole writer for evidence/insights (no client JSONB poke)
-
----
-
-## Future normalized evidence (OD-9 migration path)
-
-When querying/auditing requires it:
-
-1. Add `profile_evidence` / `profile_insight_rows` tables (or equivalent) with `user_id`, category, text, confidence, source_session_id, created_at.
-2. Dual-write from System 1 writers behind a feature flag.
-3. Backfill from `evidence_ledger` / `profile_insights` JSONB.
-4. Flip reads to SQL; keep System 1 as the only mutation API.
-5. Deprecate JSONB columns after verification.
-
-Do **not** start this until product/audit need is real.
+- [ ] Signed HttpOnly Secure cookie; server session SSOT
+- [ ] One narrow preview Forge authorization, not general anonymous practice access
+- [ ] Server-authoritative Realtime and billing entitlement at every cost-bearing boundary
+- [ ] Preview excluded from Free three-per-calendar-month count
+- [ ] Transcript/topic claim is idempotent and cross-account safe
+- [ ] No preview identity/LP writes
+- [ ] No `guest_*`, anonymous auth user, archive recovery, or reassignment
+- [ ] Rate, concurrency, duration, token, and spend controls
+- [ ] No transcript or “Something else” text in analytics
+- [ ] Post-session auth only; exact-copy and disabled-input tests, including Maybe later → Get started
+- [ ] Shared `TopicCard` visuals but independent catalog contracts
 
 ---
 
-## Explicit non-goals for Phase 4B
+## Explicit non-goals
 
-- Canonical admission of AC journey doctrine (Working Knowledge + Decision 059 authorization only)
-- Deleting Assessment
-- Final gate marketing copy
-- Resurrecting guests
-- Unrelated feature expansion
-- Merging held identity PRs under FREEZE-001
-- One mega-PR implementing 4B.1–4B.16 together
+- Multi-step card wizard
+- Profile intake or verification card
+- `member_practice_profile` or any new schema in this governance package
+- Assistant Coach discovery before Forge
+- Semantic conversion/value gate
+- Pre-Forge signup, signin, or verification
+- Anonymous identity or provable one-person enforcement
+- Assessment deletion
+- Frozen HARDEN document edits
+- General feature-GO or FREEZE-001 lift
 
 ---
 
@@ -379,4 +221,5 @@ Do **not** start this until product/audit need is real.
 
 | Version | Date | Change |
 |---|---|---|
-| 1.0.0 | 2026-08-16 | Initial sequence under Decision 059 |
+| 1.0.0 | 2026-08-16 | Decision 059 Assistant Coach Phase 4B sequence (historical design) |
+| 2.0.0 | 2026-09-07 | Decision 060 direct one-session Coach preview sequence; wizard stack rejected |

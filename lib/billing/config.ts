@@ -28,7 +28,7 @@ export function getBillingFreeLimits() {
   return {
     maxPracticeSessions: intEnv("BILLING_FREE_MAX_SESSIONS", 3),
     maxSessionSeconds: intEnv("BILLING_FREE_MAX_SESSION_SECONDS", 900),
-    monthlyLimitEnabled: boolEnv("BILLING_FREE_MONTHLY_LIMIT_ENABLED", false),
+    monthlyLimitEnabled: boolEnv("BILLING_FREE_MONTHLY_LIMIT_ENABLED", true),
     monthlyMaxSessions: intEnv("BILLING_FREE_MONTHLY_MAX_SESSIONS", 3),
   };
 }
