@@ -98,6 +98,7 @@ import { getUser } from "@/lib/storage";
 import type { PracticeSession } from "@/lib/types";
 import {
   clampGuestPreviewDurationSeconds,
+  formatGuestPreviewCountdown,
 } from "@/lib/forge/guest-preview-duration";
 import { previewClaimReturnPath } from "@/lib/forge/preview-claim";
 import {
@@ -218,6 +219,13 @@ export default function VoiceArena({
   const guestDurationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
+  const guestCountdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null
+  );
+  const guestStopStartedRef = useRef(false);
+  const [guestSecondsRemaining, setGuestSecondsRemaining] = useState<
+    number | null
+  >(null);
   const [liveConnection, setLiveConnection] =
     useState<RealtimeConnection | null>(null);
   const [momentum, setMomentum] = useState<Momentum | null>(null);
@@ -657,10 +665,7 @@ export default function VoiceArena({
         clearTimeout(joinGateTimerRef.current);
         joinGateTimerRef.current = null;
       }
-      if (guestDurationTimerRef.current) {
-        clearTimeout(guestDurationTimerRef.current);
-        guestDurationTimerRef.current = null;
-      }
+      clearGuestDurationWatch();
       lifecycleGenerationRef.current += 1;
       const usageId = usageIdRef.current;
       usageIdRef.current = null;
@@ -1096,11 +1101,54 @@ export default function VoiceArena({
     }
   }
 
+  function clearGuestDurationWatch() {
+    if (guestDurationTimerRef.current) {
+      clearTimeout(guestDurationTimerRef.current);
+      guestDurationTimerRef.current = null;
+    }
+    if (guestCountdownIntervalRef.current) {
+      clearInterval(guestCountdownIntervalRef.current);
+      guestCountdownIntervalRef.current = null;
+    }
+  }
+
+  function startGuestDurationWatch(durationSeconds: number) {
+    clearGuestDurationWatch();
+    setGuestSecondsRemaining(durationSeconds);
+    guestDurationTimerRef.current = setTimeout(() => {
+      guestDurationTimerRef.current = null;
+      pushEvent(`Guest preview limit reached · ${durationSeconds}s`);
+      void handleStop();
+    }, durationSeconds * 1_000);
+    guestCountdownIntervalRef.current = setInterval(() => {
+      setGuestSecondsRemaining((prev) => {
+        if (prev == null) return prev;
+        if (prev <= 1) {
+          if (guestCountdownIntervalRef.current) {
+            clearInterval(guestCountdownIntervalRef.current);
+            guestCountdownIntervalRef.current = null;
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1_000);
+  }
+
+  function guestStartWasAborted(startGeneration: number) {
+    return (
+      !mountedRef.current ||
+      lifecycleGenerationRef.current !== startGeneration ||
+      (isGuestPreview && guestStopStartedRef.current)
+    );
+  }
+
   async function handleStart() {
     if (phase === "minting" || phase === "connecting" || phase === "speaking") {
       return;
     }
     lifecycleGenerationRef.current += 1;
+    const startGeneration = lifecycleGenerationRef.current;
 
     setError("");
     setMicMode(null);
@@ -1114,10 +1162,10 @@ export default function VoiceArena({
     if (joinGateTimerRef.current) {
       clearTimeout(joinGateTimerRef.current);
     }
-    if (guestDurationTimerRef.current) {
-      clearTimeout(guestDurationTimerRef.current);
-      guestDurationTimerRef.current = null;
-    }
+    clearGuestDurationWatch();
+    setGuestSecondsRemaining(null);
+    guestStopStartedRef.current = false;
+    setGuestAuthPrompt(null);
     joinGateTimerRef.current = setTimeout(() => {
       joinGateTimerRef.current = null;
       setJoinGateHold(false);
@@ -1219,6 +1267,9 @@ export default function VoiceArena({
       if (!tokenRes.ok || !tokenData.value) {
         throw new Error(tokenData.error || "Could not start session.");
       }
+      if (guestStartWasAborted(startGeneration)) {
+        return;
+      }
 
       const planIsPro = tokenData.entitlement?.plan === "pro";
       const sessionVoiceMode: ArenaVoiceMode =
@@ -1291,6 +1342,11 @@ export default function VoiceArena({
         onServerEvent: handleServerEvent,
       });
 
+      if (guestStartWasAborted(startGeneration)) {
+        disconnectRealtime(connection);
+        return;
+      }
+
       connectionRef.current = connection;
       setLiveConnection(connection);
       pushEvent(
@@ -1328,6 +1384,13 @@ export default function VoiceArena({
         });
       }
 
+      if (guestStartWasAborted(startGeneration)) {
+        disconnectRealtime(connection);
+        connectionRef.current = null;
+        setLiveConnection(null);
+        return;
+      }
+
       setPhase("speaking");
       const openingBudget = outputBudgetForTurn("opening", false);
       applyOutputBudget(connection, openingBudget);
@@ -1349,16 +1412,17 @@ export default function VoiceArena({
           : `Forge opening · first session · budget ${openingBudget}`
       );
       if (isGuestPreview) {
-        const durationSeconds = clampGuestPreviewDurationSeconds(
-          tokenData.maxDurationSeconds
+        startGuestDurationWatch(
+          clampGuestPreviewDurationSeconds(tokenData.maxDurationSeconds)
         );
-        guestDurationTimerRef.current = setTimeout(() => {
-          guestDurationTimerRef.current = null;
-          pushEvent(`Guest preview limit reached · ${durationSeconds}s`);
-          void handleStop();
-        }, durationSeconds * 1_000);
       }
     } catch (err) {
+      if (guestStartWasAborted(startGeneration)) {
+        disconnectRealtime(connectionRef.current);
+        connectionRef.current = null;
+        setLiveConnection(null);
+        return;
+      }
       console.error(err);
       const usageId = usageIdRef.current;
       usageIdRef.current = null;
@@ -1556,9 +1620,7 @@ export default function VoiceArena({
       } catch (error) {
         console.warn("[voice] guest preview completion failed", error);
         setCompletionError(
-          error instanceof Error
-            ? error.message
-            : "Your wrap is ready, but the preview did not save."
+          "Your wrap is ready. Create an account to keep this preview."
         );
       } finally {
         setCompletionRetryPending(false);
@@ -1600,9 +1662,16 @@ export default function VoiceArena({
   }
 
   async function handleStop() {
-    if (guestDurationTimerRef.current) {
-      clearTimeout(guestDurationTimerRef.current);
-      guestDurationTimerRef.current = null;
+    clearGuestDurationWatch();
+    if (joinGateTimerRef.current) {
+      clearTimeout(joinGateTimerRef.current);
+      joinGateTimerRef.current = null;
+    }
+    setJoinGateHold(false);
+    if (isGuestPreview) {
+      if (guestStopStartedRef.current) return;
+      guestStopStartedRef.current = true;
+      setGuestAuthPrompt("prompt");
     }
     // Assessment: never leave members on a practice-style wrap that offers a
     // Living Profile when the interview did not structurally complete.
@@ -1771,10 +1840,11 @@ export default function VoiceArena({
   }
 
   const isJoining =
-    joinGateHold ||
-    phase === "minting" ||
-    phase === "connecting" ||
-    (autoStart && phase === "idle" && !error);
+    phase !== "momentum" &&
+    (joinGateHold ||
+      phase === "minting" ||
+      phase === "connecting" ||
+      (autoStart && phase === "idle" && !error));
   const sessionReady =
     phase === "speaking" ||
     phase === "listening" ||
@@ -1825,7 +1895,9 @@ export default function VoiceArena({
     : isGuestPreview
       ? isJoining
         ? "JOINING"
-        : "GUEST PREVIEW · HOLD TO SPEAK"
+        : guestSecondsRemaining != null
+          ? `GUEST · ${formatGuestPreviewCountdown(guestSecondsRemaining)}`
+          : "GUEST PREVIEW · HOLD TO SPEAK"
       : isJoining
       ? "JOINING"
       : handsFree
@@ -1849,12 +1921,22 @@ export default function VoiceArena({
 
       <div className="relative mx-auto flex h-[100dvh] max-h-[100dvh] w-full max-w-3xl flex-col overflow-hidden px-5 pt-[max(1.25rem,env(safe-area-inset-top))] sm:px-8">
         <header className="grid shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-2">
-          <Link
-            href={isGuestPreview ? "/coach" : "/app"}
-            className="justify-self-start text-[10px] font-semibold uppercase tracking-[0.22em] text-[#D4AF37]/70 transition hover:text-[#D4AF37]"
-          >
-            TalkForge Arena
-          </Link>
+          {isGuestPreview && inSession ? (
+            <button
+              type="button"
+              onClick={() => void handleStop()}
+              className="justify-self-start text-[10px] font-semibold uppercase tracking-[0.22em] text-[#D4AF37]/70 transition hover:text-[#D4AF37]"
+            >
+              TalkForge Arena
+            </button>
+          ) : (
+            <Link
+              href={isGuestPreview ? "/coach" : "/app"}
+              className="justify-self-start text-[10px] font-semibold uppercase tracking-[0.22em] text-[#D4AF37]/70 transition hover:text-[#D4AF37]"
+            >
+              TalkForge Arena
+            </Link>
+          )}
           <span className="justify-self-center rounded-full border border-[#D4AF37]/20 bg-[#D4AF37]/08 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#D4AF37]/90">
             {statusBadge}
           </span>
@@ -1862,7 +1944,11 @@ export default function VoiceArena({
             <button
               type="button"
               onClick={() => void handleStop()}
-              className="justify-self-end text-sm text-white/40 transition hover:text-white/75"
+              className={
+                isGuestPreview
+                  ? "justify-self-end rounded-full border border-white/20 px-3 py-1.5 text-sm text-white/85 transition hover:border-white/40 hover:bg-white/10 hover:text-white"
+                  : "justify-self-end text-sm text-white/40 transition hover:text-white/75"
+              }
             >
               End Session
             </button>
@@ -1921,7 +2007,7 @@ export default function VoiceArena({
                   : handsFree
                     ? "Hands-free coaching is ready. Begin when you want an uninterrupted room."
                     : isGuestPreview
-                      ? "This is your private preview. Hold to speak when you’re ready."
+                      ? "This is a short private preview. Hold to speak when you’re ready."
                       : isProUser
                       ? "You don’t have to perform here. Hold to speak when you’re ready."
                       : "You don’t have to perform here. Hold to speak when you’re ready — or unlock Hands-Free with Pro."}
@@ -1991,6 +2077,11 @@ export default function VoiceArena({
                           {GUEST_PREVIEW_MAYBE_LATER_CTA}
                         </button>
                       </div>
+                      {completionError ? (
+                        <p className="mt-6 max-w-md text-sm text-red-300" role="alert">
+                          {completionError}
+                        </p>
+                      ) : null}
                     </>
                   ) : (
                     <>
