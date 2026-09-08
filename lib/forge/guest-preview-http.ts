@@ -19,11 +19,33 @@ export const GUEST_PREVIEW_NO_STORE_HEADERS = {
   Vary: "Cookie, Origin",
 } as const;
 
-export function assertSameOrigin(request: Request): void {
-  const origin = request.headers.get("origin");
-  let expected: string;
+function denySameOrigin(): never {
+  throw new GuestForgePreviewError(
+    "reconnect_denied",
+    "Same-origin request required.",
+    403
+  );
+}
+
+function singleForwardedValue(raw: string | null): string | undefined {
+  if (raw == null) return undefined;
+  const trimmed = raw.trim();
+  if (!trimmed) return undefined;
+  if (trimmed.includes(",") || /\s/.test(trimmed)) denySameOrigin();
+  return trimmed;
+}
+
+function requestScheme(
+  request: Request,
+  forwardedProto: string | undefined
+): string {
+  if (forwardedProto) {
+    const scheme = forwardedProto.toLowerCase();
+    if (scheme !== "http" && scheme !== "https") denySameOrigin();
+    return scheme;
+  }
   try {
-    expected = new URL(request.url).origin;
+    return new URL(request.url).protocol.replace(":", "").toLowerCase();
   } catch {
     throw new GuestForgePreviewError(
       "invalid_payload",
@@ -31,13 +53,33 @@ export function assertSameOrigin(request: Request): void {
       400
     );
   }
-  if (!origin || origin !== expected) {
-    throw new GuestForgePreviewError(
-      "reconnect_denied",
-      "Same-origin request required.",
-      403
-    );
+}
+
+function expectedOriginFromRequest(request: Request): string {
+  const host = singleForwardedValue(request.headers.get("host"));
+  const forwardedHost = singleForwardedValue(
+    request.headers.get("x-forwarded-host")
+  );
+  const forwardedProto = singleForwardedValue(
+    request.headers.get("x-forwarded-proto")
+  );
+  if (!host || /[/@\\]/.test(host)) denySameOrigin();
+  if (forwardedHost) {
+    if (/[/@\\]/.test(forwardedHost)) denySameOrigin();
+    if (forwardedHost.toLowerCase() !== host.toLowerCase()) denySameOrigin();
   }
+  const scheme = requestScheme(request, forwardedProto);
+  try {
+    return new URL(`${scheme}://${host}`).origin;
+  } catch {
+    denySameOrigin();
+  }
+}
+
+export function assertSameOrigin(request: Request): void {
+  const origin = request.headers.get("origin");
+  const expected = expectedOriginFromRequest(request);
+  if (!origin || origin !== expected) denySameOrigin();
 }
 
 export async function resolveGuestPreviewSession(input: {
