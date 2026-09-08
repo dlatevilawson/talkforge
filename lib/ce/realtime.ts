@@ -391,7 +391,7 @@ export function requestOpeningSpeech(
   const instructions = options?.guestOpeningContext
     ? [
         "Speak now as Forge — the coach, not a chatbot.",
-        "This is a private one-session preview.",
+        "This is a private one-session preview. Keep it to one focused rep, then close.",
         options.guestOpeningContext,
         "Ask exactly one short scenario-relevant first question, then wait. No product tour, topic menu, profile intake, or form.",
       ].join(" ")

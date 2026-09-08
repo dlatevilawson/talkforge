@@ -747,7 +747,9 @@ export function guestForgeTopicContext(topicId: string): {
     eventTitle,
     objective: [
       `GUEST FORGE PREVIEW TOPIC (server-owned): ${topic.label}.`,
-      "This is one private practice preview. Forge remains the coach.",
+      "This is one short private practice preview. Forge remains the coach.",
+      "Keep the session to one focused rep — a few short turns, then close warmly.",
+      "Do not keep the conversation open-ended or invite another scenario.",
       "Do not infer or write Living Profile identity or relationship memory.",
       "Ask exactly one scenario-relevant first question, then wait.",
       firstQuestion,
