@@ -60,6 +60,8 @@ import {
 } from "@/lib/ce/transcript";
 import {
   createVoiceSessionId,
+  getActiveVoiceSessionId,
+  getVoiceTranscript,
   saveVoiceTranscript,
   setActiveVoiceSessionId,
 } from "@/lib/ce/transcript-store";
@@ -1275,7 +1277,12 @@ export default function VoiceArena({
     setMicRecoveryPending(false);
     const resumeRecord =
       !isGuestPreview && !isAssessment
-        ? loadEligibleVoiceResume({ track, eventTitle })
+        ? loadEligibleVoiceResume({
+            getActiveId: getActiveVoiceSessionId,
+            getRecord: getVoiceTranscript,
+            track,
+            eventTitle,
+          })
         : null;
     const resuming = Boolean(resumeRecord);
     lifecycleGenerationRef.current += 1;

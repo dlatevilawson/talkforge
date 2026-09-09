@@ -3,12 +3,7 @@
  * Guest preview is one-shot and must not use this path.
  */
 
-import {
-  getActiveVoiceSessionId,
-  getVoiceTranscript,
-  type VoiceTranscriptRecord,
-} from "./transcript-store";
-import type { TranscriptTurn } from "./transcript";
+import type { TranscriptTurn } from "./transcript.ts";
 
 export const PRACTICE_RESUME_WINDOW_MS = 2 * 60 * 60 * 1_000;
 export const PRACTICE_RESUME_MAX_TURNS = 8;
@@ -30,7 +25,7 @@ export function isPracticeResumeEligible(input: {
 }
 
 export function resumeMatchesArena(
-  record: Pick<VoiceTranscriptRecord, "track" | "eventTitle">,
+  record: { track?: string; eventTitle?: string },
   input: { track?: string; eventTitle?: string }
 ): boolean {
   if (record.track && input.track && record.track !== input.track) {
@@ -54,14 +49,17 @@ export function buildResumeBrief(turns: TranscriptTurn[]): string {
     .join("\n");
 }
 
-export function loadEligibleVoiceResume(input: {
-  track?: string;
-  eventTitle?: string;
-  nowMs?: number;
-} = {}): VoiceTranscriptRecord | null {
-  const id = getActiveVoiceSessionId();
-  if (!id) return null;
-  const record = getVoiceTranscript(id);
+export function selectEligibleVoiceResume<
+  T extends {
+    turns: unknown[];
+    updatedAt?: string;
+    track?: string;
+    eventTitle?: string;
+  },
+>(
+  record: T | null | undefined,
+  input: { track?: string; eventTitle?: string; nowMs?: number } = {}
+): T | null {
   if (!record) return null;
   if (
     !isPracticeResumeEligible({
@@ -74,4 +72,25 @@ export function loadEligibleVoiceResume(input: {
   }
   if (!resumeMatchesArena(record, input)) return null;
   return record;
+}
+
+export function loadEligibleVoiceResume(input: {
+  getActiveId: () => string | null;
+  getRecord: (id: string) => {
+    turns: unknown[];
+    updatedAt?: string;
+    track?: string;
+    eventTitle?: string;
+  } | null;
+  track?: string;
+  eventTitle?: string;
+  nowMs?: number;
+}) {
+  const id = input.getActiveId();
+  if (!id) return null;
+  return selectEligibleVoiceResume(input.getRecord(id), {
+    track: input.track,
+    eventTitle: input.eventTitle,
+    nowMs: input.nowMs,
+  });
 }
