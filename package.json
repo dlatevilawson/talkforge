@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test:voice-lifecycle": "node --experimental-strip-types --test lib/ce/voice-lifecycle.test.mjs lib/ce/transcript-live.test.mjs",
+        "test:voice-lifecycle": "node --experimental-strip-types --test lib/ce/voice-lifecycle.test.mjs lib/ce/transcript-live.test.mjs lib/ce/interrupt.test.mjs lib/ce/session-resume.test.mjs",
     "test:voice-economics": "node --experimental-strip-types --test lib/ce/handsfree-fsm.test.mjs lib/ce/voice-economics.test.mjs lib/ce/handsfree-turntaking.test.mjs lib/ce/echo-reference.test.mjs lib/ce/voice-mode.test.mjs",
     "test:coach-philosophy": "node --experimental-strip-types --test lib/coach/philosophy.test.mjs lib/coach/forge-core.test.mjs lib/ce/session-config.test.mjs lib/coach/progress-display.test.mjs lib/system2/home-recommendation.test.mjs atlas/engine/awareness-steward.test.mjs atlas/engine/thread.test.mjs atlas/engine/executive-memory.test.mjs atlas/engine/reasoning-recall.test.mjs atlas/runtime/ingest/company-event.test.mjs",
     "test:system1-profile": "node --experimental-strip-types --test lib/system1/profile-intelligence.test.mjs lib/system1/persistence.test.mjs",
