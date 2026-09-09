@@ -74,18 +74,20 @@ export function selectEligibleVoiceResume<
   return record;
 }
 
-export function loadEligibleVoiceResume(input: {
-  getActiveId: () => string | null;
-  getRecord: (id: string) => {
+export function loadEligibleVoiceResume<
+  T extends {
     turns: unknown[];
     updatedAt?: string;
     track?: string;
     eventTitle?: string;
-  } | null;
+  },
+>(input: {
+  getActiveId: () => string | null;
+  getRecord: (id: string) => T | null;
   track?: string;
   eventTitle?: string;
   nowMs?: number;
-}) {
+}): T | null {
   const id = input.getActiveId();
   if (!id) return null;
   return selectEligibleVoiceResume(input.getRecord(id), {
