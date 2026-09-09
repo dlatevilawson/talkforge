@@ -51,7 +51,7 @@ export function buildResumeBrief(turns: TranscriptTurn[]): string {
 
 export function selectEligibleVoiceResume<
   T extends {
-    turns: unknown[];
+    turns: TranscriptTurn[];
     updatedAt?: string;
     track?: string;
     eventTitle?: string;
@@ -76,7 +76,7 @@ export function selectEligibleVoiceResume<
 
 export function loadEligibleVoiceResume<
   T extends {
-    turns: unknown[];
+    turns: TranscriptTurn[];
     updatedAt?: string;
     track?: string;
     eventTitle?: string;

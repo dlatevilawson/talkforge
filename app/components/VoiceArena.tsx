@@ -64,6 +64,7 @@ import {
   getVoiceTranscript,
   saveVoiceTranscript,
   setActiveVoiceSessionId,
+  type VoiceTranscriptRecord,
 } from "@/lib/ce/transcript-store";
 import { isCurrentVoiceLifecycle } from "@/lib/ce/voice-lifecycle";
 import {
@@ -1275,9 +1276,9 @@ export default function VoiceArena({
     }
     startingRef.current = true;
     setMicRecoveryPending(false);
-    const resumeRecord =
+    const resumeRecord: VoiceTranscriptRecord | null =
       !isGuestPreview && !isAssessment
-        ? loadEligibleVoiceResume({
+        ? loadEligibleVoiceResume<VoiceTranscriptRecord>({
             getActiveId: getActiveVoiceSessionId,
             getRecord: getVoiceTranscript,
             track,
@@ -1299,8 +1300,9 @@ export default function VoiceArena({
       setTurns([]);
       turnsRef.current = [];
     } else if (resumeRecord) {
-      setTurns(resumeRecord.turns);
-      turnsRef.current = resumeRecord.turns;
+      const resumedTurns: TranscriptTurn[] = resumeRecord.turns;
+      setTurns(resumedTurns);
+      turnsRef.current = resumedTurns;
     }
     setLiveForgeDraft("");
     setLiveUserDraft("");
