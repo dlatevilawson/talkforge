@@ -10,6 +10,7 @@ import {
   countCompletedSessions,
   getCoachMemory,
   getLivingProfile,
+  getSession,
   LivingProfileConflictError,
   saveCoachMemory,
   saveLivingProfileProvenance,
@@ -178,6 +179,20 @@ async function appendSessionEvidence(
       }
       throw error;
     }
+  }
+}
+
+export async function loadIncompletePracticeSession(
+  sessionId: string
+): Promise<PracticeSession | null> {
+  if (!sessionId) return null;
+  try {
+    const session = await getSession(sessionId);
+    if (!session || session.completedAt) return null;
+    return session;
+  } catch (error) {
+    console.warn("[session] load incomplete practice failed", error);
+    return null;
   }
 }
 

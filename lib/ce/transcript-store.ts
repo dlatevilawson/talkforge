@@ -16,6 +16,7 @@ const ACTIVE_KEY = "talkforge.ce_active_voice_session.v1";
 export type VoiceTranscriptRecord = {
   voiceSessionId: string;
   realtimeSessionId?: string | null;
+  practiceSessionId?: string | null;
   track?: string;
   eventTitle?: string;
   createdAt: string;
@@ -81,6 +82,7 @@ export function saveVoiceTranscript(
   const record: VoiceTranscriptRecord = {
     voiceSessionId: partial.voiceSessionId,
     realtimeSessionId: partial.realtimeSessionId,
+    practiceSessionId: partial.practiceSessionId,
     track: partial.track,
     eventTitle: partial.eventTitle,
     createdAt: partial.createdAt,

@@ -60,10 +60,24 @@ import {
 } from "@/lib/ce/transcript";
 import {
   createVoiceSessionId,
+  getActiveVoiceSessionId,
+  getVoiceTranscript,
   saveVoiceTranscript,
   setActiveVoiceSessionId,
+  type VoiceTranscriptRecord,
 } from "@/lib/ce/transcript-store";
 import { isCurrentVoiceLifecycle } from "@/lib/ce/voice-lifecycle";
+import {
+  canRecoverLivePeer,
+  FORGE_INTERRUPT_DISCONNECT_GRACE_MS,
+  FORGE_INTERRUPT_WATCHDOG_MS,
+  liveMicrophoneEnded,
+  shouldReconnectAfterInterrupt,
+} from "@/lib/ce/interrupt";
+import {
+  buildResumeBrief,
+  loadEligibleVoiceResume,
+} from "@/lib/ce/session-resume";
 import {
   completeVoiceUsageTracking,
   reportVoiceUsageEvent,
@@ -92,6 +106,7 @@ import { voiceTurnsToConversationTurns } from "@/lib/coach/report";
 import {
   completePracticeSession,
   createPracticeSession,
+  loadIncompletePracticeSession,
   persistActiveSession,
 } from "@/lib/session";
 import { getUser } from "@/lib/storage";
@@ -226,6 +241,15 @@ export default function VoiceArena({
   const [guestSecondsRemaining, setGuestSecondsRemaining] = useState<
     number | null
   >(null);
+  const [callInterrupted, setCallInterrupted] = useState(false);
+  const callInterruptedRef = useRef(false);
+  const peerStateRef = useRef<RTCPeerConnectionState | null>(null);
+  const lastForgeActivityRef = useRef(Date.now());
+  const interruptWatchdogRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  );
+  const interruptGraceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const startingRef = useRef(false);
   const [liveConnection, setLiveConnection] =
     useState<RealtimeConnection | null>(null);
   const [momentum, setMomentum] = useState<Momentum | null>(null);
@@ -543,6 +567,7 @@ export default function VoiceArena({
 
   const sessionActive =
     micMode === "microphone" &&
+    !callInterrupted &&
     (phase === "speaking" ||
       phase === "listening" ||
       phase === "connected");
@@ -657,6 +682,60 @@ export default function VoiceArena({
     phaseRef.current = phase;
   }, [handsFree, phase, voice]);
 
+  function clearInterruptTimers() {
+    if (interruptWatchdogRef.current) {
+      clearTimeout(interruptWatchdogRef.current);
+      interruptWatchdogRef.current = null;
+    }
+    if (interruptGraceRef.current) {
+      clearTimeout(interruptGraceRef.current);
+      interruptGraceRef.current = null;
+    }
+  }
+
+  function noteCallInterrupted(reason: string) {
+    if (isGuestPreview) return;
+    if (callInterruptedRef.current) return;
+    const phaseNow = phaseRef.current;
+    if (
+      phaseNow === "idle" ||
+      phaseNow === "momentum" ||
+      phaseNow === "error" ||
+      phaseNow === "minting"
+    ) {
+      return;
+    }
+    callInterruptedRef.current = true;
+    setCallInterrupted(true);
+    clearInterruptTimers();
+    cancelForgeResponse(connectionRef.current);
+    duckRemoteForgeAudio(connectionRef.current);
+    setMicrophoneEnabled(connectionRef.current, false);
+    setOutboundMicrophoneEnabled(connectionRef.current, false);
+    turnStateRef.current = "listening";
+    setTurnState("listening");
+    setPhase((current) => (current === "speaking" ? "connected" : current));
+    pushEvent(`Call interrupted · ${reason}`);
+  }
+
+  function armSpeakingWatchdog() {
+    if (isGuestPreview) return;
+    if (interruptWatchdogRef.current) {
+      clearTimeout(interruptWatchdogRef.current);
+    }
+    interruptWatchdogRef.current = setTimeout(() => {
+      interruptWatchdogRef.current = null;
+      if (callInterruptedRef.current) return;
+      if (phaseRef.current !== "speaking") return;
+      if (
+        Date.now() - lastForgeActivityRef.current >=
+        FORGE_INTERRUPT_WATCHDOG_MS
+      ) {
+        noteCallInterrupted("watchdog");
+      }
+    }, FORGE_INTERRUPT_WATCHDOG_MS);
+  }
+
   useEffect(() => {
     mountedRef.current = true;
     return () => {
@@ -666,6 +745,7 @@ export default function VoiceArena({
         joinGateTimerRef.current = null;
       }
       clearGuestDurationWatch();
+      clearInterruptTimers();
       lifecycleGenerationRef.current += 1;
       const usageId = usageIdRef.current;
       usageIdRef.current = null;
@@ -675,7 +755,45 @@ export default function VoiceArena({
       disconnectRealtime(connectionRef.current);
       connectionRef.current = null;
       setLiveConnection(null);
-      if (!isGuestPreview) setActiveVoiceSessionId(null);
+    };
+  }, [isGuestPreview]);
+
+  useEffect(() => {
+    if (isGuestPreview) return;
+    const onForeground = () => {
+      if (document.visibilityState && document.visibilityState !== "visible") {
+        return;
+      }
+      const connection = connectionRef.current;
+      if (!connection) return;
+      const phaseNow = phaseRef.current;
+      if (
+        phaseNow === "idle" ||
+        phaseNow === "momentum" ||
+        phaseNow === "error" ||
+        phaseNow === "minting"
+      ) {
+        return;
+      }
+      const peer = connection.pc.connectionState;
+      const micDead = liveMicrophoneEnded(connection.localStream);
+      if (
+        micDead ||
+        peer === "failed" ||
+        peer === "closed" ||
+        peer === "disconnected"
+      ) {
+        noteCallInterrupted("visibility");
+        return;
+      }
+      void resumeRemoteAudio(connection);
+      if (phaseNow === "speaking") armSpeakingWatchdog();
+    };
+    document.addEventListener("visibilitychange", onForeground);
+    window.addEventListener("pageshow", onForeground);
+    return () => {
+      document.removeEventListener("visibilitychange", onForeground);
+      window.removeEventListener("pageshow", onForeground);
     };
   }, [isGuestPreview]);
 
@@ -729,6 +847,7 @@ export default function VoiceArena({
     saveVoiceTranscript({
       voiceSessionId: id,
       realtimeSessionId: realtimeSessionIdRef.current,
+      practiceSessionId: practiceSessionRef.current?.id ?? null,
       track,
       eventTitle,
       createdAt: createdAtRef.current,
@@ -774,6 +893,9 @@ export default function VoiceArena({
 
   function handleServerEvent(event: Record<string, unknown>) {
     const type = typeof event.type === "string" ? event.type : "event";
+    if (isForgeOutputEventType(type)) {
+      lastForgeActivityRef.current = Date.now();
+    }
 
     const live = extractLiveTranscriptDelta(event);
     if (live) {
@@ -1144,9 +1266,26 @@ export default function VoiceArena({
   }
 
   async function handleStart() {
-    if (phase === "minting" || phase === "connecting" || phase === "speaking") {
+    const resumeReconnect = callInterruptedRef.current;
+    if (startingRef.current) return;
+    if (
+      !resumeReconnect &&
+      (phase === "minting" || phase === "connecting" || phase === "speaking")
+    ) {
       return;
     }
+    startingRef.current = true;
+    setMicRecoveryPending(false);
+    const resumeRecord: VoiceTranscriptRecord | null =
+      !isGuestPreview && !isAssessment
+        ? loadEligibleVoiceResume<VoiceTranscriptRecord>({
+            getActiveId: getActiveVoiceSessionId,
+            getRecord: getVoiceTranscript,
+            track,
+            eventTitle,
+          })
+        : null;
+    const resuming = Boolean(resumeRecord);
     lifecycleGenerationRef.current += 1;
     const startGeneration = lifecycleGenerationRef.current;
 
@@ -1154,8 +1293,17 @@ export default function VoiceArena({
     setMicMode(null);
     setMicFallbackReason(null);
     setMicRecoveryPending(false);
-    setTurns([]);
-    turnsRef.current = [];
+    setCallInterrupted(false);
+    callInterruptedRef.current = false;
+    clearInterruptTimers();
+    if (!resuming) {
+      setTurns([]);
+      turnsRef.current = [];
+    } else if (resumeRecord) {
+      const resumedTurns: TranscriptTurn[] = resumeRecord.turns;
+      setTurns(resumedTurns);
+      turnsRef.current = resumedTurns;
+    }
     setLiveForgeDraft("");
     setLiveUserDraft("");
     setJoinGateHold(true);
@@ -1180,7 +1328,9 @@ export default function VoiceArena({
     setRemoteAudioBlocked(false);
     setComplimentaryComplete(false);
     setWrapStage("coaching");
-    practiceSessionRef.current = null;
+    if (!resuming) {
+      practiceSessionRef.current = null;
+    }
     const priorUsage = usageIdRef.current;
     usageIdRef.current = null;
     if (priorUsage) {
@@ -1206,11 +1356,17 @@ export default function VoiceArena({
       syncAssessmentLifecycle(createIdleAssessmentState());
     }
     setPhase("minting");
-    pushEvent("Minting session…");
+    pushEvent(resuming ? "Resuming session…" : "Minting session…");
 
-    const newVoiceId = createVoiceSessionId();
-    voiceSessionIdRef.current = newVoiceId;
-    createdAtRef.current = new Date().toISOString();
+    if (resuming && resumeRecord) {
+      voiceSessionIdRef.current = resumeRecord.voiceSessionId;
+      createdAtRef.current = resumeRecord.createdAt;
+      setActiveVoiceSessionId(resumeRecord.voiceSessionId);
+    } else {
+      const newVoiceId = createVoiceSessionId();
+      voiceSessionIdRef.current = newVoiceId;
+      createdAtRef.current = new Date().toISOString();
+    }
 
     try {
       disconnectRealtime(connectionRef.current);
@@ -1316,6 +1472,7 @@ export default function VoiceArena({
         },
         onRemoteTrack: () => {
           pushEvent("Forge audio connected");
+          lastForgeActivityRef.current = Date.now();
           setPhase((current) =>
             current === "connecting" || current === "speaking"
               ? "speaking"
@@ -1331,13 +1488,43 @@ export default function VoiceArena({
           );
         },
         onConnectionState: (state) => {
+          peerStateRef.current = state;
           pushEvent(`Peer: ${state}`);
-          if (state === "failed") {
-            setError(
-              "TalkForge Arena lost its connection. Restart when you’re ready."
-            );
-            setPhase("error");
+          if (isGuestPreview) {
+            if (state === "failed") {
+              setError(
+                "TalkForge Arena lost its connection. Restart when you’re ready."
+              );
+              setPhase("error");
+            }
+            return;
           }
+          if (state === "failed" || state === "closed") {
+            noteCallInterrupted(state);
+            return;
+          }
+          if (state === "disconnected") {
+            if (interruptGraceRef.current) {
+              clearTimeout(interruptGraceRef.current);
+            }
+            interruptGraceRef.current = setTimeout(() => {
+              interruptGraceRef.current = null;
+              if (
+                peerStateRef.current === "disconnected" ||
+                peerStateRef.current === "failed"
+              ) {
+                noteCallInterrupted("disconnected");
+              }
+            }, FORGE_INTERRUPT_DISCONNECT_GRACE_MS);
+            return;
+          }
+          if (state === "connected" && interruptGraceRef.current) {
+            clearTimeout(interruptGraceRef.current);
+            interruptGraceRef.current = null;
+          }
+        },
+        onMicTrackEnded: () => {
+          noteCallInterrupted("mic_ended");
         },
         onServerEvent: handleServerEvent,
       });
@@ -1360,18 +1547,48 @@ export default function VoiceArena({
 
       if (!isGuestPreview) {
         // Do not create permanent history until Realtime is connected.
-        const practice = await createPracticeSession({
-          scenarioId: isAssessment ? "voice_assessment" : `voice_${track}`,
-          scenarioTitle,
-          missionPrompt: isAssessment
-            ? "Short discovery interview so Forge can get a sense of you."
-            : successCriteria?.trim() ||
-              "Practice clear, warm, confident communication out loud with Forge.",
-          modality: "voice",
-        });
+        let practice = practiceSessionRef.current;
+        if (resuming && resumeRecord?.practiceSessionId) {
+          const existing = await loadIncompletePracticeSession(
+            resumeRecord.practiceSessionId
+          );
+          if (existing) {
+            practice = await persistActiveSession(
+              existing,
+              voiceTurnsToConversationTurns(turnsRef.current)
+            );
+          }
+        }
+        if (!practice) {
+          practice = await createPracticeSession({
+            scenarioId: isAssessment ? "voice_assessment" : `voice_${track}`,
+            scenarioTitle,
+            missionPrompt: isAssessment
+              ? "Short discovery interview so Forge can get a sense of you."
+              : successCriteria?.trim() ||
+                "Practice clear, warm, confident communication out loud with Forge.",
+            modality: "voice",
+          });
+        }
         practiceSessionRef.current = practice;
         setSavedSessionId(practice.id);
-        pushEvent(`Session saved · ${practice.id.slice(0, 8)}`);
+        if (!isAssessment && voiceSessionIdRef.current) {
+          saveVoiceTranscript({
+            voiceSessionId: voiceSessionIdRef.current,
+            realtimeSessionId: realtimeSessionIdRef.current,
+            practiceSessionId: practice.id,
+            track,
+            eventTitle,
+            createdAt: createdAtRef.current,
+            turns: turnsRef.current,
+          });
+          setActiveVoiceSessionId(voiceSessionIdRef.current);
+        }
+        pushEvent(
+          resuming
+            ? `Session resumed · ${practice.id.slice(0, 8)}`
+            : `Session saved · ${practice.id.slice(0, 8)}`
+        );
 
         usageIdRef.current = await startVoiceUsageTracking({
           practiceSessionId: practice.id,
@@ -1405,9 +1622,15 @@ export default function VoiceArena({
         guestOpeningContext: isGuestPreview
           ? tokenData.openingContext
           : undefined,
+        resumeContext:
+          !isGuestPreview && !isAssessment && resuming
+            ? buildResumeBrief(turnsRef.current) || undefined
+            : undefined,
       });
       pushEvent(
-        tokenData.memory?.isReturning
+        resuming
+          ? `Forge opening · resume · budget ${openingBudget}`
+          : tokenData.memory?.isReturning
           ? `Forge opening · returning member · budget ${openingBudget}`
           : `Forge opening · first session · budget ${openingBudget}`
       );
@@ -1437,6 +1660,9 @@ export default function VoiceArena({
         err instanceof Error ? err.message : "Could not start. Try again."
       );
       pushEvent("FAILED");
+    } finally {
+      startingRef.current = false;
+      setMicRecoveryPending(false);
     }
   }
 
@@ -1476,7 +1702,11 @@ export default function VoiceArena({
     setMicRecoveryPending(true);
     setError("");
     pushEvent("Checking microphone…");
-    const result = await recoverMicrophone(connection, isCurrentRecovery);
+    const result = await recoverMicrophone(
+      connection,
+      isCurrentRecovery,
+      () => noteCallInterrupted("mic_ended")
+    );
     if (!isCurrentRecovery()) return;
     setMicRecoveryPending(false);
     setMicFallbackReason(result.reason);
@@ -1486,6 +1716,69 @@ export default function VoiceArena({
       return;
     }
     pushEvent("Microphone still unavailable");
+  }
+
+  async function handleContinueAfterInterrupt() {
+    if (isGuestPreview || micRecoveryPending || startingRef.current) return;
+    const connection = connectionRef.current;
+    const peer = connection?.pc.connectionState ?? peerStateRef.current;
+    setMicRecoveryPending(true);
+    setError("");
+    pushEvent("Continuing after interrupt…");
+
+    if (
+      connection &&
+      canRecoverLivePeer(peer) &&
+      !shouldReconnectAfterInterrupt(peer)
+    ) {
+      const recoveryGeneration = lifecycleGenerationRef.current;
+      const isCurrentRecovery = () =>
+        isCurrentVoiceLifecycle(
+          mountedRef.current,
+          connectionRef.current,
+          connection,
+          lifecycleGenerationRef.current,
+          recoveryGeneration
+        );
+      const result = await recoverMicrophone(
+        connection,
+        isCurrentRecovery,
+        () => noteCallInterrupted("mic_ended")
+      );
+      if (!isCurrentRecovery()) return;
+      const resumed = await resumeRemoteAudio(connection);
+      const peerNow = connection.pc.connectionState;
+      setMicFallbackReason(result.reason);
+      if (
+        result.recovered &&
+        canRecoverLivePeer(peerNow) &&
+        !shouldReconnectAfterInterrupt(peerNow)
+      ) {
+        unduckRemoteForgeAudio(connection);
+        callInterruptedRef.current = false;
+        setCallInterrupted(false);
+        setMicMode("microphone");
+        setRemoteAudioBlocked(!resumed);
+        turnStateRef.current = "listening";
+        setTurnState("listening");
+        setPhase("listening");
+        setMicRecoveryPending(false);
+        pushEvent("Continued after interrupt");
+        return;
+      }
+      if (
+        canRecoverLivePeer(peerNow) &&
+        peerNow !== "disconnected" &&
+        !shouldReconnectAfterInterrupt(peerNow)
+      ) {
+        setMicRecoveryPending(false);
+        pushEvent("Microphone still unavailable after interrupt");
+        return;
+      }
+    }
+
+    setMicRecoveryPending(false);
+    void handleStart();
   }
 
   function assessmentUiTerminal(): boolean {
@@ -1501,6 +1794,7 @@ export default function VoiceArena({
   }
 
   function handleSpeakDown() {
+    if (callInterrupted) return;
     if (assessmentUiTerminal()) {
       pushEvent("Hold ignored · assessment terminal");
       return;
@@ -1731,6 +2025,7 @@ export default function VoiceArena({
       saveVoiceTranscript({
         voiceSessionId: id,
         realtimeSessionId: realtimeSessionIdRef.current,
+        practiceSessionId: practiceSessionRef.current?.id ?? null,
         track,
         eventTitle,
         createdAt: createdAtRef.current,
@@ -1751,6 +2046,9 @@ export default function VoiceArena({
     connectionRef.current = null;
     setLiveConnection(null);
     if (!isGuestPreview) setActiveVoiceSessionId(null);
+    callInterruptedRef.current = false;
+    setCallInterrupted(false);
+    clearInterruptTimers();
     pushEvent("Ended");
 
     const snapshot = [...turnsRef.current];
@@ -2423,7 +2721,7 @@ export default function VoiceArena({
                       </p>
                     )}
 
-                    {remoteAudioBlocked ? (
+                    {remoteAudioBlocked && !callInterrupted ? (
                       <button
                         type="button"
                         onClick={() => void handleResumeRemoteAudio()}
@@ -2431,6 +2729,22 @@ export default function VoiceArena({
                       >
                         Hear Coach Forge
                       </button>
+                    ) : null}
+
+                    {callInterrupted ? (
+                      <div className="mx-auto mt-3 max-w-md">
+                        <p className="text-sm text-[#e7d6b1]">
+                          Call interrupted. Tap to continue.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => void handleContinueAfterInterrupt()}
+                          disabled={micRecoveryPending}
+                          className="mt-3 rounded-full border border-[#D4AF37]/30 px-5 py-2.5 text-sm text-[#e7d6b1] transition hover:bg-[#D4AF37]/10 disabled:opacity-50"
+                        >
+                          {micRecoveryPending ? "Continuing…" : "Continue"}
+                        </button>
+                      </div>
                     ) : null}
 
                     {micMode === "silent_fallback" && (
@@ -2475,7 +2789,8 @@ export default function VoiceArena({
                                 disabled={
                                   !sessionReady ||
                                   micMode !== "microphone" ||
-                                  assessmentTerminalUi
+                                  assessmentTerminalUi ||
+                                  callInterrupted
                                 }
                                 className="rounded-full border border-[#D4AF37]/22 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#e8d5a3]/85 transition hover:border-[#D4AF37]/4 hover:bg-[#D4AF37]/08 disabled:opacity-35"
                               >
@@ -2501,7 +2816,8 @@ export default function VoiceArena({
                                   !sessionReady ||
                                   phase === "speaking" ||
                                   micMode !== "microphone" ||
-                                  assessmentTerminalUi
+                                  assessmentTerminalUi ||
+                                  callInterrupted
                                 }
                                 onPointerDown={(event) => {
                                   event.currentTarget.setPointerCapture(

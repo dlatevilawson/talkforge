@@ -385,6 +385,26 @@ export function buildOpeningSpeechInstructions(
     .join(" ");
 }
 
+/** Continue an interrupted signed-in conversation instead of a first-breath welcome. */
+export function buildResumeOpeningSpeechInstructions(input: {
+  resumeBrief: string;
+  eventTitle?: string;
+}): string {
+  const brief = input.resumeBrief.trim();
+  const eventTitle = input.eventTitle?.trim();
+  return [
+    "Speak now as Forge — a mentor, not a chatbot.",
+    "This is a resumed conversation, not a new first session.",
+    "A phone call or connection drop interrupted practice. Pick up the same thread.",
+    "Do not welcome them as if they just arrived. Do not ask what they want to work on. Do not recap like a transcript dump.",
+    eventTitle ? `They were practicing: ${eventTitle}.` : "",
+    brief ? `Recent turns:\n${brief}` : "",
+    "One short acknowledgment that you are continuing, then the next natural coaching move. Then wait.",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
 /** Compact rules for text-coach npc lines (the spoken counterpart). */
 export const FORGE_NPC_PACING_RULES = `
 For the "npc" / spoken reply:

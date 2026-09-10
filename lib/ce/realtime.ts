@@ -1,6 +1,7 @@
 import {
   buildListenFirstTurnInstructions,
   buildOpeningSpeechInstructions,
+  buildResumeOpeningSpeechInstructions,
   FORGE_TURN_MAX_OUTPUT_TOKENS,
 } from "@/lib/coach/philosophy";
 import type { AssessmentSlotId } from "./assessment-lifecycle";
@@ -58,6 +59,7 @@ export type ConnectRealtimeOptions = {
   ) => void;
   onRemoteTrack?: () => void;
   onRemotePlayback?: (state: "playing" | "blocked") => void;
+  onMicTrackEnded?: () => void;
 };
 
 /**
@@ -85,6 +87,16 @@ export async function connectRealtime(
   pc.onconnectionstatechange = () => {
     options.onConnectionState?.(pc.connectionState);
   };
+  pc.oniceconnectionstatechange = () => {
+    if (
+      pc.iceConnectionState === "failed" ||
+      pc.iceConnectionState === "disconnected"
+    ) {
+      options.onConnectionState?.(
+        pc.iceConnectionState === "failed" ? "failed" : "disconnected"
+      );
+    }
+  };
 
   const { stream: localStream, usedSilentMicFallback, micFallbackReason } =
     await acquireLocalAudioStream();
@@ -103,6 +115,7 @@ export async function connectRealtime(
     outboundAudioTracks.push(outbound);
     pc.addTrack(outbound, localStream);
   }
+  watchMicrophoneEnded(localStream, options.onMicTrackEnded);
 
   const dc = pc.createDataChannel("oai-events");
   dc.addEventListener("message", (messageEvent) => {
@@ -274,9 +287,27 @@ export function classifyMicCaptureError(error: unknown): MicFallbackReason {
   return "unknown";
 }
 
+/** Live mic tracks end when a phone call or OS audio session steals the device. */
+export function watchMicrophoneEnded(
+  stream: MediaStream,
+  onEnded?: () => void
+): void {
+  if (!onEnded) return;
+  for (const track of stream.getAudioTracks()) {
+    track.addEventListener(
+      "ended",
+      () => {
+        onEnded();
+      },
+      { once: true }
+    );
+  }
+}
+
 export async function recoverMicrophone(
   connection: RealtimeConnection,
-  isCurrent: () => boolean = () => true
+  isCurrent: () => boolean = () => true,
+  onMicTrackEnded?: () => void
 ): Promise<{
   recovered: boolean;
   reason: MicFallbackReason | null;
@@ -330,6 +361,7 @@ export async function recoverMicrophone(
     connection.outboundAudioTracks = [outbound];
     connection.usedSilentMicFallback = false;
     connection.micFallbackReason = null;
+    watchMicrophoneEnded(replacementStream, onMicTrackEnded);
     return { recovered: true, reason: null };
   } catch (error) {
     if (replacementStream) releaseLocalAudioStream(replacementStream);
@@ -382,6 +414,7 @@ export function requestOpeningSpeech(
     isReturning?: boolean;
     mode?: "practice" | "assessment";
     guestOpeningContext?: string;
+    resumeContext?: string;
   }
 ): void {
   if (dc.readyState !== "open") {
@@ -395,6 +428,11 @@ export function requestOpeningSpeech(
         options.guestOpeningContext,
         "Ask exactly one short scenario-relevant first question, then wait. No product tour, topic menu, profile intake, or form.",
       ].join(" ")
+    : options?.resumeContext
+      ? buildResumeOpeningSpeechInstructions({
+          resumeBrief: options.resumeContext,
+          eventTitle: options.eventTitle,
+        })
     : options?.mode === "assessment"
       ? buildAssessmentOpeningSpeechInstructions()
       : buildOpeningSpeechInstructions({
