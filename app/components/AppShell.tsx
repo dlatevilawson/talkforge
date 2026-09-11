@@ -20,6 +20,7 @@ import {
 
 const links = [
   { href: "/app/progress", label: "Progress" },
+  { href: "/app/inbox", label: "Check-ins" },
   { href: "/app/history", label: "Training history" },
   { href: "/app/profile", label: "Living Profile" },
   { href: "/app/billing", label: "Billing" },
