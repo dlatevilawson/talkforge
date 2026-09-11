@@ -123,17 +123,42 @@ assert.equal(
   "snapshot handle_new_user() drifted from the secure migration"
 );
 
-const resetMigration = migrationSql.get(
+const historicalAcResetMigration = migrationSql.get(
   "20260817_reset_purge_assistant_coach_return_type.sql"
 );
 assert.ok(
-  resetMigration,
+  historicalAcResetMigration,
   "reset return-type corrective 20260817_reset_purge_assistant_coach_return_type.sql missing from migrations dir"
 );
 assert.match(
-  resetMigration,
+  historicalAcResetMigration,
   /drop function if exists public\.reset_my_talkforge_data\s*\(\s*\)/i,
   "corrective must DROP before recreate to change RETURNS TABLE"
+);
+assert.match(
+  historicalAcResetMigration,
+  /delete from public\.assistant_coach_sessions\s+where user_id = member_id/i
+);
+assert.match(
+  historicalAcResetMigration,
+  /assistant_coach_sessions_deleted/
+);
+assert.match(
+  historicalAcResetMigration,
+  /grant execute on function public\.reset_my_talkforge_data\(\) to service_role/i,
+  "corrective must restore service_role EXECUTE observed in production ACL"
+);
+
+const resetMigration = migrationSql.get("20260911_forge_agent.sql");
+assert.ok(resetMigration, "20260911_forge_agent.sql missing from migrations dir");
+assert.doesNotMatch(
+  resetMigration,
+  /drop function if exists public\.reset_my_talkforge_data/i,
+  "forge-agent reset must keep the existing RETURNS TABLE (no DROP)"
+);
+assert.match(
+  resetMigration,
+  /delete from public\.forge_agent_actions\s+where user_id = member_id/i
 );
 assert.equal(
   normalizeSql(
@@ -143,19 +168,6 @@ assert.equal(
     extractFunction(resetMigration, "reset_my_talkforge_data", "\\$function\\$")
   ),
   "snapshot reset_my_talkforge_data() drifted from its migration"
-);
-assert.match(
-  resetMigration,
-  /delete from public\.assistant_coach_sessions\s+where user_id = member_id/i
-);
-assert.match(
-  resetMigration,
-  /assistant_coach_sessions_deleted/
-);
-assert.match(
-  resetMigration,
-  /grant execute on function public\.reset_my_talkforge_data\(\) to service_role/i,
-  "corrective must restore service_role EXECUTE observed in production ACL"
 );
 const supersededReset = migrationSql.get(
   "20260817_reset_purge_assistant_coach.sql"

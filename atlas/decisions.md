@@ -1169,6 +1169,71 @@ Authoritative — ✅ Final Founder approach decided 2026-09-07; supersedes Deci
 
 ---
 
+# Decision 061
+
+Decision Alias:
+FORGE-AGENT-CHECKIN-001
+
+Title:
+Carve-out from feature NO-GO for Forge Agent check-in (IV-PROD-011), Phases 0–2 only.
+
+Reason:
+
+Coach Forge is purely reactive. Members get no follow-through on homework and no prep for a conversation they themselves declared. The Founder authorized a narrow, opt-in, in-app approval inbox so Forge can draft a check-in without sending anything autonomously, without calendar, email, identity writes, or live-session changes.
+
+Alternatives Considered:
+
+Ship cron + LLM drafting in the same slice — rejected. Phase 3 requires a separate go-ahead.
+
+Email or SMS as v1 channel — rejected. In-app only until a later vendor decision.
+
+Auto-approval or homework auto-cues from End Session — rejected. Each is a separate future decision.
+
+Connect Google Calendar — rejected for v1.
+
+Touch VoiceArena, Realtime mint, or guest preview to deliver outreach — rejected.
+
+Blind Spots:
+
+[BS-018](../atos/knowledge/working/blind-spot-register/bs-018.md): proactive outreach nags, or invents events the member never declared.
+
+BS-001 / OWN-001: check-in copy must not write Living Profile identity.
+
+Risks:
+
+Lazy materialization on inbox GET could feel like “Forge decided to ping me.” Mitigate with opt-in default OFF, template copy that states the member declared the cue, and deny that stops the cue class.
+
+Members cannot find the inbox. Mitigate with one AppShell “Check-ins” link only — not a Home takeover.
+
+Account reset leaking agent tables. Mitigate by purging new tables inside `reset_my_talkforge_data()` without changing its return type.
+
+Final Decision:
+
+**APPROVE Phases 0–2 of Forge Agent check-in. Do not treat this as a general feature GO.**
+
+1. Opt-in default **OFF**. In-app only. No email, SMS, or calendar.
+2. Cues are **member-declared** only. No inferred events. No homework auto-cues.
+3. Nothing sends without explicit **Approve** or **Deny**. Deny stops that cue class (MBL-001 §14.2).
+4. No writes to `living_profiles` or `coach_memory`. No VoiceArena / Realtime / guest preview edits.
+5. Phase 3 (cron + live draft agent) and Phase 4 (Home, Settings, `completePracticeSession`, Realtime opening context) each require a separate Founder go-ahead.
+6. Frozen HARDEN-001–005 and EXEC-VERIFY-001 bodies remain unchanged.
+
+Future Review Date:
+
+After the first production opt-in → due cue → approve/deny loop is used by a signed-in member; review decline rates and whether Phase 3 is warranted.
+
+Volumes:
+
+`atos/knowledge/working/idea-vault/product-ideas/IV-PROD-011-forge-agent-check-in.md`
+`atos/knowledge/working/blind-spot-register/bs-018.md`
+`atos/product/MBL-001-machine-behavior-language.md`
+`atos/product/OWN-001-identity-ownership-matrix.md`
+
+Status:
+Authoritative — ✅ Founder decided 2026-09-11; Phases 0–2 carved out; Phases 3–4 gated
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
