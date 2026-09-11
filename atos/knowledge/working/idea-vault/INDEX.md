@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | **Document ID** | IV-INDEX |
-| **Version** | 1.14.0 |
+| **Version** | 1.15.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
-| **Updated** | 2026-09-07 |
-| **Entry count** | 76 |
+| **Updated** | 2026-09-11 |
+| **Entry count** | 77 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
@@ -58,7 +58,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-LAW-011](laws/IV-LAW-011-constitutional-law-001.md) | Constitutional Law #001 — deliberate Canonical admission | Approved | Critical | High | `laws/IV-LAW-011-constitutional-law-001.md` |
 | [IV-LAW-012](laws/IV-LAW-012-craft-law-001.md) | Craft Law #001 — human, trustworthy, courageous | Approved | Critical | High | `laws/IV-LAW-012-craft-law-001.md` |
 
-## Product Ideas (10)
+## Product Ideas (11)
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
@@ -72,6 +72,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-PROD-008](product-ideas/IV-PROD-008-billing-membership.md) | Billing & Membership Platform (Free / Pro) | In Development | Critical | High | `product-ideas/IV-PROD-008-billing-membership.md` |
 | [IV-PROD-009](product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md) | First-user Assistant Coach journey (pre-account value) | Archived | Critical | High | `product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md` |
 | [IV-PROD-010](product-ideas/IV-PROD-010-single-session-coach-preview.md) | Single-session Coach preview | Approved | Critical | High | `product-ideas/IV-PROD-010-single-session-coach-preview.md` |
+| [IV-PROD-011](product-ideas/IV-PROD-011-forge-agent-check-in.md) | Forge Agent check-in (proactive out-of-session outreach) | In Development | Important | High | `product-ideas/IV-PROD-011-forge-agent-check-in.md` |
 
 ## Features (9)
 
@@ -200,6 +201,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-PROD-008](product-ideas/IV-PROD-008-billing-membership.md) | Billing & Membership Platform (Free / Pro) | In Development | Product Ideas |
 | [IV-PROD-009](product-ideas/IV-PROD-009-first-user-assistant-coach-journey.md) | First-user Assistant Coach journey (pre-account value) | Archived | Product Ideas |
 | [IV-PROD-010](product-ideas/IV-PROD-010-single-session-coach-preview.md) | Single-session Coach preview | Approved | Product Ideas |
+| [IV-PROD-011](product-ideas/IV-PROD-011-forge-agent-check-in.md) | Forge Agent check-in (proactive out-of-session outreach) | In Development | Product Ideas |
 | [IV-RES-004](research-ideas/IV-RES-004-transfer-outside-app.md) | Transfer outside the app is the scoreboard | Researching | Research Ideas |
 | [IV-FUT-003](future-ideas/IV-FUT-003-multi-year-mentor.md) | Multi-year mentor relationship vision | Future | Future Ideas |
 | [IV-REJ-001](rejected-ideas/IV-REJ-001-optimize-engagement.md) | Optimize for engagement / time-in-app | Rejected | Rejected Ideas |

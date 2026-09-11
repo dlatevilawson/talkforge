@@ -1,7 +1,7 @@
 # Blind Spot Register — Index
 
-| **Updated** | 2026-09-07 |
-| **Count** | 17 |
+| **Updated** | 2026-09-11 |
+| **Count** | 18 |
 
 | ID | Title | Status | Severity | Related |
 |---|---|---|---|---|
@@ -22,3 +22,4 @@
 | [BS-015](bs-015.md) | Anonymous Coach preview cannot prove one person | Accepted Risk | High | IV-PROD-010 · IV-PROD-008 · HARDEN-005 |
 | [BS-016](bs-016.md) | Billing becomes a paywall or second identity store | Mitigating | High | IV-PROD-008 · OWN-001 · BILL-001 |
 | [BS-017](bs-017.md) | Continuous Intelligence silently Canonicalizes or Atlas becomes sovereign | Open | High | IV-AI-010 · IV-LAW-011 |
+| [BS-018](bs-018.md) | Proactive Forge outreach nags or invents undeclared events | Mitigating | High | IV-PROD-011 · MBL-001 · OWN-001 |
