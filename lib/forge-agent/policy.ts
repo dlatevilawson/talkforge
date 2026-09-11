@@ -5,7 +5,7 @@ import {
   type ForgeAgentPreferences,
   type ForgeCue,
   type ForgeCueKind,
-} from "./types";
+} from "./types.ts";
 
 export class ForgeAgentError extends Error {
   readonly status: number;

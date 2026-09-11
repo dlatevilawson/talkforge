@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import { requireApiUser } from "@/lib/auth/api-guard";
 import { isGuestUserId } from "@/lib/identity";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { ForgeAgentError } from "./policy";
+import { ForgeAgentError } from "./policy.ts";
 import {
   createSupabaseForgeAgentRepository,
   type ForgeAgentRepository,
-} from "./repository";
+} from "./repository.ts";
 
 export async function requireForgeAgentRepo(): Promise<
   | { ok: true; userId: string; repo: ForgeAgentRepository }

@@ -1,4 +1,4 @@
-import type { ForgeCheckInPayload, ForgeCueKind } from "./types";
+import type { ForgeCheckInPayload, ForgeCueKind } from "./types.ts";
 
 const KIND_LABEL: Record<ForgeCueKind, string> = {
   upcoming_conversation: "upcoming conversation",

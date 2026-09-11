@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { buildCheckInCopy } from "./copy";
+import { buildCheckInCopy } from "./copy.ts";
 import {
   assertForgeAgentWriteTarget,
   assertMemberNotGuest,
@@ -8,7 +8,7 @@ import {
   isForgeCueKind,
   recordDeniedCueClass,
   shouldMaterializeCue,
-} from "./policy";
+} from "./policy.ts";
 import {
   FORGE_AGENT_CHANNEL,
   type CreateForgeCueInput,
@@ -20,7 +20,7 @@ import {
   type ForgeQuietHours,
   type PatchForgeCueInput,
   type UpdateForgePreferencesInput,
-} from "./types";
+} from "./types.ts";
 
 export type ForgeAgentRepository = {
   getPreferences(userId: string): Promise<ForgeAgentPreferences>;
