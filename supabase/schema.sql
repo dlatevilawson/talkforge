@@ -299,6 +299,83 @@ create table if not exists public.waitlist_members (
 create index if not exists waitlist_members_created_at_idx
   on public.waitlist_members (created_at desc);
 
+-- Forge Agent check-in (IV-PROD-011 / Decision 061 Phases 0–2)
+create table if not exists public.forge_agent_preferences (
+  user_id uuid primary key
+    references public.profiles (id) on delete cascade,
+  outreach_enabled boolean not null default false,
+  channel text not null default 'in_app'
+    check (channel = 'in_app'),
+  quiet_hours jsonb,
+  denied_cue_classes text[] not null default '{}',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.forge_cues (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null
+    references public.profiles (id) on delete cascade,
+  kind text not null
+    check (kind in ('upcoming_conversation', 'practice_follow_up', 'homework')),
+  title text not null,
+  success_criteria text,
+  due_at timestamptz not null,
+  source text not null default 'member'
+    check (source in ('member', 'session')),
+  source_session_id text,
+  status text not null default 'active'
+    check (status in ('active', 'paused', 'consumed', 'cancelled')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists forge_cues_user_due_idx
+  on public.forge_cues (user_id, due_at);
+create index if not exists forge_cues_user_status_idx
+  on public.forge_cues (user_id, status);
+
+create table if not exists public.forge_agent_actions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null
+    references public.profiles (id) on delete cascade,
+  cue_id uuid not null
+    references public.forge_cues (id) on delete cascade,
+  action_type text not null default 'in_app_checkin'
+    check (action_type = 'in_app_checkin'),
+  status text not null default 'pending_approval'
+    check (
+      status in (
+        'pending_approval',
+        'approved',
+        'denied',
+        'expired',
+        'delivered',
+        'failed'
+      )
+    ),
+  payload jsonb not null default '{}'::jsonb,
+  approved_at timestamptz,
+  denied_at timestamptz,
+  delivered_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint forge_agent_actions_cue_id_uidx unique (cue_id)
+);
+
+create index if not exists forge_agent_actions_user_status_idx
+  on public.forge_agent_actions (user_id, status);
+
+create table if not exists public.forge_agent_runs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid
+    references public.profiles (id) on delete cascade,
+  kind text not null default 'unused',
+  status text not null default 'unused',
+  detail jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
 -- ---------------------------------------------------------------------------
 -- Helpers
 -- ---------------------------------------------------------------------------
@@ -439,7 +516,7 @@ create trigger on_auth_user_email_confirmed
   after update of email_confirmed_at on auth.users
   for each row execute function public.handle_user_email_confirmed();
 
--- Member-owned identity and coaching data reset (HARDEN-003).
+-- Member-owned identity and coaching data reset (HARDEN-003 + Decision 061).
 create or replace function public.reset_my_talkforge_data()
 returns table (
   living_profiles_deleted bigint,
@@ -467,6 +544,16 @@ begin
     raise exception 'Authentication is required to reset TalkForge data.'
       using errcode = '28000';
   end if;
+
+  -- Forge Agent rows first so account reset cannot leak check-in data.
+  delete from public.forge_agent_actions
+  where user_id = member_id;
+  delete from public.forge_cues
+  where user_id = member_id;
+  delete from public.forge_agent_runs
+  where user_id = member_id;
+  delete from public.forge_agent_preferences
+  where user_id = member_id;
 
   -- Delete child rows explicitly so the result reports every resource class.
   -- The function invocation is one database transaction: any failure rolls
@@ -513,7 +600,7 @@ grant execute on function public.reset_my_talkforge_data() to authenticated;
 grant execute on function public.reset_my_talkforge_data() to service_role;
 
 comment on function public.reset_my_talkforge_data() is
-  'Atomically deletes active TalkForge identity and coaching data owned by auth.uid(), including claimed Assistant Coach sessions (messages/drafts cascade); retains the Auth account and public.profiles row. Unclaimed anon AC sessions are not member-owned and are excluded.';
+  'Atomically deletes active TalkForge identity and coaching data owned by auth.uid(), including claimed Assistant Coach sessions (messages/drafts cascade) and Forge Agent check-in rows; retains the Auth account and public.profiles row. Unclaimed anon AC sessions are not member-owned and are excluded.';
 
 -- ---------------------------------------------------------------------------
 -- RLS
@@ -532,6 +619,10 @@ alter table public.assistant_coach_profile_drafts enable row level security;
 alter table public.founder_notes enable row level security;
 alter table public.founder_briefs enable row level security;
 alter table public.waitlist_members enable row level security;
+alter table public.forge_agent_preferences enable row level security;
+alter table public.forge_cues enable row level security;
+alter table public.forge_agent_actions enable row level security;
+alter table public.forge_agent_runs enable row level security;
 
 drop trigger if exists coach_memory_set_updated_at on public.coach_memory;
 create trigger coach_memory_set_updated_at
@@ -560,6 +651,23 @@ create trigger assistant_coach_profile_drafts_set_updated_at
   before update on public.assistant_coach_profile_drafts
   for each row execute function public.set_updated_at();
 
+drop trigger if exists forge_agent_preferences_set_updated_at
+  on public.forge_agent_preferences;
+create trigger forge_agent_preferences_set_updated_at
+  before update on public.forge_agent_preferences
+  for each row execute function public.set_updated_at();
+
+drop trigger if exists forge_cues_set_updated_at on public.forge_cues;
+create trigger forge_cues_set_updated_at
+  before update on public.forge_cues
+  for each row execute function public.set_updated_at();
+
+drop trigger if exists forge_agent_actions_set_updated_at
+  on public.forge_agent_actions;
+create trigger forge_agent_actions_set_updated_at
+  before update on public.forge_agent_actions
+  for each row execute function public.set_updated_at();
+
 -- Assistant Coach anon plane: no anon/authenticated policies (service_role only).
 revoke all on table public.assistant_coach_sessions from anon, authenticated;
 revoke all on table public.assistant_coach_messages from anon, authenticated;
@@ -567,6 +675,9 @@ revoke all on table public.assistant_coach_profile_drafts from anon, authenticat
 grant all on table public.assistant_coach_sessions to service_role;
 grant all on table public.assistant_coach_messages to service_role;
 grant all on table public.assistant_coach_profile_drafts to service_role;
+
+revoke all on table public.forge_agent_runs from anon, authenticated;
+grant all on table public.forge_agent_runs to service_role;
 
 -- Drop legacy open policies if present
 drop policy if exists "profiles_anon_all" on public.profiles;
@@ -664,3 +775,24 @@ create policy "waitlist_staff_select"
   on public.waitlist_members for select
   to authenticated
   using (public.is_founder_or_admin());
+
+drop policy if exists "forge_agent_preferences_own" on public.forge_agent_preferences;
+create policy "forge_agent_preferences_own"
+  on public.forge_agent_preferences for all
+  to authenticated
+  using (user_id = auth.uid() or public.is_founder_or_admin())
+  with check (user_id = auth.uid());
+
+drop policy if exists "forge_cues_own" on public.forge_cues;
+create policy "forge_cues_own"
+  on public.forge_cues for all
+  to authenticated
+  using (user_id = auth.uid() or public.is_founder_or_admin())
+  with check (user_id = auth.uid());
+
+drop policy if exists "forge_agent_actions_own" on public.forge_agent_actions;
+create policy "forge_agent_actions_own"
+  on public.forge_agent_actions for all
+  to authenticated
+  using (user_id = auth.uid() or public.is_founder_or_admin())
+  with check (user_id = auth.uid());
