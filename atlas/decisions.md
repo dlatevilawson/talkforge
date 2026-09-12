@@ -1288,7 +1288,7 @@ Volumes:
 
 `atos/knowledge/working/idea-vault/product-ideas/IV-PROD-011-forge-agent-check-in.md`
 `atos/knowledge/working/blind-spot-register/bs-018.md`
-`supabase/migrations/20260912185721_forge_agent_phase3_claim.sql`
+`supabase/migrations/20260912192505_forge_agent_phase3_claim.sql`
 
 Status:
 Authoritative — ✅ Founder decided 2026-09-12; Phase 3 Stage A authorized; not shipped; Stage B and Phase 4 gated
