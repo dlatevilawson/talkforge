@@ -2,10 +2,27 @@
 -- reset_my_talkforge_data() is SECURITY INVOKER. Runs stay service_role-only
 -- (no member policies). Production smoke returned 42501 / 403:
 --   permission denied for table forge_agent_runs
--- Purge that table through a uid-scoped SECURITY DEFINER helper. Return type
--- of reset_my_talkforge_data() is unchanged.
+-- Purge that table through a uid-scoped SECURITY DEFINER helper in schema
+-- private (not PostgREST-exposed). Return type of reset_my_talkforge_data()
+-- is unchanged. This file has not been applied to production.
 
-create or replace function public.purge_forge_agent_runs_for_member()
+create index if not exists forge_agent_runs_user_id_idx
+  on public.forge_agent_runs (user_id);
+
+create schema if not exists private;
+
+revoke all on schema private from public;
+revoke all on schema private from anon;
+grant usage on schema private to authenticated;
+grant usage on schema private to service_role;
+
+comment on schema private is
+  'Internal helpers only. Not an exposed PostgREST schema.';
+
+-- If an earlier draft of this unapplied file created a public helper, drop it.
+drop function if exists public.purge_forge_agent_runs_for_member();
+
+create or replace function private.purge_forge_agent_runs_for_member()
 returns void
 language plpgsql
 volatile
@@ -25,12 +42,12 @@ begin
 end
 $function$;
 
-revoke all on function public.purge_forge_agent_runs_for_member() from public;
-revoke all on function public.purge_forge_agent_runs_for_member() from anon;
-grant execute on function public.purge_forge_agent_runs_for_member() to authenticated;
-grant execute on function public.purge_forge_agent_runs_for_member() to service_role;
+revoke all on function private.purge_forge_agent_runs_for_member() from public;
+revoke all on function private.purge_forge_agent_runs_for_member() from anon;
+grant execute on function private.purge_forge_agent_runs_for_member() to authenticated;
+grant execute on function private.purge_forge_agent_runs_for_member() to service_role;
 
-comment on function public.purge_forge_agent_runs_for_member() is
+comment on function private.purge_forge_agent_runs_for_member() is
   'Deletes forge_agent_runs owned by auth.uid(). Used only by member account reset; not a member-facing API.';
 
 create or replace function public.reset_my_talkforge_data()
@@ -66,7 +83,7 @@ begin
   where user_id = member_id;
   delete from public.forge_cues
   where user_id = member_id;
-  perform public.purge_forge_agent_runs_for_member();
+  perform private.purge_forge_agent_runs_for_member();
   delete from public.forge_agent_preferences
   where user_id = member_id;
 

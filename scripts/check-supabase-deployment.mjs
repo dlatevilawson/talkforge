@@ -178,11 +178,23 @@ assert.doesNotMatch(
 );
 assert.match(
   resetMigration,
-  /perform public\.purge_forge_agent_runs_for_member\(\)/i
+  /perform private\.purge_forge_agent_runs_for_member\(\)/i
+);
+assert.match(
+  resetMigration,
+  /create or replace function private\.purge_forge_agent_runs_for_member/
+);
+assert.match(
+  resetMigration,
+  /create index if not exists forge_agent_runs_user_id_idx/
 );
 assert.match(
   resetMigration,
   /security definer/
+);
+assert.doesNotMatch(
+  resetMigration,
+  /create or replace function public\.purge_forge_agent_runs_for_member/
 );
 assert.equal(
   normalizeSql(
