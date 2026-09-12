@@ -165,24 +165,48 @@ assert.match(
 );
 
 const resetMigration = migrationSql.get(
-  "20260912_forge_agent_reset_runs_purge.sql"
+  "20260912125321_forge_agent_reset_service_only_purge.sql"
 );
 assert.ok(
   resetMigration,
-  "20260912_forge_agent_reset_runs_purge.sql missing from migrations dir"
+  "20260912125321_forge_agent_reset_service_only_purge.sql missing from migrations dir"
 );
 assert.doesNotMatch(
   resetMigration,
   /drop function if exists public\.reset_my_talkforge_data/i,
-  "runs-purge reset must keep the existing RETURNS TABLE (no DROP)"
+  "service-only purge reset must keep the existing RETURNS TABLE (no DROP)"
 );
 assert.match(
   resetMigration,
-  /perform public\.purge_forge_agent_runs_for_member\(\)/i
+  /perform private\.purge_forge_agent_runs_for_member\(\)/i
+);
+assert.match(
+  resetMigration,
+  /create or replace function private\.purge_forge_agent_runs_for_member/
+);
+assert.match(
+  resetMigration,
+  /create or replace function private\.purge_assistant_coach_sessions_for_member/
+);
+assert.match(
+  resetMigration,
+  /deleted_assistant_coach_sessions :=\s+private\.purge_assistant_coach_sessions_for_member\(\)/
+);
+assert.match(
+  resetMigration,
+  /create index if not exists forge_agent_runs_user_id_idx/
 );
 assert.match(
   resetMigration,
   /security definer/
+);
+assert.doesNotMatch(
+  resetMigration,
+  /create or replace function public\.purge_forge_agent_runs_for_member/
+);
+assert.doesNotMatch(
+  resetMigration,
+  /create or replace function public\.purge_assistant_coach_sessions_for_member/
 );
 assert.equal(
   normalizeSql(

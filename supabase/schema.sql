@@ -376,6 +376,9 @@ create table if not exists public.forge_agent_runs (
   created_at timestamptz not null default now()
 );
 
+create index if not exists forge_agent_runs_user_id_idx
+  on public.forge_agent_runs (user_id);
+
 -- ---------------------------------------------------------------------------
 -- Helpers
 -- ---------------------------------------------------------------------------
@@ -517,8 +520,15 @@ create trigger on_auth_user_email_confirmed
   for each row execute function public.handle_user_email_confirmed();
 
 -- Member-owned identity and coaching data reset (HARDEN-003 + Decision 061).
--- Runs stay service_role-only; reset purges them via this uid-scoped definer.
-create or replace function public.purge_forge_agent_runs_for_member()
+-- Service-role-only tables are purged via private definer helpers.
+create schema if not exists private;
+
+revoke all on schema private from public;
+revoke all on schema private from anon;
+grant usage on schema private to authenticated;
+grant usage on schema private to service_role;
+
+create or replace function private.purge_forge_agent_runs_for_member()
 returns void
 language plpgsql
 volatile
@@ -538,10 +548,39 @@ begin
 end
 $function$;
 
-revoke all on function public.purge_forge_agent_runs_for_member() from public;
-revoke all on function public.purge_forge_agent_runs_for_member() from anon;
-grant execute on function public.purge_forge_agent_runs_for_member() to authenticated;
-grant execute on function public.purge_forge_agent_runs_for_member() to service_role;
+revoke all on function private.purge_forge_agent_runs_for_member() from public;
+revoke all on function private.purge_forge_agent_runs_for_member() from anon;
+grant execute on function private.purge_forge_agent_runs_for_member() to authenticated;
+grant execute on function private.purge_forge_agent_runs_for_member() to service_role;
+
+create or replace function private.purge_assistant_coach_sessions_for_member()
+returns bigint
+language plpgsql
+volatile
+security definer
+set search_path = ''
+as $function$
+declare
+  member_id uuid := auth.uid();
+  deleted_count bigint := 0;
+begin
+  if member_id is null then
+    raise exception 'Authentication is required to reset TalkForge data.'
+      using errcode = '28000';
+  end if;
+
+  -- Claimed / member-linked sessions only. Unclaimed anon rows stay excluded.
+  delete from public.assistant_coach_sessions
+  where user_id = member_id;
+  get diagnostics deleted_count = row_count;
+  return deleted_count;
+end
+$function$;
+
+revoke all on function private.purge_assistant_coach_sessions_for_member() from public;
+revoke all on function private.purge_assistant_coach_sessions_for_member() from anon;
+grant execute on function private.purge_assistant_coach_sessions_for_member() to authenticated;
+grant execute on function private.purge_assistant_coach_sessions_for_member() to service_role;
 
 create or replace function public.reset_my_talkforge_data()
 returns table (
@@ -576,7 +615,7 @@ begin
   where user_id = member_id;
   delete from public.forge_cues
   where user_id = member_id;
-  perform public.purge_forge_agent_runs_for_member();
+  perform private.purge_forge_agent_runs_for_member();
   delete from public.forge_agent_preferences
   where user_id = member_id;
 
@@ -599,10 +638,8 @@ begin
   where user_id = member_id;
   get diagnostics deleted_coach_memory = row_count;
 
-  -- Claimed / member-linked Assistant Coach sessions (cascades messages + drafts).
-  delete from public.assistant_coach_sessions
-  where user_id = member_id;
-  get diagnostics deleted_assistant_coach_sessions = row_count;
+  deleted_assistant_coach_sessions :=
+    private.purge_assistant_coach_sessions_for_member();
 
   delete from public.living_profiles
   where user_id = member_id;
