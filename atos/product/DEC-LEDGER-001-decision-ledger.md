@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | **Document ID** | DEC-LEDGER-001 |
-| **Version** | 1.4.0 |
+| **Version** | 1.5.0 |
 | **Status** | **Active — EXEC-001 Step 3 Complete** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
-| **Updated** | 2026-09-11 |
+| **Updated** | 2026-09-12 |
 | **Live ledger** | [`atlas/decisions.md`](../../atlas/decisions.md) |
 | **Authority** | EXEC-001 Step 3 · CONST-001 · Constitutional Law #001 |
 | **Plane** | Operational Canonical record (decisions) — not Idea Vault |
@@ -92,7 +92,8 @@ Authoritative — {state}
 | 058 / CXA-001 | Admit Chief Experience Architect Charter | Canonical |
 | 059 / AC-JOURNEY-GO-001 | Authorize AC conversational first-user architecture | Authoritative historical — journey mechanics superseded by 060 |
 | 060 / COACH-PREVIEW-FINAL-001 | Seven-topic Coach grid → one anonymous private Forge preview → post-session auth/claim | Authoritative — final approach |
-| 061 / FORGE-AGENT-CHECKIN-001 | Forge Agent check-in Phases 0–2 (opt-in, cues, approval inbox) | Authoritative — feature NO-GO carve-out; Phases 3–4 gated |
+| 061 / FORGE-AGENT-CHECKIN-001 | Forge Agent check-in Phases 0–2 (opt-in, cues, approval inbox) | Authoritative — feature NO-GO carve-out; Phases 3–4 gated except 062 |
+| 062 / FORGE-AGENT-PHASE3-001 | Forge Agent check-in Phase 3 Stage A (cron + bounded LLM draft) | Authoritative — Stage A authorized; not shipped; Stage B gated |
 
 Full history: `atlas/decisions.md`.
 
@@ -117,3 +118,4 @@ Full history: `atlas/decisions.md`.
 | 1.2.0 | 2026-08-16 | Indexed Decision 059 / AC first-user GO carve-out (OD-0…10) |
 | 1.3.0 | 2026-09-07 | Indexed Decision 060 final Coach preview approach; Decision 059 journey preserved historically |
 | 1.4.0 | 2026-09-11 | Indexed Decision 061 Forge Agent check-in Phases 0–2 carve-out |
+| 1.5.0 | 2026-09-12 | Indexed Decision 062 Forge Agent Phase 3 Stage A |

@@ -105,7 +105,7 @@ export default function CueForm({ disabled, onCreated }: CueFormProps) {
       </div>
       <div>
         <label className="text-xs uppercase tracking-[0.14em] text-zinc-500">
-          Due
+          Remind me from
           <input
             required
             type="datetime-local"

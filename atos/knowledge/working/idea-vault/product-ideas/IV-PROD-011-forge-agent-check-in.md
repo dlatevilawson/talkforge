@@ -8,7 +8,7 @@
 | **Status** | In Development |
 | **Importance** | Important |
 | **Owner** | Founder |
-| **Last Updated** | 2026-09-11 |
+| **Last Updated** | 2026-09-12 |
 | **Captured** | 2026-09-11 |
 | **AI Steward** | Atlas |
 
@@ -32,7 +32,7 @@ TalkForge currently has no mechanism to re-engage a member between coaching sess
 |---|---|
 | **Depends on** | IV-PROD-005 · IV-PROD-004 · IV-UX-008 · IV-LAW-005 · IV-REJ-003 |
 | **Supports** | IV-RES-004 · IV-PROD-006 |
-| **Related** | IV-PROD-010 · OWN-001 · MBL-001 · Decision 061 · BS-018 |
+| **Related** | IV-PROD-010 · OWN-001 · MBL-001 · Decision 061 · Decision 062 · BS-018 |
 
 ---
 
@@ -55,9 +55,17 @@ v1 (Phases 0–2) ships:
 - Authenticated APIs + `/app/inbox` approve/deny UI
 - Lazy materialization of **due** cues into pending actions with **template** copy (no cron, no LLM)
 
+Phase 3 Stage A (Decision 062, implementation in repo; not shipped until Codex apply + smoke):
+
+- Hourly-capable cron route with `CRON_SECRET` (schedule deferred until Vercel plan confirmed)
+- Atomic `claim_due_forge_cues` + one paid `draft_attempt` per member per UTC day
+- Bounded LLM `{ body }` only; deterministic whySent / practiceHref; template fallback
+- Mandatory 90s stale-draft recovery; inbox GET still lazy-materializes
+- Stage B list-only inbox remains gated
+
 Explicitly out of scope until a later Founder go-ahead:
 
-- Phase 3: cron + live draft agent
+- Phase 3 Stage B inbox cutover
 - Phase 4: ContinuityHome, Settings, `completePracticeSession` homework auto-cues, Realtime opening context
 - Calendar integration
 - Email / SMS delivery
@@ -74,5 +82,5 @@ Governs itself by MBL-001 §14.2: a notification must relate to a member-declare
 | Field | Value |
 |---|---|
 | Blind spot review | BS-018 |
-| Roadmap link | Decision 061 carve-out — Phases 0–2 only |
+| Roadmap link | Decision 061 Phases 0–2; Decision 062 Phase 3 Stage A |
 | Priority | Important — Founder-authorized Phases 0–2 |
