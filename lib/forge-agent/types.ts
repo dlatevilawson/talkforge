@@ -22,6 +22,7 @@ export const FORGE_ACTION_STATUSES = [
   "expired",
   "delivered",
   "failed",
+  "drafting",
 ] as const;
 
 export type ForgeActionStatus = (typeof FORGE_ACTION_STATUSES)[number];
@@ -101,7 +102,19 @@ export const FORGE_AGENT_WRITE_TABLES = [
   "forge_agent_actions",
 ] as const;
 
+export const FORGE_AGENT_SERVICE_WRITE_TABLES = [
+  ...FORGE_AGENT_WRITE_TABLES,
+  "forge_agent_runs",
+] as const;
+
 export const FORGE_AGENT_FORBIDDEN_WRITE_TABLES = [
   "living_profiles",
   "coach_memory",
 ] as const;
+
+export const FORGE_AGENT_CRON_CLAIM_LIMIT = 12;
+export const FORGE_AGENT_CRON_CONCURRENCY = 3;
+export const FORGE_AGENT_MODEL_TIMEOUT_MS = 8_000;
+export const FORGE_AGENT_MAX_INPUT_TOKENS = 2_000;
+export const FORGE_AGENT_MAX_OUTPUT_TOKENS = 120;
+export const FORGE_AGENT_STALE_DRAFT_MS = 90_000;

@@ -1,5 +1,6 @@
 import {
   FORGE_AGENT_FORBIDDEN_WRITE_TABLES,
+  FORGE_AGENT_SERVICE_WRITE_TABLES,
   FORGE_AGENT_WRITE_TABLES,
   FORGE_CUE_KINDS,
   type ForgeAgentPreferences,
@@ -76,6 +77,30 @@ export function shouldMaterializeCue(input: {
 }
 
 export function assertForgeAgentWriteTarget(table: string): void {
+  assertForgeAgentIdentityUntouched(table);
+  if (!(FORGE_AGENT_WRITE_TABLES as readonly string[]).includes(table)) {
+    throw new ForgeAgentError(
+      "Forge Agent cannot write this table.",
+      500,
+      "FORGE_AGENT_WRITE_FORBIDDEN"
+    );
+  }
+}
+
+export function assertForgeAgentServiceWriteTarget(table: string): void {
+  assertForgeAgentIdentityUntouched(table);
+  if (
+    !(FORGE_AGENT_SERVICE_WRITE_TABLES as readonly string[]).includes(table)
+  ) {
+    throw new ForgeAgentError(
+      "Forge Agent cannot write this table.",
+      500,
+      "FORGE_AGENT_WRITE_FORBIDDEN"
+    );
+  }
+}
+
+export function assertForgeAgentIdentityUntouched(table: string): void {
   if (
     (FORGE_AGENT_FORBIDDEN_WRITE_TABLES as readonly string[]).includes(table)
   ) {
@@ -83,13 +108,6 @@ export function assertForgeAgentWriteTarget(table: string): void {
       "Forge Agent must not write Living Profile or coach memory.",
       500,
       "FORGE_AGENT_IDENTITY_WRITE_FORBIDDEN"
-    );
-  }
-  if (!(FORGE_AGENT_WRITE_TABLES as readonly string[]).includes(table)) {
-    throw new ForgeAgentError(
-      "Forge Agent cannot write this table.",
-      500,
-      "FORGE_AGENT_WRITE_FORBIDDEN"
     );
   }
 }
