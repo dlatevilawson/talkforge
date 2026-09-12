@@ -1234,6 +1234,67 @@ Authoritative — ✅ Founder decided 2026-09-11; Phases 0–2 carved out; Phase
 
 ---
 
+# Decision 062
+
+Decision Alias:
+FORGE-AGENT-PHASE3-001
+
+Title:
+Authorize Forge Agent check-in Phase 3 Stage A (cron + bounded LLM draft).
+
+Reason:
+
+Phases 0–2 proved opt-in, member-declared cues, and an approval inbox. Members still only get a draft when they open Check-ins. Phase 3 Stage A adds scheduled materialization and a bounded “one next move” body without sending anything, writing identity, or cutting over the inbox.
+
+Alternatives Considered:
+
+Ship cron and Stage B list-only inbox together — rejected. Stage B requires 24 consecutive completed scheduled ticks and Founder acceptance.
+
+Pro-only LLM drafts — rejected. Phase 0–2 already drafts for every opted-in member.
+
+Private-schema claim RPC — rejected. PostgREST cannot call private via createAdminSupabaseClient(). Public SECURITY INVOKER + service_role execute is the callable boundary.
+
+TypeScript check-then-insert for the daily cap — rejected. Concurrent claims could double-purchase. Reservation is atomic inside claim_due_forge_cues.
+
+Blind Spots:
+
+[BS-018](../atos/knowledge/working/blind-spot-register/bs-018.md): proactive outreach nags or invents undeclared events.
+
+Risks:
+
+Lazy GET and cron could race. Mitigate with invisible drafting rows that count as existing actions.
+
+A crash after claim could block inbox forever. Mitigate with mandatory 90s template recovery.
+
+A crash after provider call could buy a second generation. Mitigate with one draft_attempt per member per UTC day reserved before the model call.
+
+Final Decision:
+
+**APPROVE Phase 3 Stage A only. Do not treat this as shipped until production apply and smoke succeed. Decision 061 is unchanged. Phase 4 remains gated.**
+
+1. Public `claim_due_forge_cues(p_limit)` is SECURITY INVOKER, execute granted only to service_role.
+2. One paid `draft_attempt` per member per UTC day, reserved in the same transaction as the drafting action.
+3. 12 claims per run, concurrency 3, 8s model timeout, maxDuration 60.
+4. LLM may generate only `{ body }`. whySent and practiceHref stay deterministic.
+5. Inbox GET keeps Phase 0–2 lazy materialization until the Stage B evidence gate and Founder acceptance.
+6. Cursor does not apply the migration or set production secrets. Codex applies, reconciles the recorded version, and smokes.
+7. Do not add vercel.json until the TalkForge Vercel plan is confirmed.
+
+Future Review Date:
+
+After Codex apply + smoke, then after 24 consecutive completed scheduled cron_tick rows.
+
+Volumes:
+
+`atos/knowledge/working/idea-vault/product-ideas/IV-PROD-011-forge-agent-check-in.md`
+`atos/knowledge/working/blind-spot-register/bs-018.md`
+`supabase/migrations/20260912185721_forge_agent_phase3_claim.sql`
+
+Status:
+Authoritative — ✅ Founder decided 2026-09-12; Phase 3 Stage A authorized; not shipped; Stage B and Phase 4 gated
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
