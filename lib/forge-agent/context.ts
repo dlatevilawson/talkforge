@@ -9,6 +9,7 @@ import {
   mapLivingProfileRow,
   type LivingProfileRow,
 } from "@/lib/system1/persistence.ts";
+import { truncateToUtf8Bytes } from "./draft-validate.ts";
 
 /**
  * Read-only coaching context for Forge Agent drafts.
@@ -34,7 +35,7 @@ export async function readApprovedCoachingContext(
 
 export function compactCoachContext(
   context: CoachContext | null,
-  maxChars: number
+  maxBytes: number
 ): string {
   if (!context) return "";
   const lines = [
@@ -47,6 +48,5 @@ export function compactCoachContext(
       .map((item) => `Training: ${item}`),
   ];
   const text = lines.join("\n").trim();
-  if (text.length <= maxChars) return text;
-  return text.slice(0, maxChars);
+  return truncateToUtf8Bytes(text, maxBytes);
 }

@@ -118,3 +118,5 @@ export const FORGE_AGENT_MODEL_TIMEOUT_MS = 8_000;
 export const FORGE_AGENT_MAX_INPUT_TOKENS = 2_000;
 export const FORGE_AGENT_MAX_OUTPUT_TOKENS = 120;
 export const FORGE_AGENT_STALE_DRAFT_MS = 90_000;
+export const FORGE_AGENT_DRAFT_SYSTEM =
+  "You draft one bounded next-move sentence. Never invent events. Never output a URL.";

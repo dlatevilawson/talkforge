@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import { authorizeForgeAgentCron } from "@/lib/forge-agent/cron-auth";
+import {
+  authorizeForgeAgentCron,
+  forgeAgentCronHttpStatus,
+} from "@/lib/forge-agent/cron-auth";
 import { runForgeAgentCron } from "@/lib/forge-agent/cron";
 import {
   adminConfigured,
@@ -22,11 +25,14 @@ export async function GET(request: Request) {
   }
 
   const result = await runForgeAgentCron(createAdminSupabaseClient());
-  return NextResponse.json({
-    status: result.status,
-    recovered: result.metrics.recovered,
-    claimed: result.metrics.claimed,
-    generated: result.metrics.generated,
-    fallbacks: result.metrics.fallbacks,
-  });
+  return NextResponse.json(
+    {
+      status: result.status,
+      recovered: result.metrics.recovered,
+      claimed: result.metrics.claimed,
+      generated: result.metrics.generated,
+      fallbacks: result.metrics.fallbacks,
+    },
+    { status: forgeAgentCronHttpStatus(result.status) }
+  );
 }

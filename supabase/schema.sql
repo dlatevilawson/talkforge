@@ -674,12 +674,16 @@ grant execute on function public.reset_my_talkforge_data() to service_role;
 comment on function public.reset_my_talkforge_data() is
   'Atomically deletes active TalkForge identity and coaching data owned by auth.uid(), including claimed Assistant Coach sessions (messages/drafts cascade) and Forge Agent check-in rows; retains the Auth account and public.profiles row. Unclaimed anon AC sessions are not member-owned and are excluded.';
 
-create or replace function public.claim_due_forge_cues(p_limit integer)
+create or replace function public.claim_due_forge_cues(
+  p_limit integer,
+  p_cron_run_id uuid default null
+)
 returns table (
   action_id uuid,
   cue_id uuid,
   user_id uuid,
-  generation_allowed boolean
+  generation_allowed boolean,
+  attempt_id uuid
 )
 language plpgsql
 volatile
@@ -719,6 +723,7 @@ begin
     limit remaining
     for update of c skip locked
   loop
+    new_action_id := null;
     insert into public.forge_agent_actions (
       user_id,
       cue_id,
@@ -733,7 +738,12 @@ begin
       'drafting',
       '{}'::jsonb
     )
+    on conflict (cue_id) do nothing
     returning id into new_action_id;
+
+    if new_action_id is null then
+      continue;
+    end if;
 
     reserved_attempt_id := null;
     insert into public.forge_agent_runs (
@@ -748,9 +758,12 @@ begin
       'draft_attempt',
       'started',
       run_day_utc,
-      jsonb_build_object(
-        'cue_id', claimed.cue_id,
-        'action_id', new_action_id
+      jsonb_strip_nulls(
+        jsonb_build_object(
+          'cue_id', claimed.cue_id,
+          'action_id', new_action_id,
+          'cron_run_id', p_cron_run_id
+        )
       )
     )
     on conflict (user_id, run_day) where kind = 'draft_attempt'
@@ -761,15 +774,16 @@ begin
     cue_id := claimed.cue_id;
     user_id := claimed.user_id;
     generation_allowed := reserved_attempt_id is not null;
+    attempt_id := reserved_attempt_id;
     return next;
   end loop;
 end
 $function$;
 
-revoke all on function public.claim_due_forge_cues(integer) from public;
-revoke all on function public.claim_due_forge_cues(integer) from anon;
-revoke all on function public.claim_due_forge_cues(integer) from authenticated;
-grant execute on function public.claim_due_forge_cues(integer) to service_role;
+revoke all on function public.claim_due_forge_cues(integer, uuid) from public;
+revoke all on function public.claim_due_forge_cues(integer, uuid) from anon;
+revoke all on function public.claim_due_forge_cues(integer, uuid) from authenticated;
+grant execute on function public.claim_due_forge_cues(integer, uuid) to service_role;
 
 -- ---------------------------------------------------------------------------
 -- RLS

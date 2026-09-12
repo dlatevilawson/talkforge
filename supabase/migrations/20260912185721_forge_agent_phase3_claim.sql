@@ -45,12 +45,16 @@ comment on column public.forge_agent_runs.run_day is
 comment on index public.forge_agent_runs_draft_attempt_user_day_uidx is
   'One paid draft_attempt per member per UTC day. Reserved by claim_due_forge_cues.';
 
-create or replace function public.claim_due_forge_cues(p_limit integer)
+create or replace function public.claim_due_forge_cues(
+  p_limit integer,
+  p_cron_run_id uuid default null
+)
 returns table (
   action_id uuid,
   cue_id uuid,
   user_id uuid,
-  generation_allowed boolean
+  generation_allowed boolean,
+  attempt_id uuid
 )
 language plpgsql
 volatile
@@ -90,6 +94,7 @@ begin
     limit remaining
     for update of c skip locked
   loop
+    new_action_id := null;
     insert into public.forge_agent_actions (
       user_id,
       cue_id,
@@ -104,7 +109,12 @@ begin
       'drafting',
       '{}'::jsonb
     )
+    on conflict (cue_id) do nothing
     returning id into new_action_id;
+
+    if new_action_id is null then
+      continue;
+    end if;
 
     reserved_attempt_id := null;
     insert into public.forge_agent_runs (
@@ -119,9 +129,12 @@ begin
       'draft_attempt',
       'started',
       run_day_utc,
-      jsonb_build_object(
-        'cue_id', claimed.cue_id,
-        'action_id', new_action_id
+      jsonb_strip_nulls(
+        jsonb_build_object(
+          'cue_id', claimed.cue_id,
+          'action_id', new_action_id,
+          'cron_run_id', p_cron_run_id
+        )
       )
     )
     on conflict (user_id, run_day) where kind = 'draft_attempt'
@@ -132,15 +145,16 @@ begin
     cue_id := claimed.cue_id;
     user_id := claimed.user_id;
     generation_allowed := reserved_attempt_id is not null;
+    attempt_id := reserved_attempt_id;
     return next;
   end loop;
 end
 $function$;
 
-revoke all on function public.claim_due_forge_cues(integer) from public;
-revoke all on function public.claim_due_forge_cues(integer) from anon;
-revoke all on function public.claim_due_forge_cues(integer) from authenticated;
-grant execute on function public.claim_due_forge_cues(integer) to service_role;
+revoke all on function public.claim_due_forge_cues(integer, uuid) from public;
+revoke all on function public.claim_due_forge_cues(integer, uuid) from anon;
+revoke all on function public.claim_due_forge_cues(integer, uuid) from authenticated;
+grant execute on function public.claim_due_forge_cues(integer, uuid) to service_role;
 
-comment on function public.claim_due_forge_cues(integer) is
-  'Decision 062 Stage A. Service-role-only invoker RPC. Claims due cues into drafting and atomically reserves one paid draft_attempt per member per UTC day. generation_allowed is true only when the attempt insert wins.';
+comment on function public.claim_due_forge_cues(integer, uuid) is
+  'Decision 062 Stage A. Service-role-only invoker RPC. Claims due cues into drafting with ON CONFLICT (cue_id) DO NOTHING so a lazy inbox insert cannot abort the batch. Reserves one paid draft_attempt per member per UTC day and returns that attempt_id. generation_allowed is true only when the attempt insert wins.';

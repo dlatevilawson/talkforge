@@ -2,8 +2,13 @@ import "server-only";
 
 import OpenAI from "openai";
 import { buildCheckInCopy, practiceHrefForTitle } from "./copy.ts";
-import { estimatePromptTokens, sanitizeDraftBody } from "./draft-validate.ts";
 import {
+  buildDraftUserPrompt,
+  measureInputTokenUpperBound,
+  sanitizeDraftBody,
+} from "./draft-validate.ts";
+import {
+  FORGE_AGENT_DRAFT_SYSTEM,
   FORGE_AGENT_MAX_INPUT_TOKENS,
   FORGE_AGENT_MAX_OUTPUT_TOKENS,
   FORGE_AGENT_MODEL_TIMEOUT_MS,
@@ -50,21 +55,11 @@ export async function draftCheckInPayload(input: {
     };
   }
 
-  const prompt = [
-    "Write one next move for an in-app coaching check-in.",
-    "Return JSON only: {\"body\":\"...\"}.",
-    "No URLs. No advice list. One short sentence.",
-    `Declared kind: ${input.kind}`,
-    `Declared title: ${input.title}`,
-    input.successCriteria
-      ? `Declared success: ${input.successCriteria}`
-      : "Declared success: (none)",
-    input.contextText ? `Approved context:\n${input.contextText}` : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
-
-  if (estimatePromptTokens(prompt) > FORGE_AGENT_MAX_INPUT_TOKENS) {
+  const prompt = buildDraftUserPrompt(input);
+  if (
+    measureInputTokenUpperBound(FORGE_AGENT_DRAFT_SYSTEM, prompt) >
+    FORGE_AGENT_MAX_INPUT_TOKENS
+  ) {
     return {
       payload: template,
       source: "template",
@@ -82,8 +77,7 @@ export async function draftCheckInPayload(input: {
       messages: [
         {
           role: "system",
-          content:
-            "You draft one bounded next-move sentence. Never invent events. Never output a URL.",
+          content: FORGE_AGENT_DRAFT_SYSTEM,
         },
         { role: "user", content: prompt },
       ],
