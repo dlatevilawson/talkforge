@@ -149,16 +149,40 @@ assert.match(
   "corrective must restore service_role EXECUTE observed in production ACL"
 );
 
-const resetMigration = migrationSql.get("20260911_forge_agent.sql");
-assert.ok(resetMigration, "20260911_forge_agent.sql missing from migrations dir");
+const historicalForgeAgentReset = migrationSql.get("20260911_forge_agent.sql");
+assert.ok(
+  historicalForgeAgentReset,
+  "20260911_forge_agent.sql missing from migrations dir"
+);
 assert.doesNotMatch(
-  resetMigration,
+  historicalForgeAgentReset,
   /drop function if exists public\.reset_my_talkforge_data/i,
   "forge-agent reset must keep the existing RETURNS TABLE (no DROP)"
 );
 assert.match(
-  resetMigration,
+  historicalForgeAgentReset,
   /delete from public\.forge_agent_actions\s+where user_id = member_id/i
+);
+
+const resetMigration = migrationSql.get(
+  "20260912_forge_agent_reset_runs_purge.sql"
+);
+assert.ok(
+  resetMigration,
+  "20260912_forge_agent_reset_runs_purge.sql missing from migrations dir"
+);
+assert.doesNotMatch(
+  resetMigration,
+  /drop function if exists public\.reset_my_talkforge_data/i,
+  "runs-purge reset must keep the existing RETURNS TABLE (no DROP)"
+);
+assert.match(
+  resetMigration,
+  /perform public\.purge_forge_agent_runs_for_member\(\)/i
+);
+assert.match(
+  resetMigration,
+  /security definer/
 );
 assert.equal(
   normalizeSql(
