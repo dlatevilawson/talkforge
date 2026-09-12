@@ -1,10 +1,9 @@
--- Decision 061 follow-up: member account reset cannot DELETE forge_agent_runs.
--- reset_my_talkforge_data() is SECURITY INVOKER. Runs stay service_role-only
--- (no member policies). Production smoke returned 42501 / 403:
---   permission denied for table forge_agent_runs
--- Purge that table through a uid-scoped SECURITY DEFINER helper in schema
--- private (not PostgREST-exposed). Return type of reset_my_talkforge_data()
--- is unchanged. This file has not been applied to production.
+-- Decision 061 follow-up (applied in production as this filename).
+-- reset_my_talkforge_data() is SECURITY INVOKER. forge_agent_runs and
+-- assistant_coach_sessions are service-role-only (no member policies).
+-- Direct DELETE from those tables fails with 42501 for authenticated members.
+-- Purge both through uid-scoped SECURITY DEFINER helpers in schema private
+-- (not PostgREST-exposed). Return type of reset_my_talkforge_data() is unchanged.
 
 create index if not exists forge_agent_runs_user_id_idx
   on public.forge_agent_runs (user_id);
@@ -19,8 +18,9 @@ grant usage on schema private to service_role;
 comment on schema private is
   'Internal helpers only. Not an exposed PostgREST schema.';
 
--- If an earlier draft of this unapplied file created a public helper, drop it.
+-- If an earlier unapplied draft created a public helper, drop it.
 drop function if exists public.purge_forge_agent_runs_for_member();
+drop function if exists public.purge_assistant_coach_sessions_for_member();
 
 create or replace function private.purge_forge_agent_runs_for_member()
 returns void
@@ -49,6 +49,38 @@ grant execute on function private.purge_forge_agent_runs_for_member() to service
 
 comment on function private.purge_forge_agent_runs_for_member() is
   'Deletes forge_agent_runs owned by auth.uid(). Used only by member account reset; not a member-facing API.';
+
+create or replace function private.purge_assistant_coach_sessions_for_member()
+returns bigint
+language plpgsql
+volatile
+security definer
+set search_path = ''
+as $function$
+declare
+  member_id uuid := auth.uid();
+  deleted_count bigint := 0;
+begin
+  if member_id is null then
+    raise exception 'Authentication is required to reset TalkForge data.'
+      using errcode = '28000';
+  end if;
+
+  -- Claimed / member-linked sessions only. Unclaimed anon rows stay excluded.
+  delete from public.assistant_coach_sessions
+  where user_id = member_id;
+  get diagnostics deleted_count = row_count;
+  return deleted_count;
+end
+$function$;
+
+revoke all on function private.purge_assistant_coach_sessions_for_member() from public;
+revoke all on function private.purge_assistant_coach_sessions_for_member() from anon;
+grant execute on function private.purge_assistant_coach_sessions_for_member() to authenticated;
+grant execute on function private.purge_assistant_coach_sessions_for_member() to service_role;
+
+comment on function private.purge_assistant_coach_sessions_for_member() is
+  'Deletes member-linked assistant_coach_sessions owned by auth.uid() (messages/drafts cascade). Used only by member account reset; not a member-facing API.';
 
 create or replace function public.reset_my_talkforge_data()
 returns table (
@@ -106,10 +138,8 @@ begin
   where user_id = member_id;
   get diagnostics deleted_coach_memory = row_count;
 
-  -- Claimed / member-linked Assistant Coach sessions (cascades messages + drafts).
-  delete from public.assistant_coach_sessions
-  where user_id = member_id;
-  get diagnostics deleted_assistant_coach_sessions = row_count;
+  deleted_assistant_coach_sessions :=
+    private.purge_assistant_coach_sessions_for_member();
 
   delete from public.living_profiles
   where user_id = member_id;
