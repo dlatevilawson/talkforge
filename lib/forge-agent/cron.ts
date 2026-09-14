@@ -2,7 +2,10 @@ import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { compactCoachContext, readApprovedCoachingContext } from "./context.ts";
-import { isUsableCronTick } from "./cron-auth.ts";
+import {
+  buildCronTickDetail,
+  selectAbandonedTickIds,
+} from "./cron-guard.ts";
 import { buildCheckInCopy } from "./copy.ts";
 import { draftCheckInPayload } from "./draft.ts";
 import {
@@ -12,42 +15,34 @@ import {
 } from "./draft-validate.ts";
 import { assertForgeAgentServiceWriteTarget } from "./policy.ts";
 import {
+  runForgeAgentCronWithDeps,
+  type ClaimedCue,
+  type CronMetrics,
+  type ForgeAgentCronRunnerDeps,
+} from "./cron-runner.ts";
+import {
+  FORGE_AGENT_CRON_ABANDONED_MS,
   FORGE_AGENT_CRON_CLAIM_LIMIT,
-  FORGE_AGENT_CRON_CONCURRENCY,
   FORGE_AGENT_STALE_DRAFT_MS,
   type ForgeCheckInPayload,
   type ForgeCueKind,
 } from "./types.ts";
 
-export type ClaimedCue = {
-  action_id: string;
-  cue_id: string;
-  user_id: string;
-  generation_allowed: boolean;
-  attempt_id: string | null;
-};
+export type { ClaimedCue, CronMetrics } from "./cron-runner.ts";
 
-type CronMetrics = {
-  recovered: number;
-  claimed: number;
-  generated: number;
-  fallbacks: number;
-  inputTokens: number;
-  outputTokens: number;
-  errorCodes: string[];
-};
-
-function emptyMetrics(): CronMetrics {
-  return {
-    recovered: 0,
-    claimed: 0,
-    generated: 0,
-    fallbacks: 0,
-    inputTokens: 0,
-    outputTokens: 0,
-    errorCodes: [],
-  };
-}
+export type ForgeAgentCronDeps = Partial<
+  Pick<
+    ForgeAgentCronRunnerDeps,
+    | "now"
+    | "writeTick"
+    | "updateTick"
+    | "reconcileAbandoned"
+    | "listDrafting"
+    | "recoverRows"
+    | "claimDue"
+    | "processClaim"
+  >
+>;
 
 function logCron(code: string, extra?: Record<string, unknown>): void {
   const safe = extra ? { ...extra } : {};
@@ -141,24 +136,17 @@ async function loadStartedAttempt(
 
 async function recoverStaleDrafts(
   admin: SupabaseClient,
+  rows: unknown[],
   metrics: CronMetrics
 ): Promise<void> {
-  const { data, error } = await admin
-    .from("forge_agent_actions")
-    .select("id, user_id, cue_id, updated_at, created_at")
-    .eq("status", "drafting");
-  if (error) {
-    metrics.errorCodes.push(error.code ?? "RECOVER_LIST");
-    return;
-  }
-
-  const stale = (data ?? []).filter((row) =>
-    isStaleDraftingTimestamp(
-      String(row.updated_at ?? row.created_at),
+  const stale = rows.filter((row) => {
+    const record = row && typeof row === "object" ? (row as Record<string, unknown>) : {};
+    return isStaleDraftingTimestamp(
+      String(record.updated_at ?? record.created_at),
       new Date(),
       FORGE_AGENT_STALE_DRAFT_MS
-    )
-  );
+    );
+  }) as Record<string, unknown>[];
   if (stale.length === 0) return;
 
   const cueIds = stale.map((row) => String(row.cue_id));
@@ -286,124 +274,126 @@ async function processClaim(
   );
 }
 
-async function mapLimit<T>(
-  items: T[],
-  concurrency: number,
-  worker: (item: T) => Promise<void>
+async function listDraftingActions(
+  admin: SupabaseClient,
+  signal: AbortSignal
+): Promise<{ data: unknown[] | null; error: unknown | null }> {
+  const { data, error } = await admin
+    .from("forge_agent_actions")
+    .select("id, user_id, cue_id, updated_at, created_at")
+    .eq("status", "drafting")
+    .abortSignal(signal);
+  return { data: (data ?? null) as unknown[] | null, error };
+}
+
+async function reconcileAbandonedTicks(
+  admin: SupabaseClient,
+  currentTickId: string,
+  now: number
 ): Promise<void> {
-  const queue = [...items];
-  const workers = Array.from(
-    { length: Math.min(concurrency, queue.length) || 0 },
-    async () => {
-      while (queue.length > 0) {
-        const next = queue.shift();
-        if (!next) return;
-        await worker(next);
-      }
-    }
-  );
-  await Promise.all(workers);
-}
-
-function mapClaimedCue(row: Record<string, unknown>): ClaimedCue {
-  return {
-    action_id: String(row.action_id),
-    cue_id: String(row.cue_id),
-    user_id: String(row.user_id),
-    generation_allowed: row.generation_allowed === true,
-    attempt_id:
-      typeof row.attempt_id === "string" && row.attempt_id
-        ? row.attempt_id
-        : null,
-  };
-}
-
-export async function runForgeAgentCron(admin: SupabaseClient): Promise<{
-  status: "completed" | "partial" | "failed";
-  metrics: CronMetrics;
-}> {
-  const started = Date.now();
-  const metrics = emptyMetrics();
-  const tick = await writeRun(admin, "forge_agent_runs", {
-    kind: "cron_tick",
-    status: "started",
-    detail: {},
-  });
-
-  if (!isUsableCronTick(tick)) {
-    metrics.errorCodes.push("CRON_TICK_FAILED");
-    return { status: "failed", metrics };
+  const { data, error } = await admin
+    .from("forge_agent_runs")
+    .select("id, created_at")
+    .eq("kind", "cron_tick")
+    .eq("status", "started")
+    .neq("id", currentTickId);
+  if (error) {
+    logCron("ABANDON_LIST_FAILED", {
+      errorCode: error.code ?? "ABANDON_LIST",
+    });
+    return;
   }
-
-  try {
-    await recoverStaleDrafts(admin, metrics);
-
-    const { data: claimed, error } = await admin.rpc("claim_due_forge_cues", {
-      p_limit: FORGE_AGENT_CRON_CLAIM_LIMIT,
-      p_cron_run_id: tick.id,
-    });
-    if (error) {
-      metrics.errorCodes.push(error.code ?? "CLAIM_RPC");
-      await admin
-        .from("forge_agent_runs")
-        .update({
-          status: "failed",
-          detail: {
-            recovered: metrics.recovered,
-            errorCodes: metrics.errorCodes,
-            durationMs: Date.now() - started,
-          },
-        })
-        .eq("id", tick.id);
-      return { status: "failed", metrics };
-    }
-
-    const claims = ((claimed ?? []) as Record<string, unknown>[]).map(
-      mapClaimedCue
-    );
-    metrics.claimed = claims.length;
-    await mapLimit(claims, FORGE_AGENT_CRON_CONCURRENCY, (claim) =>
-      processClaim(admin, claim, tick.id, metrics)
-    );
-
-    const status =
-      metrics.errorCodes.length === 0 ? "completed" : "partial";
-    await admin
-      .from("forge_agent_runs")
-      .update({
-        status,
-        detail: {
-          recovered: metrics.recovered,
-          claimed: metrics.claimed,
-          generated: metrics.generated,
-          fallbacks: metrics.fallbacks,
-          inputTokens: metrics.inputTokens,
-          outputTokens: metrics.outputTokens,
-          errorCodes: metrics.errorCodes,
-          durationMs: Date.now() - started,
-        },
-      })
-      .eq("id", tick.id);
-    logCron("TICK", {
-      status,
-      recovered: metrics.recovered,
-      claimed: metrics.claimed,
-      generated: metrics.generated,
-      fallbacks: metrics.fallbacks,
-    });
-    return { status, metrics };
-  } catch {
-    metrics.errorCodes.push("CRON_UNHANDLED");
-    await admin
+  const ids = selectAbandonedTickIds(
+    (data ?? []).map((row) => ({
+      id: String(row.id),
+      created_at: String(row.created_at),
+    })),
+    currentTickId,
+    now,
+    FORGE_AGENT_CRON_ABANDONED_MS
+  );
+  for (const id of ids) {
+    const createdAt = (data ?? []).find((row) => String(row.id) === id)
+      ?.created_at;
+    const createdMs = createdAt ? new Date(String(createdAt)).getTime() : now;
+    const durationMs = Number.isFinite(createdMs) ? now - createdMs : 0;
+    const { error: updateError } = await admin
       .from("forge_agent_runs")
       .update({
         status: "failed",
-        detail: {
-          errorCodes: metrics.errorCodes,
-          durationMs: Date.now() - started,
-        },
+        detail: buildCronTickDetail({
+          stage: "abandoned",
+          errorCodes: ["CRON_ABANDONED"],
+          durationMs,
+        }),
       })
-      .eq("id", tick.id);
-    return { status: "failed", metrics };
+      .eq("id", id)
+      .eq("kind", "cron_tick")
+      .eq("status", "started");
+    if (updateError) {
+      logCron("ABANDON_UPDATE_FAILED", {
+        errorCode: updateError.code ?? "ABANDON_UPDATE",
+      });
+    }
   }
+}
+
+export async function runForgeAgentCron(
+  admin: SupabaseClient,
+  deps: ForgeAgentCronDeps = {}
+): Promise<{
+  status: "completed" | "partial" | "failed";
+  metrics: CronMetrics;
+}> {
+  const now = deps.now ?? Date.now;
+  const result = await runForgeAgentCronWithDeps({
+    now,
+    writeTick:
+      deps.writeTick ??
+      (() =>
+        writeRun(admin, "forge_agent_runs", {
+          kind: "cron_tick",
+          status: "started",
+          detail: {},
+        })),
+    updateTick:
+      deps.updateTick ??
+      (async (id, status, detail) => {
+        assertForgeAgentServiceWriteTarget("forge_agent_runs");
+        await admin
+          .from("forge_agent_runs")
+          .update({ status, detail })
+          .eq("id", id);
+        logCron("TICK", {
+          status,
+          recovered: detail.recovered,
+          claimed: detail.claimed,
+          generated: detail.generated,
+          fallbacks: detail.fallbacks,
+        });
+      }),
+    reconcileAbandoned:
+      deps.reconcileAbandoned ??
+      ((currentTickId, at) =>
+        reconcileAbandonedTicks(admin, currentTickId, at)),
+    listDrafting:
+      deps.listDrafting ?? ((signal) => listDraftingActions(admin, signal)),
+    recoverRows:
+      deps.recoverRows ??
+      ((rows, metrics) => recoverStaleDrafts(admin, rows, metrics)),
+    claimDue:
+      deps.claimDue ??
+      (async (tickId) => {
+        const { data, error } = await admin.rpc("claim_due_forge_cues", {
+          p_limit: FORGE_AGENT_CRON_CLAIM_LIMIT,
+          p_cron_run_id: tickId,
+        });
+        return { data, error };
+      }),
+    processClaim:
+      deps.processClaim ??
+      ((claim, tickId, metrics) =>
+        processClaim(admin, claim, tickId, metrics)),
+  });
+  return result;
 }
