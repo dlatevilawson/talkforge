@@ -1,14 +1,23 @@
 import { isUsableCronTick } from "./cron-auth.ts";
 import {
   buildCronTickDetail,
-  hasFinalizeBudget,
+  emitSanitizedTickPersistError,
+  hasClaimBatchBudget,
+  isTickPersistOk,
+  planClaimProcessing,
   queryWithTimeoutAndRetry,
+  remainingUntilDeadline,
+  nextClaimBatchLimit,
+  type AbandonedReconcileResult,
   type CronTickStatus,
+  type TickPersistResult,
 } from "./cron-guard.ts";
 import {
+  FORGE_AGENT_CRON_CLAIM_LIMIT,
   FORGE_AGENT_CRON_CONCURRENCY,
   FORGE_AGENT_CRON_FINALIZE_BUDGET_MS,
   FORGE_AGENT_CRON_MAX_DURATION_MS,
+  FORGE_AGENT_CRON_MODEL_START_BUDGET_MS,
   FORGE_AGENT_RECOVER_LIST_MAX_ATTEMPTS,
   FORGE_AGENT_RECOVER_LIST_TIMEOUT_MS,
 } from "./types.ts";
@@ -31,6 +40,10 @@ export type CronMetrics = {
   errorCodes: string[];
 };
 
+export type ClaimProcessOptions = {
+  callModel: boolean;
+};
+
 export function emptyCronMetrics(): CronMetrics {
   return {
     recovered: 0,
@@ -50,19 +63,24 @@ export type ForgeAgentCronRunnerDeps = {
     id: string,
     status: CronTickStatus,
     detail: Record<string, unknown>
-  ) => Promise<void>;
-  reconcileAbandoned: (currentTickId: string, now: number) => Promise<void>;
+  ) => Promise<TickPersistResult>;
+  reconcileAbandoned: (
+    currentTickId: string,
+    now: number
+  ) => Promise<AbandonedReconcileResult>;
   listDrafting: (
     signal: AbortSignal
   ) => Promise<{ data: unknown[] | null; error: unknown | null }>;
   recoverRows: (rows: unknown[], metrics: CronMetrics) => Promise<void>;
   claimDue: (
-    tickId: string
+    tickId: string,
+    limit: number
   ) => Promise<{ data: unknown; error: unknown | null }>;
   processClaim: (
     claim: ClaimedCue,
     tickId: string,
-    metrics: CronMetrics
+    metrics: CronMetrics,
+    options: ClaimProcessOptions
   ) => Promise<void>;
 };
 
@@ -75,6 +93,10 @@ function metricsFields(metrics: CronMetrics) {
     inputTokens: metrics.inputTokens,
     outputTokens: metrics.outputTokens,
   };
+}
+
+function pushErrorCode(metrics: CronMetrics, code: string): void {
+  if (!metrics.errorCodes.includes(code)) metrics.errorCodes.push(code);
 }
 
 export function mapClaimedCue(row: Record<string, unknown>): ClaimedCue {
@@ -109,6 +131,35 @@ async function mapLimit<T>(
   await Promise.all(workers);
 }
 
+async function persistTick(
+  deps: ForgeAgentCronRunnerDeps,
+  tickId: string,
+  intended: CronTickStatus,
+  detail: Record<string, unknown>,
+  metrics: CronMetrics,
+  started: number
+): Promise<CronTickStatus> {
+  const persisted = await deps.updateTick(tickId, intended, detail);
+  if (isTickPersistOk(persisted)) return intended;
+
+  pushErrorCode(metrics, "CRON_TICK_UPDATE");
+  const persistError =
+    persisted && persisted.ok === false ? persisted.error : { code: "CRON_TICK_UPDATE" };
+  if (intended !== "failed") {
+    const failDetail = buildCronTickDetail({
+      stage: "tick_update",
+      errorCodes: metrics.errorCodes,
+      error: persistError,
+      durationMs: deps.now() - started,
+      ...metricsFields(metrics),
+    });
+    const retry = await deps.updateTick(tickId, "failed", failDetail);
+    if (isTickPersistOk(retry)) return "failed";
+  }
+  emitSanitizedTickPersistError(persistError);
+  return "failed";
+}
+
 export async function runForgeAgentCronWithDeps(
   deps: ForgeAgentCronRunnerDeps
 ): Promise<{ status: CronTickStatus; metrics: CronMetrics }> {
@@ -117,12 +168,12 @@ export async function runForgeAgentCronWithDeps(
   const tick = await deps.writeTick();
 
   if (!isUsableCronTick(tick)) {
-    metrics.errorCodes.push("CRON_TICK_FAILED");
+    pushErrorCode(metrics, "CRON_TICK_FAILED");
     return { status: "failed", metrics };
   }
 
   const budgetOk = () =>
-    hasFinalizeBudget(
+    hasClaimBatchBudget(
       started,
       deps.now(),
       FORGE_AGENT_CRON_MAX_DURATION_MS,
@@ -130,15 +181,34 @@ export async function runForgeAgentCronWithDeps(
     );
 
   try {
-    await deps.reconcileAbandoned(tick.id, deps.now());
+    const abandoned = await deps.reconcileAbandoned(tick.id, deps.now());
+    if (!abandoned.ok) {
+      pushErrorCode(metrics, "CRON_ABANDONED");
+      const status = await persistTick(
+        deps,
+        tick.id,
+        "failed",
+        buildCronTickDetail({
+          stage: "abandoned",
+          errorCodes: metrics.errorCodes,
+          error: abandoned.error,
+          durationMs: deps.now() - started,
+          ...metricsFields(metrics),
+        }),
+        metrics,
+        started
+      );
+      return { status, metrics };
+    }
 
     const listed = await queryWithTimeoutAndRetry(deps.listDrafting, {
       timeoutMs: FORGE_AGENT_RECOVER_LIST_TIMEOUT_MS,
       maxAttempts: FORGE_AGENT_RECOVER_LIST_MAX_ATTEMPTS,
     });
     if (!listed.ok) {
-      metrics.errorCodes.push("RECOVER_LIST");
-      await deps.updateTick(
+      pushErrorCode(metrics, "RECOVER_LIST");
+      const status = await persistTick(
+        deps,
         tick.id,
         "failed",
         buildCronTickDetail({
@@ -148,16 +218,19 @@ export async function runForgeAgentCronWithDeps(
           timedOut: listed.timedOut,
           durationMs: deps.now() - started,
           ...metricsFields(metrics),
-        })
+        }),
+        metrics,
+        started
       );
-      return { status: "failed", metrics };
+      return { status, metrics };
     }
 
     await deps.recoverRows(listed.data ?? [], metrics);
 
     if (!budgetOk()) {
-      metrics.errorCodes.push("CRON_TIME_BUDGET");
-      await deps.updateTick(
+      pushErrorCode(metrics, "CRON_TIME_BUDGET");
+      const status = await persistTick(
+        deps,
         tick.id,
         "failed",
         buildCronTickDetail({
@@ -165,52 +238,76 @@ export async function runForgeAgentCronWithDeps(
           errorCodes: metrics.errorCodes,
           durationMs: deps.now() - started,
           ...metricsFields(metrics),
-        })
+        }),
+        metrics,
+        started
       );
-      return { status: "failed", metrics };
+      return { status, metrics };
     }
-
-    const claimed = await deps.claimDue(tick.id);
-    if (claimed.error) {
-      metrics.errorCodes.push("CLAIM_RPC");
-      await deps.updateTick(
-        tick.id,
-        "failed",
-        buildCronTickDetail({
-          stage: "claim_rpc",
-          errorCodes: metrics.errorCodes,
-          error: claimed.error,
-          durationMs: deps.now() - started,
-          ...metricsFields(metrics),
-        })
-      );
-      return { status: "failed", metrics };
-    }
-
-    const claims = ((claimed.data ?? []) as Record<string, unknown>[]).map(
-      mapClaimedCue
-    );
-    metrics.claimed = claims.length;
 
     let skippedForBudget = false;
-    await mapLimit(claims, FORGE_AGENT_CRON_CONCURRENCY, async (claim) => {
+    while (metrics.claimed < FORGE_AGENT_CRON_CLAIM_LIMIT) {
       if (!budgetOk()) {
         skippedForBudget = true;
-        return;
+        pushErrorCode(metrics, "CRON_TIME_BUDGET");
+        break;
       }
-      await deps.processClaim(claim, tick.id, metrics);
-      if (!budgetOk()) skippedForBudget = true;
-    });
 
-    if (skippedForBudget) metrics.errorCodes.push("CRON_TIME_BUDGET");
+      const limit = nextClaimBatchLimit(
+        metrics.claimed,
+        FORGE_AGENT_CRON_CLAIM_LIMIT,
+        FORGE_AGENT_CRON_CONCURRENCY
+      );
+      if (limit <= 0) break;
+
+      const claimed = await deps.claimDue(tick.id, limit);
+      if (claimed.error) {
+        pushErrorCode(metrics, "CLAIM_RPC");
+        const status = await persistTick(
+          deps,
+          tick.id,
+          "failed",
+          buildCronTickDetail({
+            stage: "claim_rpc",
+            errorCodes: metrics.errorCodes,
+            error: claimed.error,
+            durationMs: deps.now() - started,
+            ...metricsFields(metrics),
+          }),
+          metrics,
+          started
+        );
+        return { status, metrics };
+      }
+
+      const claims = ((claimed.data ?? []) as Record<string, unknown>[]).map(
+        mapClaimedCue
+      );
+      if (claims.length === 0) break;
+      metrics.claimed += claims.length;
+
+      await mapLimit(claims, FORGE_AGENT_CRON_CONCURRENCY, async (claim) => {
+        const remaining = remainingUntilDeadline(
+          started,
+          deps.now(),
+          FORGE_AGENT_CRON_MAX_DURATION_MS
+        );
+        const plan = planClaimProcessing(
+          claim.generation_allowed,
+          remaining,
+          FORGE_AGENT_CRON_MODEL_START_BUDGET_MS
+        );
+        if (plan.errorCode) pushErrorCode(metrics, plan.errorCode);
+        await deps.processClaim(claim, tick.id, metrics, {
+          callModel: plan.callModel,
+        });
+      });
+    }
 
     const status: CronTickStatus =
-      metrics.errorCodes.length === 0
-        ? "completed"
-        : skippedForBudget && metrics.errorCodes.every((code) => code === "CRON_TIME_BUDGET")
-          ? "partial"
-          : "partial";
-    await deps.updateTick(
+      metrics.errorCodes.length === 0 ? "completed" : "partial";
+    const persisted = await persistTick(
+      deps,
       tick.id,
       status,
       buildCronTickDetail({
@@ -218,12 +315,15 @@ export async function runForgeAgentCronWithDeps(
         errorCodes: metrics.errorCodes,
         durationMs: deps.now() - started,
         ...metricsFields(metrics),
-      })
+      }),
+      metrics,
+      started
     );
-    return { status, metrics };
+    return { status: persisted, metrics };
   } catch {
-    metrics.errorCodes.push("CRON_UNHANDLED");
-    await deps.updateTick(
+    pushErrorCode(metrics, "CRON_UNHANDLED");
+    const status = await persistTick(
+      deps,
       tick.id,
       "failed",
       buildCronTickDetail({
@@ -231,8 +331,10 @@ export async function runForgeAgentCronWithDeps(
         errorCodes: metrics.errorCodes,
         durationMs: deps.now() - started,
         ...metricsFields(metrics),
-      })
+      }),
+      metrics,
+      started
     );
-    return { status: "failed", metrics };
+    return { status, metrics };
   }
 }

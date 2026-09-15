@@ -4,7 +4,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { compactCoachContext, readApprovedCoachingContext } from "./context.ts";
 import {
   buildCronTickDetail,
-  selectAbandonedTickIds,
+  reconcileAbandonedTickRows,
+  updateCurrentTickRow,
+  type AbandonedReconcileResult,
+  type TickPersistResult,
 } from "./cron-guard.ts";
 import { buildCheckInCopy } from "./copy.ts";
 import { draftCheckInPayload } from "./draft.ts";
@@ -17,12 +20,12 @@ import { assertForgeAgentServiceWriteTarget } from "./policy.ts";
 import {
   runForgeAgentCronWithDeps,
   type ClaimedCue,
+  type ClaimProcessOptions,
   type CronMetrics,
   type ForgeAgentCronRunnerDeps,
 } from "./cron-runner.ts";
 import {
   FORGE_AGENT_CRON_ABANDONED_MS,
-  FORGE_AGENT_CRON_CLAIM_LIMIT,
   FORGE_AGENT_STALE_DRAFT_MS,
   type ForgeCheckInPayload,
   type ForgeCueKind,
@@ -219,7 +222,8 @@ async function processClaim(
   admin: SupabaseClient,
   claim: ClaimedCue,
   cronRunId: string,
-  metrics: CronMetrics
+  metrics: CronMetrics,
+  options: ClaimProcessOptions
 ): Promise<void> {
   const cue = await loadCue(admin, claim.cue_id);
   if (!cue) {
@@ -227,7 +231,8 @@ async function processClaim(
     return;
   }
 
-  if (!claim.generation_allowed) {
+  const callModel = options.callModel && claim.generation_allowed;
+  if (!callModel) {
     const finalized = await finalizeAction(
       admin,
       claim.action_id,
@@ -290,52 +295,44 @@ async function reconcileAbandonedTicks(
   admin: SupabaseClient,
   currentTickId: string,
   now: number
-): Promise<void> {
-  const { data, error } = await admin
-    .from("forge_agent_runs")
-    .select("id, created_at")
-    .eq("kind", "cron_tick")
-    .eq("status", "started")
-    .neq("id", currentTickId);
-  if (error) {
-    logCron("ABANDON_LIST_FAILED", {
-      errorCode: error.code ?? "ABANDON_LIST",
-    });
-    return;
-  }
-  const ids = selectAbandonedTickIds(
-    (data ?? []).map((row) => ({
-      id: String(row.id),
-      created_at: String(row.created_at),
-    })),
+): Promise<AbandonedReconcileResult> {
+  return reconcileAbandonedTickRows({
     currentTickId,
     now,
-    FORGE_AGENT_CRON_ABANDONED_MS
-  );
-  for (const id of ids) {
-    const createdAt = (data ?? []).find((row) => String(row.id) === id)
-      ?.created_at;
-    const createdMs = createdAt ? new Date(String(createdAt)).getTime() : now;
-    const durationMs = Number.isFinite(createdMs) ? now - createdMs : 0;
-    const { error: updateError } = await admin
-      .from("forge_agent_runs")
-      .update({
-        status: "failed",
-        detail: buildCronTickDetail({
-          stage: "abandoned",
-          errorCodes: ["CRON_ABANDONED"],
-          durationMs,
-        }),
-      })
-      .eq("id", id)
-      .eq("kind", "cron_tick")
-      .eq("status", "started");
-    if (updateError) {
-      logCron("ABANDON_UPDATE_FAILED", {
-        errorCode: updateError.code ?? "ABANDON_UPDATE",
-      });
-    }
-  }
+    timeoutMs: FORGE_AGENT_CRON_ABANDONED_MS,
+    list: async () => {
+      const { data, error } = await admin
+        .from("forge_agent_runs")
+        .select("id, created_at")
+        .eq("kind", "cron_tick")
+        .eq("status", "started")
+        .neq("id", currentTickId);
+      return {
+        data: (data ?? []).map((row) => ({
+          id: String(row.id),
+          created_at: String(row.created_at),
+        })),
+        error,
+      };
+    },
+    update: async (id, durationMs) => {
+      const { error } = await admin
+        .from("forge_agent_runs")
+        .update({
+          status: "failed",
+          detail: buildCronTickDetail({
+            stage: "abandoned",
+            errorCodes: ["CRON_ABANDONED"],
+            durationMs,
+          }),
+        })
+        .eq("id", id)
+        .eq("kind", "cron_tick")
+        .eq("status", "started")
+        .neq("id", currentTickId);
+      return { error };
+    },
+  });
 }
 
 export async function runForgeAgentCron(
@@ -358,19 +355,19 @@ export async function runForgeAgentCron(
         })),
     updateTick:
       deps.updateTick ??
-      (async (id, status, detail) => {
+      (async (id, status, detail): Promise<TickPersistResult> => {
         assertForgeAgentServiceWriteTarget("forge_agent_runs");
-        await admin
-          .from("forge_agent_runs")
-          .update({ status, detail })
-          .eq("id", id);
-        logCron("TICK", {
-          status,
-          recovered: detail.recovered,
-          claimed: detail.claimed,
-          generated: detail.generated,
-          fallbacks: detail.fallbacks,
-        });
+        const persisted = await updateCurrentTickRow(admin, id, status, detail);
+        if (persisted.ok) {
+          logCron("TICK", {
+            status,
+            recovered: detail.recovered,
+            claimed: detail.claimed,
+            generated: detail.generated,
+            fallbacks: detail.fallbacks,
+          });
+        }
+        return persisted;
       }),
     reconcileAbandoned:
       deps.reconcileAbandoned ??
@@ -383,17 +380,17 @@ export async function runForgeAgentCron(
       ((rows, metrics) => recoverStaleDrafts(admin, rows, metrics)),
     claimDue:
       deps.claimDue ??
-      (async (tickId) => {
+      (async (tickId, limit) => {
         const { data, error } = await admin.rpc("claim_due_forge_cues", {
-          p_limit: FORGE_AGENT_CRON_CLAIM_LIMIT,
+          p_limit: limit,
           p_cron_run_id: tickId,
         });
         return { data, error };
       }),
     processClaim:
       deps.processClaim ??
-      ((claim, tickId, metrics) =>
-        processClaim(admin, claim, tickId, metrics)),
+      ((claim, tickId, metrics, options) =>
+        processClaim(admin, claim, tickId, metrics, options)),
   });
   return result;
 }
