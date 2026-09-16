@@ -1,6 +1,7 @@
 import {
   FORGE_AGENT_ABANDON_MAX_ATTEMPTS,
   FORGE_AGENT_ABANDON_TIMEOUT_MS,
+  FORGE_AGENT_CRON_TICK_UPDATE_TIMEOUT_MS,
 } from "./types.ts";
 
 export type CronTickStage =
@@ -332,6 +333,17 @@ export type TickUpdateClient = {
       ) => {
         select: (columns: string) => {
           single: () => PromiseLike<TickUpdateSingleResult>;
+          abortSignal?: (signal: AbortSignal) => {
+            single: () => PromiseLike<TickUpdateSingleResult>;
+          };
+        };
+        abortSignal?: (signal: AbortSignal) => {
+          select: (columns: string) => {
+            single: () => PromiseLike<TickUpdateSingleResult>;
+            abortSignal?: (signal: AbortSignal) => {
+              single: () => PromiseLike<TickUpdateSingleResult>;
+            };
+          };
         };
       };
     };
@@ -382,16 +394,39 @@ export async function updateCurrentTickRow(
   client: TickUpdateClient,
   id: string,
   status: CronTickStatus,
-  detail: Record<string, unknown>
+  detail: Record<string, unknown>,
+  signal?: AbortSignal
 ): Promise<TickPersistResult> {
   return persistCurrentTick(async () => {
-    return client
+    let query: any = client
       .from("forge_agent_runs")
       .update({ status, detail })
-      .eq("id", id)
-      .select("id, status")
-      .single();
+      .eq("id", id);
+    if (signal && typeof query.abortSignal === "function") {
+      query = query.abortSignal(signal);
+    }
+    query = query.select("id, status");
+    if (signal && typeof query.abortSignal === "function") {
+      query = query.abortSignal(signal);
+    }
+    return query.single();
   }, { id, status });
+}
+
+export async function updateCurrentTickRowWithTimeout(
+  client: TickUpdateClient,
+  id: string,
+  status: CronTickStatus,
+  detail: Record<string, unknown>,
+  timeoutMs: number = FORGE_AGENT_CRON_TICK_UPDATE_TIMEOUT_MS
+): Promise<TickPersistResult> {
+  try {
+    return await withTimeout(async (signal) => {
+      return updateCurrentTickRow(client, id, status, detail, signal);
+    }, timeoutMs);
+  } catch (error) {
+    return { ok: false, error };
+  }
 }
 
 export function isTickPersistOk(

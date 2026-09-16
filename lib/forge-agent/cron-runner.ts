@@ -18,6 +18,7 @@ import {
   FORGE_AGENT_CRON_FINALIZE_BUDGET_MS,
   FORGE_AGENT_CRON_MAX_DURATION_MS,
   FORGE_AGENT_CRON_MODEL_START_BUDGET_MS,
+  FORGE_AGENT_CRON_TICK_UPDATE_TIMEOUT_MS,
   FORGE_AGENT_RECOVER_LIST_MAX_ATTEMPTS,
   FORGE_AGENT_RECOVER_LIST_TIMEOUT_MS,
 } from "./types.ts";
@@ -146,15 +147,22 @@ async function persistTick(
   const persistError =
     persisted && persisted.ok === false ? persisted.error : { code: "CRON_TICK_UPDATE" };
   if (intended !== "failed") {
-    const failDetail = buildCronTickDetail({
-      stage: "tick_update",
-      errorCodes: metrics.errorCodes,
-      error: persistError,
-      durationMs: deps.now() - started,
-      ...metricsFields(metrics),
-    });
-    const retry = await deps.updateTick(tickId, "failed", failDetail);
-    if (isTickPersistOk(retry)) return "failed";
+    const remainingBudget = remainingUntilDeadline(
+      started,
+      deps.now(),
+      FORGE_AGENT_CRON_MAX_DURATION_MS
+    );
+    if (remainingBudget > 0) {
+      const failDetail = buildCronTickDetail({
+        stage: "tick_update",
+        errorCodes: metrics.errorCodes,
+        error: persistError,
+        durationMs: deps.now() - started,
+        ...metricsFields(metrics),
+      });
+      const retry = await deps.updateTick(tickId, "failed", failDetail);
+      if (isTickPersistOk(retry)) return "failed";
+    }
   }
   emitSanitizedTickPersistError(persistError);
   return "failed";

@@ -5,7 +5,7 @@ import { compactCoachContext, readApprovedCoachingContext } from "./context.ts";
 import {
   buildCronTickDetail,
   reconcileAbandonedTickRows,
-  updateCurrentTickRow,
+  updateCurrentTickRowWithTimeout,
   type AbandonedReconcileResult,
   type TickPersistResult,
 } from "./cron-guard.ts";
@@ -388,7 +388,12 @@ export async function runForgeAgentCron(
       deps.updateTick ??
       (async (id, status, detail): Promise<TickPersistResult> => {
         assertForgeAgentServiceWriteTarget("forge_agent_runs");
-        const persisted = await updateCurrentTickRow(admin, id, status, detail);
+        const persisted = await updateCurrentTickRowWithTimeout(
+          admin,
+          id,
+          status,
+          detail
+        );
         if (persisted.ok) {
           logCron("TICK", {
             status,
