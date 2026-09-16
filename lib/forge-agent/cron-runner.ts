@@ -18,6 +18,7 @@ import {
   FORGE_AGENT_CRON_FINALIZE_BUDGET_MS,
   FORGE_AGENT_CRON_MAX_DURATION_MS,
   FORGE_AGENT_CRON_MODEL_START_BUDGET_MS,
+  FORGE_AGENT_CRON_SHUTDOWN_MARGIN_MS,
   FORGE_AGENT_CRON_TICK_UPDATE_TIMEOUT_MS,
   FORGE_AGENT_RECOVER_LIST_MAX_ATTEMPTS,
   FORGE_AGENT_RECOVER_LIST_TIMEOUT_MS,
@@ -152,7 +153,10 @@ async function persistTick(
       deps.now(),
       FORGE_AGENT_CRON_MAX_DURATION_MS
     );
-    if (remainingBudget > 0) {
+    const requiredBudget =
+      FORGE_AGENT_CRON_TICK_UPDATE_TIMEOUT_MS +
+      FORGE_AGENT_CRON_SHUTDOWN_MARGIN_MS;
+    if (remainingBudget >= requiredBudget) {
       const failDetail = buildCronTickDetail({
         stage: "tick_update",
         errorCodes: metrics.errorCodes,
