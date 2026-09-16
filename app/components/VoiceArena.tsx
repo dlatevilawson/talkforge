@@ -84,6 +84,7 @@ import {
   startVoiceUsageTracking,
 } from "@/lib/ce/voice-usage-client";
 import {
+  HANDS_FREE_CONTINUATION_GRACE_MS,
   isForgeOutputEventType,
   logTurnTransition,
   memberOwnsFloor,
@@ -211,6 +212,9 @@ export default function VoiceArena({
     null
   );
   const assessmentTranscriptTurnTimerRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+  const handsFreeResponseTimerRef = useRef<ReturnType<
     typeof setTimeout
   > | null>(null);
   const assessmentNavigatedRef = useRef(false);
@@ -616,7 +620,15 @@ export default function VoiceArena({
       if (connectionRef.current) {
         const wantOutbound =
           transition.openOutboundMic && outboundMicOpenForState(transition.to);
-        if (wantOutbound) {
+        // Clear only after Forge returns the floor. Never clear on
+        // listening→user_speaking: the already-streaming prefix contains the
+        // opening words that local intentional-speech confirmation follows.
+        if (
+          wantOutbound &&
+          (transition.from === "forge_speaking" ||
+            transition.from === "forge_thinking") &&
+          transition.to === "listening"
+        ) {
           clearInputAudioBuffer(connectionRef.current);
         }
         setOutboundMicrophoneEnabled(connectionRef.current, wantOutbound);
@@ -661,7 +673,9 @@ export default function VoiceArena({
     },
     onConfirmedUserTurn: (level) => {
       if (!handsFreeRef.current) return;
-      // Listening → member turn only after local intentional-speech confirm.
+      clearHandsFreeResponseGrace();
+      // Listening audio is already streaming; local confirmation grants the
+      // member logical floor ownership without clearing the captured prefix.
       const transition = applyTurn({
         type: "USER_SPEECH_STARTED",
         source: "local_energy",
@@ -669,7 +683,7 @@ export default function VoiceArena({
       if (transition.to === "user_speaking") {
         setPhase("listening");
         pushEvent(
-          `Intentional speech · open mic · level ${level.toFixed(2)}`
+          `Intentional speech · member floor · level ${level.toFixed(2)}`
         );
       }
     },
@@ -681,6 +695,46 @@ export default function VoiceArena({
     handsFreeRef.current = handsFree;
     phaseRef.current = phase;
   }, [handsFree, phase, voice]);
+
+  function clearHandsFreeResponseGrace() {
+    if (!handsFreeResponseTimerRef.current) return;
+    clearTimeout(handsFreeResponseTimerRef.current);
+    handsFreeResponseTimerRef.current = null;
+  }
+
+  function armHandsFreeResponseGrace(reason: string) {
+    if (isAssessment || !handsFreeRef.current) return;
+    clearHandsFreeResponseGrace();
+
+    const paused = applyTurn({
+      type: "USER_SPEECH_PAUSED",
+      source: "server_vad",
+    });
+    if (paused.to !== "listening") return;
+
+    handsFreeResponseTimerRef.current = setTimeout(() => {
+      handsFreeResponseTimerRef.current = null;
+      if (!mountedRef.current || isAssessment || !handsFreeRef.current) return;
+      if (turnStateRef.current !== "listening") return;
+
+      const ended = applyTurn({ type: "CONTINUATION_GRACE_ELAPSED" });
+      if (ended.to !== "forge_thinking") return;
+      voiceRef.current.onUserSpeechStopped();
+      const requested = requestHoldTurnResponse(connectionRef.current, {
+        mode: "practice",
+      });
+      pushEvent(
+        requested
+          ? `Hands-free turn · response requested after ${HANDS_FREE_CONTINUATION_GRACE_MS}ms grace · ${reason}`
+          : `Hands-free turn · response request failed · ${reason}`
+      );
+      if (!requested) {
+        applyTurn({ type: "FORGE_RESPONSE_DONE" });
+        voiceRef.current.onForgeDone();
+      }
+    }, HANDS_FREE_CONTINUATION_GRACE_MS);
+    pushEvent(`Speech pause · waiting for continuation · ${reason}`);
+  }
 
   function clearInterruptTimers() {
     if (interruptWatchdogRef.current) {
@@ -707,6 +761,7 @@ export default function VoiceArena({
     }
     callInterruptedRef.current = true;
     setCallInterrupted(true);
+    clearHandsFreeResponseGrace();
     clearInterruptTimers();
     cancelForgeResponse(connectionRef.current);
     duckRemoteForgeAudio(connectionRef.current);
@@ -746,6 +801,7 @@ export default function VoiceArena({
       }
       clearGuestDurationWatch();
       clearInterruptTimers();
+      clearHandsFreeResponseGrace();
       lifecycleGenerationRef.current += 1;
       const usageId = usageIdRef.current;
       usageIdRef.current = null;
@@ -936,6 +992,7 @@ export default function VoiceArena({
 
     if (type === "response.created") {
       if (Date.now() >= ignoreForgeAudioUntilRef.current) {
+        clearHandsFreeResponseGrace();
         const responseId =
           typeof event.response_id === "string"
             ? event.response_id
@@ -1081,6 +1138,9 @@ export default function VoiceArena({
         pushEvent("Member speech · holding · Forge waits for release");
         return;
       }
+      // A bare server VAD event never owns the floor, but it can arrive while
+      // the local analyser is confirming a continuation. The local-energy
+      // callback cancels the grace only after intentional speech is confirmed.
       // CRITICAL: never response.cancel from bare server VAD — phone echo
       // falsely fires this while Forge TTS plays over the speaker.
       const transition = applyTurn({
@@ -1125,13 +1185,15 @@ export default function VoiceArena({
         pushEvent("Speech pause · still holding · Forge waits");
         return;
       }
-      applyTurn({ type: "USER_SPEECH_STOPPED", source: "server_vad" });
-      voiceRef.current.onUserSpeechStopped();
       // Assessment + hands-free: client owns create_response (minted false).
       // Defer mid-turn until transcript so completion can win.
       if (isAssessment) {
+        applyTurn({ type: "USER_SPEECH_STOPPED", source: "server_vad" });
+        voiceRef.current.onUserSpeechStopped();
         armAssessmentClientTurn("handsfree_speech_stopped");
+        return;
       }
+      armHandsFreeResponseGrace("semantic_vad_speech_stopped");
     }
 
     if (type === "error") {
@@ -1275,6 +1337,7 @@ export default function VoiceArena({
       return;
     }
     startingRef.current = true;
+    clearHandsFreeResponseGrace();
     setMicRecoveryPending(false);
     const resumeRecord: VoiceTranscriptRecord | null =
       !isGuestPreview && !isAssessment
@@ -1956,6 +2019,7 @@ export default function VoiceArena({
   }
 
   async function handleStop() {
+    clearHandsFreeResponseGrace();
     clearGuestDurationWatch();
     if (joinGateTimerRef.current) {
       clearTimeout(joinGateTimerRef.current);

@@ -151,13 +151,18 @@ CRITICAL AIRTIME REMINDERS (live voice — guidance, not sticky scripts):
 /** Per-turn instructions when the member finishes a hold-to-talk utterance. */
 export function buildListenFirstTurnInstructions(): string {
   return [
-    "The member just finished speaking (hold-to-talk release).",
+    "The member has finished a client-confirmed speaking turn.",
     "Listen and analyze before you coach.",
+    "A short, tentative, self-correcting, or ambiguous contribution is not permission to advance. If their meaning is unclear, use only one brief neutral reflection or one open clarifying question, then yield.",
+    "Never reward a fragment with generic praise. Do not say 'love that', 'great', 'nice', or similar filler.",
+    "Never use 'quick check' or present a menu of interpretations or options. Ask at most one question.",
     "You own the conversational move: acknowledge, clarify, teach lightly, challenge, or prompt as judgment requires.",
     "Optional default when it fits: brief grounded reflection, then one useful practice prompt — not a mandatory REFLECT → PROMPT template.",
     "Reflect only what they actually said — do not invent motives or emotions.",
     "If they were exploring or venting, prefer understanding over advice.",
-    "In roleplay, stay in character unless a brief coaching beat is clearly needed.",
+    "Outside a dedicated coaching or debrief moment, do not volunteer analytical feedback or tactical adjustments. Wait for an explicit request or a clear transition into debrief.",
+    "In roleplay, stay fully in character. Do not analyze or coach unless the member explicitly asks for coaching or the roleplay has clearly moved into debrief.",
+    "During exploration, listening and understanding come before tactics. Do not force the member into an exercise, outline, or next step they did not request.",
     "Keep the turn purposeful and short enough that they keep the airtime. Do not monologue. Yield the mic.",
   ].join(" ");
 }

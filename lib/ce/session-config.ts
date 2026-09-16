@@ -152,7 +152,8 @@ export function buildClientSecretRequest(input?: {
   turnKind?: VoiceTurnKind;
   mode?: CeSessionMode;
 }) {
-  // Hands-free (gated): semantic_vad; client owns barge-in yield.
+  // Hands-free (gated): semantic_vad; client owns response timing and
+  // barge-in yield so a thinking pause cannot make Forge speak.
   // Hold-to-talk: create_response OFF — mid-hold thinking pauses must NOT
   // spawn Forge. Client calls response.create only when Hold is released.
   // Assessment: create_response always OFF (see resolveRealtimeTurnDetection).

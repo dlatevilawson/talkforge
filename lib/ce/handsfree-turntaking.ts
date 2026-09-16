@@ -16,7 +16,9 @@ export type FloorOwner = "forge" | "member" | "none";
 
 export type TurnEvent =
   | { type: "USER_SPEECH_STARTED"; source: "server_vad" | "local_energy" }
+  | { type: "USER_SPEECH_PAUSED"; source: "server_vad" }
   | { type: "USER_SPEECH_STOPPED"; source: "server_vad" | "local_energy" }
+  | { type: "CONTINUATION_GRACE_ELAPSED" }
   | { type: "FORGE_RESPONSE_CREATED"; responseId?: string }
   | { type: "FORGE_AUDIO_DELTA" }
   | { type: "FORGE_RESPONSE_DONE"; responseId?: string }
@@ -38,6 +40,12 @@ export type TurnTransition = {
   ignoreServerSpeechAsBargeIn: boolean;
 };
 
+/**
+ * Extra thinking room after semantic VAD observes an apparent end of speech.
+ * VAD keeps chunking/transcribing, but the app owns response.create.
+ */
+export const HANDS_FREE_CONTINUATION_GRACE_MS = 1_800;
+
 export function floorOwner(state: TurnState): FloorOwner {
   if (state === "forge_speaking" || state === "forge_thinking") return "forge";
   if (state === "user_speaking" || state === "interrupted") return "member";
@@ -49,9 +57,28 @@ export function memberOwnsFloor(state: TurnState): boolean {
 }
 
 export function outboundMicOpenForState(state: TurnState): boolean {
-  // Only send mic audio while the member owns the floor.
-  // Listening stays outbound-muted so TV / ambient cannot trigger server VAD.
-  return state === "user_speaking" || state === "interrupted";
+  // Listening must stay outbound-open so Realtime receives the beginning of
+  // the member's sentence before local intentional-speech confirmation fires.
+  // Automatic responses are disabled for hands-free practice, so ambient VAD
+  // events cannot independently make Forge speak.
+  return (
+    state === "listening" ||
+    state === "user_speaking" ||
+    state === "interrupted"
+  );
+}
+
+/** Phase is a second safety signal while Realtime response events settle. */
+export function shouldOpenHandsFreeOutbound(input: {
+  muted: boolean;
+  forgeOwnsFloor: boolean;
+  state: TurnState;
+}): boolean {
+  return (
+    !input.muted &&
+    !input.forgeOwnsFloor &&
+    outboundMicOpenForState(input.state)
+  );
 }
 
 /** True only for assistant/Forge output events — never input mic events. */
@@ -328,6 +355,38 @@ export function reduceTurnState(
       return hold(state, event.type, "ignore_speech_stopped_outside_member_turn");
     }
 
+    case "USER_SPEECH_PAUSED": {
+      if (state === "user_speaking" || state === "interrupted") {
+        const to: TurnState = "listening";
+        return {
+          ...base,
+          to,
+          event: event.type,
+          reason: "member_pause_waiting_for_continuation",
+          cancelForge: false,
+          openOutboundMic: true,
+          ignoreServerSpeechAsBargeIn: true,
+        };
+      }
+      return hold(state, event.type, "ignore_pause_outside_member_turn");
+    }
+
+    case "CONTINUATION_GRACE_ELAPSED": {
+      if (state === "listening") {
+        const to: TurnState = "forge_thinking";
+        return {
+          ...base,
+          to,
+          event: event.type,
+          reason: "member_turn_ended_after_continuation_grace",
+          cancelForge: false,
+          openOutboundMic: false,
+          ignoreServerSpeechAsBargeIn: true,
+        };
+      }
+      return hold(state, event.type, "ignore_grace_elapsed_outside_pause");
+    }
+
     case "FORGE_RESPONSE_CREATED": {
       // Member still owns the floor after barge-in — ignore stale creates.
       if (memberOwnsFloor(state)) {
@@ -384,9 +443,9 @@ export function reduceTurnState(
         event: event.type,
         reason: "forge_finished_wait_for_new_member_utterance",
         cancelForge: false,
-        // Listening stays outbound-muted until local intentional speech.
-        // Opening here let ambient hit server VAD → false create_response loops.
-        openOutboundMic: false,
+        // Listening stays outbound-open so the next turn's first words are
+        // captured. create_response=false prevents ambient response loops.
+        openOutboundMic: true,
         ignoreServerSpeechAsBargeIn: true,
       };
     }

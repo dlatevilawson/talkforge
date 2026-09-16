@@ -19,7 +19,7 @@ import {
 import {
   isIntentionalSpeechSignal,
   levelModulation,
-  outboundMicOpenForState,
+  shouldOpenHandsFreeOutbound,
   speechBandRatioFromSpectrum,
   type TurnState,
 } from "@/lib/ce/handsfree-turntaking";
@@ -40,7 +40,7 @@ type Options = {
   forgeLive: boolean;
   /** Forge speaking → talk-over confirmed against remote playback. */
   onConfirmedBargeIn?: (level: number) => void;
-  /** Listening → confirmed intentional user turn (opens outbound). */
+  /** Listening → confirmed intentional user turn (claims logical floor). */
   onConfirmedUserTurn?: (level: number) => void;
 };
 
@@ -97,8 +97,6 @@ export function useArenaVoice({
     forgeLive ||
     turnState === "forge_speaking" ||
     turnState === "forge_thinking";
-  const outboundOpen = outboundMicOpenForState(turnState);
-
   function hardMuteMic(conn: RealtimeConnection | null) {
     if (!conn || conn.usedSilentMicFallback) return;
     holdingRef.current = false;
@@ -125,7 +123,14 @@ export function useArenaVoice({
       for (const track of connection.localStream.getAudioTracks()) {
         track.enabled = !handsFreeMuted;
       }
-      const wantOutbound = !handsFreeMuted && outboundOpen;
+      // `turnState` can lag the opening response by one event. Never stream
+      // outbound while phase/turn says Forge owns the floor, even when the
+      // logical state is still `listening`.
+      const wantOutbound = shouldOpenHandsFreeOutbound({
+        muted: handsFreeMuted,
+        forgeOwnsFloor,
+        state: turnState,
+      });
       setOutboundMicrophoneEnabled(connection, wantOutbound);
       setMicLive(wantOutbound || (!handsFreeMuted && sessionActive));
       if (!handsFreeMuted) {
@@ -163,7 +168,6 @@ export function useArenaVoice({
     handsFreeMuted,
     forgeOwnsFloor,
     forgeLive,
-    outboundOpen,
   ]);
 
   useEffect(() => {
@@ -324,7 +328,8 @@ export function useArenaVoice({
           return requestNext(tick);
         }
 
-        // --- Listening: outbound stays muted until intentional speech ---
+        // --- Listening: outbound is already streaming to preserve the speech
+        // prefix; local confirmation grants logical floor ownership only. ---
         if (mode === "handsfree" && currentTurn === "listening") {
           if (nextLevel < 0.14 && ambientSamplesRef.current.length < 24) {
             ambientSamplesRef.current.push(nextLevel);
