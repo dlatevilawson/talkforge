@@ -123,6 +123,8 @@ export const FORGE_AGENT_CRON_FINALIZE_BUDGET_MS = 5_000;
 export const FORGE_AGENT_CRON_MODEL_START_BUDGET_MS = 15_000;
 export const FORGE_AGENT_RECOVER_LIST_TIMEOUT_MS = 4_000;
 export const FORGE_AGENT_RECOVER_LIST_MAX_ATTEMPTS = 2;
+export const FORGE_AGENT_ABANDON_TIMEOUT_MS = 4_000;
+export const FORGE_AGENT_ABANDON_MAX_ATTEMPTS = 2;
 export const FORGE_AGENT_CRON_ABANDONED_MS = 90_000;
 export const FORGE_AGENT_DRAFT_SYSTEM =
   "You draft one bounded next-move sentence. Never invent events. Never output a URL.";

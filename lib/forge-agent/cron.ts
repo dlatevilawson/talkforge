@@ -103,10 +103,10 @@ async function markAttempt(
   attemptId: string | null,
   status: "generated" | "fallback",
   extra: Record<string, unknown>
-): Promise<void> {
-  if (!attemptId) return;
+): Promise<boolean> {
+  if (!attemptId) return true;
   assertForgeAgentServiceWriteTarget("forge_agent_runs");
-  const { error } = await admin
+  const { data, error } = await admin
     .from("forge_agent_runs")
     .update({
       status,
@@ -114,10 +114,14 @@ async function markAttempt(
     })
     .eq("id", attemptId)
     .eq("kind", "draft_attempt")
-    .eq("status", "started");
+    .eq("status", "started")
+    .select("id")
+    .maybeSingle();
   if (error) {
     logCron("ATTEMPT_UPDATE_FAILED", { errorCode: error.code ?? "ATTEMPT" });
+    return false;
   }
+  return Boolean(data);
 }
 
 async function loadStartedAttempt(
@@ -238,7 +242,29 @@ async function processClaim(
       claim.action_id,
       buildCheckInCopy(cue)
     );
-    if (finalized) metrics.fallbacks += 1;
+    if (!finalized) {
+      metrics.errorCodes.push("FINALIZE");
+      return;
+    }
+    metrics.fallbacks += 1;
+    if (claim.generation_allowed) {
+      const marked = await markAttempt(
+        admin,
+        claim.attempt_id,
+        "fallback",
+        sanitizeAttemptDetail({
+          action_id: claim.action_id,
+          cue_id: claim.cue_id,
+          cron_run_id: cronRunId,
+          inputTokens: 0,
+          outputTokens: 0,
+          errorCode: "CRON_TIME_BUDGET",
+        })
+      );
+      if (!marked) {
+        metrics.errorCodes.push("ATTEMPT");
+      }
+    }
     return;
   }
 
@@ -264,7 +290,7 @@ async function processClaim(
   if (drafted.source === "model") metrics.generated += 1;
   else metrics.fallbacks += 1;
 
-  await markAttempt(
+  const marked = await markAttempt(
     admin,
     claim.attempt_id,
     drafted.source === "model" ? "generated" : "fallback",
@@ -277,6 +303,9 @@ async function processClaim(
       errorCode: drafted.errorCode,
     })
   );
+  if (!marked) {
+    metrics.errorCodes.push("ATTEMPT");
+  }
 }
 
 async function listDraftingActions(
@@ -300,13 +329,14 @@ async function reconcileAbandonedTicks(
     currentTickId,
     now,
     timeoutMs: FORGE_AGENT_CRON_ABANDONED_MS,
-    list: async () => {
+    list: async (signal) => {
       const { data, error } = await admin
         .from("forge_agent_runs")
         .select("id, created_at")
         .eq("kind", "cron_tick")
         .eq("status", "started")
-        .neq("id", currentTickId);
+        .neq("id", currentTickId)
+        .abortSignal(signal);
       return {
         data: (data ?? []).map((row) => ({
           id: String(row.id),
@@ -315,7 +345,7 @@ async function reconcileAbandonedTicks(
         error,
       };
     },
-    update: async (id, durationMs) => {
+    update: async (id, durationMs, signal) => {
       const { error } = await admin
         .from("forge_agent_runs")
         .update({
@@ -329,7 +359,8 @@ async function reconcileAbandonedTicks(
         .eq("id", id)
         .eq("kind", "cron_tick")
         .eq("status", "started")
-        .neq("id", currentTickId);
+        .neq("id", currentTickId)
+        .abortSignal(signal);
       return { error };
     },
   });

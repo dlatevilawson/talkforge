@@ -306,12 +306,14 @@ export async function runForgeAgentCronWithDeps(
 
     const status: CronTickStatus =
       metrics.errorCodes.length === 0 ? "completed" : "partial";
+    const timeBudgetAffected =
+      skippedForBudget || metrics.errorCodes.includes("CRON_TIME_BUDGET");
     const persisted = await persistTick(
       deps,
       tick.id,
       status,
       buildCronTickDetail({
-        stage: skippedForBudget ? "time_budget" : undefined,
+        stage: timeBudgetAffected ? "time_budget" : undefined,
         errorCodes: metrics.errorCodes,
         durationMs: deps.now() - started,
         ...metricsFields(metrics),

@@ -1,3 +1,8 @@
+import {
+  FORGE_AGENT_ABANDON_MAX_ATTEMPTS,
+  FORGE_AGENT_ABANDON_TIMEOUT_MS,
+} from "./types.ts";
+
 export type CronTickStage =
   | "recover_list"
   | "claim_rpc"
@@ -194,17 +199,34 @@ export async function reconcileAbandonedTickRows(input: {
   currentTickId: string;
   now: number;
   timeoutMs: number;
-  list: () => Promise<{
+  queryTimeoutMs?: number;
+  maxAttempts?: number;
+  list: (signal: AbortSignal) => Promise<{
     data: readonly { id: string; created_at: string }[] | null;
     error: unknown | null;
   }>;
   update: (
     id: string,
-    durationMs: number
+    durationMs: number,
+    signal: AbortSignal
   ) => Promise<{ error: unknown | null }>;
 }): Promise<AbandonedReconcileResult> {
-  const listed = await input.list();
-  if (listed.error) return { ok: false, error: listed.error };
+  const queryTimeoutMs =
+    input.queryTimeoutMs ?? FORGE_AGENT_ABANDON_TIMEOUT_MS;
+  const maxAttempts =
+    input.maxAttempts ?? FORGE_AGENT_ABANDON_MAX_ATTEMPTS;
+
+  const listed = await queryWithTimeoutAndRetry(
+    (signal) => input.list(signal),
+    {
+      timeoutMs: queryTimeoutMs,
+      maxAttempts,
+    }
+  );
+  if (!listed.ok) {
+    return { ok: false, error: listed.error };
+  }
+
   const ids = selectAbandonedTickIds(
     listed.data ?? [],
     input.currentTickId,
@@ -218,8 +240,19 @@ export async function reconcileAbandonedTickRows(input: {
       ?.created_at;
     const createdMs = createdAt ? new Date(createdAt).getTime() : input.now;
     const durationMs = Number.isFinite(createdMs) ? input.now - createdMs : 0;
-    const updated = await input.update(id, durationMs);
-    if (updated.error) return { ok: false, error: updated.error };
+    const updated = await queryWithTimeoutAndRetry(
+      async (signal) => {
+        const res = await input.update(id, durationMs, signal);
+        return { data: res, error: res?.error ?? null };
+      },
+      {
+        timeoutMs: queryTimeoutMs,
+        maxAttempts,
+      }
+    );
+    if (!updated.ok) {
+      return { ok: false, error: updated.error };
+    }
     marked += 1;
   }
   return { ok: true, marked };
@@ -306,10 +339,13 @@ export type TickUpdateClient = {
 };
 
 export function inspectTickUpdateResult(
-  result: TickUpdateSingleResult,
+  result: TickUpdateSingleResult | null | undefined,
   expectedId: string,
   expectedStatus: CronTickStatus
 ): TickPersistResult {
+  if (!result || typeof result !== "object") {
+    return { ok: false, error: { code: "CRON_TICK_UPDATE" } };
+  }
   if (result.error) return { ok: false, error: result.error };
   const data = result.data;
   const row = Array.isArray(data)
@@ -331,7 +367,7 @@ export function inspectTickUpdateResult(
 }
 
 export async function persistCurrentTick(
-  performUpdate: () => Promise<TickUpdateSingleResult>,
+  performUpdate: () => Promise<TickUpdateSingleResult | null | undefined>,
   expected: { id: string; status: CronTickStatus }
 ): Promise<TickPersistResult> {
   try {
@@ -359,9 +395,9 @@ export async function updateCurrentTickRow(
 }
 
 export function isTickPersistOk(
-  result: TickPersistResult | void | undefined
+  result: TickPersistResult | void | undefined | null
 ): boolean {
-  return result == null || result.ok === true;
+  return result?.ok === true;
 }
 
 export async function withTimeout<T>(
