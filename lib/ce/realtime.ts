@@ -454,9 +454,9 @@ export function requestOpeningSpeech(
 }
 
 /**
- * Hold-to-talk: after the member releases Hold, commit any remaining audio and
- * ask Forge to respond. create_response is OFF in session config so thinking
- * pauses mid-hold never spawn a competing Forge turn.
+ * Client-owned turn response. Used after Hold release or after the hands-free
+ * continuation grace. Commit any trailing audio and explicitly ask Forge to
+ * respond; create_response stays OFF so pauses cannot spawn competing turns.
  */
 export function requestHoldTurnResponse(
   connection: RealtimeConnection | null,

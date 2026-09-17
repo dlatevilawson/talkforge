@@ -1437,7 +1437,9 @@ export function resolveRealtimeTurnDetection(input: {
   if (input.handsFree) {
     return {
       type: "semantic_vad",
-      create_response: true,
+      // Keep semantic chunking/transcription, but let VoiceArena wait through
+      // a bounded continuation window before explicitly creating a response.
+      create_response: false,
       interrupt_response: false,
       eagerness: "low",
     };
