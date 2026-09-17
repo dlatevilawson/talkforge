@@ -85,12 +85,14 @@ import {
 } from "@/lib/ce/voice-usage-client";
 import {
   HANDS_FREE_CONTINUATION_GRACE_MS,
+  HANDS_FREE_PLAYBACK_DRAIN_FALLBACK_MS,
   isForgeOutputEventType,
   logTurnTransition,
   memberOwnsFloor,
   outboundMicOpenForState,
   reduceTurnState,
   shouldSurfaceRealtimeError,
+  shouldWaitForHandsFreePlaybackDrain,
   type TurnState,
 } from "@/lib/ce/handsfree-turntaking";
 import {
@@ -217,6 +219,14 @@ export default function VoiceArena({
   const handsFreeResponseTimerRef = useRef<ReturnType<
     typeof setTimeout
   > | null>(null);
+  const handsFreePlaybackDrainTimerRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+  const pendingForgeResponseDoneRef = useRef<{
+    responseId?: string;
+  } | null>(null);
+  const sawForgeAudioRef = useRef(false);
+  const forgePlaybackStoppedRef = useRef(false);
   const assessmentNavigatedRef = useRef(false);
 
   const [phase, setPhase] = useState<Phase>("idle");
@@ -620,17 +630,9 @@ export default function VoiceArena({
       if (connectionRef.current) {
         const wantOutbound =
           transition.openOutboundMic && outboundMicOpenForState(transition.to);
-        // Clear only after Forge returns the floor. Never clear on
-        // listening→user_speaking: the already-streaming prefix contains the
-        // opening words that local intentional-speech confirmation follows.
-        if (
-          wantOutbound &&
-          (transition.from === "forge_speaking" ||
-            transition.from === "forge_thinking") &&
-          transition.to === "listening"
-        ) {
-          clearInputAudioBuffer(connectionRef.current);
-        }
+        // Never clear at the Forge→member handoff. The member can begin near
+        // the playout boundary, and a clear here erases those opening words.
+        // The preceding member turn was already committed before response.create.
         setOutboundMicrophoneEnabled(connectionRef.current, wantOutbound);
       }
     }
@@ -702,6 +704,71 @@ export default function VoiceArena({
     handsFreeResponseTimerRef.current = null;
   }
 
+  function clearHandsFreePlaybackDrain() {
+    if (handsFreePlaybackDrainTimerRef.current) {
+      clearTimeout(handsFreePlaybackDrainTimerRef.current);
+      handsFreePlaybackDrainTimerRef.current = null;
+    }
+    pendingForgeResponseDoneRef.current = null;
+  }
+
+  function completeForgeResponse(responseId?: string) {
+    clearHandsFreePlaybackDrain();
+    applyTurn({ type: "FORGE_RESPONSE_DONE", responseId });
+    setPhase((current) =>
+      current === "speaking"
+        ? "listening"
+        : current === "connecting"
+          ? "connected"
+          : current
+    );
+    voiceRef.current.onForgeDone();
+    if (pendingBudgetRef.current != null) {
+      applyOutputBudget(connectionRef.current, pendingBudgetRef.current);
+      pendingBudgetRef.current = null;
+    }
+    pushEvent(
+      `Response done · ${responseId ?? "unknown"} · member mic ready`
+    );
+
+    if (isAssessment) {
+      const doneDecision = decideAssessmentResponseDone(
+        assessmentLifecycleRef.current,
+        {
+          closingSent: assessmentClosingSentRef.current,
+          pendingClosingAfterDone:
+            assessmentPendingClosingAfterDoneRef.current,
+          navigated: assessmentNavigatedRef.current,
+        }
+      );
+      if (doneDecision.action === "send_closing") {
+        if (assessmentClosingTimerRef.current) {
+          clearTimeout(assessmentClosingTimerRef.current);
+          assessmentClosingTimerRef.current = null;
+        }
+        sendAssessmentClosingSpeech("after_in_flight_done");
+        return;
+      }
+      if (doneDecision.action === "finalize") {
+        dispatchAssessmentEvent({ type: "FINAL_RESPONSE_DONE" });
+      }
+    }
+  }
+
+  function waitForHandsFreePlaybackDrain(responseId?: string) {
+    clearHandsFreePlaybackDrain();
+    pendingForgeResponseDoneRef.current = { responseId };
+    handsFreePlaybackDrainTimerRef.current = setTimeout(() => {
+      handsFreePlaybackDrainTimerRef.current = null;
+      const pending = pendingForgeResponseDoneRef.current;
+      pendingForgeResponseDoneRef.current = null;
+      if (!pending || !mountedRef.current) return;
+      pushEvent("Forge playback drain · fallback elapsed");
+      completeForgeResponse(pending.responseId);
+    }, HANDS_FREE_PLAYBACK_DRAIN_FALLBACK_MS);
+    pushEvent("Response generated · waiting for speaker playback to finish");
+  }
+
   function armHandsFreeResponseGrace(reason: string) {
     if (isAssessment || !handsFreeRef.current) return;
     clearHandsFreeResponseGrace();
@@ -762,6 +829,7 @@ export default function VoiceArena({
     callInterruptedRef.current = true;
     setCallInterrupted(true);
     clearHandsFreeResponseGrace();
+    clearHandsFreePlaybackDrain();
     clearInterruptTimers();
     cancelForgeResponse(connectionRef.current);
     duckRemoteForgeAudio(connectionRef.current);
@@ -802,6 +870,7 @@ export default function VoiceArena({
       clearGuestDurationWatch();
       clearInterruptTimers();
       clearHandsFreeResponseGrace();
+      clearHandsFreePlaybackDrain();
       lifecycleGenerationRef.current += 1;
       const usageId = usageIdRef.current;
       usageIdRef.current = null;
@@ -993,6 +1062,9 @@ export default function VoiceArena({
     if (type === "response.created") {
       if (Date.now() >= ignoreForgeAudioUntilRef.current) {
         clearHandsFreeResponseGrace();
+        clearHandsFreePlaybackDrain();
+        sawForgeAudioRef.current = false;
+        forgePlaybackStoppedRef.current = false;
         const responseId =
           typeof event.response_id === "string"
             ? event.response_id
@@ -1061,51 +1133,34 @@ export default function VoiceArena({
       type === "response.audio.delta"
     ) {
       if (Date.now() >= ignoreForgeAudioUntilRef.current) {
+        sawForgeAudioRef.current = true;
         applyTurn({ type: "FORGE_AUDIO_DELTA" });
+      }
+    }
+
+    if (type === "output_audio_buffer.stopped") {
+      forgePlaybackStoppedRef.current = true;
+      const pending = pendingForgeResponseDoneRef.current;
+      if (pending) {
+        pushEvent("Forge playback drain · speaker stopped");
+        completeForgeResponse(pending.responseId);
       }
     }
 
     if (type === "response.done") {
       const responseId =
         typeof event.response_id === "string" ? event.response_id : undefined;
-      applyTurn({ type: "FORGE_RESPONSE_DONE", responseId });
-      setPhase((current) =>
-        current === "speaking"
-          ? "listening"
-          : current === "connecting"
-            ? "connected"
-            : current
-      );
-      voiceRef.current.onForgeDone();
-      if (pendingBudgetRef.current != null) {
-        applyOutputBudget(connectionRef.current, pendingBudgetRef.current);
-        pendingBudgetRef.current = null;
-      }
-      pushEvent(
-        `Response done · ${responseId ?? "unknown"} · no auto-restart`
-      );
-
-      if (isAssessment) {
-        const doneDecision = decideAssessmentResponseDone(
-          assessmentLifecycleRef.current,
-          {
-            closingSent: assessmentClosingSentRef.current,
-            pendingClosingAfterDone:
-              assessmentPendingClosingAfterDoneRef.current,
-            navigated: assessmentNavigatedRef.current,
-          }
-        );
-        if (doneDecision.action === "send_closing") {
-          if (assessmentClosingTimerRef.current) {
-            clearTimeout(assessmentClosingTimerRef.current);
-            assessmentClosingTimerRef.current = null;
-          }
-          sendAssessmentClosingSpeech("after_in_flight_done");
-          return;
-        }
-        if (doneDecision.action === "finalize") {
-          dispatchAssessmentEvent({ type: "FINAL_RESPONSE_DONE" });
-        }
+      const shouldDrainPlayback = shouldWaitForHandsFreePlaybackDrain({
+        handsFree: handsFreeRef.current,
+        isAssessment,
+        sawForgeAudio: sawForgeAudioRef.current,
+        playbackStopped: forgePlaybackStoppedRef.current,
+        state: turnStateRef.current,
+      });
+      if (shouldDrainPlayback) {
+        waitForHandsFreePlaybackDrain(responseId);
+      } else {
+        completeForgeResponse(responseId);
       }
     }
 
@@ -1338,6 +1393,7 @@ export default function VoiceArena({
     }
     startingRef.current = true;
     clearHandsFreeResponseGrace();
+    clearHandsFreePlaybackDrain();
     setMicRecoveryPending(false);
     const resumeRecord: VoiceTranscriptRecord | null =
       !isGuestPreview && !isAssessment
@@ -2020,6 +2076,7 @@ export default function VoiceArena({
 
   async function handleStop() {
     clearHandsFreeResponseGrace();
+    clearHandsFreePlaybackDrain();
     clearGuestDurationWatch();
     if (joinGateTimerRef.current) {
       clearTimeout(joinGateTimerRef.current);

@@ -46,6 +46,28 @@ export type TurnTransition = {
  */
 export const HANDS_FREE_CONTINUATION_GRACE_MS = 1_800;
 
+/**
+ * Safety fallback when a WebRTC client does not emit output_audio_buffer.stopped.
+ * The normal path reopens on that playout event; this only prevents a stuck mic.
+ */
+export const HANDS_FREE_PLAYBACK_DRAIN_FALLBACK_MS = 600;
+
+export function shouldWaitForHandsFreePlaybackDrain(input: {
+  handsFree: boolean;
+  isAssessment: boolean;
+  sawForgeAudio: boolean;
+  playbackStopped: boolean;
+  state: TurnState;
+}): boolean {
+  return (
+    input.handsFree &&
+    !input.isAssessment &&
+    input.sawForgeAudio &&
+    !input.playbackStopped &&
+    (input.state === "forge_speaking" || input.state === "forge_thinking")
+  );
+}
+
 export function floorOwner(state: TurnState): FloorOwner {
   if (state === "forge_speaking" || state === "forge_thinking") return "forge";
   if (state === "user_speaking" || state === "interrupted") return "member";
