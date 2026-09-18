@@ -175,6 +175,11 @@ export function buildClientSecretRequest(input?: {
       max_output_tokens: maxTokens || FORGE_TURN_MAX_OUTPUT_TOKENS,
       audio: {
         input: {
+          // Phone sessions are close-talk. OpenAI noise reduction runs before
+          // VAD and transcription, complementing the browser's audio DSP.
+          noise_reduction: {
+            type: "near_field" as const,
+          },
           transcription: {
             model: CE_TRANSCRIBE_MODEL,
             language: "en",
@@ -203,6 +208,9 @@ export function buildSessionUpdateForTranscription(options?: {
       max_output_tokens: maxOutputTokens,
       audio: {
         input: {
+          noise_reduction: {
+            type: "near_field" as const,
+          },
           transcription: {
             model: CE_TRANSCRIBE_MODEL,
             language: "en",

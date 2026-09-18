@@ -52,6 +52,61 @@ export const HANDS_FREE_CONTINUATION_GRACE_MS = 1_800;
  */
 export const HANDS_FREE_PLAYBACK_DRAIN_FALLBACK_MS = 600;
 
+/**
+ * Local near-field gate for opening a hands-free member turn. Audio is already
+ * streaming while Listening, so a stricter/longer confirmation does not clip
+ * the beginning of the utterance; it only prevents room audio from owning the
+ * conversational floor.
+ */
+export const HANDS_FREE_LISTENING_ABSOLUTE_FLOOR = 0.28;
+export const HANDS_FREE_LISTENING_AMBIENT_MULTIPLIER = 3.8;
+export const HANDS_FREE_LISTENING_MIN_SUSTAIN_MS = 620;
+
+const SHORT_HANDS_FREE_UTTERANCES = new Set([
+  "yes",
+  "no",
+  "maybe",
+  "okay",
+  "ok",
+  "sure",
+  "continue",
+  "stop",
+  "repeat",
+  "help",
+  "exactly",
+  "correct",
+  "i agree",
+  "not really",
+  "go on",
+  "that's right",
+  "thats right",
+  "i don't know",
+  "i dont know",
+]);
+
+/**
+ * Last line of defense after ASR. Random room noise often becomes one or two
+ * plausible-looking words. Require a locally confirmed near-field turn and a
+ * minimally substantive transcript before it can enter history or trigger a
+ * response. Explicit conversational short answers remain supported.
+ */
+export function shouldAdmitHandsFreeTranscript(input: {
+  text: string;
+  locallyConfirmed: boolean;
+}): boolean {
+  if (!input.locallyConfirmed) return false;
+  const normalized = input.text
+    .toLowerCase()
+    .replace(/[^a-z0-9'\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!normalized) return false;
+  if (SHORT_HANDS_FREE_UTTERANCES.has(normalized)) return true;
+  const words = normalized.match(/[a-z0-9']+/g) ?? [];
+  const letters = normalized.replace(/[^a-z]/g, "").length;
+  return words.length >= 3 && letters >= 8;
+}
+
 export function shouldWaitForHandsFreePlaybackDrain(input: {
   handsFree: boolean;
   isAssessment: boolean;
@@ -224,20 +279,29 @@ export function isIntentionalSpeechSignal(input: {
   ambientMultiplier?: number;
   minSustainMs?: number;
 }): boolean {
-  const absoluteFloor = input.absoluteFloor ?? 0.24;
-  const ambientMultiplier = input.ambientMultiplier ?? 3.2;
-  const minSustainMs = input.minSustainMs ?? 480;
+  const absoluteFloor =
+    input.absoluteFloor ?? HANDS_FREE_LISTENING_ABSOLUTE_FLOOR;
+  const ambientMultiplier =
+    input.ambientMultiplier ?? HANDS_FREE_LISTENING_AMBIENT_MULTIPLIER;
+  const minSustainMs =
+    input.minSustainMs ?? HANDS_FREE_LISTENING_MIN_SUSTAIN_MS;
   const threshold = Math.max(
     absoluteFloor,
     input.ambientFloor * ambientMultiplier
   );
-  if (input.level < threshold || input.sustainedMs < minSustainMs) return false;
-  return passesSpeechShape({
+  const hasSpeechShape = passesSpeechShape({
     modulation: input.modulation,
     speechBandRatio: input.speechBandRatio,
-    minModulation: 0.055,
-    minSpeechBandRatio: 0.38,
+    minModulation: 0.065,
+    minSpeechBandRatio: 0.42,
   });
+  if (!hasSpeechShape || input.level < threshold) return false;
+
+  const sustainedTurn = input.sustainedMs >= minSustainMs;
+  const closeMicBurst =
+    input.sustainedMs >= 280 &&
+    input.level >= Math.max(0.55, input.ambientFloor * 5);
+  return sustainedTurn || closeMicBurst;
 }
 
 function passesSpeechShape(input: {

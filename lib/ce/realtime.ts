@@ -507,6 +507,27 @@ export function requestHoldTurnResponse(
   }
 }
 
+/** Remove a rejected mic item so room audio cannot pollute model context. */
+export function deleteRealtimeConversationItem(
+  connection: RealtimeConnection | null,
+  itemId?: string
+): boolean {
+  if (!connection || !itemId || connection.dc.readyState !== "open") {
+    return false;
+  }
+  try {
+    connection.dc.send(
+      JSON.stringify({
+        type: "conversation.item.delete",
+        item_id: itemId,
+      })
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Privileged assessment closing turn — exactly one final response, no questions.
  * Caller must own lifecycle (assessmentStatus=complete) before invoking.
