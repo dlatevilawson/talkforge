@@ -86,6 +86,7 @@ import {
   startVoiceUsageTracking,
 } from "@/lib/ce/voice-usage-client";
 import {
+  admittedHandsFreeBargeLevel,
   HANDS_FREE_CONTINUATION_GRACE_MS,
   HANDS_FREE_PLAYBACK_DRAIN_FALLBACK_MS,
   isForgeOutputEventType,
@@ -234,6 +235,7 @@ export default function VoiceArena({
   const handsFreeTranscriptAdmittedRef = useRef(false);
   const handsFreeGraceElapsedRef = useRef(false);
   const handsFreeResponseRequestedRef = useRef(false);
+  const pendingHandsFreeBargeLevelRef = useRef<number | null>(null);
   const assessmentNavigatedRef = useRef(false);
 
   const [phase, setPhase] = useState<Phase>("idle");
@@ -674,11 +676,15 @@ export default function VoiceArena({
     forgeLive,
     onConfirmedBargeIn: (level) => {
       if (!handsFreeRef.current) return;
-      applyTurn({ type: "CONFIRMED_BARGE_IN", level });
-      trackUsage("barge_in");
-      // Stay in-session listening chrome — never error/restart.
-      setPhase("listening");
-      voiceRef.current.onBargeIn();
+      // A local acoustic signal alone is not enough to cancel Forge. Room
+      // speech can diverge from the speaker reference and look like a person
+      // talking over Forge. Wait for a finalized, admitted member transcript
+      // before yielding the floor.
+      handsFreeLocalTurnConfirmedRef.current = true;
+      pendingHandsFreeBargeLevelRef.current = level;
+      pushEvent(
+        `Possible interruption · awaiting admitted transcript · level ${level.toFixed(2)}`
+      );
     },
     onConfirmedUserTurn: (level) => {
       if (!handsFreeRef.current) return;
@@ -717,6 +723,7 @@ export default function VoiceArena({
     handsFreeTranscriptAdmittedRef.current = false;
     handsFreeGraceElapsedRef.current = false;
     handsFreeResponseRequestedRef.current = false;
+    pendingHandsFreeBargeLevelRef.current = null;
   }
 
   function requestAdmittedHandsFreeResponse(reason: string) {
@@ -1091,6 +1098,24 @@ export default function VoiceArena({
         return;
       }
       handsFreeTranscriptAdmittedRef.current = true;
+      const pendingBargeLevel = admittedHandsFreeBargeLevel({
+        state: turnStateRef.current,
+        pendingLevel: pendingHandsFreeBargeLevelRef.current,
+        transcriptAdmitted: true,
+      });
+      if (pendingBargeLevel != null) {
+        pendingHandsFreeBargeLevelRef.current = null;
+        const yielded = applyTurn({
+          type: "CONFIRMED_BARGE_IN",
+          level: pendingBargeLevel,
+        });
+        if (yielded.to === "interrupted") {
+          trackUsage("barge_in");
+          setPhase("listening");
+          voiceRef.current.onBargeIn();
+          armHandsFreeResponseGrace("admitted_barge_in_transcript");
+        }
+      }
       if (handsFreeGraceElapsedRef.current) {
         requestAdmittedHandsFreeResponse("transcript admitted after grace");
       }

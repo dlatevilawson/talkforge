@@ -107,6 +107,19 @@ export function shouldAdmitHandsFreeTranscript(input: {
   return words.length >= 3 && letters >= 8;
 }
 
+/** A possible talk-over may yield the floor only after transcript admission. */
+export function admittedHandsFreeBargeLevel(input: {
+  state: TurnState;
+  pendingLevel: number | null;
+  transcriptAdmitted: boolean;
+}): number | null {
+  if (!input.transcriptAdmitted || input.pendingLevel == null) return null;
+  if (input.state !== "forge_speaking" && input.state !== "forge_thinking") {
+    return null;
+  }
+  return input.pendingLevel;
+}
+
 export function shouldWaitForHandsFreePlaybackDrain(input: {
   handsFree: boolean;
   isAssessment: boolean;

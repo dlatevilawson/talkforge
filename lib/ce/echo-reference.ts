@@ -88,7 +88,10 @@ export function isConfirmedTalkOverBargeIn(input: {
   remoteHistory: number[];
   minSustainMs?: number;
 }): boolean {
-  const minSustainMs = input.minSustainMs ?? 280;
+  // Talk-over is intentionally stricter than opening a normal listening turn.
+  // A false positive here cancels audible Forge speech; a real member remains
+  // captured and is confirmed again by finalized transcript admission.
+  const minSustainMs = input.minSustainMs ?? 650;
   if (input.sustainedMs < minSustainMs) return false;
 
   // No remote audio yet → do not barge-in (avoids canceling during thinking).
@@ -111,13 +114,13 @@ export function isConfirmedTalkOverBargeIn(input: {
 
   // Near-field presence: absolute floor (user at phone) plus residual above
   // a soft echo estimate. Residual uses a loose scale — correlation is primary.
-  if (input.micLevel < 0.36) return false;
+  if (input.micLevel < 0.58) return false;
   const echoEstimate = input.remoteLevel * 0.85 + 0.06;
   if (input.micLevel < echoEstimate + 0.1) return false;
 
   // Still require speech-like shape so a door slam cannot yield the floor.
-  if (input.modulation < 0.04) return false;
-  if (input.speechBandRatio < 0.3) return false;
+  if (input.modulation < 0.065) return false;
+  if (input.speechBandRatio < 0.42) return false;
 
   return true;
 }
