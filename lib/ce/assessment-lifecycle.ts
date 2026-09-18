@@ -1436,12 +1436,15 @@ export function resolveRealtimeTurnDetection(input: {
   }
   if (input.handsFree) {
     return {
-      type: "semantic_vad",
-      // Keep semantic chunking/transcription, but let VoiceArena wait through
-      // a bounded continuation window before explicitly creating a response.
+      // Server VAD exposes an activation threshold. Prefix padding preserves
+      // opening words while the app-owned continuation grace preserves natural
+      // pauses and keeps response timing under client control.
+      type: "server_vad",
       create_response: false,
       interrupt_response: false,
-      eagerness: "low",
+      threshold: 0.7,
+      prefix_padding_ms: 500,
+      silence_duration_ms: 650,
     };
   }
   return {

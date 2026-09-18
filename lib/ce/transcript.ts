@@ -35,6 +35,47 @@ export type TranscriptApplyResult = {
   added: TranscriptTurn | null;
 };
 
+export type FinalizedFounderTranscript = {
+  text: string;
+  itemId?: string;
+};
+
+/** Extract a finalized member transcript before it is admitted to UI/history. */
+export function extractFinalizedFounderTranscript(
+  event: Record<string, unknown>
+): FinalizedFounderTranscript | null {
+  const type = typeof event.type === "string" ? event.type : "";
+  if (type === "conversation.item.input_audio_transcription.completed") {
+    const text = extractTranscriptText(event);
+    if (!text) return null;
+    return {
+      text,
+      itemId: typeof event.item_id === "string" ? event.item_id : undefined,
+    };
+  }
+
+  if (type !== "conversation.item.done") return null;
+  const item =
+    event.item && typeof event.item === "object"
+      ? (event.item as Record<string, unknown>)
+      : null;
+  if (!item || (item.role !== "user" && item.role !== "founder")) return null;
+  const content = Array.isArray(item.content) ? item.content : [];
+  for (const part of content) {
+    if (!part || typeof part !== "object") continue;
+    const p = part as Record<string, unknown>;
+    if (p.type === "input_audio" && typeof p.transcript === "string") {
+      const text = p.transcript.trim();
+      if (!text) return null;
+      return {
+        text,
+        itemId: typeof item.id === "string" ? item.id : undefined,
+      };
+    }
+  }
+  return null;
+}
+
 /**
  * Apply a Realtime server event to ordered transcript state.
  * Only finalized transcripts are appended (deltas ignored for CE-M2 stability).
@@ -46,11 +87,9 @@ export function applyRealtimeTranscriptEvent(
   const type = typeof event.type === "string" ? event.type : "";
 
   // Founder (user mic) — finalized input transcription
-  if (type === "conversation.item.input_audio_transcription.completed") {
-    const text = extractTranscriptText(event);
-    if (!text) return { turns, added: null };
-    const itemId =
-      typeof event.item_id === "string" ? event.item_id : undefined;
+  const founderTranscript = extractFinalizedFounderTranscript(event);
+  if (founderTranscript) {
+    const { text, itemId } = founderTranscript;
     if (itemId && turns.some((t) => t.itemId === itemId && t.role === "founder")) {
       return { turns, added: null };
     }

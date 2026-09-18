@@ -17,6 +17,8 @@ import {
   levelFromFrequencyBins,
 } from "@/lib/ce/echo-reference";
 import {
+  HANDS_FREE_LISTENING_ABSOLUTE_FLOOR,
+  HANDS_FREE_LISTENING_AMBIENT_MULTIPLIER,
   isIntentionalSpeechSignal,
   levelModulation,
   shouldOpenHandsFreeOutbound,
@@ -339,7 +341,12 @@ export function useArenaVoice({
           }
 
           const rising =
-            nextLevel >= Math.max(0.24, ambientFloorRef.current * 3.2);
+            nextLevel >=
+            Math.max(
+              HANDS_FREE_LISTENING_ABSOLUTE_FLOOR,
+              ambientFloorRef.current *
+                HANDS_FREE_LISTENING_AMBIENT_MULTIPLIER
+            );
           sustainMsRef.current = rising ? sustainMsRef.current + dt : 0;
 
           const intentional = isIntentionalSpeechSignal({
