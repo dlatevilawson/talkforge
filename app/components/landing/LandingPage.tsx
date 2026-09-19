@@ -322,8 +322,9 @@ export default function LandingPage() {
           </div>
         </div>
         <p className="mx-auto mt-14 max-w-6xl text-xs text-[var(--lp-muted)]">
-          © {new Date().getFullYear()} TalkForge. You don&apos;t need a louder
-          voice. You need a private place to practice holding your ground.
+          © {new Date().getFullYear()}{" "}
+          TalkForge. You don&apos;t need a louder voice. You need a private
+          place to practice holding your ground.
         </p>
       </footer>
     </div>
