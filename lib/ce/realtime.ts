@@ -53,6 +53,10 @@ export type ConnectRealtimeOptions = {
   ephemeralKey: string;
   onServerEvent?: (event: Record<string, unknown>) => void;
   onConnectionState?: (state: RTCPeerConnectionState) => void;
+  onDataChannelState?: (
+    state: RTCDataChannelState,
+    channel: RTCDataChannel
+  ) => void;
   onMicMode?: (
     mode: "microphone" | "silent_fallback",
     reason: MicFallbackReason | null
@@ -118,6 +122,13 @@ export async function connectRealtime(
   watchMicrophoneEnded(localStream, options.onMicTrackEnded);
 
   const dc = pc.createDataChannel("oai-events");
+  const reportDataChannelState = () => {
+    options.onDataChannelState?.(dc.readyState, dc);
+  };
+  dc.addEventListener("open", reportDataChannelState);
+  dc.addEventListener("closing", reportDataChannelState);
+  dc.addEventListener("close", reportDataChannelState);
+  dc.addEventListener("error", reportDataChannelState);
   dc.addEventListener("message", (messageEvent) => {
     try {
       const data = JSON.parse(String(messageEvent.data)) as Record<

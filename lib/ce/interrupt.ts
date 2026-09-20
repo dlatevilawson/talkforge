@@ -4,7 +4,7 @@
  */
 
 export const FORGE_INTERRUPT_DISCONNECT_GRACE_MS = 2_000;
-export const FORGE_INTERRUPT_WATCHDOG_MS = 4_000;
+export const FORGE_INTERRUPT_WATCHDOG_MS = 10_000;
 
 export type ArenaInterruptReason =
   | "mic_ended"
@@ -13,6 +13,23 @@ export type ArenaInterruptReason =
   | "peer_closed"
   | "watchdog"
   | "visibility";
+
+export function dataChannelNeedsRecovery(
+  state?: RTCDataChannelState | null
+): boolean {
+  return state === "closing" || state === "closed";
+}
+
+export function forgeResponseNeedsRecovery(input: {
+  turnState: string;
+  elapsedMs: number;
+}): boolean {
+  return (
+    (input.turnState === "forge_thinking" ||
+      input.turnState === "forge_speaking") &&
+    input.elapsedMs >= FORGE_INTERRUPT_WATCHDOG_MS
+  );
+}
 
 export function liveMicrophoneEnded(
   stream: Pick<MediaStream, "getAudioTracks"> | null | undefined

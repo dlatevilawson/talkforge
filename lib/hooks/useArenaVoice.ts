@@ -72,6 +72,8 @@ export function useArenaVoice({
   const analyserRef = useRef<AnalyserNode | null>(null);
   const remoteAnalyserRef = useRef<AnalyserNode | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const audioResumePendingRef = useRef(false);
+  const audioResumeRetryAtRef = useRef(0);
   const silenceMsRef = useRef(0);
   const lastTickRef = useRef<number | null>(null);
   const ambientFloorRef = useRef(0.06);
@@ -242,6 +244,20 @@ export function useArenaVoice({
       const tick = (now: number) => {
         const node = analyserRef.current;
         if (!node) return;
+        if (
+          ctx.state === "suspended" &&
+          !audioResumePendingRef.current &&
+          now >= audioResumeRetryAtRef.current
+        ) {
+          audioResumePendingRef.current = true;
+          audioResumeRetryAtRef.current = now + 1_000;
+          void ctx
+            .resume()
+            .catch(() => undefined)
+            .finally(() => {
+              audioResumePendingRef.current = false;
+            });
+        }
         const last = lastTickRef.current ?? now;
         const dt = Math.min(100, now - last);
         lastTickRef.current = now;
@@ -409,6 +425,8 @@ export function useArenaVoice({
       audioCtxRef.current = null;
     }
     lastTickRef.current = null;
+    audioResumePendingRef.current = false;
+    audioResumeRetryAtRef.current = 0;
   }
 
   function startHoldToTalk() {

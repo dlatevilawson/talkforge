@@ -71,8 +71,10 @@ import {
 import { isCurrentVoiceLifecycle } from "@/lib/ce/voice-lifecycle";
 import {
   canRecoverLivePeer,
+  dataChannelNeedsRecovery,
   FORGE_INTERRUPT_DISCONNECT_GRACE_MS,
   FORGE_INTERRUPT_WATCHDOG_MS,
+  forgeResponseNeedsRecovery,
   liveMicrophoneEnded,
   shouldReconnectAfterInterrupt,
 } from "@/lib/ce/interrupt";
@@ -743,6 +745,10 @@ export default function VoiceArena({
     const requested = requestHoldTurnResponse(connectionRef.current, {
       mode: "practice",
     });
+    if (requested) {
+      lastForgeActivityRef.current = Date.now();
+      armSpeakingWatchdog();
+    }
     pushEvent(
       requested
         ? `Hands-free turn · admitted response requested · ${reason}`
@@ -764,6 +770,10 @@ export default function VoiceArena({
   }
 
   function completeForgeResponse(responseId?: string) {
+    if (interruptWatchdogRef.current) {
+      clearTimeout(interruptWatchdogRef.current);
+      interruptWatchdogRef.current = null;
+    }
     clearHandsFreePlaybackDrain();
     applyTurn({ type: "FORGE_RESPONSE_DONE", responseId });
     resetHandsFreeTurnAdmission();
@@ -896,12 +906,21 @@ export default function VoiceArena({
     interruptWatchdogRef.current = setTimeout(() => {
       interruptWatchdogRef.current = null;
       if (callInterruptedRef.current) return;
-      if (phaseRef.current !== "speaking") return;
+      const elapsed = Date.now() - lastForgeActivityRef.current;
       if (
-        Date.now() - lastForgeActivityRef.current >=
-        FORGE_INTERRUPT_WATCHDOG_MS
+        forgeResponseNeedsRecovery({
+          turnState: turnStateRef.current,
+          elapsedMs: elapsed,
+        })
       ) {
         noteCallInterrupted("watchdog");
+        return;
+      }
+      if (
+        turnStateRef.current === "forge_thinking" ||
+        turnStateRef.current === "forge_speaking"
+      ) {
+        armSpeakingWatchdog();
       }
     }, FORGE_INTERRUPT_WATCHDOG_MS);
   }
@@ -1751,6 +1770,18 @@ export default function VoiceArena({
           if (state === "connected" && interruptGraceRef.current) {
             clearTimeout(interruptGraceRef.current);
             interruptGraceRef.current = null;
+          }
+        },
+        onDataChannelState: (state, channel) => {
+          pushEvent(`Realtime channel: ${state}`);
+          const current = connectionRef.current;
+          if (
+            !isGuestPreview &&
+            current &&
+            current.dc === channel &&
+            dataChannelNeedsRecovery(state)
+          ) {
+            noteCallInterrupted(`data_channel_${state}`);
           }
         },
         onMicTrackEnded: () => {
