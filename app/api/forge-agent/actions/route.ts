@@ -10,7 +10,7 @@ export async function GET() {
   const gate = await requireForgeAgentRepo();
   if (!gate.ok) return gate.response;
   try {
-    const actions = await gate.repo.materializeDueActions(gate.userId);
+    const actions = await gate.repo.listPendingActions(gate.userId);
     return NextResponse.json({ actions });
   } catch (err) {
     return forgeAgentErrorResponse(err);

@@ -1293,6 +1293,15 @@ Volumes:
 Status:
 Authoritative — ✅ Founder decided 2026-09-12; Phase 3 Stage A authorized; not shipped; Stage B and Phase 4 gated
 
+Amendment (2026-09-21) — Phase 3 Stage B Founder Decision: ✅ **APPROVED**.
+
+The Stage B evidence gate passed before authorization: at least 30 consecutive hourly `cron_tick` rows were `completed`; one real bounded LLM draft recorded 232 input and 16 output tokens; no stale `drafting` rows, duplicate actions per cue, or duplicate paid attempts per member/day remained; Approve and Deny evidence existed; and the six-column reset contract remained unchanged.
+
+Stage B changes only `GET /api/forge-agent/actions` from lazy materialization to `listPendingActions`. The hourly cron becomes the sole materialization owner. Opt-in, member-declared cues, pending approval, Approve/Deny, generation caps, and all Decision 061 boundaries remain unchanged. No migration is required. Phase 4 remains gated.
+
+Status after amendment:
+**Authoritative — Stage A accepted; Stage B authorized for implementation; not shipped until merge, production deploy, and smoke succeed; Phase 4 gated.**
+
 ---
 
 # Future Decisions
