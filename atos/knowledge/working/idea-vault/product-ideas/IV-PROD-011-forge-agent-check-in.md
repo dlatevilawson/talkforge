@@ -8,7 +8,7 @@
 | **Status** | In Development |
 | **Importance** | Important |
 | **Owner** | Founder |
-| **Last Updated** | 2026-09-12 |
+| **Last Updated** | 2026-09-21 |
 | **Captured** | 2026-09-11 |
 | **AI Steward** | Atlas |
 
@@ -55,17 +55,22 @@ v1 (Phases 0–2) ships:
 - Authenticated APIs + `/app/inbox` approve/deny UI
 - Lazy materialization of **due** cues into pending actions with **template** copy (no cron, no LLM)
 
-Phase 3 Stage A (Decision 062, implementation in repo; not shipped until Codex apply + smoke):
+Phase 3 Stage A (Decision 062, shipped and production-evidenced):
 
-- Hourly-capable cron route with `CRON_SECRET` (schedule deferred until Vercel plan confirmed)
+- Hourly production cron route guarded by `CRON_SECRET`
 - Atomic `claim_due_forge_cues` + one paid `draft_attempt` per member per UTC day
 - Bounded LLM `{ body }` only; deterministic whySent / practiceHref; template fallback
-- Mandatory 90s stale-draft recovery; inbox GET still lazy-materializes
-- Stage B list-only inbox remains gated
+- Mandatory 90s stale-draft recovery
+- Production evidence gate passed: 30 consecutive completed hourly ticks, one real bounded draft with token usage, and no stale or duplicate rows
+
+Phase 3 Stage B (Founder approved 2026-09-21; not shipped until merge, deploy, and smoke):
+
+- `GET /api/forge-agent/actions` lists pending actions only
+- Hourly cron is the sole materialization owner
+- No migration, approval-gate change, or Phase 4 behavior
 
 Explicitly out of scope until a later Founder go-ahead:
 
-- Phase 3 Stage B inbox cutover
 - Phase 4: ContinuityHome, Settings, `completePracticeSession` homework auto-cues, Realtime opening context
 - Calendar integration
 - Email / SMS delivery
@@ -82,5 +87,5 @@ Governs itself by MBL-001 §14.2: a notification must relate to a member-declare
 | Field | Value |
 |---|---|
 | Blind spot review | BS-018 |
-| Roadmap link | Decision 061 Phases 0–2; Decision 062 Phase 3 Stage A |
-| Priority | Important — Founder-authorized Phases 0–2 |
+| Roadmap link | Decision 061 Phases 0–2; Decision 062 Phase 3 Stages A–B |
+| Priority | Important — Founder-authorized through Phase 3 Stage B |
