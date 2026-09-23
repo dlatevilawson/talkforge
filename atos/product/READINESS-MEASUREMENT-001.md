@@ -104,7 +104,9 @@ sufficient evidence.
 
 Before any member-facing evaluation ships:
 
-1. Complete the 25-cell behavioral-anchor appendix (five signals × five levels).
+1. Founder-review, revise, and authorize the proposed 25-cell behavioral anchors
+   in [READINESS-ANCHORS-001](READINESS-ANCHORS-001.md). The current v0.1 draft
+   is non-authoritative and must not be consumed by an evaluator.
 2. Validate structured model output against the contract on consented test data.
 3. Confirm human reviewers can reproduce levels and evidence references.
 4. Confirm no visible 0–100 score, cross-member comparison, or outcome guarantee.
