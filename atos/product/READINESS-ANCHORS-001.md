@@ -1,23 +1,22 @@
-# READINESS-ANCHORS-001 — Behavioral Anchor Draft v0.1
+# READINESS-ANCHORS-001 — Behavioral Anchors v1
 
 | Field | Value |
 |---|---|
 | **Document ID** | READINESS-ANCHORS-001 |
-| **Version** | 0.1.0 |
-| **Status** | Draft — Founder review; non-authoritative |
+| **Version** | 1.0.0 |
+| **Status** | Authoritative — shadow evaluation only |
 | **Owner** | Founder |
 | **Updated** | 2026-09-23 |
 | **Parent contract** | READINESS-MEASUREMENT-001 |
-| **Decision** | Not yet authorized |
+| **Decision** | 064 |
 
-> **Do not implement from this document.** These anchors are proposed judgment
-> calls for Founder review. No evaluator, prompt, UI, migration, or production
-> behavior may consume them until the Founder approves a version and a later
-> decision authorizes the evaluator slice.
+> **Authorized boundary:** These anchors may be consumed only by the private
+> shadow evaluator authorized in Decision 064. No readiness assessment, level,
+> band, evidence line, or evaluator status may be shown to a member yet.
 
 ## Purpose
 
-This draft expands the five readiness signals into 25 reviewable behavioral
+This contract expands the five readiness signals into 25 behavioral
 anchors: five internal evidence levels for each signal. It gives a human
 reviewer a concrete starting point for deciding what TalkForge means by
 demonstrated readiness while preserving the parent contract's boundaries.
@@ -102,9 +101,9 @@ or failed first approach, Adaptability is “Not measured in this session.”
 | **3 — Demonstrated** | The member recognizes a moderate shift, incorporates it, and changes tactic or framing while preserving the underlying goal. | The adjustment is cosmetic, abandons the goal without deliberate choice, or was never tested by a real shift. | At least one moderate shift and two linked references showing the before tactic, new information, and materially adapted response. | After learning budget is fixed, the member changes from asking for money to asking for scope and timing tradeoffs. | Agreeing immediately to everything is compliance, not demonstrated Adaptability. |
 | **4 — Sustained in practice** | Across the hardest or multiple shifts, the member treats failed attempts and new information as input, selects a meaningfully different tactic, and keeps purpose without becoming rigid. | Only one light shift occurred, the member cycles randomly through tactics, or the judgment relies on whether the counterpart accepted the move. | A high-pressure or multi-shift sequence with evidence of the original tactic, the shift or failure, the selected adjustment, and continued goal alignment. | After two objections reveal different risks, the member drops the generic pitch, asks which risk controls the decision, and builds a new staged proposal around the answer. | Fast improvisation without incorporating the actual new information is not level 4. |
 
-## Founder review checklist
+## Version-change checklist
 
-Before authorizing these anchors, review each cell for:
+Before authorizing any later version, review each changed cell for:
 
 - **Truth:** Does this describe the communication behavior TalkForge should
   recognize?
@@ -117,6 +116,6 @@ Before authorizing these anchors, review each cell for:
   performance theater?
 - **Language:** Do the examples coach behavior without grading human worth?
 
-Founder approval should record accepted edits, lock a new authoritative version,
-and explicitly state whether the anchors may be used in a shadow evaluator. Until
-then, the answer is no.
+The Founder approved these anchors without amendment on 2026-09-23. Any change
+to an anchor requires a new version; historical shadow assessments retain the
+rubric version under which they were generated.

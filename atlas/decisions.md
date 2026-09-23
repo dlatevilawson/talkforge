@@ -1388,6 +1388,92 @@ production apply or member-facing evaluation authorized.
 
 ---
 
+# Decision 064
+
+Decision Alias:
+READINESS-SHADOW-001
+
+Title:
+Authorize READINESS-ANCHORS-001 v1 and a private shadow evaluator.
+
+Reason:
+
+The versioned readiness foundation cannot be validated without running its
+judgment contract against real, consented practice evidence. The Founder
+reviewed all 25 behavioral anchors and authorized invisible evaluation so human
+reviewers can measure agreement, null discipline, evidence fidelity, and
+run-to-run stability before any member sees an assessment.
+
+Alternatives Considered:
+
+Ship readiness bands immediately — rejected. Model output has not yet earned
+member-facing trust.
+
+Validate only on invented fixtures — rejected. Fixtures prove contract handling,
+not agreement on real communication.
+
+Run shadow evaluation for every member — rejected. The validation cohort must be
+explicitly allowlisted and consented.
+
+Blind Spots:
+
+BS-003: the evaluator can patronize or freeze growth.
+
+BS-004: even hidden scoring can encode shame or bias before it reaches a UI.
+
+BS-014: stable-looking output may still be excellence theater without exact
+session evidence.
+
+Risks:
+
+The model may fabricate evidence, infer personality, confuse missing evidence
+with failure, or drift between identical runs. Mitigate with strict structured
+output, exact current-session evidence references, deterministic band derivation,
+allowlisted execution, rubric versioning, and human agreement review.
+
+Final Decision:
+
+**APPROVE READINESS-ANCHORS-001 v1 and a shadow evaluator only. Nothing may be
+shown to members yet.**
+
+1. The 25 behavioral anchors approved on 2026-09-23 are authoritative v1.0.
+2. Shadow execution is server-only, feature-flagged, and restricted to explicit
+   consented member IDs.
+3. The evaluator may read only the current completed session and its report. It
+   may not use biography, Living Profile, Coach memory, prior assessments, or
+   cross-member data.
+4. Model output never determines an overall band directly. Contract code derives
+   it from validated signal observations.
+5. Every stored evidence snippet must be traceable to a current-session turn.
+6. Evaluator output, status, errors, bands, levels, and evidence remain absent
+   from all member responses and UI.
+7. No production migration apply or feature-flag enablement is implied by this
+   authorization; those remain explicit operational steps.
+8. Member-facing readiness requires a later Founder decision after human
+   agreement, null-default, evidence-fidelity, repeatability, and safety gates
+   pass.
+9. Reserve a private, service-role-only audit identity before each model call;
+   record model, outcome, and provider token usage without storing prompts or
+   raw output. Shadow assessment tables remain unreadable to members until a
+   separate display decision restores access.
+
+Future Review Date:
+
+After at least 20 consented shadow sessions and a documented human agreement
+review.
+
+Volumes:
+
+`atos/product/READINESS-MEASUREMENT-001.md`
+`atos/product/READINESS-ANCHORS-001.md`
+`lib/readiness/measurement.ts`
+
+Status:
+Authoritative — ✅ Founder decided 2026-09-23; shadow evaluator only; all
+member-facing readiness remains gated
+
+---
+
 # Future Decisions
 
 Record every significant decision here.

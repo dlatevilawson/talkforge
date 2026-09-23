@@ -201,6 +201,43 @@ create table if not exists public.session_readiness_evidence (
     on delete cascade
 );
 
+create table if not exists public.session_readiness_shadow_runs (
+  id uuid primary key,
+  session_id text not null,
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  rubric_version text not null,
+  assessment_revision smallint not null default 1
+    check (assessment_revision > 0),
+  model text not null check (char_length(model) between 1 and 120),
+  status text not null check (status in ('pending', 'completed', 'failed')),
+  input_tokens integer check (input_tokens is null or input_tokens >= 0),
+  output_tokens integer check (output_tokens is null or output_tokens >= 0),
+  error_code text
+    check (error_code is null or char_length(error_code) between 1 and 80),
+  assessment_id uuid unique
+    references public.session_readiness_assessments (id) on delete set null,
+  created_at timestamptz not null default now(),
+  completed_at timestamptz,
+  constraint session_readiness_shadow_runs_session_owner_fk
+    foreign key (session_id, user_id)
+    references public.practice_sessions (id, user_id)
+    on delete cascade,
+  constraint session_readiness_shadow_runs_identity_uidx
+    unique (session_id, rubric_version, assessment_revision),
+  constraint session_readiness_shadow_runs_state_check
+    check (
+      (status = 'pending' and completed_at is null and error_code is null)
+      or (
+        status = 'completed' and completed_at is not null
+        and error_code is null and assessment_id is not null
+      )
+      or (
+        status = 'failed' and completed_at is not null
+        and error_code is not null and assessment_id is null
+      )
+    )
+);
+
 create index if not exists session_readiness_assessments_user_created_idx
   on public.session_readiness_assessments (user_id, created_at desc);
 
@@ -219,6 +256,13 @@ create index if not exists session_readiness_evidence_assessment_signal_idx
 create index if not exists session_readiness_evidence_user_created_idx
   on public.session_readiness_evidence (user_id, created_at desc);
 
+create index if not exists session_readiness_shadow_runs_user_created_idx
+  on public.session_readiness_shadow_runs (user_id, created_at desc);
+
+create index if not exists session_readiness_shadow_runs_pending_idx
+  on public.session_readiness_shadow_runs (created_at)
+  where status = 'pending';
+
 comment on table public.session_readiness_assessments is
   'Versioned session-level readiness assessment context and derived qualitative band. No 0-100 score.';
 
@@ -227,6 +271,9 @@ comment on table public.session_readiness_signals is
 
 comment on table public.session_readiness_evidence is
   'Member-private session evidence supporting a readiness signal observation.';
+
+comment on table public.session_readiness_shadow_runs is
+  'Server-only Decision 064 audit envelope. Created before each shadow model call; stores outcome and provider token usage without prompts or raw output.';
 
 create table if not exists public.coach_memory (
   user_id uuid primary key
@@ -934,6 +981,7 @@ alter table public.session_reports enable row level security;
 alter table public.session_readiness_assessments enable row level security;
 alter table public.session_readiness_signals enable row level security;
 alter table public.session_readiness_evidence enable row level security;
+alter table public.session_readiness_shadow_runs enable row level security;
 alter table public.coach_memory enable row level security;
 alter table public.living_profiles enable row level security;
 alter table public.member_subscriptions enable row level security;
@@ -1009,14 +1057,13 @@ revoke all on table public.session_readiness_signals
   from public, anon, authenticated;
 revoke all on table public.session_readiness_evidence
   from public, anon, authenticated;
-
-grant select on table public.session_readiness_assessments to authenticated;
-grant select on table public.session_readiness_signals to authenticated;
-grant select on table public.session_readiness_evidence to authenticated;
+revoke all on table public.session_readiness_shadow_runs
+  from public, anon, authenticated;
 
 grant all on table public.session_readiness_assessments to service_role;
 grant all on table public.session_readiness_signals to service_role;
 grant all on table public.session_readiness_evidence to service_role;
+grant all on table public.session_readiness_shadow_runs to service_role;
 
 -- Drop legacy open policies if present
 drop policy if exists "profiles_anon_all" on public.profiles;
@@ -1071,33 +1118,12 @@ create policy "session_reports_own"
 
 drop policy if exists "session_readiness_assessments_read_own"
   on public.session_readiness_assessments;
-create policy "session_readiness_assessments_read_own"
-  on public.session_readiness_assessments for select
-  to authenticated
-  using (
-    user_id = (select auth.uid())
-    or (select public.is_founder_or_admin())
-  );
 
 drop policy if exists "session_readiness_signals_read_own"
   on public.session_readiness_signals;
-create policy "session_readiness_signals_read_own"
-  on public.session_readiness_signals for select
-  to authenticated
-  using (
-    user_id = (select auth.uid())
-    or (select public.is_founder_or_admin())
-  );
 
 drop policy if exists "session_readiness_evidence_read_own"
   on public.session_readiness_evidence;
-create policy "session_readiness_evidence_read_own"
-  on public.session_readiness_evidence for select
-  to authenticated
-  using (
-    user_id = (select auth.uid())
-    or (select public.is_founder_or_admin())
-  );
 
 drop policy if exists "coach_memory_own" on public.coach_memory;
 create policy "coach_memory_own"
