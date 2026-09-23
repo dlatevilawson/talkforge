@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | IV-INDEX |
-| **Version** | 1.15.0 |
+| **Version** | 1.16.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
-| **Updated** | 2026-09-11 |
+| **Updated** | 2026-09-23 |
 | **Entry count** | 77 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
@@ -78,7 +78,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
-| [IV-FEAT-001](features/IV-FEAT-001-readiness-engine.md) | Readiness Engine | Reviewing | Critical | Medium | `features/IV-FEAT-001-readiness-engine.md` |
+| [IV-FEAT-001](features/IV-FEAT-001-readiness-engine.md) | Readiness Engine | In Development | Critical | High | `features/IV-FEAT-001-readiness-engine.md` |
 | [IV-FEAT-002](features/IV-FEAT-002-recommendation-engine.md) | Recommendation Engine | Reviewing | Critical | Medium | `features/IV-FEAT-002-recommendation-engine.md` |
 | [IV-FEAT-003](features/IV-FEAT-003-pedagogy-engine.md) | Pedagogy Engine | Reviewing | Important | Medium | `features/IV-FEAT-003-pedagogy-engine.md` |
 | [IV-FEAT-004](features/IV-FEAT-004-adaptive-homepage.md) | Adaptive Homepage | Reviewing | Critical | Medium | `features/IV-FEAT-004-adaptive-homepage.md` |

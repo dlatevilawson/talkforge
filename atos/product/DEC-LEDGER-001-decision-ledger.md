@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | **Document ID** | DEC-LEDGER-001 |
-| **Version** | 1.6.0 |
+| **Version** | 1.7.0 |
 | **Status** | **Active — EXEC-001 Step 3 Complete** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
-| **Updated** | 2026-09-21 |
+| **Updated** | 2026-09-23 |
 | **Live ledger** | [`atlas/decisions.md`](../../atlas/decisions.md) |
 | **Authority** | EXEC-001 Step 3 · CONST-001 · Constitutional Law #001 |
 | **Plane** | Operational Canonical record (decisions) — not Idea Vault |
@@ -94,6 +94,7 @@ Authoritative — {state}
 | 060 / COACH-PREVIEW-FINAL-001 | Seven-topic Coach grid → one anonymous private Forge preview → post-session auth/claim | Authoritative — final approach |
 | 061 / FORGE-AGENT-CHECKIN-001 | Forge Agent check-in Phases 0–2 (opt-in, cues, approval inbox) | Authoritative — feature NO-GO carve-out; Phases 3–4 gated except 062 |
 | 062 / FORGE-AGENT-PHASE3-001 | Forge Agent check-in Phase 3 (scheduled drafting + list-only inbox) | Authoritative — Stage A accepted; Stage B authorized; Phase 4 gated |
+| 063 / READINESS-MEASUREMENT-001 | Versioned, evidence-linked readiness measurement foundation | Authoritative — foundation only; product surfaces gated |
 
 Full history: `atlas/decisions.md`.
 
@@ -120,3 +121,4 @@ Full history: `atlas/decisions.md`.
 | 1.4.0 | 2026-09-11 | Indexed Decision 061 Forge Agent check-in Phases 0–2 carve-out |
 | 1.5.0 | 2026-09-12 | Indexed Decision 062 Forge Agent Phase 3 Stage A |
 | 1.6.0 | 2026-09-21 | Recorded Founder approval of Decision 062 Stage B after the production evidence gate passed |
+| 1.7.0 | 2026-09-23 | Recorded Decision 063 readiness measurement foundation authorization |
