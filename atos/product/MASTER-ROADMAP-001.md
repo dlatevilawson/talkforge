@@ -3,9 +3,9 @@
 | Field | Value |
 |---|---|
 | **Document ID** | MASTER-ROADMAP-001 |
-| **Version** | 1.1.0 |
+| **Version** | 1.2.0 |
 | **Status** | **Complete — EXEC-001 Step 12** |
-| **Updated** | 2026-09-07 |
+| **Updated** | 2026-09-23 |
 | **Depends on** | DEP-MAP-001 · PRIORITY-001 · CAT-001 · VERIFY-001 · CONST-001 · Idea Vault |
 | **Related** | ROADMAP-001 (north star narrative) |
 
@@ -32,7 +32,7 @@ Translate priorities into implementation phases with goal, dependencies, complex
 
 | Item | Goal | Dependencies | Complexity | Owner | Status |
 |---|---|---|---|---|---|
-| B1 Readiness Engine | Stable What | Phase A | High | Eng / Atlas | Not started |
+| B1 Readiness Engine | Evidence-linked, self-referenced readiness measurement before prescription | Phase A · IV-FEAT-001 · Decision 063 | High | Eng / Atlas | Measurement foundation in development; UI/model evaluation gated |
 | B2 Pedagogy Engine | Varied How | B1 | High | Eng / Atlas | Doctrine only |
 | B3 Recommendation Engine | One mission packet | B1·B2 | High | Eng / Atlas | Not started |
 | B4 Adaptive Homepage | One mission above fold | B3 | Medium | Eng | Not started |

@@ -7,20 +7,20 @@
 # Human Approver: Founder
 # Review Cycle: Each ATOS version
 # Approval History: 2026-07-19 — ATOS Version 1.0 ratified (RES-002)
-# Change Log: 2026-09-05 — recount listed entries; 2026-07-19 — RES-011 TalkForge primary; Atlas in service
+# Change Log: 2026-09-23 — register READINESS-MEASUREMENT-001; 2026-09-05 — recount listed entries; 2026-07-19 — RES-011 TalkForge primary; Atlas in service
 
-version: 1.0.7
-updated_at: "2026-09-05"
+version: 1.0.8
+updated_at: "2026-09-23"
 milestone: M9
 description: >
   Canonical index of governed ATOS document IDs. Completeness means every known ID
   is listed; planned entries may have path null. Maintained under GOV-REGOPS.
 
 counts:
-  total: 170
-  with_path: 167
+  total: 171
+  with_path: 168
   planned: 3
-  authoritative: 73
+  authoritative: 74
 
 documents:
   - id: ATOS-NAV
@@ -1329,6 +1329,15 @@ documents:
     ai_steward: Sentinel
     layer: registries
 
+  - id: READINESS-MEASUREMENT-001
+    title: "Readiness Measurement Contract v1"
+    path: atos/product/READINESS-MEASUREMENT-001.md
+    state: authoritative
+    version: "1.0.0"
+    owner: Founder
+    ai_steward: Atlas
+    layer: product
+
   - id: REG-ATOS
     title: "ATOS Registry — master index"
     path: atos/registries/atos-registry.yaml
@@ -1342,7 +1351,7 @@ documents:
     title: "Document Registry"
     path: atos/registries/document-registry.yaml
     state: authoritative
-    version: "1.0.7"
+    version: "1.0.8"
     owner: Founder
     ai_steward: Atlas
     layer: registries
@@ -1517,4 +1526,3 @@ documents:
     owner: Founder
     ai_steward: Atlas
     layer: history
-

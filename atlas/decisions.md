@@ -1304,6 +1304,90 @@ Status after amendment:
 
 ---
 
+# Decision 063
+
+Decision Alias:
+READINESS-MEASUREMENT-001
+
+Title:
+Authorize the versioned, evidence-linked readiness measurement foundation.
+
+Reason:
+
+TalkForge cannot prescribe a credible training program or prove member growth
+without a stable measurement contract. Existing 0–100 session scores create
+false precision, blur delivery mechanics with readiness, and do not preserve
+the evidence required to explain an evaluation.
+
+Alternatives Considered:
+
+Ship a single 0–100 Readiness Score — rejected because it invites judgment,
+cannot compare sessions with different observed signals, and conflicts with
+the product's no-comparison doctrine.
+
+Build the full training loop in one release — rejected because measurement,
+model inference, UI, programs, voice instrumentation, and pricing would become
+one unreviewable risk surface.
+
+Reuse `session_reports` JSON only — rejected because versioned signal evidence,
+null reasons, revisions, and comparison context require enforceable structure.
+
+Blind Spots:
+
+BS-003: the readiness engine can patronize or freeze growth.
+
+BS-004: scoring before understanding can create shame and dignity failure.
+
+BS-014: evaluation can become excellence theater without session evidence.
+
+Risks:
+
+Qualitative bands can still feel like grades. Mitigate with practice-language
+labels, evidence lines, no 0–100 number, no cross-member comparison, and no
+real-world outcome promise.
+
+Model judgment can drift. Mitigate with rubric versioning, immutable revisions,
+strict comparability, and a required behavioral-anchor validation gate before
+any product surface ships.
+
+Final Decision:
+
+**APPROVE the readiness measurement foundation only.**
+
+1. Use Purpose, Perspective, Composure, Message, and Adaptability.
+2. Null means not assessed and never zero.
+3. Only sufficient current-session evidence may affect an overall band or trend.
+4. A breakdown cannot be presented as “one adjustment away.”
+5. Use Building Baseline, One Focus Area, Early Reps, Solid Ground, and
+   Sustained in Practice. Never claim Battle-Tested or guaranteed real-world
+   readiness.
+6. Trends require matching scenario family, modality, purpose, pressure level,
+   compatible rubric major version, and sufficient evidence for the signal.
+7. Focused drills and short exercises receive signal observations only, never
+   an overall band.
+8. Author the migration, manifest, snapshot, deterministic contract, and tests.
+   Do not apply the migration to production in this slice.
+9. Do not change the live voice pipeline, pricing, entitlements, training-plan
+   UI, or existing session behavior.
+10. Member-facing evaluation and LLM assessment require a separate Founder gate
+    after the 25-cell behavioral anchors and human reproducibility test exist.
+
+Future Review Date:
+
+After foundation PR review; then after behavioral-anchor validation.
+
+Volumes:
+
+`atos/product/READINESS-MEASUREMENT-001.md`
+`atos/knowledge/working/idea-vault/features/IV-FEAT-001-readiness-engine.md`
+`supabase/migrations/20260923055820_readiness_measurement_foundation.sql`
+
+Status:
+Authoritative — ✅ Founder authorized start 2026-09-23; foundation only; no
+production apply or member-facing evaluation authorized.
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
