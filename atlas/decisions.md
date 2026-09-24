@@ -1474,6 +1474,97 @@ member-facing readiness remains gated
 
 ---
 
+# Decision 065
+
+Decision Alias:
+READINESS-SHADOW-VALIDATION-001
+
+Title:
+Authorize the readiness shadow evaluator pass bar.
+
+Reason:
+
+Decision 064 authorized a private evaluator but did not define the evidence
+required for that evaluator to earn trust. The validation standard must be
+fixed before the first production shadow session so weak agreement, incorrect
+null handling, fabricated evidence, or unstable results cannot be rationalized
+after data exists.
+
+Alternatives Considered:
+
+Enable shadow mode and decide thresholds after reviewing early results —
+rejected. That permits outcome-driven standards and makes the first cohort
+unusable as an independent test.
+
+Use model confidence alone — rejected. The evaluator must agree with blinded,
+independent human review and the Founder-approved behavioral anchors.
+
+Require perfect exact-level agreement — rejected. Legitimate adjacent-level
+human judgment exists; safety boundaries and severe errors remain zero
+tolerance while exact and adjacent agreement have explicit thresholds.
+
+Blind Spots:
+
+BS-003: a technically consistent evaluator can still encode shame or false
+certainty.
+
+BS-004: hidden evaluation can still encode bias before any UI exists.
+
+BS-014: aggregate accuracy can hide a failed signal or fabricated evidence.
+
+Risks:
+
+Twenty sessions may require additional collection to satisfy per-signal,
+scenario, pressure, null, and band coverage. Two reviewers plus adjudication
+adds cost. Model or prompt changes reset the cohort. These costs are accepted
+because member trust cannot be recovered by relabeling an unvalidated judgment.
+
+Final Decision:
+
+**APPROVE READINESS-SHADOW-VALIDATION-001 v0.1 AS THE AUTHORITATIVE SHADOW
+PASS BAR. THIS DOES NOT AUTHORIZE MIGRATIONS, SHADOW ACTIVATION, OR MEMBER
+DISPLAY.**
+
+1. Run at least ten fixed boundary/adversarial fixtures before production
+   shadow sessions.
+2. A cohort requires at least 20 eligible, consented sessions, four scenario
+   families, required pressure/null coverage, ten non-null cells per signal,
+   60 non-null cells overall, and ten band-eligible sessions.
+3. Two blinded human reviewers label each session independently; a third
+   reviewer adjudicates disagreement.
+4. Required agreement is 90% assessed-vs-null, 85% evidence strength, 80% exact
+   level, 95% within one level, and 85% exact band, with per-signal floors.
+5. Stability requires repeated identical-input evaluations with 95%
+   assessed-vs-null stability, 85% evidence-strength and exact-level stability,
+   100% within-one-level stability, and 100% evidence traceability.
+6. Fabricated or external evidence, invalid null handling, untested
+   Composure/Adaptability, invalid level-0/4 boundaries, forbidden inference,
+   unauthorized evaluation, member exposure, duplicate paid runs, persisted
+   prompts/raw output, and ownership breaches are zero tolerance.
+7. Outcomes are Pass, Revise and repeat, Halt, or Insufficient coverage. A
+   prompt, model, schema, or evaluator change creates a new version and fresh
+   cohort.
+8. A pass permits only a later Founder review. It never activates member
+   display or changes service-role-only access by itself.
+
+Future Review Date:
+
+After the first complete validation cohort or any zero-tolerance incident,
+whichever occurs first.
+
+Volumes:
+
+`atos/product/READINESS-SHADOW-VALIDATION-001.md`
+`atos/product/READINESS-MEASUREMENT-001.md`
+`atos/product/READINESS-ANCHORS-001.md`
+
+Status:
+Authoritative — ✅ Founder decided 2026-09-24; validation pass bar only;
+migrations, activation, cohort enrollment, and member display remain separately
+gated
+
+---
+
 # Future Decisions
 
 Record every significant decision here.
