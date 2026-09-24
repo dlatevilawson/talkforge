@@ -95,7 +95,9 @@ sufficient evidence.
 - Assessments are immutable revisions; a later baseline refinement creates a
   new row and never rewrites the original.
 - Assessment, signal, and evidence rows belong to the session owner.
-- Authenticated members may read only their rows. Writes are server-only.
+- During Decision 064 shadow validation, assessment, signal, evidence, and run
+  rows are service-role-only. A later member-display decision must explicitly
+  restore authenticated read grants and owner policies.
 - Account deletion cascades through `practice_sessions`; the six-column reset
   return contract does not change.
 - No readiness assessment writes Living Profile identity.
@@ -104,10 +106,32 @@ sufficient evidence.
 
 Before any member-facing evaluation ships:
 
-1. Founder-review, revise, and authorize the proposed 25-cell behavioral anchors
-   in [READINESS-ANCHORS-001](READINESS-ANCHORS-001.md). The current v0.1 draft
-   is non-authoritative and must not be consumed by an evaluator.
+1. **Complete:** the Founder authorized the 25-cell behavioral anchors in
+   [READINESS-ANCHORS-001](READINESS-ANCHORS-001.md) under Decision 064.
 2. Validate structured model output against the contract on consented test data.
 3. Confirm human reviewers can reproduce levels and evidence references.
 4. Confirm no visible 0–100 score, cross-member comparison, or outcome guarantee.
-5. Receive a separate Founder approval for the evaluation prompt and UI slice.
+5. Receive a separate Founder approval before any evaluation prompt output or UI
+   slice becomes member-facing. Decision 064 authorizes shadow evaluation only.
+
+## Decision 064 shadow operation
+
+The shadow evaluator is inert unless all of the following are true:
+
+1. The foundation and shadow-audit migrations are explicitly applied and
+   reconciled separately.
+2. `READINESS_SHADOW_ENABLED=true` is set in the server environment.
+3. `READINESS_SHADOW_ALLOWED_USER_IDS` contains the exact authenticated UUID of
+   each member who consented to the validation cohort.
+4. `OPENAI_READINESS_MODEL` names the deliberately selected evaluation model.
+5. `OPENAI_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY` remain server-only.
+
+The endpoint returns only a generic accepted receipt. Assessment status, model
+errors, levels, bands, evidence, and eligibility are never returned to the
+member. Removing a member UUID from the allowlist stops new shadow evaluations;
+it does not rewrite immutable prior assessments.
+
+Before each model request, the server reserves one private audit row for the
+session, rubric version, and revision. The row records only the selected/actual
+model, outcome, provider-reported input/output tokens, sanitized error code,
+and resulting assessment ID. It never stores prompts or raw model output.

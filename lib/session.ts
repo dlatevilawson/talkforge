@@ -6,6 +6,7 @@ import {
 } from "@/lib/coach/report";
 import { proposeIdentityEvidenceFromReport } from "@/lib/system1/proposals";
 import { attachPendingProposals } from "@/lib/system1/profile";
+import { queueShadowReadinessEvaluation } from "@/lib/readiness/shadow-client";
 import {
   countCompletedSessions,
   getCoachMemory,
@@ -130,6 +131,10 @@ export async function completePracticeSession(
     }
 
     await saveSessionReport(report);
+
+    // Decision 064: allowlisted, server-only shadow evaluation. Fire-and-forget
+    // and never expose evaluator state or delay the member's session ending.
+    queueShadowReadinessEvaluation(completed.id);
 
     const existing =
       (await getCoachMemory(session.userId)) ??

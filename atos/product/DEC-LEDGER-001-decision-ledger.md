@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | **Document ID** | DEC-LEDGER-001 |
-| **Version** | 1.7.0 |
+| **Version** | 1.8.0 |
 | **Status** | **Active — EXEC-001 Step 3 Complete** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
@@ -95,6 +95,7 @@ Authoritative — {state}
 | 061 / FORGE-AGENT-CHECKIN-001 | Forge Agent check-in Phases 0–2 (opt-in, cues, approval inbox) | Authoritative — feature NO-GO carve-out; Phases 3–4 gated except 062 |
 | 062 / FORGE-AGENT-PHASE3-001 | Forge Agent check-in Phase 3 (scheduled drafting + list-only inbox) | Authoritative — Stage A accepted; Stage B authorized; Phase 4 gated |
 | 063 / READINESS-MEASUREMENT-001 | Versioned, evidence-linked readiness measurement foundation | Authoritative — foundation only; product surfaces gated |
+| 064 / READINESS-SHADOW-001 | Authorize READINESS-ANCHORS-001 v1 and a private shadow evaluator | Authoritative — allowlisted shadow only; all member surfaces gated |
 
 Full history: `atlas/decisions.md`.
 
@@ -122,3 +123,4 @@ Full history: `atlas/decisions.md`.
 | 1.5.0 | 2026-09-12 | Indexed Decision 062 Forge Agent Phase 3 Stage A |
 | 1.6.0 | 2026-09-21 | Recorded Founder approval of Decision 062 Stage B after the production evidence gate passed |
 | 1.7.0 | 2026-09-23 | Recorded Decision 063 readiness measurement foundation authorization |
+| 1.8.0 | 2026-09-23 | Recorded Decision 064 behavioral anchors and shadow-only evaluator authorization |
