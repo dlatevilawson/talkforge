@@ -108,10 +108,12 @@ Before any member-facing evaluation ships:
 
 1. **Complete:** the Founder authorized the 25-cell behavioral anchors in
    [READINESS-ANCHORS-001](READINESS-ANCHORS-001.md) under Decision 064.
-2. Validate structured model output against the contract on consented test data.
-3. Confirm human reviewers can reproduce levels and evidence references.
-4. Confirm no visible 0–100 score, cross-member comparison, or outcome guarantee.
-5. Receive a separate Founder approval before any evaluation prompt output or UI
+2. **Complete:** Decision 065 authorized the thresholds and fail paths in
+   [READINESS-SHADOW-VALIDATION-001](READINESS-SHADOW-VALIDATION-001.md).
+3. Validate structured model output against the contract on consented test data.
+4. Confirm human reviewers can reproduce levels and evidence references.
+5. Confirm no visible 0–100 score, cross-member comparison, or outcome guarantee.
+6. Receive a separate Founder approval before any evaluation prompt output or UI
    slice becomes member-facing. Decision 064 authorizes shadow evaluation only.
 
 ## Decision 064 shadow operation

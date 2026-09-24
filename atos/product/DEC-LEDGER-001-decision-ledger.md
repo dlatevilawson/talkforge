@@ -3,11 +3,11 @@
 | Field | Value |
 |---|---|
 | **Document ID** | DEC-LEDGER-001 |
-| **Version** | 1.8.0 |
+| **Version** | 1.9.0 |
 | **Status** | **Active — EXEC-001 Step 3 Complete** |
 | **Owner** | Founder |
 | **AI Steward** | Atlas |
-| **Updated** | 2026-09-23 |
+| **Updated** | 2026-09-24 |
 | **Live ledger** | [`atlas/decisions.md`](../../atlas/decisions.md) |
 | **Authority** | EXEC-001 Step 3 · CONST-001 · Constitutional Law #001 |
 | **Plane** | Operational Canonical record (decisions) — not Idea Vault |
@@ -96,6 +96,7 @@ Authoritative — {state}
 | 062 / FORGE-AGENT-PHASE3-001 | Forge Agent check-in Phase 3 (scheduled drafting + list-only inbox) | Authoritative — Stage A accepted; Stage B authorized; Phase 4 gated |
 | 063 / READINESS-MEASUREMENT-001 | Versioned, evidence-linked readiness measurement foundation | Authoritative — foundation only; product surfaces gated |
 | 064 / READINESS-SHADOW-001 | Authorize READINESS-ANCHORS-001 v1 and a private shadow evaluator | Authoritative — allowlisted shadow only; all member surfaces gated |
+| 065 / READINESS-SHADOW-VALIDATION-001 | Authorize the readiness shadow evaluator pass bar | Authoritative — validation thresholds only; operations and display gated |
 
 Full history: `atlas/decisions.md`.
 
@@ -124,3 +125,4 @@ Full history: `atlas/decisions.md`.
 | 1.6.0 | 2026-09-21 | Recorded Founder approval of Decision 062 Stage B after the production evidence gate passed |
 | 1.7.0 | 2026-09-23 | Recorded Decision 063 readiness measurement foundation authorization |
 | 1.8.0 | 2026-09-23 | Recorded Decision 064 behavioral anchors and shadow-only evaluator authorization |
+| 1.9.0 | 2026-09-24 | Recorded Decision 065 readiness shadow validation pass-bar authorization |
