@@ -1,6 +1,6 @@
 -- Decision 063 / READINESS-MEASUREMENT-001 foundation.
 -- Versioned, evidence-linked readiness assessments for completed member sessions.
--- This migration does not generate assessments or expose a member UI.
+-- This migration does not generate assessments or expose data to client roles.
 
 create unique index if not exists practice_sessions_id_user_uidx
   on public.practice_sessions (id, user_id);
@@ -148,14 +148,23 @@ create index if not exists session_readiness_assessments_comparison_idx
     created_at desc
   );
 
+create index if not exists session_readiness_assessments_session_owner_idx
+  on public.session_readiness_assessments (session_id, user_id);
+
 create index if not exists session_readiness_signals_user_signal_idx
   on public.session_readiness_signals (user_id, signal, created_at desc);
+
+create index if not exists session_readiness_signals_assessment_owner_idx
+  on public.session_readiness_signals (assessment_id, user_id);
 
 create index if not exists session_readiness_evidence_assessment_signal_idx
   on public.session_readiness_evidence (assessment_id, signal);
 
 create index if not exists session_readiness_evidence_user_created_idx
   on public.session_readiness_evidence (user_id, created_at desc);
+
+create index if not exists session_readiness_evidence_assessment_owner_idx
+  on public.session_readiness_evidence (assessment_id, user_id);
 
 alter table public.session_readiness_assessments enable row level security;
 alter table public.session_readiness_signals enable row level security;
@@ -165,37 +174,27 @@ revoke all on table public.session_readiness_assessments from public, anon, auth
 revoke all on table public.session_readiness_signals from public, anon, authenticated;
 revoke all on table public.session_readiness_evidence from public, anon, authenticated;
 
-grant select on table public.session_readiness_assessments to authenticated;
-grant select on table public.session_readiness_signals to authenticated;
-grant select on table public.session_readiness_evidence to authenticated;
-
 grant all on table public.session_readiness_assessments to service_role;
 grant all on table public.session_readiness_signals to service_role;
 grant all on table public.session_readiness_evidence to service_role;
 
-create policy "session_readiness_assessments_read_own"
-  on public.session_readiness_assessments for select
-  to authenticated
-  using (
-    user_id = (select auth.uid())
-    or (select public.is_founder_or_admin())
-  );
+create policy "session_readiness_assessments_deny_client"
+  on public.session_readiness_assessments for all
+  to anon, authenticated
+  using (false)
+  with check (false);
 
-create policy "session_readiness_signals_read_own"
-  on public.session_readiness_signals for select
-  to authenticated
-  using (
-    user_id = (select auth.uid())
-    or (select public.is_founder_or_admin())
-  );
+create policy "session_readiness_signals_deny_client"
+  on public.session_readiness_signals for all
+  to anon, authenticated
+  using (false)
+  with check (false);
 
-create policy "session_readiness_evidence_read_own"
-  on public.session_readiness_evidence for select
-  to authenticated
-  using (
-    user_id = (select auth.uid())
-    or (select public.is_founder_or_admin())
-  );
+create policy "session_readiness_evidence_deny_client"
+  on public.session_readiness_evidence for all
+  to anon, authenticated
+  using (false)
+  with check (false);
 
 comment on table public.session_readiness_assessments is
   'Versioned session-level readiness assessment context and derived qualitative band. No 0-100 score.';

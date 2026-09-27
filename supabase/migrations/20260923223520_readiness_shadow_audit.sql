@@ -3,8 +3,8 @@
 -- This migration does not enable the evaluator or expose member-facing data.
 
 -- Decision 064 keeps every readiness result server-only during shadow review.
--- A future, separately approved display migration must deliberately restore
--- authenticated SELECT grants and member policies.
+-- A future, separately approved display migration must deliberately replace
+-- the deny-client policies and restore authenticated SELECT grants.
 drop policy if exists "session_readiness_assessments_read_own"
   on public.session_readiness_assessments;
 drop policy if exists "session_readiness_signals_read_own"
@@ -64,6 +64,9 @@ create table if not exists public.session_readiness_shadow_runs (
 create index if not exists session_readiness_shadow_runs_user_created_idx
   on public.session_readiness_shadow_runs (user_id, created_at desc);
 
+create index if not exists session_readiness_shadow_runs_session_owner_idx
+  on public.session_readiness_shadow_runs (session_id, user_id);
+
 create index if not exists session_readiness_shadow_runs_pending_idx
   on public.session_readiness_shadow_runs (created_at)
   where status = 'pending';
@@ -73,6 +76,12 @@ alter table public.session_readiness_shadow_runs enable row level security;
 revoke all on table public.session_readiness_shadow_runs
   from public, anon, authenticated;
 grant all on table public.session_readiness_shadow_runs to service_role;
+
+create policy "session_readiness_shadow_runs_deny_client"
+  on public.session_readiness_shadow_runs for all
+  to anon, authenticated
+  using (false)
+  with check (false);
 
 comment on table public.session_readiness_shadow_runs is
   'Server-only Decision 064 audit envelope. Created before each shadow model call; stores outcome and provider token usage without prompts or raw output.';
