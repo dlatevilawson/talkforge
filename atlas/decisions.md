@@ -1380,7 +1380,7 @@ Volumes:
 
 `atos/product/READINESS-MEASUREMENT-001.md`
 `atos/knowledge/working/idea-vault/features/IV-FEAT-001-readiness-engine.md`
-`supabase/migrations/20260923055820_readiness_measurement_foundation.sql`
+`supabase/migrations/20260927214308_readiness_measurement_foundation.sql`
 
 Status:
 Authoritative — ✅ Founder authorized start 2026-09-23; foundation only; no
