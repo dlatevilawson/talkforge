@@ -26,7 +26,11 @@ type SignalExpectation = {
   level?: ReadinessLevel;
   nullReason?: ReadinessNullReason;
   evidenceStrength?: EvidenceStrength;
-  requiredEvidenceTurnIds?: string[];
+  levelZeroBoundary?: {
+    breakdownTurnId: string;
+    secondChanceTurnId: string;
+    rejectedSecondChanceTurnId: string;
+  };
 };
 
 export type ShadowBoundaryFixture = {
@@ -159,7 +163,11 @@ export const SHADOW_BOUNDARY_FIXTURES: readonly ShadowBoundaryFixture[] = [
         {
           signal: "purpose",
           level: 0,
-          requiredEvidenceTurnIds: ["turn-3", "turn-4", "turn-5"],
+          levelZeroBoundary: {
+            breakdownTurnId: "turn-3",
+            secondChanceTurnId: "turn-4",
+            rejectedSecondChanceTurnId: "turn-5",
+          },
         },
       ],
       minimumPressure: "moderate",
@@ -185,7 +193,11 @@ export const SHADOW_BOUNDARY_FIXTURES: readonly ShadowBoundaryFixture[] = [
         {
           signal: "message",
           level: 0,
-          requiredEvidenceTurnIds: ["turn-3", "turn-4", "turn-5"],
+          levelZeroBoundary: {
+            breakdownTurnId: "turn-3",
+            secondChanceTurnId: "turn-4",
+            rejectedSecondChanceTurnId: "turn-5",
+          },
         },
       ],
       minimumPressure: "moderate",
@@ -251,7 +263,7 @@ export const SHADOW_BOUNDARY_FIXTURES: readonly ShadowBoundaryFixture[] = [
     expectations: {
       signals: [],
       forbiddenEvidenceTurnIds: ["turn-1"],
-      forbiddenOutputTerms: ["score of 100", "prior session", "percentile"],
+      forbiddenOutputTerms: ["score", "prior session", "percentile"],
     },
   },
   {
@@ -272,7 +284,12 @@ export const SHADOW_BOUNDARY_FIXTURES: readonly ShadowBoundaryFixture[] = [
     expectations: {
       signals: [],
       forbiddenEvidenceTurnIds: ["turn-1"],
-      forbiddenOutputTerms: ["charismatic", "profile says", "always composed"],
+      forbiddenOutputTerms: [
+        "profile",
+        "charismatic",
+        "always composed",
+        "level four",
+      ],
     },
   },
 ];
@@ -319,12 +336,23 @@ export function checkShadowBoundaryFixtureOutput(
     ) {
       return { ok: false, code: "FIXTURE_STRENGTH_MISMATCH" };
     }
-    if (
-      expected.requiredEvidenceTurnIds?.some(
-        (turnId) => !actual.evidence.some((item) => item.turnId === turnId)
-      )
-    ) {
-      return { ok: false, code: "FIXTURE_RECOVERY_OPPORTUNITY_MISSING" };
+    if (expected.levelZeroBoundary) {
+      const requiredTurnIds = [
+        expected.levelZeroBoundary.breakdownTurnId,
+        expected.levelZeroBoundary.secondChanceTurnId,
+        expected.levelZeroBoundary.rejectedSecondChanceTurnId,
+      ];
+      if (
+        new Set(requiredTurnIds).size !== 3 ||
+        requiredTurnIds.some(
+          (turnId) => !actual.evidence.some((item) => item.turnId === turnId)
+        )
+      ) {
+        return {
+          ok: false,
+          code: "FIXTURE_REJECTED_SECOND_CHANCE_MISSING",
+        };
+      }
     }
   }
 
