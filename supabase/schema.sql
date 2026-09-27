@@ -247,8 +247,14 @@ create index if not exists session_readiness_assessments_comparison_idx
     created_at desc
   );
 
+create index if not exists session_readiness_assessments_session_owner_idx
+  on public.session_readiness_assessments (session_id, user_id);
+
 create index if not exists session_readiness_signals_user_signal_idx
   on public.session_readiness_signals (user_id, signal, created_at desc);
+
+create index if not exists session_readiness_signals_assessment_owner_idx
+  on public.session_readiness_signals (assessment_id, user_id);
 
 create index if not exists session_readiness_evidence_assessment_signal_idx
   on public.session_readiness_evidence (assessment_id, signal);
@@ -256,8 +262,14 @@ create index if not exists session_readiness_evidence_assessment_signal_idx
 create index if not exists session_readiness_evidence_user_created_idx
   on public.session_readiness_evidence (user_id, created_at desc);
 
+create index if not exists session_readiness_evidence_assessment_owner_idx
+  on public.session_readiness_evidence (assessment_id, user_id);
+
 create index if not exists session_readiness_shadow_runs_user_created_idx
   on public.session_readiness_shadow_runs (user_id, created_at desc);
+
+create index if not exists session_readiness_shadow_runs_session_owner_idx
+  on public.session_readiness_shadow_runs (session_id, user_id);
 
 create index if not exists session_readiness_shadow_runs_pending_idx
   on public.session_readiness_shadow_runs (created_at)
@@ -1124,6 +1136,38 @@ drop policy if exists "session_readiness_signals_read_own"
 
 drop policy if exists "session_readiness_evidence_read_own"
   on public.session_readiness_evidence;
+
+drop policy if exists "session_readiness_assessments_deny_client"
+  on public.session_readiness_assessments;
+create policy "session_readiness_assessments_deny_client"
+  on public.session_readiness_assessments for all
+  to anon, authenticated
+  using (false)
+  with check (false);
+
+drop policy if exists "session_readiness_signals_deny_client"
+  on public.session_readiness_signals;
+create policy "session_readiness_signals_deny_client"
+  on public.session_readiness_signals for all
+  to anon, authenticated
+  using (false)
+  with check (false);
+
+drop policy if exists "session_readiness_evidence_deny_client"
+  on public.session_readiness_evidence;
+create policy "session_readiness_evidence_deny_client"
+  on public.session_readiness_evidence for all
+  to anon, authenticated
+  using (false)
+  with check (false);
+
+drop policy if exists "session_readiness_shadow_runs_deny_client"
+  on public.session_readiness_shadow_runs;
+create policy "session_readiness_shadow_runs_deny_client"
+  on public.session_readiness_shadow_runs for all
+  to anon, authenticated
+  using (false)
+  with check (false);
 
 drop policy if exists "coach_memory_own" on public.coach_memory;
 create policy "coach_memory_own"
