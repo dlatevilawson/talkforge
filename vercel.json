@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/forge-agent",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/readiness-fixture-validation",
+      "schedule": "0 0 1 1 *"
     }
   ]
 }
