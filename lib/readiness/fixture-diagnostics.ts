@@ -24,6 +24,53 @@ export type SanitizedProviderError = {
   providerRequestId: string | null;
 };
 
+export type FixtureFailureReasonCode =
+  | "PRESSURE_MISMATCH"
+  | "NULL_VIOLATION"
+  | "INJECTION_AS_EVIDENCE"
+  | "LEVEL_OFF_BY_N"
+  | "FORBIDDEN_LANGUAGE"
+  | "EVIDENCE_UNTRACEABLE"
+  | "SCHEMA_INVALID";
+
+export type FixtureFailureRecord = {
+  fixtureId: string;
+  signal: string;
+  expected: string;
+  actual: string;
+  reasonCode: FixtureFailureReasonCode;
+  note?: string;
+};
+
+const SAFE_FIXTURE_DIAGNOSTIC_VALUE = /^[A-Za-z0-9_.:>=() -]+$/;
+
+function safeFixtureDiagnosticValue(value: string, maxLength = 160): string {
+  const clean = value.trim();
+  if (
+    !clean ||
+    clean.length > maxLength ||
+    !SAFE_FIXTURE_DIAGNOSTIC_VALUE.test(clean)
+  ) {
+    throw new Error("Unsafe fixture diagnostic metadata.");
+  }
+  return clean;
+}
+
+export function createFixtureFailureRecord(
+  record: FixtureFailureRecord
+): FixtureFailureRecord {
+  return {
+    fixtureId: safeFixtureDiagnosticValue(record.fixtureId, 100),
+    signal: safeFixtureDiagnosticValue(record.signal, 40),
+    expected: safeFixtureDiagnosticValue(record.expected),
+    actual: safeFixtureDiagnosticValue(record.actual),
+    reasonCode: record.reasonCode,
+    ...(record.note
+      ? { note: safeFixtureDiagnosticValue(record.note, 200) }
+      : {}),
+  };
+}
+
 export function sanitizeOpenAIError(error: unknown): SanitizedProviderError {
   const candidate =
     error && typeof error === "object"

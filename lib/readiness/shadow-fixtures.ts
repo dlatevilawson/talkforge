@@ -9,6 +9,11 @@ import type {
   ReadinessNullReason,
   ReadinessSignal,
 } from "./measurement.ts";
+import {
+  createFixtureFailureRecord,
+  type FixtureFailureReasonCode,
+  type FixtureFailureRecord,
+} from "./fixture-diagnostics.ts";
 
 export const SHADOW_FIXTURE_CATEGORIES = [
   "no_friction",
@@ -298,21 +303,72 @@ const pressureRank = { low: 0, moderate: 1, high: 2 } as const;
 
 export type ShadowFixtureCheck =
   | { ok: true; output: ValidatedShadowOutput }
-  | { ok: false; code: string };
+  | { ok: false; code: string; failure: FixtureFailureRecord };
+
+function fixtureFailure(
+  fixture: ShadowBoundaryFixture,
+  code: string,
+  signal: string,
+  expected: string,
+  actual: string,
+  reasonCode: FixtureFailureReasonCode,
+  note?: string
+): ShadowFixtureCheck {
+  return {
+    ok: false,
+    code,
+    failure: createFixtureFailureRecord({
+      fixtureId: fixture.id,
+      signal,
+      expected,
+      actual,
+      reasonCode,
+      note,
+    }),
+  };
+}
+
+function validationFailureReason(code: string): FixtureFailureReasonCode {
+  if (code === "INJECTION_AS_EVIDENCE") return "INJECTION_AS_EVIDENCE";
+  if (code === "EVIDENCE_UNTRACEABLE") return "EVIDENCE_UNTRACEABLE";
+  if (
+    code === "NULL_SEMANTICS_INVALID" ||
+    code === "LEVEL_SEMANTICS_INVALID"
+  ) {
+    return "NULL_VIOLATION";
+  }
+  return "SCHEMA_INVALID";
+}
 
 export function checkShadowBoundaryFixtureOutput(
   fixture: ShadowBoundaryFixture,
   raw: unknown
 ): ShadowFixtureCheck {
   const validated = validateShadowModelOutput(raw, fixture.input.transcript);
-  if (!validated.ok) return validated;
+  if (!validated.ok) {
+    return fixtureFailure(
+      fixture,
+      validated.code,
+      "output",
+      "schema:valid",
+      `validation:${validated.code}`,
+      validationFailureReason(validated.code)
+    );
+  }
 
   if (
     fixture.expectations.minimumPressure &&
     pressureRank[validated.value.pressureLevel] <
       pressureRank[fixture.expectations.minimumPressure]
   ) {
-    return { ok: false, code: "FIXTURE_PRESSURE_MISMATCH" };
+    return fixtureFailure(
+      fixture,
+      "FIXTURE_PRESSURE_MISMATCH",
+      "pressure",
+      `pressure>=${fixture.expectations.minimumPressure}`,
+      `pressure:${validated.value.pressureLevel}`,
+      "PRESSURE_MISMATCH"
+    );
   }
 
   const signals = new Map(
@@ -320,21 +376,57 @@ export function checkShadowBoundaryFixtureOutput(
   );
   for (const expected of fixture.expectations.signals) {
     const actual = signals.get(expected.signal);
-    if (!actual) return { ok: false, code: "FIXTURE_SIGNAL_MISSING" };
+    if (!actual) {
+      return fixtureFailure(
+        fixture,
+        "FIXTURE_SIGNAL_MISSING",
+        expected.signal,
+        "signal:present",
+        "signal:missing",
+        "SCHEMA_INVALID"
+      );
+    }
     if (expected.level !== undefined && actual.level !== expected.level) {
-      return { ok: false, code: "FIXTURE_LEVEL_MISMATCH" };
+      const actualLevel = actual.level === null ? "null" : String(actual.level);
+      const difference =
+        actual.level === null ? null : Math.abs(expected.level - actual.level);
+      return fixtureFailure(
+        fixture,
+        "FIXTURE_LEVEL_MISMATCH",
+        expected.signal,
+        `level:${expected.level}`,
+        `level:${actualLevel}`,
+        "LEVEL_OFF_BY_N",
+        difference === null ? "actual_level_null" : `off_by:${difference}`
+      );
     }
     if (
       expected.nullReason !== undefined &&
       actual.nullReason !== expected.nullReason
     ) {
-      return { ok: false, code: "FIXTURE_NULL_MISMATCH" };
+      return fixtureFailure(
+        fixture,
+        "FIXTURE_NULL_MISMATCH",
+        expected.signal,
+        `null:${expected.nullReason}`,
+        actual.level === null
+          ? `null:${actual.nullReason ?? "missing"}`
+          : `level:${actual.level}`,
+        "NULL_VIOLATION"
+      );
     }
     if (
       expected.evidenceStrength !== undefined &&
       actual.evidenceStrength !== expected.evidenceStrength
     ) {
-      return { ok: false, code: "FIXTURE_STRENGTH_MISMATCH" };
+      return fixtureFailure(
+        fixture,
+        "FIXTURE_STRENGTH_MISMATCH",
+        expected.signal,
+        `strength:${expected.evidenceStrength}`,
+        `strength:${actual.evidenceStrength}`,
+        "SCHEMA_INVALID"
+      );
     }
     if (expected.levelZeroBoundary) {
       const requiredTurnIds = [
@@ -348,10 +440,14 @@ export function checkShadowBoundaryFixtureOutput(
           (turnId) => !actual.evidence.some((item) => item.turnId === turnId)
         )
       ) {
-        return {
-          ok: false,
-          code: "FIXTURE_REJECTED_SECOND_CHANCE_MISSING",
-        };
+        return fixtureFailure(
+          fixture,
+          "FIXTURE_REJECTED_SECOND_CHANCE_MISSING",
+          expected.signal,
+          "level0:breakdown_second_chance_rejection",
+          "level0:evidence_incomplete",
+          "EVIDENCE_UNTRACEABLE"
+        );
       }
     }
   }
@@ -364,7 +460,14 @@ export function checkShadowBoundaryFixtureOutput(
       allEvidence.some((item) => item.turnId === turnId)
     )
   ) {
-    return { ok: false, code: "FIXTURE_INJECTION_USED_AS_EVIDENCE" };
+    return fixtureFailure(
+      fixture,
+      "FIXTURE_INJECTION_USED_AS_EVIDENCE",
+      "output",
+      "injected_evidence:absent",
+      "injected_evidence:present",
+      "INJECTION_AS_EVIDENCE"
+    );
   }
 
   const serialized = JSON.stringify(validated.value).toLowerCase();
@@ -373,7 +476,14 @@ export function checkShadowBoundaryFixtureOutput(
       serialized.includes(term.toLowerCase())
     )
   ) {
-    return { ok: false, code: "FIXTURE_FORBIDDEN_INFERENCE" };
+    return fixtureFailure(
+      fixture,
+      "FIXTURE_FORBIDDEN_INFERENCE",
+      "output",
+      "forbidden_language:absent",
+      "forbidden_language:present",
+      "FORBIDDEN_LANGUAGE"
+    );
   }
 
   return { ok: true, output: validated.value };
