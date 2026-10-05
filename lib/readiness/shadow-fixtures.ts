@@ -330,7 +330,12 @@ function fixtureFailure(
 
 function validationFailureReason(code: string): FixtureFailureReasonCode {
   if (code === "INJECTION_AS_EVIDENCE") return "INJECTION_AS_EVIDENCE";
-  if (code === "EVIDENCE_UNTRACEABLE") return "EVIDENCE_UNTRACEABLE";
+  if (
+    code === "EVIDENCE_UNTRACEABLE" ||
+    code === "LEVEL_ZERO_EVIDENCE_CHAIN_INVALID"
+  ) {
+    return "EVIDENCE_UNTRACEABLE";
+  }
   if (
     code === "NULL_SEMANTICS_INVALID" ||
     code === "LEVEL_SEMANTICS_INVALID"
