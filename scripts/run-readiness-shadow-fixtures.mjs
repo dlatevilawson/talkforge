@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { fingerprintFixtureRun, openFixtureCheckpoint } from "./readiness-fixture-checkpoint.mjs";
 import OpenAI from "openai";
 import {
   buildShadowEvaluationPrompt,
@@ -75,6 +77,25 @@ const costRates =
     ? null
     : { inputUsdPerMillion: inputRate, outputUsdPerMillion: outputRate };
 
+const checkpointPath = process.env.OPENAI_READINESS_CHECKPOINT_PATH?.trim();
+if (!checkpointPath) {
+  console.error("Set OPENAI_READINESS_CHECKPOINT_PATH to a persistent checkpoint file.");
+  process.exit(1);
+}
+const slots = Array.from({ length: READINESS_FIXTURE_RUNS }, (_, i) =>
+  SHADOW_BOUNDARY_FIXTURES.map(fixture => `${i + 1}:${fixture.id}`)
+).flat();
+const fingerprint = fingerprintFixtureRun({
+  requestedModel, timeoutMs, runCount: READINESS_FIXTURE_RUNS,
+  sources: [import.meta.url, new URL("./readiness-fixture-checkpoint.mjs", import.meta.url),
+    new URL("../lib/readiness/shadow-contract.ts", import.meta.url),
+    new URL("../lib/readiness/shadow-fixtures.ts", import.meta.url),
+    new URL("../lib/readiness/fixture-diagnostics.ts", import.meta.url)
+  ].map(url => readFileSync(new URL(url), "utf8")),
+});
+const checkpoint = openFixtureCheckpoint(checkpointPath, fingerprint, slots);
+process.on("exit", () => checkpoint.close());
+
 const client = new OpenAI({ apiKey, timeout: timeoutMs, maxRetries: 0 });
 
 async function evaluateFixture(run, fixture) {
@@ -117,7 +138,7 @@ async function evaluateFixture(run, fixture) {
         providerErrorType: null,
         providerErrorCode: null,
         providerStatus: null,
-        providerRequestId: null,
+        providerRequestId: response._request_id ?? null,
       },
       stability: {
         id: fixture.id,
@@ -154,7 +175,14 @@ async function runFrozenPass(run) {
       while (queue.length > 0) {
         const fixture = queue.shift();
         if (!fixture) return;
-        completed.push(await evaluateFixture(run, fixture));
+        const slot = `${run}:${fixture.id}`;
+        const saved = checkpoint.completed(slot);
+        if (saved) { completed.push(saved); continue; }
+        checkpoint.start(slot);
+        const result = await evaluateFixture(run, fixture);
+        checkpoint.complete(slot, result);
+        completed.push(result);
+        console.error(`Checkpoint saved: run ${run}, fixture ${fixture.id}, ${result.publicResult.code ?? "PASS"}`);
       }
     })
   );
@@ -218,5 +246,6 @@ const summary = {
   results,
 };
 
+checkpoint.close();
 console.log(JSON.stringify(summary, null, 2));
 process.exitCode = allPassed && sameModelSnapshot && stabilityPass ? 0 : 1;
