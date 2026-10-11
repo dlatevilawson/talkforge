@@ -148,6 +148,33 @@ export const LEVEL_ZERO_EVIDENCE_PROMPT = `LEVEL 0 EVIDENCE CHAIN — HARD REQUI
   them. If any link is missing, do not assign Level 0. Use the next supported
   level, or null when the signal was not testable.`;
 
+export const LEVEL_FOUR_EVIDENCE_PROMPT = `LEVEL 4 EVIDENCE TRACE — HARD REQUIREMENT
+  Level 4 requires an ordered, traceable evidence chain showing the signal
+  before, during, and after the session's hardest pressure or member-created
+  test. Do not assign Level 4 from a single strong turn.
+
+  Evidence-copy procedure (apply before returning every Level 4 result):
+  1. Locate each cited turn by its exact turn ID in the transcript below.
+  2. Copy a contiguous substring from that turn exactly. The safest choice is
+     the entire turn text after the role label.
+  3. Preserve capitalization, punctuation, apostrophes, and hyphens. Do not add
+     quotation marks or ellipses, normalize wording, join separate phrases, or
+     paraphrase.
+  4. Compare the proposed snippet against the cited turn. If it is not an exact
+     substring, replace it with the entire turn text.
+
+  Signal-specific Level 4 chains:
+  - Purpose: cite the member's goal before pressure as support, the
+    counterpart's hardest pressure as friction, and a later member tradeoff or
+    close as recovery. Use at least three distinct, ordered turn IDs.
+  - Adaptability: cite the member's original tactic as support, every material
+    shift used to justify "hard or multiple shifts" as friction, and a later
+    selected adjustment that preserves the goal as recovery. Every claimed
+    adjustment must follow its cited shift.
+
+  If the transcript does not contain an exact, ordered chain, assign the lower
+  supported level. Never fabricate or rewrite evidence to force Level 4.`;
+
 const ANCHOR_PROMPT = `
 Use READINESS-ANCHORS-001 v1 exactly. Levels are behavioral evidence levels,
 not grades or personality claims.
@@ -211,7 +238,7 @@ DECISION ORDER — apply per signal, in this order, every time:
 - Delivery mechanics may support an observation but can never decide one alone.
 - Null is unavailable evidence, not failure. Silence alone is never level 0.
 - ${LEVEL_ZERO_EVIDENCE_PROMPT}
-- Level 4 needs meaningful pressure or a member-created test.
+- ${LEVEL_FOUR_EVIDENCE_PROMPT}
 - Every non-null signal needs exact transcript evidence. Copy short snippets
   exactly and identify their turn IDs. Never invent or paraphrase a snippet.
 - sufficient evidence needs at least two distinct evidence references, including
