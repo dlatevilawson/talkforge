@@ -62,6 +62,7 @@ export const PRESSURE_MARKER_CLASSES = [
   "objection_or_pushback",
   "interruption",
   "loaded_or_personal_framing",
+  "hard_question",
   "time_constraint",
   "surprise_shift",
   "ultimatum",
@@ -95,6 +96,8 @@ Observable friction markers (count marker classes, not turns):
 - objection or pushback on the member's position
 - interruption, or the counterpart talking over the member
 - loaded, hostile, or personal framing of a question
+- substantive hard question that directly tests or demands clarification of
+  the member's position (a neutral continuation or plain follow-up is not one)
 - explicit time constraint or deadline stated in-scenario
 - surprise shift: new information, changed terms, or a new demand mid-scenario
 - ultimatum or forced binary choice
