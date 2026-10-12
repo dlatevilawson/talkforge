@@ -147,6 +147,13 @@ export function summarizeFixtureStability(entries: StabilityInput[]) {
   let exactLevelStable = 0;
   let withinOneLevelStable = 0;
   const notEvaluable: string[] = [];
+  const mismatches: Array<{
+    fixtureId: string;
+    signal: string;
+    levels: Array<number | null>;
+    evidenceStrengths: string[];
+    assessed: boolean[];
+  }> = [];
 
   for (const [id, group] of groups) {
     const ordered = [...group].sort((a, b) => a.run - b.run);
@@ -184,13 +191,31 @@ export function summarizeFixtureStability(entries: StabilityInput[]) {
 
       const levels = present.map((signal) => signal.level);
       if (levels.every((level) => level === levels[0])) exactLevelStable += 1;
-      if (
-        levels.every((level) => level !== null) &&
-        Math.max(...(levels as number[])) - Math.min(...(levels as number[])) <= 1
-      ) {
+      const evidenceStrengths = present.map(
+        (signal) => signal.evidenceStrength
+      );
+      const assessedStable = assessed.every((value) => value === assessed[0]);
+      const evidenceStable = evidenceStrengths.every(
+        (value) => value === evidenceStrengths[0]
+      );
+      const exactLevel = levels.every((level) => level === levels[0]);
+      const withinOne =
+        (levels.every((level) => level !== null) &&
+          Math.max(...(levels as number[])) - Math.min(...(levels as number[])) <= 1) ||
+        levels.every((level) => level === null);
+      if (withinOne) {
         withinOneLevelStable += 1;
       } else if (levels.every((level) => level === null)) {
         withinOneLevelStable += 1;
+      }
+      if (!assessedStable || !evidenceStable || !exactLevel || !withinOne) {
+        mismatches.push({
+          fixtureId: id,
+          signal: baseline.signal,
+          levels,
+          evidenceStrengths,
+          assessed,
+        });
       }
     }
   }
@@ -206,5 +231,6 @@ export function summarizeFixtureStability(entries: StabilityInput[]) {
     exactLevelPercent: percentage(exactLevelStable),
     withinOneLevelPercent: percentage(withinOneLevelStable),
     notEvaluable: [...new Set(notEvaluable)].sort(),
+    mismatches,
   };
 }
