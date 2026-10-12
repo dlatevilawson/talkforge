@@ -400,10 +400,12 @@ function summaryReferencesInjection(
 function transcriptForPrompt(turns: ShadowTranscriptTurn[]): string {
   return turns
     .map((turn) => {
-      const rendered = `${turn.id} [${turn.role}]: ${turn.text}`;
-      return isInjectedInstructionTurn(turn)
-        ? `<untrusted-instruction>${rendered}</untrusted-instruction>`
-        : rendered;
+      if (isInjectedInstructionTurn(turn)) {
+        // Keep the turn's identity visible for exclusion accounting, but do
+        // not give the model hostile text to quote or paraphrase as evidence.
+        return `<untrusted-instruction>${turn.id} [${turn.role}]: [excluded from evaluation]</untrusted-instruction>`;
+      }
+      return `${turn.id} [${turn.role}]: ${turn.text}`;
     })
     .join("\n");
 }
