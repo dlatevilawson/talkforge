@@ -23,6 +23,7 @@ import {
 import type { LivingProfile } from "@/lib/system1/types";
 import { CLAIM_FOUNDING_PASS_CTA } from "@/lib/billing/member-copy";
 import { countCompletedSessions, getUser } from "@/lib/storage";
+import { STARTER_DRILLS, starterDrillHref } from "@/lib/drills/catalog";
 
 const homeCopy = APP_HOME_SCREEN_COPY;
 
@@ -285,6 +286,23 @@ function ContinuityHomeInner() {
               <p className={styles.actionNote}>
                 One focused practice. You set the pace.
               </p>
+              <Link
+                href={starterDrillHref(STARTER_DRILLS[0])}
+                className="mt-8 block max-w-md rounded-2xl border border-[#c9a95f]/30 bg-[#c9a95f]/[0.06] p-5 text-left transition hover:border-[#c9a95f]/60"
+              >
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#c9a95f]">
+                  Start here · 3 minutes
+                </span>
+                <span className="mt-2 block text-lg font-semibold text-white">
+                  {STARTER_DRILLS[0].name}
+                </span>
+                <span className="mt-1 block text-sm leading-6 text-white/60">
+                  {STARTER_DRILLS[0].instructions}
+                </span>
+                <span className="mt-3 block text-sm font-semibold text-[#e4c878]">
+                  Open drill →
+                </span>
+              </Link>
             </>
           ) : practiceLimited ? (
             <>
@@ -447,3 +465,4 @@ function ArrowGlyph() {
     </svg>
   );
 }
+

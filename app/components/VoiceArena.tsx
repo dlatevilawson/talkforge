@@ -143,6 +143,7 @@ type VoiceArenaProps = {
   successCriteria?: string;
   autoStart?: boolean;
   mode?: CeSessionMode;
+  drillId?: string;
   guestPreview?: {
     topicId: string;
     reconnectToken: string;
@@ -191,6 +192,7 @@ export default function VoiceArena({
   successCriteria,
   autoStart = false,
   mode = "practice",
+  drillId,
   guestPreview,
 }: VoiceArenaProps) {
   const router = useRouter();
@@ -1829,6 +1831,8 @@ export default function VoiceArena({
               : successCriteria?.trim() ||
                 "Practice clear, warm, confident communication out loud with Forge.",
             modality: "voice",
+            drillId,
+            purpose: drillId ? "drill" : isAssessment ? "diagnostic" : "free_practice",
           });
         }
         practiceSessionRef.current = practice;
@@ -3227,3 +3231,4 @@ export default function VoiceArena({
     </main>
   );
 }
+

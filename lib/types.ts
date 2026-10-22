@@ -76,6 +76,11 @@ export type PracticeSession = {
   /** voice | text — defaults to text for legacy rows */
   modality?: "voice" | "text";
   durationSeconds?: number;
+  /** Phase 1A drill linkage; absent for legacy/free-practice sessions. */
+  drillId?: string;
+  programId?: string;
+  purpose?: "diagnostic" | "drill" | "check_in" | "emergency" | "free_practice";
+  voiceMinutes?: number;
 };
 
 export type Reflection = {
@@ -109,3 +114,4 @@ export type TransferSummary = {
   realityCaptures: number;
   conversationsAttempted: number;
 };
+
