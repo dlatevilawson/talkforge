@@ -36,9 +36,11 @@ function Submit({ label }: { label: string }) {
 export default function LoginForm({
   next,
   notice,
+  verificationRecovery = false,
 }: {
   next: string;
   notice?: string;
+  verificationRecovery?: boolean;
 }) {
   const router = useRouter();
   const [state, action] = useActionState(loginAction, {} as AuthActionState);
@@ -95,6 +97,15 @@ export default function LoginForm({
         <input type="hidden" name="next" value={next} />
         <input type="hidden" name="portal" value={portalIntent} />
         {notice ? <AuthAlert message={notice} tone="success" /> : null}
+        {verificationRecovery ? (
+          <p className="text-sm leading-6 text-zinc-400">
+            Need another link?{" "}
+            <Link href={`/verify-email?next=${encodeURIComponent(next)}`} className="text-zinc-200 underline">
+              Enter a verification code or resend the email
+            </Link>
+            .
+          </p>
+        ) : null}
         <AuthInput
           id="email"
           name="email"
@@ -127,3 +138,4 @@ export default function LoginForm({
     </AuthShell>
   );
 }
+
