@@ -63,6 +63,10 @@ function mapSession(row: {
   turns: ConversationTurn[] | null;
   modality?: string | null;
   duration_seconds?: number | null;
+  drill_id?: string | null;
+  program_id?: string | null;
+  purpose?: string | null;
+  voice_minutes?: number | null;
 }): PracticeSession {
   return {
     id: row.id,
@@ -79,6 +83,18 @@ function mapSession(row: {
       typeof row.duration_seconds === "number"
         ? row.duration_seconds
         : undefined,
+    drillId: row.drill_id ?? undefined,
+    programId: row.program_id ?? undefined,
+    purpose:
+      row.purpose === "diagnostic" ||
+      row.purpose === "drill" ||
+      row.purpose === "check_in" ||
+      row.purpose === "emergency" ||
+      row.purpose === "free_practice"
+        ? row.purpose
+        : undefined,
+    voiceMinutes:
+      typeof row.voice_minutes === "number" ? row.voice_minutes : undefined,
   };
 }
 
@@ -303,7 +319,7 @@ export async function saveUser(user: TalkForgeUser): Promise<void> {
 }
 
 const SESSION_SELECT =
-  "id, user_id, scenario_id, scenario_title, mission_prompt, started_at, completed_at, average_score, turns, modality, duration_seconds";
+  "id, user_id, scenario_id, scenario_title, mission_prompt, started_at, completed_at, average_score, turns, modality, duration_seconds, drill_id, program_id, purpose, voice_minutes";
 
 export async function listSessions(userId?: string): Promise<PracticeSession[]> {
   const supabase = requireSupabase();
@@ -319,7 +335,14 @@ export async function listSessions(userId?: string): Promise<PracticeSession[]> 
   const { data, error } = await query;
   if (error) {
     // Fallback if modality columns not migrated yet
-    if (error.message.includes("modality") || error.message.includes("duration")) {
+    if (
+      error.message.includes("modality") ||
+      error.message.includes("duration") ||
+      error.message.includes("drill_id") ||
+      error.message.includes("program_id") ||
+      error.message.includes("purpose") ||
+      error.message.includes("voice_minutes")
+    ) {
       let legacy = supabase
         .from("practice_sessions")
         .select(
@@ -349,7 +372,14 @@ export async function getSession(
     .maybeSingle();
 
   if (error) {
-    if (error.message.includes("modality") || error.message.includes("duration")) {
+    if (
+      error.message.includes("modality") ||
+      error.message.includes("duration") ||
+      error.message.includes("drill_id") ||
+      error.message.includes("program_id") ||
+      error.message.includes("purpose") ||
+      error.message.includes("voice_minutes")
+    ) {
       const retry = await supabase
         .from("practice_sessions")
         .select(
@@ -383,6 +413,15 @@ export async function saveSession(session: PracticeSession): Promise<void> {
     turns: session.turns,
     modality: session.modality ?? "text",
     duration_seconds: session.durationSeconds ?? null,
+    drill_id: session.drillId ?? null,
+    program_id: session.programId ?? null,
+    purpose: session.purpose ?? "free_practice",
+    voice_minutes:
+      typeof session.voiceMinutes === "number"
+        ? session.voiceMinutes
+        : session.modality === "voice" && session.durationSeconds
+          ? Number((session.durationSeconds / 60).toFixed(2))
+          : null,
   };
 
   const { error } = await supabase.from("practice_sessions").upsert(payload);
@@ -407,6 +446,27 @@ export async function saveSession(session: PracticeSession): Promise<void> {
       return;
     }
     throw new Error(`Failed to save session: ${error.message}`);
+  }
+}
+
+export async function saveDrillCompletion(input: {
+  drillId: string;
+  memberId: string;
+  practiceSessionId: string;
+  completedAt?: string;
+}): Promise<void> {
+  const supabase = requireSupabase();
+  const { error } = await supabase.from("drill_completions").upsert(
+    {
+      drill_id: input.drillId,
+      member_id: input.memberId,
+      practice_session_id: input.practiceSessionId,
+      completed_at: input.completedAt ?? new Date().toISOString(),
+    },
+    { onConflict: "member_id,drill_id,practice_session_id" }
+  );
+  if (error) {
+    throw new Error("Failed to save drill completion: " + error.message);
   }
 }
 
@@ -948,3 +1008,4 @@ export async function clearAllTalkForgeData(): Promise<void> {
     );
   }
 }
+

@@ -16,6 +16,7 @@ import {
   saveCoachMemory,
   saveLivingProfileProvenance,
   saveSession,
+  saveDrillCompletion,
   saveSessionReport,
 } from "./storage";
 import type { ConversationTurn, ForgeCoaching, PracticeSession } from "./types";
@@ -32,6 +33,9 @@ export async function createPracticeSession(input: {
   scenarioTitle: string;
   missionPrompt: string;
   modality?: "voice" | "text";
+  drillId?: string;
+  programId?: string;
+  purpose?: "diagnostic" | "drill" | "check_in" | "emergency" | "free_practice";
 }): Promise<PracticeSession> {
   const user = await ensureGuestUser();
 
@@ -44,6 +48,9 @@ export async function createPracticeSession(input: {
     startedAt: new Date().toISOString(),
     turns: [],
     modality: input.modality ?? "text",
+    drillId: input.drillId,
+    programId: input.programId,
+    purpose: input.purpose ?? "free_practice",
   };
 
   await saveSession(session);
@@ -109,6 +116,15 @@ export async function completePracticeSession(
   };
 
   await saveSession(completed);
+
+  if (completed.drillId) {
+    await saveDrillCompletion({
+      drillId: completed.drillId,
+      memberId: completed.userId,
+      practiceSessionId: completed.id,
+      completedAt,
+    });
+  }
 
   // Permanent session report + relationship memory (soft-fail if tables missing)
   try {
@@ -215,3 +231,4 @@ export async function persistActiveSession(
   await saveSession(next);
   return next;
 }
+
