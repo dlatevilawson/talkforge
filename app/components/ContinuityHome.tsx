@@ -172,6 +172,8 @@ function ContinuityHomeInner() {
   const trainingOpen = canStartTraining(entitlement);
   const practiceLimited = entitlement.status === "limited";
   const bounceNote = gateMessage(gate);
+  const firstRun =
+    sessionHistory.status === "known" && sessionHistory.completed === 0;
   const alternatives = useMemo(
     () =>
       practiceLimited
@@ -189,6 +191,12 @@ function ContinuityHomeInner() {
   }
 
   function beginRecommended() {
+    if (firstRun) {
+      if (!trainingOpen) return;
+      setEnteringTraining(true);
+      window.location.assign(starterDrillHref(STARTER_DRILLS[0]));
+      return;
+    }
     if (!recommendation || recommendation.href !== "/app/practice") return;
     const title =
       !explorer && readiness?.objective?.trim()
@@ -332,7 +340,7 @@ function ContinuityHomeInner() {
                 disabled={enteringTraining}
                 onClick={beginRecommended}
               >
-                {recommendation?.title ?? homeCopy.beginFallback}
+                {firstRun ? "Start your first drill" : recommendation?.title ?? homeCopy.beginFallback}
                 <ArrowGlyph />
               </button>
               {alternatives.length > 0 ? (

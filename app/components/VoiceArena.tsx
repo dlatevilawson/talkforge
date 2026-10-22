@@ -2327,7 +2327,7 @@ export default function VoiceArena({
 
     let wrap: Momentum = {
       strength:
-        "You showed up and practiced — that already builds readiness.",
+        "We didn’t capture a spoken thought in this session.",
       improve:
         "Next time, say one full thought so we can coach something specific.",
       nextAction:
@@ -2348,7 +2348,7 @@ export default function VoiceArena({
         wrap = {
           strength:
             data.strength ||
-            "You showed up and practiced — that already builds readiness.",
+            "We didn’t capture a spoken thought in this session.",
           improve:
             data.improve ||
             "Next time, say one full thought so we can coach something specific.",
@@ -2420,6 +2420,9 @@ export default function VoiceArena({
     sessionReady || phase === "connecting" || phase === "minting";
 
   const micLive = voice.micLive;
+  const hasCapturedSpeech = turns.some(
+    (turn) => turn.role === "founder" && turn.text.trim().length > 0
+  );
 
   const assessmentTerminalUi =
     isAssessment &&
@@ -2432,7 +2435,9 @@ export default function VoiceArena({
       : isJoining
         ? "Joining Arena"
         : phase === "momentum"
-          ? "Rep Complete"
+          ? hasCapturedSpeech
+            ? "Rep Complete"
+            : "No speech captured"
           : phase === "error"
             ? "Connection lost"
             : assessmentTerminalUi
@@ -2606,7 +2611,10 @@ export default function VoiceArena({
                   aria-labelledby="guest-preview-complete-title"
                   className="flex w-full max-w-lg flex-1 flex-col items-center justify-center pb-8"
                 >
-                  <PresenceRing state="wrap" label="Rep Complete" />
+                  <PresenceRing
+                    state="wrap"
+                    label={hasCapturedSpeech ? "Rep Complete" : "No speech captured"}
+                  />
                   {guestAuthPrompt === "prompt" ? (
                     <>
                       <h1
@@ -2845,13 +2853,17 @@ export default function VoiceArena({
                 </>
               ) : (
                 <>
-                  <PresenceRing state="wrap" label="Rep Complete" />
+                  <PresenceRing
+                    state="wrap"
+                    label={hasCapturedSpeech ? "Rep Complete" : "No speech captured"}
+                  />
                   <h1 className="mt-10 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
-                    Leave with momentum
+                    {hasCapturedSpeech ? "Leave with momentum" : "Let’s fix the audio path"}
                   </h1>
                   <p className="mt-3 max-w-md text-base leading-7 text-white/50">
-                    One strength. One improvement. One thing to try in the real
-                    conversation.
+                    {hasCapturedSpeech
+                      ? "One strength. One improvement. One thing to try in the real conversation."
+                      : "Forge didn’t receive a spoken turn. Check your microphone or connection, then try again."}
                   </p>
 
                   {momentumLoading ? (

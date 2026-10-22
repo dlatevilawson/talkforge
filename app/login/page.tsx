@@ -20,7 +20,12 @@ export default async function LoginPage({
 
   return (
     <Suspense>
-      <LoginForm next={next} notice={notice} />
+      <LoginForm
+        next={next}
+        notice={notice}
+        verificationRecovery={params.error === "auth_callback"}
+      />
     </Suspense>
   );
 }
+

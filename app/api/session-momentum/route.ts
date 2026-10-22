@@ -74,15 +74,15 @@ function fallbackMomentum(
   const scores = heuristicScores(userTexts);
   if (!hasUserSpeech) {
     return {
-      strength: "You showed up. That already counts.",
-      improve: "Next time, say one full thought out loud — even a messy one.",
+      strength: "We didn’t capture a spoken thought in this session.",
+      improve: "Check that your microphone and connection are working, then try one short sentence.",
       nextAction:
         "Before your next real conversation, notice one thing you want to sound clear about.",
-      breakthrough: "You showed up to practice.",
+      breakthrough: "No spoken rep was captured yet.",
       biggestWeakness: "We still need one full spoken thought to work with.",
       homework: "Speak one complete opening line out loud before your next conversation.",
       coachSummary:
-        "Short session. Showing up mattered. Next time we’ll sit with one real thought together.",
+        "No spoken rep was captured. Fix the audio path, then return for one clear thought.",
       ...scores,
       overallScore: 55,
       confidence: 58,
@@ -255,3 +255,4 @@ Return ONLY valid JSON:
     });
   }
 }
+
