@@ -49,7 +49,7 @@ export default function LandingPage() {
             </Reveal>
             <Reveal delayMs={80}>
               <h1 className="font-[family-name:var(--font-lp-display)] text-[2.75rem] font-semibold leading-[1.05] tracking-[-0.04em] text-[#f7f3ea] sm:text-6xl md:text-7xl">
-                Find Your Voice.
+                Find your voice.
               </h1>
             </Reveal>
             <Reveal delayMs={160}>
