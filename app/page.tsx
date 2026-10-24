@@ -17,7 +17,7 @@ const sans = Manrope({
 export const metadata: Metadata = {
   title: "TalkForge — Find Your Voice.",
   description:
-    "Every life is shaped by conversations. Practice the ones that matter. Join the Founding Members.",
+    "TalkForge is a private practice arena for rehearsing the conversations that matter.",
   metadataBase: new URL("https://talkforge.io"),
   alternates: {
     canonical: "/",
