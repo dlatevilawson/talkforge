@@ -4,20 +4,24 @@ import HeroVideo from "@/app/components/landing/HeroVideo";
 import LandingNav from "@/app/components/landing/LandingNav";
 import Reveal from "@/app/components/landing/Reveal";
 import TalkForgeLogo from "@/app/components/landing/TalkForgeLogo";
-import WaitlistForm from "@/app/components/landing/WaitlistForm";
 
-const journey = [
-  { title: "Practice", body: "Rehearse the conversations that matter with Forge." },
-  { title: "Confidence", body: "Capability grows through repetition — not pep talks." },
-  { title: "Real conversations", body: "Take what you practiced into the moments that count." },
+const howItWorks = [
   {
-    title: "Better relationships",
-    body: "Clearer words. Stronger trust. More opportunities.",
+    title: "Pick your conversation.",
+    body: "Choose a drill or a real scenario: getting paid what you’re worth, staying calm in conflict, interviews, or boundaries.",
+  },
+  {
+    title: "Rehearse it out loud.",
+    body: "Talk it through with Forge in private. No audience, no judgment — just you and the conversation.",
+  },
+  {
+    title: "Get your debrief.",
+    body: "A plain-language debrief on what you did, the evidence behind it, and the one thing to practice next. Evidence and next steps—not grades.",
   },
 ] as const;
 
 const foundingBenefits = [
-  { title: "Early access", body: "Before the wider world arrives." },
+  { title: "Founding Member", body: "Join while it’s early — your practice shapes what we build." },
   { title: "Shape the product", body: "Your practice guides what we build." },
   { title: "Founding notes", body: "What we’re building — and why." },
   { title: "Permanent recognition", body: "Always a Founding Member." },
@@ -38,6 +42,11 @@ export default function LandingPage() {
                 <TalkForgeLogo tone="light" className="scale-110" />
               </div>
             </Reveal>
+            <Reveal delayMs={40}>
+              <p className="mx-auto mt-5 max-w-2xl text-sm font-medium uppercase tracking-[0.2em] text-[#d9d2c5]/75 sm:text-base">
+                TalkForge is open
+              </p>
+            </Reveal>
             <Reveal delayMs={80}>
               <h1 className="font-[family-name:var(--font-lp-display)] text-[2.75rem] font-semibold leading-[1.05] tracking-[-0.04em] text-[#f7f3ea] sm:text-6xl md:text-7xl">
                 Find Your Voice.
@@ -50,19 +59,24 @@ export default function LandingPage() {
                 Practice the ones that matter.
               </p>
             </Reveal>
+            <Reveal delayMs={200}>
+              <p className="mx-auto mt-8 max-w-2xl text-base leading-7 text-[#d9d2c5]/80 sm:text-lg sm:leading-8">
+                TalkForge is a private practice arena. Pick a real conversation — a salary negotiation, a conflict, a tough boundary — rehearse it out loud with Forge, and get a debrief on what it noticed and what to practice next.
+              </p>
+            </Reveal>
             <Reveal delayMs={240}>
               <div className="mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <a
-                  href="/coach"
+                  href="/app"
                   className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full bg-[var(--tf-gold)] px-8 text-sm font-semibold text-[#121417] transition hover:bg-[var(--tf-gold-light)]"
                 >
-                  Prepare for today
+                  Start your first drill
                 </a>
                 <a
-                  href="#waitlist"
+                  href="#how-it-works"
                   className="inline-flex min-h-12 min-w-[14rem] items-center justify-center rounded-full border border-white/25 bg-white/5 px-8 text-sm font-semibold text-[#f7f3ea] backdrop-blur-sm transition hover:bg-white/10"
                 >
-                  Join the Founding Members
+                  See how it works
                 </a>
               </div>
             </Reveal>
@@ -121,15 +135,15 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Mission / Journey */}
+        {/* How it works */}
         <section
-          id="mission"
+          id="how-it-works"
           className="scroll-mt-24 border-t border-[var(--lp-line)] px-5 py-24 sm:px-8 sm:py-32"
         >
           <div className="mx-auto max-w-6xl">
             <Reveal>
               <p className="text-center text-xs font-medium uppercase tracking-[0.28em] text-[var(--lp-muted)]">
-                Mission
+                How it works
               </p>
               <h2 className="mx-auto mt-5 max-w-2xl text-center font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
                 From anxious overthinking to unshakeable presence.
@@ -137,7 +151,7 @@ export default function LandingPage() {
             </Reveal>
 
             <ol className="mx-auto mt-16 max-w-xl space-y-0">
-              {journey.map((step, index) => (
+              {howItWorks.map((step, index) => (
                 <li key={step.title}>
                   <Reveal delayMs={index * 70}>
                     <div className="flex gap-5">
@@ -145,7 +159,7 @@ export default function LandingPage() {
                         <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--lp-line)] bg-white text-sm font-medium text-[var(--lp-ink)]">
                           {index + 1}
                         </span>
-                        {index < journey.length - 1 && (
+                        {index < howItWorks.length - 1 && (
                           <span
                             className="my-2 w-px flex-1 bg-[var(--lp-line)]"
                             aria-hidden
@@ -200,27 +214,31 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Waitlist */}
+        {/* Start practicing */}
         <section
-          id="waitlist"
+          id="start"
           className="scroll-mt-24 border-t border-[var(--lp-line)] px-5 py-24 sm:px-8 sm:py-32"
         >
           <div className="mx-auto max-w-xl">
             <Reveal>
               <p className="text-center text-xs font-medium uppercase tracking-[0.28em] text-[var(--lp-muted)]">
-                Waitlist
+                TalkForge is open
               </p>
               <h2 className="mt-5 text-center font-[family-name:var(--font-lp-display)] text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
-                Reserve your place on the floor.
+                Start your first drill today.
               </h2>
               <p className="mx-auto mt-5 max-w-md text-center text-base leading-7 text-[var(--lp-muted)]">
-                Join the founding waitlist. When TalkForge opens, you&apos;ll be
-                first through the door.
+                Free to start — 3 practice sessions a month.
               </p>
             </Reveal>
             <Reveal delayMs={100}>
-              <div className="mt-10">
-                <WaitlistForm />
+              <div className="mt-10 flex justify-center">
+                <Link
+                  href="/app"
+                  className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--tf-gold)] px-8 text-sm font-semibold text-[#121417] transition hover:bg-[var(--tf-gold-light)]"
+                >
+                  Start practicing
+                </Link>
               </div>
             </Reveal>
           </div>
@@ -275,13 +293,13 @@ export default function LandingPage() {
                   </a>
                 </li>
                 <li>
-                  <a href="#mission" className="hover:opacity-70">
-                    Mission
+                  <a href="#how-it-works" className="hover:opacity-70">
+                    How it works
                   </a>
                 </li>
                 <li>
-                  <a href="#waitlist" className="hover:opacity-70">
-                    Join Waitlist
+                  <a href="#start" className="hover:opacity-70">
+                    Start practicing
                   </a>
                 </li>
               </ul>

@@ -9,6 +9,15 @@ type FaqItem = {
 
 const ITEMS: FaqItem[] = [
   {
+    question: "What happens in a session?",
+    answer:
+      "You pick a conversation, talk it through out loud with Forge, and get a debrief on what worked and what to fix.",
+  },
+  {
+    question: "Is it really free to start?",
+    answer: "Yes — you can complete 3 practice sessions a month for free.",
+  },
+  {
     question: "What is TalkForge?",
     answer:
       "A private place to rehearse the conversations that shape your career, relationships, and status — with Forge as your coach.",
@@ -27,11 +36,6 @@ const ITEMS: FaqItem[] = [
     question: "Is this another chatbot?",
     answer:
       "No. Chatbots answer. TalkForge helps you practice speaking.",
-  },
-  {
-    question: "When does it open?",
-    answer:
-      "We’re preparing the first founding cohort carefully. Join the waitlist.",
   },
 ];
 
