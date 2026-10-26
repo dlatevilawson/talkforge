@@ -55,6 +55,16 @@ function focusFromText(value: string): DrillSignal {
   return "purpose";
 }
 
+function toProgramDayRow(day: { dayIndex: number; date: string; drillId: string; fieldAssignmentText: string }, programId: string) {
+  return {
+    program_id: programId,
+    day_index: day.dayIndex,
+    date: day.date,
+    drill_id: day.drillId,
+    field_assignment_text: day.fieldAssignmentText,
+  };
+}
+
 export async function createInitialTrainingPlan(input: {
   kind: TrainingPlanKind;
   occasionText?: string;
@@ -66,8 +76,19 @@ export async function createInitialTrainingPlan(input: {
   const startsOn = new Date().toISOString().slice(0, 10);
   const kind = input.kind;
   const { data: existing } = await admin.from("training_plans").select("*").eq("member_id", memberId).eq("status", "active").maybeSingle();
-  if (existing) return mapPlan(existing as Record<string, unknown>);
-  const { data: plan, error: planError } = await admin
+  if (existing) {
+    const { data: activeProgram } = await admin.from("training_programs").select("id").eq("plan_id", existing.id).eq("status", "active").maybeSingle();
+    if (activeProgram) {
+      const { count } = await admin.from("program_days").select("id", { count: "exact", head: true }).eq("program_id", activeProgram.id);
+      if ((count ?? 0) >= 14) return mapPlan(existing as Record<string, unknown>);
+      // A failed first attempt can leave an active block with no days. Remove only
+      // that incomplete block so retry repairs the plan without creating a second one.
+      const { error: repairError } = await admin.from("training_programs").delete().eq("id", activeProgram.id).eq("plan_id", existing.id);
+      if (repairError) throw new Error(repairError.message);
+    }
+  }
+  const existingPlan = existing as Record<string, unknown> | null;
+  const { data: plan, error: planError } = existingPlan ? { data: existingPlan, error: null } : await admin
     .from("training_plans")
     .insert({
       member_id: memberId,
@@ -112,7 +133,7 @@ export async function createInitialTrainingPlan(input: {
     .single();
   if (programError || !program) throw new Error(programError?.message ?? "Could not create first training block.");
   const { error: daysError } = await admin.from("program_days").insert(
-    selected.map((day) => ({ ...day, program_id: program.id }))
+    selected.map((day) => toProgramDayRow(day, program.id))
   );
   if (daysError) throw new Error(daysError.message);
   return mapPlan(plan as Record<string, unknown>);
@@ -153,7 +174,7 @@ export async function completeBlockAndPrescribeNext(input: { planId: string; pro
   const generated = generateBlockDays({ startDate: startsOn, focusSignal: input.focusSignal, drills: (drills ?? []).map((row) => mapDrill(row as Record<string, unknown>)) });
   const { data: nextProgram, error: nextError } = await admin.from("training_programs").insert({ member_id: memberId, plan_id: input.planId, block_number: nextBlock, focus_signal: input.focusSignal, goal_text: input.goalText, starts_on: startsOn, ends_on: generated.at(-1)?.date, status: "active" }).select("id").single();
   if (nextError || !nextProgram) throw new Error(nextError?.message ?? "Could not create next block");
-  const { error: daysError } = await admin.from("program_days").insert(generated.map((day) => ({ ...day, program_id: nextProgram.id })));
+  const { error: daysError } = await admin.from("program_days").insert(generated.map((day) => toProgramDayRow(day, nextProgram.id)));
   if (daysError) throw new Error(daysError.message);
   const { error: updateError } = await admin.from("training_plans").update({ current_block_number: nextBlock }).eq("id", input.planId);
   if (updateError) throw new Error(updateError.message);
