@@ -121,10 +121,8 @@ export async function createInitialTrainingPlan(input: {
 export async function pauseTrainingPlan(planId: string): Promise<void> {
   const memberId = await currentUserId();
   const admin = createAdminSupabaseClient();
-  const { error } = await admin.from("training_plans").update({ status: "paused" }).eq("id", planId).eq("member_id", memberId).eq("status", "active");
+  const { error } = await admin.rpc("pause_training_plan", { p_plan_id: planId, p_member_id: memberId });
   if (error) throw new Error(error.message);
-  const { error: blockError } = await admin.from("training_programs").update({ status: "paused" }).eq("plan_id", planId).eq("member_id", memberId).eq("status", "active");
-  if (blockError) throw new Error(blockError.message);
 }
 
 export async function resumeTrainingPlan(planId: string): Promise<void> {
