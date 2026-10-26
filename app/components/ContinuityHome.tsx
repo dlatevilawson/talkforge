@@ -485,9 +485,7 @@ function ArrowGlyph() {
 }
 
 function JourneyTodayCard({ journey, disabled }: { journey: TodayJourney; disabled: boolean }) {
-  const href = journey.day.drill.modality === "voice"
-    ? `/app/practice?drill=${encodeURIComponent(journey.day.drill.slug)}&start=0`
-    : `/app/practice?drill=${encodeURIComponent(journey.day.drill.slug)}&start=0`;
+  const href = `/app/practice?drill=${encodeURIComponent(journey.day.drill.slug)}&programId=${encodeURIComponent(journey.day.programId)}&start=0`;
   return (
     <div className="mt-2 max-w-md rounded-3xl border border-[#c9a95f]/35 bg-[#c9a95f]/[0.07] p-5 text-left">
       <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#c9a95f]">Today · Day {journey.day.dayIndex} of {journey.plan.kind === "6_week" ? "6 weeks" : "6 months"}</p>
