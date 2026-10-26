@@ -35,6 +35,7 @@ export default function OnboardingForm({
     {} as AuthActionState
   );
   const [selected, setSelected] = useState<TrainingFocusOption | null>(null);
+  const [planKind, setPlanKind] = useState<"6_week" | "6_month">("6_week");
   const firstName = displayName.split(" ")[0] || "";
 
   return (
@@ -95,15 +96,47 @@ export default function OnboardingForm({
             }
           />
           <input type="hidden" name="preferredLanguage" value="en" />
+          <input type="hidden" name="planKind" value={planKind} />
+
+          <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-7" aria-labelledby="plan-heading">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--tf-gold)]">Your journey</p>
+            <h2 id="plan-heading" className="mt-3 text-2xl font-semibold text-white">Choose once. Practice daily.</h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-zinc-400">Pick the pace that fits you. Forge will give you one thing to practice each day.</p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {([
+                ["6_week", "6-week sprint", "A full journey: one focus at a time, replanned every two weeks around how you’re doing."],
+                ["6_month", "6-month build", "Compounding practice: blocks that adapt as you grow, one day at a time."],
+              ] as const).map(([value, title, body]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setPlanKind(value)}
+                  className={`rounded-2xl border p-5 text-left transition ${planKind === value ? "border-[var(--tf-gold)] bg-[var(--tf-gold)]/[0.10]" : "border-white/10 bg-black/10 hover:border-white/25"}`}
+                  aria-pressed={planKind === value}
+                >
+                  <span className="block text-base font-semibold text-white">{title}</span>
+                  <span className="mt-2 block text-sm leading-6 text-zinc-400">{body}</span>
+                </button>
+              ))}
+            </div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
+              <label className="text-sm text-zinc-300">
+                Got something coming up? <span className="text-zinc-500">(optional)</span>
+                <input name="occasionText" maxLength={240} placeholder="e.g. board interview, wedding toast" className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--tf-gold)]" />
+              </label>
+              <label className="text-sm text-zinc-300">
+                Date <span className="text-zinc-500">(optional)</span>
+                <input name="occasionDate" type="date" className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none focus:border-[var(--tf-gold)]" />
+              </label>
+            </div>
+          </section>
 
           <AuthAlert message={state.message} />
 
           <div className={pickerStyles.actions}>
             <Submit
               label={
-                selected
-                  ? "Begin with this conversation"
-                  : "Skip — begin with Forge"
+                "Start my plan"
               }
               pendingLabel="Opening Forge…"
             />

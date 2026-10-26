@@ -479,6 +479,10 @@ export async function completeOnboardingAction(
   const preferredNickname = String(formData.get("preferredNickname") ?? "")
     .trim()
     .slice(0, 64);
+  const planKindRaw = String(formData.get("planKind") ?? "6_week");
+  const planKind = planKindRaw === "6_month" ? "6_month" : "6_week";
+  const occasionText = String(formData.get("occasionText") ?? "").trim().slice(0, 240);
+  const occasionDate = String(formData.get("occasionDate") ?? "").trim().slice(0, 10);
 
   const supabase = await createServerSupabaseClient();
   const { data: userData } = await supabase.auth.getUser();
@@ -557,6 +561,21 @@ export async function completeOnboardingAction(
     return {
       ok: false,
       message: "Could not save your preferences. Please try again.",
+    };
+  }
+
+  try {
+    const { createInitialTrainingPlan } = await import("@/lib/journey/server");
+    await createInitialTrainingPlan({
+      kind: planKind,
+      occasionText,
+      occasionDate,
+      focusText: purposeStatement || seasonLabel,
+    });
+  } catch {
+    return {
+      ok: false,
+      message: "Could not start your training journey. Please try again.",
     };
   }
 

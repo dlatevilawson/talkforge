@@ -9,6 +9,8 @@ import { connection } from "next/server";
 import { coachTopicById } from "@/lib/assistant-coach/coach-topics";
 import { findStarterDrill } from "@/lib/drills/catalog";
 import Link from "next/link";
+import { getTodayJourney } from "@/lib/journey/server";
+import TextDrillCompletion from "@/app/components/journey/TextDrillCompletion";
 
 export default async function VoicePage({
   searchParams,
@@ -21,6 +23,7 @@ export default async function VoicePage({
     mode?: string | string[];
     topic?: string | string[];
     drill?: string | string[];
+    programId?: string | string[];
   }>;
 }) {
   await connection();
@@ -29,6 +32,9 @@ export default async function VoicePage({
   const coachTopic = coachTopicById(first(params.topic));
   const drill = findStarterDrill(first(params.drill));
   const drillStarted = first(params.start) === "1";
+  const programId = first(params.programId);
+  const journey = programId ? await getTodayJourney().catch(() => null) : null;
+  const activeDrill = drill ?? journey?.day.drill ?? null;
 
   const access = await evaluatePracticeRouteAccess();
   if (!access.allowed) {
@@ -72,7 +78,11 @@ export default async function VoicePage({
   const mode: CeSessionMode =
     modeRaw === "assessment" ? "assessment" : "practice";
 
-  if (drill && !drillStarted) {
+  if (activeDrill && activeDrill.modality !== "voice" && programId && journey) {
+    return <TextDrillCompletion drill={activeDrill} programId={programId} />;
+  }
+
+  if (activeDrill && !drillStarted) {
     return (
       <main className="min-h-screen bg-[#07070a] px-6 py-16 text-zinc-100">
         <div className="mx-auto max-w-xl">
@@ -80,23 +90,23 @@ export default async function VoicePage({
             Today’s practice
           </p>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight">
-            {drill.name}
+            {activeDrill.name}
           </h1>
           <p className="mt-3 text-zinc-400">
-            {drill.durationMinutes} minutes · {drill.signal} · difficulty {drill.difficulty}
+            {activeDrill.durationMinutes} minutes · {activeDrill.signal} · difficulty {activeDrill.difficulty}
           </p>
           <section className="mt-10 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
             <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-[#d7b56a]">
               How it works
             </h2>
-            <p className="mt-4 text-lg leading-8 text-zinc-200">{drill.instructions}</p>
+            <p className="mt-4 text-lg leading-8 text-zinc-200">{activeDrill.instructions}</p>
             <p className="mt-6 border-t border-white/10 pt-5 text-sm leading-6 text-zinc-400">
-              Look for: {drill.goodLooksLike}
+              Look for: {activeDrill.goodLooksLike}
             </p>
           </section>
           <div className="mt-8 flex items-center gap-4">
             <Link
-              href={"/app/practice?drill=" + encodeURIComponent(drill.id) + "&start=1"}
+              href={"/app/practice?drill=" + encodeURIComponent(activeDrill.id) + "&programId=" + encodeURIComponent(programId ?? "") + "&start=1"}
               className="rounded-full bg-[#f4f0e8] px-6 py-3 font-semibold text-black"
             >
               Start drill
@@ -113,13 +123,14 @@ export default async function VoicePage({
   return (
     <VoiceArena
       track={track}
-      eventTitle={drill?.name ?? coachTopic?.label ?? title}
+      eventTitle={activeDrill?.name ?? coachTopic?.label ?? title}
       successCriteria={
-        drill
-          ? drill.instructions + " Look for: " + drill.goodLooksLike
+        activeDrill
+          ? activeDrill.instructions + " Look for: " + activeDrill.goodLooksLike
           : coachTopic?.context ?? first(params.success)
       }
-      drillId={drill?.id}
+      drillId={activeDrill?.id}
+    programId={programId}
       autoStart={drillStarted}
       mode={mode}
     />
@@ -130,4 +141,3 @@ function first(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) return value[0];
   return value;
 }
-

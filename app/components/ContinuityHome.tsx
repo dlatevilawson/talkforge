@@ -24,6 +24,7 @@ import type { LivingProfile } from "@/lib/system1/types";
 import { CLAIM_FOUNDING_PASS_CTA } from "@/lib/billing/member-copy";
 import { countCompletedSessions, getUser } from "@/lib/storage";
 import { STARTER_DRILLS, starterDrillHref } from "@/lib/drills/catalog";
+import type { TodayJourney } from "@/lib/journey/types";
 
 const homeCopy = APP_HOME_SCREEN_COPY;
 
@@ -107,6 +108,7 @@ function ContinuityHomeInner() {
   const [entitlement, setEntitlement] = useState<HomeEntitlement>({
     status: "unknown",
   });
+  const [todayJourney, setTodayJourney] = useState<TodayJourney | null>(null);
 
   useEffect(() => {
     router.prefetch("/app/practice?start=1");
@@ -125,15 +127,21 @@ function ContinuityHomeInner() {
         }
 
         const unknownHistory: HomeSessionHistory = { status: "unknown" };
-        const [history, living, access] = await Promise.all([
+        const [history, living, access, journey] = await Promise.all([
           userId ? loadSessionHistory(userId) : Promise.resolve(unknownHistory),
           loadLivingProfile(),
           loadEntitlement(),
+          fetch("/api/journey/today", { cache: "no-store" }).then(async (res) => {
+            if (!res.ok) return null;
+            const data = (await res.json()) as { journey?: TodayJourney | null };
+            return data.journey ?? null;
+          }).catch(() => null),
         ]);
 
         if (cancelled) return;
         setSessionHistory(history);
         setEntitlement(access);
+        setTodayJourney(journey);
         if (living.error) setLoadError(living.error);
         if (history.status === "unknown") {
           setLoadError((current) =>
@@ -312,6 +320,8 @@ function ContinuityHomeInner() {
                 </span>
               </Link>
             </>
+          ) : todayJourney ? (
+            <JourneyTodayCard journey={todayJourney} disabled={enteringTraining} />
           ) : practiceLimited ? (
             <>
               <Link href="/app/billing" className={styles.primaryAction}>
@@ -343,7 +353,7 @@ function ContinuityHomeInner() {
                 {firstRun ? "Start your first drill" : recommendation?.title ?? homeCopy.beginFallback}
                 <ArrowGlyph />
               </button>
-              {alternatives.length > 0 ? (
+              {!todayJourney && alternatives.length > 0 ? (
                 <div className={styles.alternatives}>
                   <p className={styles.alternativesLabel}>
                     {homeCopy.alternativesLabel}
@@ -474,3 +484,24 @@ function ArrowGlyph() {
   );
 }
 
+function JourneyTodayCard({ journey, disabled }: { journey: TodayJourney; disabled: boolean }) {
+  const href = `/app/practice?drill=${encodeURIComponent(journey.day.drill.slug)}&programId=${encodeURIComponent(journey.day.programId)}&start=0`;
+  return (
+    <div className="mt-2 max-w-md rounded-3xl border border-[#c9a95f]/35 bg-[#c9a95f]/[0.07] p-5 text-left">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#c9a95f]">Today · Day {journey.day.dayIndex} of {journey.plan.kind === "6_week" ? "6 weeks" : "6 months"}</p>
+      <h2 className="mt-3 text-2xl font-semibold text-white">{journey.day.drill.name}</h2>
+      <p className="mt-2 text-sm leading-6 text-white/65">For {journey.focusSignal}: {journey.goalText}</p>
+      {journey.plan.occasionDate ? <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#e4c878]">{daysUntil(journey.plan.occasionDate)} days to go</p> : null}
+      <p className="mt-4 text-sm leading-6 text-zinc-200">{journey.day.drill.instructions}</p>
+      <p className="mt-4 border-t border-white/10 pt-4 text-sm leading-6 text-white/60">Field rep: {journey.day.fieldAssignmentText}</p>
+      <Link href={href} aria-disabled={disabled} className="mt-5 inline-flex rounded-full bg-[#f4f0e8] px-5 py-3 font-semibold text-black">Start today’s drill <ArrowGlyph /></Link>
+      {journey.tomorrow ? <p className="mt-4 text-xs text-white/45">Tomorrow: {journey.tomorrow.drill.name}</p> : null}
+    </div>
+  );
+}
+
+function daysUntil(date: string): number {
+  const target = new Date(`${date}T00:00:00Z`).getTime();
+  const today = new Date(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`).getTime();
+  return Math.max(0, Math.ceil((target - today) / 86_400_000));
+}
