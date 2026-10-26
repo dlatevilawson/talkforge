@@ -77,3 +77,20 @@ end;
 $$;
 revoke all on function public.resume_training_plan(uuid, uuid) from public, anon, authenticated;
 grant execute on function public.resume_training_plan(uuid, uuid) to service_role;
+
+create or replace function public.pause_training_plan(p_plan_id uuid, p_member_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if not exists (select 1 from public.training_plans where id = p_plan_id and member_id = p_member_id and status = 'active') then
+    raise exception 'plan_not_active';
+  end if;
+  update public.training_plans set status = 'paused' where id = p_plan_id and member_id = p_member_id;
+  update public.training_programs set status = 'paused' where plan_id = p_plan_id and member_id = p_member_id and status = 'active';
+end;
+$$;
+revoke all on function public.pause_training_plan(uuid, uuid) from public, anon, authenticated;
+grant execute on function public.pause_training_plan(uuid, uuid) to service_role;
