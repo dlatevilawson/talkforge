@@ -124,6 +124,14 @@ export async function completePracticeSession(
       practiceSessionId: completed.id,
       completedAt,
     });
+    if (completed.programId && typeof window !== "undefined") {
+      const response = await fetch("/api/journey/complete-day", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ programId: completed.programId, drillId: completed.drillId }),
+      });
+      if (!response.ok) throw new Error("Failed to complete the training day.");
+    }
   }
 
   // Permanent session report + relationship memory (soft-fail if tables missing)
@@ -231,4 +239,3 @@ export async function persistActiveSession(
   await saveSession(next);
   return next;
 }
-
