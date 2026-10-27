@@ -5,6 +5,12 @@
 
 export type TranscriptRole = "founder" | "forge";
 
+export type TranscriptWord = {
+  word: string;
+  startOffsetMs: number;
+  endOffsetMs: number;
+};
+
 /** Ordered transcript turn — evidence substrate for CE-M3 coaching. */
 export type TranscriptTurn = {
   turnIndex: number;
@@ -14,6 +20,11 @@ export type TranscriptTurn = {
   responseId?: string;
   finalizedAt: string;
   sourceEvent: string;
+  /** Relative audio offsets are present only when the realtime event supplies them. */
+  startOffsetMs?: number;
+  endOffsetMs?: number;
+  timingSource?: "realtime_event" | "not_measured";
+  words?: TranscriptWord[];
 };
 
 export type CoachHistoryItem = {
@@ -82,7 +93,8 @@ export function extractFinalizedFounderTranscript(
  */
 export function applyRealtimeTranscriptEvent(
   turns: TranscriptTurn[],
-  event: Record<string, unknown>
+  event: Record<string, unknown>,
+  options?: { sessionStartedAt?: string }
 ): TranscriptApplyResult {
   const type = typeof event.type === "string" ? event.type : "";
 
@@ -100,6 +112,8 @@ export function applyRealtimeTranscriptEvent(
       itemId,
       finalizedAt: new Date().toISOString(),
       sourceEvent: type,
+      ...extractRelativeOffsets(event, options?.sessionStartedAt),
+      words: extractWordTimings(event),
     };
     return { turns: [...turns, added], added };
   }
@@ -131,6 +145,8 @@ export function applyRealtimeTranscriptEvent(
       responseId,
       finalizedAt: new Date().toISOString(),
       sourceEvent: type,
+      ...extractRelativeOffsets(event, options?.sessionStartedAt),
+      words: extractWordTimings(event),
     };
     return { turns: [...turns, added], added };
   }
@@ -183,11 +199,65 @@ export function applyRealtimeTranscriptEvent(
       itemId,
       finalizedAt: new Date().toISOString(),
       sourceEvent: type,
+      ...extractRelativeOffsets(event, options?.sessionStartedAt),
+      words: extractWordTimings(event),
     };
     return { turns: [...turns, added], added };
   }
 
   return { turns, added: null };
+}
+
+function extractWordTimings(event: Record<string, unknown>): TranscriptWord[] {
+  const raw = Array.isArray(event.words)
+    ? event.words
+    : event.transcript && typeof event.transcript === "object" &&
+        Array.isArray((event.transcript as Record<string, unknown>).words)
+      ? ((event.transcript as Record<string, unknown>).words as unknown[])
+      : [];
+  return raw.flatMap((item) => {
+    if (!item || typeof item !== "object") return [];
+    const row = item as Record<string, unknown>;
+    const word = typeof row.word === "string" ? row.word.trim() : "";
+    const start = typeof row.start === "number" ? row.start : row.start_offset_ms;
+    const end = typeof row.end === "number" ? row.end : row.end_offset_ms;
+    if (!word || typeof start !== "number" || typeof end !== "number") return [];
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return [];
+    // Provider word offsets are commonly seconds; explicit *_ms fields are ms.
+    const multiplier = typeof row.start_offset_ms === "number" || typeof row.end_offset_ms === "number" ? 1 : 1000;
+    return [{ word, startOffsetMs: Math.round(start * multiplier), endOffsetMs: Math.round(end * multiplier) }];
+  });
+}
+
+function extractRelativeOffsets(
+  event: Record<string, unknown>,
+  sessionStartedAt?: string
+): Pick<TranscriptTurn, "startOffsetMs" | "endOffsetMs" | "timingSource"> {
+  const start = readOffset(event, "audio_start_ms", "start_offset_ms");
+  const end = readOffset(event, "audio_end_ms", "end_offset_ms");
+  if (typeof start === "number" || typeof end === "number") {
+    return {
+      startOffsetMs: start,
+      endOffsetMs: end,
+      timingSource: "realtime_event",
+    };
+  }
+  // Finalization time is not a speech boundary. Keep it explicitly unmeasured.
+  void sessionStartedAt;
+  return { timingSource: "not_measured" };
+}
+
+function readOffset(
+  event: Record<string, unknown>,
+  ...keys: string[]
+): number | undefined {
+  for (const key of keys) {
+    const value = event[key];
+    if (typeof value === "number" && Number.isFinite(value) && value >= 0) {
+      return Math.round(value);
+    }
+  }
+  return undefined;
 }
 
 /** Live partial transcript from Realtime delta events (UI only — not persisted). */

@@ -134,6 +134,7 @@ import {
   GUEST_PREVIEW_MAYBE_LATER_CTA,
   GUEST_PREVIEW_SIGN_IN_CTA,
 } from "@/lib/forge/post-session-copy";
+import { startSpeechRecorder, type SpeechRecorder } from "@/lib/ce/speech-capture";
 
 type WrapStage = "coaching" | "membership";
 
@@ -243,6 +244,8 @@ export default function VoiceArena({
   const handsFreeResponseRequestedRef = useRef(false);
   const pendingHandsFreeBargeLevelRef = useRef<number | null>(null);
   const assessmentNavigatedRef = useRef(false);
+  const speechRecorderRef = useRef<SpeechRecorder | null>(null);
+  const speechAudioBlobRef = useRef<Blob | null>(null);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState("");
@@ -1400,7 +1403,8 @@ export default function VoiceArena({
 
     const { turns: next, added } = applyRealtimeTranscriptEvent(
       turnsRef.current,
-      event
+      event,
+      { sessionStartedAt: createdAtRef.current }
     );
     if (added) {
       turnsRef.current = next;
@@ -1801,6 +1805,9 @@ export default function VoiceArena({
 
       connectionRef.current = connection;
       setLiveConnection(connection);
+      if (!isGuestPreview && !isAssessment) {
+        speechRecorderRef.current = startSpeechRecorder(connection.recordingStream);
+      }
       pushEvent(
         `Voice build · minimal-coach-v1 · mode=${sessionVoiceMode}`
       );
@@ -2207,6 +2214,10 @@ export default function VoiceArena({
         modality: "voice",
         momentum: wrap,
         displayName: user?.displayName,
+        speechCapture: {
+          audioBlob: speechAudioBlobRef.current,
+          turns: snapshot,
+        },
       });
       practiceSessionRef.current = completed;
       setSavedSessionId(completed.id);
@@ -2302,6 +2313,10 @@ export default function VoiceArena({
         createdAt: createdAtRef.current,
         turns: turnsRef.current,
       });
+    }
+    if (speechRecorderRef.current) {
+      speechAudioBlobRef.current = await speechRecorderRef.current.stop();
+      speechRecorderRef.current = null;
     }
     voiceRef.current.onSessionEnd();
     const usageId = usageIdRef.current;
