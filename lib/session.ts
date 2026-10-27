@@ -20,6 +20,8 @@ import {
   saveSessionReport,
 } from "./storage";
 import type { ConversationTurn, ForgeCoaching, PracticeSession } from "./types";
+import type { TranscriptTurn } from "@/lib/ce/transcript";
+import { persistSpeechCapture } from "@/lib/speech/persistence";
 
 function createId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -82,6 +84,7 @@ export async function completePracticeSession(
     modality?: "voice" | "text";
     durationSeconds?: number | null;
     displayName?: string;
+    speechCapture?: { audioBlob: Blob | null; turns: TranscriptTurn[] };
   }
 ): Promise<PracticeSession> {
   const modality = options?.modality ?? session.modality ?? "text";
@@ -116,6 +119,27 @@ export async function completePracticeSession(
   };
 
   await saveSession(completed);
+
+  if (modality === "voice" && options?.speechCapture) {
+    try {
+      const reportFillerCount = turns
+        .filter(
+          (turn): turn is Extract<ConversationTurn, { role: "user" | "npc" }> =>
+            turn.role === "user" || turn.role === "npc"
+        )
+        .reduce((count, turn) => count + (turn.text.match(/\b(?:um+|uh+|like|you know|basically)\b/gi)?.length ?? 0), 0);
+      await persistSpeechCapture({
+        sessionId: completed.id,
+        userId: completed.userId,
+        durationSeconds,
+        fillerCount: reportFillerCount,
+        capture: options.speechCapture,
+      });
+    } catch (error) {
+      // Audio is supplemental evidence; never block the core session history.
+      console.warn("[speech] failed to persist evidence", error);
+    }
+  }
 
   if (completed.drillId) {
     await saveDrillCompletion({

@@ -29,6 +29,8 @@ export type RealtimeConnection = {
   pc: RTCPeerConnection;
   dc: RTCDataChannel;
   localStream: MediaStream;
+  /** Independent clone retained for member-only speech capture. */
+  recordingStream: MediaStream;
   /**
    * Cloned tracks added to the peer connection.
    * Muting these blocks OpenAI VAD without silencing local barge-in analysis
@@ -104,6 +106,7 @@ export async function connectRealtime(
 
   const { stream: localStream, usedSilentMicFallback, micFallbackReason } =
     await acquireLocalAudioStream();
+  const recordingStream = localStream.clone();
   options.onMicMode?.(
     usedSilentMicFallback ? "silent_fallback" : "microphone",
     micFallbackReason
@@ -177,6 +180,7 @@ export async function connectRealtime(
     pc,
     dc,
     localStream,
+    recordingStream,
     outboundAudioTracks,
     remoteAudio,
     ephemeralKey: options.ephemeralKey,
@@ -701,6 +705,7 @@ export function disconnectRealtime(connection: RealtimeConnection | null): void 
     }
   }
   releaseLocalAudioStream(connection.localStream);
+  releaseLocalAudioStream(connection.recordingStream);
   connection.remoteAudio.pause();
   connection.remoteAudio.srcObject = null;
 }

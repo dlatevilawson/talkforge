@@ -28,7 +28,8 @@
       "20260927214308_readiness_measurement_foundation.sql",
       "20260927214321_readiness_shadow_audit.sql",
       "20261022090000_drill_library_blank_page.sql",
-      "20261026090000_training_journey_plans.sql"
+      "20261026090000_training_journey_plans.sql",
+      "20261027090000_speech_evidence_foundation.sql"
     ],
     "existingProduction": [
       "20260730_upgrade_legacy_profiles.sql",
