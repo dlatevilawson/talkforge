@@ -142,6 +142,7 @@ type VoiceArenaProps = {
   track?: CeTrack;
   eventTitle?: string;
   successCriteria?: string;
+  openingContext?: string;
   autoStart?: boolean;
   mode?: CeSessionMode;
   drillId?: string;
@@ -192,6 +193,7 @@ export default function VoiceArena({
   track = "hello",
   eventTitle,
   successCriteria,
+  openingContext,
   autoStart = false,
   mode = "practice",
   drillId,
@@ -242,10 +244,12 @@ export default function VoiceArena({
   const handsFreeTranscriptAdmittedRef = useRef(false);
   const handsFreeGraceElapsedRef = useRef(false);
   const handsFreeResponseRequestedRef = useRef(false);
+  const thinkingHoldRef = useRef(false);
   const pendingHandsFreeBargeLevelRef = useRef<number | null>(null);
   const assessmentNavigatedRef = useRef(false);
   const speechRecorderRef = useRef<SpeechRecorder | null>(null);
   const speechAudioBlobRef = useRef<Blob | null>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState("");
@@ -257,6 +261,8 @@ export default function VoiceArena({
   const [micFallbackReason, setMicFallbackReason] =
     useState<MicFallbackReason | null>(null);
   const [micRecoveryPending, setMicRecoveryPending] = useState(false);
+  const [wakeLockDenied, setWakeLockDenied] = useState(false);
+  const [thinkingHold, setThinkingHold] = useState(false);
   const [turns, setTurns] = useState<TranscriptTurn[]>([]);
   const [liveForgeDraft, setLiveForgeDraft] = useState("");
   const [liveUserDraft, setLiveUserDraft] = useState("");
@@ -735,6 +741,19 @@ export default function VoiceArena({
     pendingHandsFreeBargeLevelRef.current = null;
   }
 
+  function toggleThinkingHold() {
+    const next = !thinkingHoldRef.current;
+    thinkingHoldRef.current = next;
+    setThinkingHold(next);
+    if (next) {
+      clearHandsFreeResponseGrace();
+      handsFreeGraceElapsedRef.current = false;
+      pushEvent("Thinking hold · Forge waiting");
+    } else {
+      pushEvent("Thinking hold released");
+    }
+  }
+
   function requestAdmittedHandsFreeResponse(reason: string) {
     if (
       handsFreeResponseRequestedRef.current ||
@@ -784,6 +803,8 @@ export default function VoiceArena({
     clearHandsFreePlaybackDrain();
     applyTurn({ type: "FORGE_RESPONSE_DONE", responseId });
     resetHandsFreeTurnAdmission();
+    thinkingHoldRef.current = false;
+    setThinkingHold(false);
     setPhase((current) =>
       current === "speaking"
         ? "listening"
@@ -893,6 +914,8 @@ export default function VoiceArena({
     setCallInterrupted(true);
     clearHandsFreeResponseGrace();
     resetHandsFreeTurnAdmission();
+    thinkingHoldRef.current = false;
+    setThinkingHold(false);
     clearHandsFreePlaybackDrain();
     clearInterruptTimers();
     cancelForgeResponse(connectionRef.current);
@@ -945,6 +968,8 @@ export default function VoiceArena({
       clearHandsFreeResponseGrace();
       resetHandsFreeTurnAdmission();
       clearHandsFreePlaybackDrain();
+      void wakeLockRef.current?.release().catch(() => undefined);
+      wakeLockRef.current = null;
       lifecycleGenerationRef.current += 1;
       const usageId = usageIdRef.current;
       usageIdRef.current = null;
@@ -983,7 +1008,13 @@ export default function VoiceArena({
         peer === "disconnected"
       ) {
         noteCallInterrupted("visibility");
+        void handleContinueAfterInterrupt();
         return;
+      }
+      if (!wakeLockRef.current && typeof navigator !== "undefined" && "wakeLock" in navigator) {
+        void (navigator as Navigator & { wakeLock?: { request: (type: "screen") => Promise<WakeLockSentinel> } }).wakeLock?.request("screen")
+          .then((lock) => { if (lock) wakeLockRef.current = lock; })
+          .catch(() => setWakeLockDenied(true));
       }
       void resumeRemoteAudio(connection);
       if (phaseNow === "speaking") armSpeakingWatchdog();
@@ -1098,6 +1129,23 @@ export default function VoiceArena({
 
     const finalizedFounder = extractFinalizedFounderTranscript(event);
     if (finalizedFounder && handsFreeRef.current && !isAssessment) {
+      const thinkingPhrase = /^(?:give me a second|still thinking|one sec(?:ond)?|hold on)[.!? ]*$/i.test(finalizedFounder.text.trim());
+      if (thinkingPhrase) {
+        thinkingHoldRef.current = true;
+        setThinkingHold(true);
+        clearHandsFreeResponseGrace();
+        handsFreeGraceElapsedRef.current = false;
+        deleteRealtimeConversationItem(connectionRef.current, finalizedFounder.itemId);
+        setLiveUserDraft("");
+        pushEvent("Thinking hold · Forge waiting");
+        return;
+      }
+      if (thinkingHoldRef.current) {
+        thinkingHoldRef.current = false;
+        setThinkingHold(false);
+        handsFreeGraceElapsedRef.current = false;
+        pushEvent("Thinking hold released by speech");
+      }
       const admitted = shouldAdmitHandsFreeTranscript({
         text: finalizedFounder.text,
         locallyConfirmed: handsFreeLocalTurnConfirmedRef.current,
@@ -1144,6 +1192,8 @@ export default function VoiceArena({
       }
       if (handsFreeGraceElapsedRef.current) {
         requestAdmittedHandsFreeResponse("transcript admitted after grace");
+      } else if (thinkingHoldRef.current === false && !handsFreeResponseTimerRef.current) {
+        armHandsFreeResponseGrace("member speech after thinking hold");
       }
     }
 
@@ -1642,6 +1692,7 @@ export default function VoiceArena({
           track,
           eventTitle: isAssessment ? undefined : eventTitle,
           successCriteria: isAssessment ? undefined : successCriteria,
+          openingContext: isAssessment ? undefined : openingContext,
           mode: isGuestPreview ? "guest_preview" : mode,
           source: isGuestPreview
             ? "coach_guest_preview"
@@ -1808,6 +1859,17 @@ export default function VoiceArena({
       if (!isGuestPreview && !isAssessment) {
         speechRecorderRef.current = startSpeechRecorder(connection.recordingStream);
       }
+      if (!isAssessment) {
+        const wakeLock = (navigator as Navigator & { wakeLock?: { request: (type: "screen") => Promise<WakeLockSentinel> } }).wakeLock;
+        if (wakeLock) {
+          void wakeLock.request("screen").then((lock) => {
+            wakeLockRef.current = lock;
+            setWakeLockDenied(false);
+          }).catch(() => setWakeLockDenied(true));
+        } else {
+          setWakeLockDenied(true);
+        }
+      }
       pushEvent(
         `Voice build · minimal-coach-v1 · mode=${sessionVoiceMode}`
       );
@@ -1901,6 +1963,7 @@ export default function VoiceArena({
           !isGuestPreview && !isAssessment && resuming
             ? buildResumeBrief(turnsRef.current) || undefined
             : undefined,
+        openingContext: openingContext?.trim() || undefined,
       });
       pushEvent(
         resuming
@@ -2235,6 +2298,10 @@ export default function VoiceArena({
   }
 
   async function handleStop() {
+    thinkingHoldRef.current = false;
+    setThinkingHold(false);
+    void wakeLockRef.current?.release().catch(() => undefined);
+    wakeLockRef.current = null;
     clearHandsFreeResponseGrace();
     resetHandsFreeTurnAdmission();
     clearHandsFreePlaybackDrain();
@@ -3019,6 +3086,12 @@ export default function VoiceArena({
                       </p>
                     )}
 
+                    {wakeLockDenied && !callInterrupted ? (
+                      <p className="mx-auto mt-3 max-w-md text-xs text-amber-200/80">
+                        Keep your screen on while you practice.
+                      </p>
+                    ) : null}
+
                     {remoteAudioBlocked && !callInterrupted ? (
                       <button
                         type="button"
@@ -3078,9 +3151,17 @@ export default function VoiceArena({
                         {handsFree ? (
                           <div className="flex flex-wrap items-center justify-between gap-3">
                             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#D4AF37]/90">
-                              Hands-Free · Speak Naturally
+                              {thinkingHold ? "Holding — Forge is waiting" : "Hands-Free · Speak Naturally"}
                             </p>
                             <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={toggleThinkingHold}
+                                disabled={!sessionReady || callInterrupted}
+                                className={`rounded-full border px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.14em] transition disabled:opacity-35 ${thinkingHold ? "border-[#D4AF37] bg-[#D4AF37]/15 text-[#f0d995]" : "border-[#D4AF37]/22 text-[#e8d5a3]/85 hover:bg-[#D4AF37]/08"}`}
+                              >
+                                {thinkingHold ? "Release hold" : "Still thinking"}
+                              </button>
                               <button
                                 type="button"
                                 onClick={() => voice.toggleHandsFreeMute()}
@@ -3261,3 +3342,4 @@ export default function VoiceArena({
     </main>
   );
 }
+

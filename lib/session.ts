@@ -142,44 +142,49 @@ export async function completePracticeSession(
   }
 
   if (completed.drillId) {
-    await saveDrillCompletion({
-      drillId: completed.drillId,
-      memberId: completed.userId,
-      practiceSessionId: completed.id,
-      completedAt,
-    });
     if (completed.programId && typeof window !== "undefined") {
       const response = await fetch("/api/journey/complete-day", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ programId: completed.programId, drillId: completed.drillId }),
+        body: JSON.stringify({
+          programId: completed.programId,
+          drillId: completed.drillId,
+          sessionId: completed.id,
+          completedAt,
+        }),
       });
       if (!response.ok) throw new Error("Failed to complete the training day.");
+    } else if (typeof window !== "undefined") {
+      const response = await fetch("/api/journey/complete-day", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ drillId: completed.drillId, sessionId: completed.id, completedAt }),
+      });
+      if (!response.ok) throw new Error("Failed to save the drill completion.");
     }
   }
 
-  // Permanent session report + relationship memory (soft-fail if tables missing)
+  // Persist the report before the softer memory/provenance work. A completed
+  // voice drill must never finish without its own report.
+  const report = buildSessionReport({
+    session: completed,
+    turns,
+    sessionNumber,
+    modality,
+    durationSeconds,
+    momentum: options?.momentum,
+  });
+  if (
+    typeof completed.averageScore !== "number" &&
+    typeof report.overallScore === "number"
+  ) {
+    completed.averageScore = report.overallScore;
+    await saveSession(completed);
+  }
+  await saveSessionReport(report);
+
+  // Relationship memory and shadow evaluation remain soft-fail work.
   try {
-    const report = buildSessionReport({
-      session: completed,
-      turns,
-      sessionNumber,
-      modality,
-      durationSeconds,
-      momentum: options?.momentum,
-    });
-
-    // Prefer averageScore from report when forge turns absent (voice)
-    if (
-      typeof completed.averageScore !== "number" &&
-      typeof report.overallScore === "number"
-    ) {
-      completed.averageScore = report.overallScore;
-      await saveSession(completed);
-    }
-
-    await saveSessionReport(report);
-
     // Decision 064: allowlisted, server-only shadow evaluation. Fire-and-forget
     // and never expose evaluator state or delay the member's session ending.
     queueShadowReadinessEvaluation(completed.id);
@@ -263,3 +268,4 @@ export async function persistActiveSession(
   await saveSession(next);
   return next;
 }
+

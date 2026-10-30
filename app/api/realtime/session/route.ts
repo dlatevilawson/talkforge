@@ -42,6 +42,7 @@ type SessionBody = {
   track?: CeTrack;
   eventTitle?: string;
   successCriteria?: string;
+  openingContext?: string;
   mode?: CeSessionMode | string;
   source?: string;
   topic?: string;
@@ -150,6 +151,8 @@ export async function POST(req: Request) {
       typeof body.successCriteria === "string"
         ? body.successCriteria
         : undefined,
+    openingContext:
+      typeof body.openingContext === "string" ? body.openingContext.trim() : undefined,
     memory,
     handsFree,
     mode,
@@ -360,3 +363,4 @@ function normalizeTrack(track: unknown): CeTrack {
   }
   return "hello";
 }
+

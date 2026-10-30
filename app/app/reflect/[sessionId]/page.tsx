@@ -6,10 +6,13 @@ import { useEffect, useRef, useState } from "react";
 import { ensureGuestUser } from "@/lib/auth";
 import {
   getReflection,
+  getSessionReport,
+  getSpeechEvidence,
   getSession,
   saveReflection,
 } from "@/lib/storage";
-import type { PracticeSession, Reflection } from "@/lib/types";
+import type { PracticeSession, Reflection, SessionReport } from "@/lib/types";
+import type { SpeechEvidence } from "@/lib/storage";
 
 export default function ReflectPage() {
   const params = useParams<{ sessionId: string }>();
@@ -20,6 +23,8 @@ export default function ReflectPage() {
   const [satisfaction, setSatisfaction] = useState(4);
   const [session, setSession] = useState<PracticeSession | null>(null);
   const [existing, setExisting] = useState<Reflection | null>(null);
+  const [report, setReport] = useState<SessionReport | null>(null);
+  const [speech, setSpeech] = useState<SpeechEvidence | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -29,10 +34,14 @@ export default function ReflectPage() {
     async function load() {
       try {
         const current = await getSession(params.sessionId);
-        const reflection = await getReflection(params.sessionId);
+        const [reflection, loadedReport, loadedSpeech] = await Promise.all([
+          getReflection(params.sessionId), getSessionReport(params.sessionId), getSpeechEvidence(params.sessionId),
+        ]);
         if (cancelled) return;
         setSession(current);
         setExisting(reflection);
+        setReport(loadedReport);
+        setSpeech(loadedSpeech);
         if (reflection?.coachSatisfaction) {
           setSatisfaction(reflection.coachSatisfaction);
         }
@@ -137,12 +146,26 @@ export default function ReflectPage() {
       <section className="mt-8 max-w-2xl rounded-3xl border border-white/10 bg-white/5 p-6">
         <p className="text-sm text-zinc-500">Mission</p>
         <p className="mt-1 text-lg font-medium">{session.scenarioTitle}</p>
-        <p className="mt-3 text-sm text-zinc-400">
-          Average coaching score: {session.averageScore ?? "—"}
-        </p>
+        <p className="mt-3 text-sm text-zinc-300">{report?.coachSummary || report?.breakthrough || "Your session is ready to review."}</p>
+        {report?.biggestWeakness ? <p className="mt-2 text-sm text-zinc-400">Next adjustment: {report.biggestWeakness}</p> : null}
         <p className="mt-1 text-sm text-zinc-500">
           Conversation turns captured: {session.turns.length}
         </p>
+      </section>
+
+      <section className="mt-6 max-w-2xl rounded-3xl border border-white/10 bg-white/5 p-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Speech evidence</p>
+        {session.modality !== "voice" ? <p className="mt-3 text-sm text-zinc-300">No voice recorded for this text drill.</p> : (
+          <div className="mt-4 space-y-3 text-sm text-zinc-300">
+            <p>Fillers: {speech?.metrics?.fillerCount ?? "Not measured"}</p>
+            <p>Pace: {speech?.metrics?.paceWpm != null ? `${speech.metrics.paceWpm} WPM` : "Not measured"}</p>
+            <p>Talk-time: {speech?.metrics?.memberTalkTimePct != null ? `${speech.metrics.memberTalkTimePct}%` : "Not measured"}</p>
+            <p>Pauses: {speech?.metrics?.pauseCount ?? "Not measured"}</p>
+            {speech?.audio?.replayUrl ? <audio id="speech-replay" className="w-full" controls src={speech.audio.replayUrl} /> : null}
+            {speech?.fillers.length ? <div><p className="mb-2">Filler moments</p><ul className="space-y-1 text-zinc-400">{speech.fillers.map((f) => <li key={f.id}><button type="button" className="underline underline-offset-4 hover:text-white" onClick={() => { const audio = document.getElementById("speech-replay") as HTMLAudioElement | null; if (audio && f.startOffsetMs != null) { audio.currentTime = f.startOffsetMs / 1000; void audio.play(); } }}>{f.word} · {f.startOffsetMs != null ? `${Math.round(f.startOffsetMs / 1000)}s · replay` : "Not measured"}</button></li>)}</ul></div> : <p className="text-zinc-500">Filler moments: Not measured</p>}
+            <p className="border-t border-white/10 pt-3">Next rep: {report?.homework || "Choose one small change to repeat next time."}</p>
+          </div>
+        )}
       </section>
 
       <form onSubmit={handleSave} className="mt-8 max-w-2xl space-y-6">
@@ -227,3 +250,4 @@ export default function ReflectPage() {
     </>
   );
 }
+

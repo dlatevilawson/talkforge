@@ -430,6 +430,7 @@ export function requestOpeningSpeech(
     mode?: "practice" | "assessment";
     guestOpeningContext?: string;
     resumeContext?: string;
+    openingContext?: string;
   }
 ): void {
   if (dc.readyState !== "open") {
@@ -454,7 +455,7 @@ export function requestOpeningSpeech(
           welcomeHint,
           eventTitle: options?.eventTitle,
           isReturning: options?.isReturning,
-        });
+        }) + (options?.openingContext ? ` Current session context overrides stale memory: ${options.openingContext}` : "");
 
   dc.send(
     JSON.stringify({
@@ -762,3 +763,4 @@ function waitForDataChannelOpen(
     );
   });
 }
+

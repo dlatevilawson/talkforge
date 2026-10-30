@@ -44,7 +44,7 @@ export type TurnTransition = {
  * Extra thinking room after semantic VAD observes an apparent end of speech.
  * VAD keeps chunking/transcribing, but the app owns response.create.
  */
-export const HANDS_FREE_CONTINUATION_GRACE_MS = 1_800;
+export const HANDS_FREE_CONTINUATION_GRACE_MS = 2_500;
 
 /**
  * Safety fallback when a WebRTC client does not emit output_audio_buffer.stopped.
@@ -618,3 +618,4 @@ export function logTurnTransition(transition: TurnTransition): void {
     floorTo: floorOwner(transition.to),
   });
 }
+

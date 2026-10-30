@@ -603,6 +603,38 @@ export async function getSessionReport(
   return mapSessionReport(data);
 }
 
+export type SpeechEvidence = {
+  audio: { storagePath: string; mimeType: string; durationSeconds: number | null; replayUrl?: string } | null;
+  metrics: {
+    fillerCount: number | null;
+    fillerDensityPer100Words: number | null;
+    paceWpm: number | null;
+    pauseCount: number | null;
+    memberTalkTimePct: number | null;
+  } | null;
+  fillers: Array<{ id: string; word: string; occurrenceIndex: number; startOffsetMs: number | null; endOffsetMs: number | null; replayUrl?: string }>;
+};
+
+export async function getSpeechEvidence(sessionId: string): Promise<SpeechEvidence | null> {
+  const supabase = requireSupabase();
+  const [{ data: audio }, { data: metrics }, { data: fillers }] = await Promise.all([
+    supabase.from("speech_audio").select("storage_path,mime_type,duration_seconds").eq("session_id", sessionId).maybeSingle(),
+    supabase.from("speech_metrics").select("filler_count,filler_density_per_100_words,pace_wpm,pause_count,member_talk_time_pct").eq("session_id", sessionId).maybeSingle(),
+    supabase.from("speech_filler_moments").select("id,word,occurrence_index,start_offset_ms,end_offset_ms,replay_ref_id").eq("session_id", sessionId).order("occurrence_index"),
+  ]);
+  if (!audio && !metrics && !(fillers?.length)) return null;
+  let replayUrl: string | undefined;
+  if (audio?.storage_path) {
+    const signed = await supabase.storage.from("speech-audio").createSignedUrl(audio.storage_path, 3600);
+    replayUrl = signed.data?.signedUrl;
+  }
+  return {
+    audio: audio ? { storagePath: audio.storage_path, mimeType: audio.mime_type, durationSeconds: audio.duration_seconds, replayUrl } : null,
+    metrics: metrics ? { fillerCount: metrics.filler_count, fillerDensityPer100Words: metrics.filler_density_per_100_words, paceWpm: metrics.pace_wpm, pauseCount: metrics.pause_count, memberTalkTimePct: metrics.member_talk_time_pct } : null,
+    fillers: (fillers ?? []).map((row) => ({ id: row.id, word: row.word, occurrenceIndex: row.occurrence_index, startOffsetMs: row.start_offset_ms, endOffsetMs: row.end_offset_ms, replayUrl })),
+  };
+}
+
 export async function getCoachMemory(
   userId: string
 ): Promise<CoachMemory | null> {
@@ -1008,4 +1040,5 @@ export async function clearAllTalkForgeData(): Promise<void> {
     );
   }
 }
+
 

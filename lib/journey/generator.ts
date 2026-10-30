@@ -35,16 +35,38 @@ export function chooseBlockDrills(
   const bySignal = (signal: DrillSignal) => ranked.filter((drill) => drill.signal === signal);
   const focus = bySignal(focusSignal);
   if (focus.length === 0) throw new Error(`No active drills for focus signal ${focusSignal}`);
+  // The first week is a discovery week, not a two-drill loop. Use distinct
+  // library rows before any repetition, while still giving the focus signal
+  // four deliberate slots when the library supports it.
   const selected: Drill[] = [];
-  for (let index = 0; index < 14; index += 1) {
-    const signal = index < 4 ? focusSignal : SIGNALS[(SIGNALS.indexOf(focusSignal) + index) % SIGNALS.length];
-    const pool = bySignal(signal).length ? bySignal(signal) : focus;
-    const candidate = pool[index % pool.length];
+  const used = new Set<string>();
+  const addFirstWeek = (pool: Drill[]) => {
+    for (const drill of pool) {
+      if (selected.length >= 7 || used.has(drill.id)) continue;
+      selected.push(drill);
+      used.add(drill.id);
+    }
+  };
+  addFirstWeek(focus);
+  addFirstWeek(ranked.filter((drill) => drill.signal !== focusSignal));
+  addFirstWeek(ranked);
+  // Small test/preview catalogs may contain fewer than seven rows. Keep the
+  // block shape intact there; production's full seeded library takes the
+  // distinct path above.
+  while (selected.length < 7) {
     const previous = selected.at(-1);
-    const alternate = pool.find((drill) => drill.id !== previous?.id)
+    const candidate = ranked.find((drill) => drill.id !== previous?.id) ?? ranked[0];
+    selected.push(candidate);
+  }
+
+  for (let index = 7; index < 14; index += 1) {
+    const signal = SIGNALS[(SIGNALS.indexOf(focusSignal) + index) % SIGNALS.length];
+    const pool = bySignal(signal).length ? bySignal(signal) : ranked;
+    const previous = selected.at(-1);
+    const candidate = pool.find((drill) => drill.id !== previous?.id)
       ?? ranked.find((drill) => drill.id !== previous?.id)
-      ?? candidate;
-    selected.push(alternate);
+      ?? ranked[0];
+    selected.push(candidate);
   }
   return selected;
 }
@@ -72,3 +94,4 @@ export function generateBlockDays(input: {
     fieldAssignmentText: `Use one ${drill.name.toLowerCase()} rep in a real conversation, then note what happened.`,
   }));
 }
+
