@@ -35,9 +35,6 @@ export default async function VoicePage({
   const programId = first(params.programId);
   const journey = programId ? await getTodayJourney().catch(() => null) : null;
   const activeDrill = drill ?? journey?.day.drill ?? null;
-  const openingContext = journey
-    ? `Today is day ${journey.day.dayIndex} of your ${journey.plan.kind === "6_week" ? "6-week" : "6-month"} plan. Today's drill is ${journey.day.drill.name}. ${journey.plan.occasionText ? `Your occasion is ${journey.plan.occasionText}${journey.plan.occasionDate ? ` on ${journey.plan.occasionDate}` : ""}.` : "There is no occasion countdown."} The most recent practice should be described by its actual drill, not an older onboarding goal.`
-    : undefined;
 
   const access = await evaluatePracticeRouteAccess();
   if (!access.allowed) {
@@ -51,6 +48,25 @@ export default async function VoicePage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  let recentPracticeLine = "No prior practice session.";
+  if (user) {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const { data: recent } = await supabase
+      .from("practice_sessions")
+      .select("scenario_title, drill_id, started_at")
+      .eq("user_id", user.id)
+      .eq("purpose", "drill")
+      .not("completed_at", "is", null)
+      .lt("started_at", todayStart.toISOString())
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (recent) {
+      const date = new Date(recent.started_at).toISOString().slice(0, 10);
+      recentPracticeLine = `Your last practice was ${recent.scenario_title || "a drill"} on ${date}.`;
+    }
+  }
   if (user) {
     const { data: profile } = await supabase
       .from("profiles")
@@ -68,6 +84,9 @@ export default async function VoicePage({
       return <EndOfFreePractice />;
     }
   }
+  const openingContext = journey
+    ? `Today is day ${journey.day.dayIndex} of your ${journey.plan.kind === "6_week" ? "6-week" : "6-month"} plan. Today's drill is ${journey.day.drill.name}. ${journey.plan.occasionText ? `Your occasion is ${journey.plan.occasionText}${journey.plan.occasionDate ? ` on ${journey.plan.occasionDate}` : ""}.` : "There is no occasion countdown."} ${recentPracticeLine}`
+    : recentPracticeLine;
 
   const trackRaw = first(params.track);
   const track: CeTrack =
