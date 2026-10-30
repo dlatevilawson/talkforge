@@ -154,13 +154,13 @@ export async function completePracticeSession(
         }),
       });
       if (!response.ok) throw new Error("Failed to complete the training day.");
-    } else {
-      await saveDrillCompletion({
-        drillId: completed.drillId,
-        memberId: completed.userId,
-        practiceSessionId: completed.id,
-        completedAt,
+    } else if (typeof window !== "undefined") {
+      const response = await fetch("/api/journey/complete-day", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ drillId: completed.drillId, sessionId: completed.id, completedAt }),
       });
+      if (!response.ok) throw new Error("Failed to save the drill completion.");
     }
   }
 
