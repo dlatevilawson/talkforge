@@ -1444,7 +1444,7 @@ export function resolveRealtimeTurnDetection(input: {
       interrupt_response: false,
       threshold: 0.7,
       prefix_padding_ms: 500,
-      silence_duration_ms: 650,
+      silence_duration_ms: 2000,
     };
   }
   return {
@@ -1456,3 +1456,4 @@ export function resolveRealtimeTurnDetection(input: {
     silence_duration_ms: 1200,
   };
 }
+

@@ -16,7 +16,18 @@ export async function POST(request: Request) {
   const { data: day, error } = await admin.from("program_days").select("id").eq("program_id", body.programId).eq("drill_id", body.drillId).eq("status", "pending").order("day_index").limit(1).maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!day) return NextResponse.json({ ok: true, alreadyComplete: true });
-  const { error: updateError } = await admin.from("program_days").update({ status: "done", completed_at: new Date().toISOString() }).eq("id", day.id);
+  const completedAt = typeof body.completedAt === "string" ? body.completedAt : new Date().toISOString();
+  const { error: updateError } = await admin.from("program_days").update({ status: "done", completed_at: completedAt }).eq("id", day.id);
   if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 });
+  const { error: completionError } = await admin.from("drill_completions").upsert({
+    day_id: day.id,
+    member_id: user.id,
+    drill_id: body.drillId,
+    practice_session_id: typeof body.sessionId === "string" ? body.sessionId : null,
+    completed_at: completedAt,
+    notes: typeof body.notes === "string" ? body.notes.slice(0, 2000) : null,
+  }, { onConflict: "member_id,drill_id,practice_session_id" });
+  if (completionError) return NextResponse.json({ error: completionError.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
+

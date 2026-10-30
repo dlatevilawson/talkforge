@@ -142,6 +142,7 @@ type VoiceArenaProps = {
   track?: CeTrack;
   eventTitle?: string;
   successCriteria?: string;
+  openingContext?: string;
   autoStart?: boolean;
   mode?: CeSessionMode;
   drillId?: string;
@@ -192,6 +193,7 @@ export default function VoiceArena({
   track = "hello",
   eventTitle,
   successCriteria,
+  openingContext,
   autoStart = false,
   mode = "practice",
   drillId,
@@ -246,6 +248,7 @@ export default function VoiceArena({
   const assessmentNavigatedRef = useRef(false);
   const speechRecorderRef = useRef<SpeechRecorder | null>(null);
   const speechAudioBlobRef = useRef<Blob | null>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState("");
@@ -257,6 +260,7 @@ export default function VoiceArena({
   const [micFallbackReason, setMicFallbackReason] =
     useState<MicFallbackReason | null>(null);
   const [micRecoveryPending, setMicRecoveryPending] = useState(false);
+  const [wakeLockDenied, setWakeLockDenied] = useState(false);
   const [turns, setTurns] = useState<TranscriptTurn[]>([]);
   const [liveForgeDraft, setLiveForgeDraft] = useState("");
   const [liveUserDraft, setLiveUserDraft] = useState("");
@@ -945,6 +949,8 @@ export default function VoiceArena({
       clearHandsFreeResponseGrace();
       resetHandsFreeTurnAdmission();
       clearHandsFreePlaybackDrain();
+      void wakeLockRef.current?.release().catch(() => undefined);
+      wakeLockRef.current = null;
       lifecycleGenerationRef.current += 1;
       const usageId = usageIdRef.current;
       usageIdRef.current = null;
@@ -983,7 +989,13 @@ export default function VoiceArena({
         peer === "disconnected"
       ) {
         noteCallInterrupted("visibility");
+        void handleContinueAfterInterrupt();
         return;
+      }
+      if (!wakeLockRef.current && typeof navigator !== "undefined" && "wakeLock" in navigator) {
+        void (navigator as Navigator & { wakeLock?: { request: (type: "screen") => Promise<WakeLockSentinel> } }).wakeLock?.request("screen")
+          .then((lock) => { if (lock) wakeLockRef.current = lock; })
+          .catch(() => setWakeLockDenied(true));
       }
       void resumeRemoteAudio(connection);
       if (phaseNow === "speaking") armSpeakingWatchdog();
@@ -1642,6 +1654,7 @@ export default function VoiceArena({
           track,
           eventTitle: isAssessment ? undefined : eventTitle,
           successCriteria: isAssessment ? undefined : successCriteria,
+          openingContext: isAssessment ? undefined : openingContext,
           mode: isGuestPreview ? "guest_preview" : mode,
           source: isGuestPreview
             ? "coach_guest_preview"
@@ -1808,6 +1821,17 @@ export default function VoiceArena({
       if (!isGuestPreview && !isAssessment) {
         speechRecorderRef.current = startSpeechRecorder(connection.recordingStream);
       }
+      if (!isAssessment) {
+        const wakeLock = (navigator as Navigator & { wakeLock?: { request: (type: "screen") => Promise<WakeLockSentinel> } }).wakeLock;
+        if (wakeLock) {
+          void wakeLock.request("screen").then((lock) => {
+            wakeLockRef.current = lock;
+            setWakeLockDenied(false);
+          }).catch(() => setWakeLockDenied(true));
+        } else {
+          setWakeLockDenied(true);
+        }
+      }
       pushEvent(
         `Voice build · minimal-coach-v1 · mode=${sessionVoiceMode}`
       );
@@ -1901,6 +1925,7 @@ export default function VoiceArena({
           !isGuestPreview && !isAssessment && resuming
             ? buildResumeBrief(turnsRef.current) || undefined
             : undefined,
+        openingContext: openingContext?.trim() || undefined,
       });
       pushEvent(
         resuming
@@ -2235,6 +2260,8 @@ export default function VoiceArena({
   }
 
   async function handleStop() {
+    void wakeLockRef.current?.release().catch(() => undefined);
+    wakeLockRef.current = null;
     clearHandsFreeResponseGrace();
     resetHandsFreeTurnAdmission();
     clearHandsFreePlaybackDrain();
@@ -3019,6 +3046,12 @@ export default function VoiceArena({
                       </p>
                     )}
 
+                    {wakeLockDenied && !callInterrupted ? (
+                      <p className="mx-auto mt-3 max-w-md text-xs text-amber-200/80">
+                        Keep your screen on while you practice.
+                      </p>
+                    ) : null}
+
                     {remoteAudioBlocked && !callInterrupted ? (
                       <button
                         type="button"
@@ -3261,3 +3294,4 @@ export default function VoiceArena({
     </main>
   );
 }
+

@@ -110,6 +110,7 @@ export function buildSystemInstructions(input?: {
   memory?: CoachPromptContext | null;
   conciseMode?: boolean;
   mode?: CeSessionMode;
+  openingContext?: string;
 }): string {
   if (input?.mode === "assessment") {
     return buildAssessmentSystemInstructions({
@@ -135,6 +136,9 @@ export function buildSystemInstructions(input?: {
       MINIMAL_INTERVENTION_COACHING_RULES,
       BREVITY_SYSTEM_INSTRUCTION,
       input?.conciseMode ? CONCISE_MODE_INSTRUCTION : "",
+      input?.openingContext
+        ? `CURRENT SESSION CONTEXT (use this instead of stale continuity): ${input.openingContext}`
+        : "",
       acousticRule,
     ],
   });
@@ -145,6 +149,7 @@ export function buildClientSecretRequest(input?: {
   track?: CeTrack;
   eventTitle?: string;
   successCriteria?: string;
+  openingContext?: string;
   memory?: CoachPromptContext | null;
   /** Pro/Founding: semantic hands-free VAD. Free: tighter server VAD for hold-to-talk. */
   handsFree?: boolean;
@@ -245,3 +250,4 @@ export function buildSessionUpdateDisableAutoResponses() {
     },
   };
 }
+

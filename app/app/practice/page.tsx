@@ -35,6 +35,9 @@ export default async function VoicePage({
   const programId = first(params.programId);
   const journey = programId ? await getTodayJourney().catch(() => null) : null;
   const activeDrill = drill ?? journey?.day.drill ?? null;
+  const openingContext = journey
+    ? `Today is day ${journey.day.dayIndex} of your ${journey.plan.kind === "6_week" ? "6-week" : "6-month"} plan. Today's drill is ${journey.day.drill.name}. ${journey.plan.occasionText ? `Your occasion is ${journey.plan.occasionText}${journey.plan.occasionDate ? ` on ${journey.plan.occasionDate}` : ""}.` : "There is no occasion countdown."} The most recent practice should be described by its actual drill, not an older onboarding goal.`
+    : undefined;
 
   const access = await evaluatePracticeRouteAccess();
   if (!access.allowed) {
@@ -131,6 +134,7 @@ export default async function VoicePage({
       }
       drillId={activeDrill?.id}
     programId={programId}
+      openingContext={openingContext}
       autoStart={drillStarted}
       mode={mode}
     />
@@ -141,3 +145,4 @@ function first(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) return value[0];
   return value;
 }
+
