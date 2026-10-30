@@ -171,9 +171,12 @@ begin
   end loop;
 end $$;
 
-grant select on public.speech_audio, public.speech_turns, public.speech_words,
+grant delete, insert, references, select, update on public.speech_audio, public.speech_turns, public.speech_words,
   public.speech_metrics, public.speech_filler_moments, public.speech_pause_events,
   public.speech_pressure_segments, public.speech_replay_refs to authenticated;
+revoke truncate, trigger on public.speech_audio, public.speech_turns, public.speech_words,
+  public.speech_metrics, public.speech_filler_moments, public.speech_pause_events,
+  public.speech_pressure_segments, public.speech_replay_refs from authenticated;
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('speech-audio', 'speech-audio', false, 52428800, array['audio/webm','audio/mp4','audio/ogg','audio/wav'])
@@ -182,7 +185,7 @@ on conflict (id) do nothing;
 drop policy if exists "speech_audio_owner_read" on storage.objects;
 create policy "speech_audio_owner_read" on storage.objects
   for select to authenticated
-  using (bucket_id = 'speech-audio' and owner_id = (select auth.uid()));
+  using (bucket_id = 'speech-audio' and owner_id = (select auth.uid()::text));
 
 drop policy if exists "speech_audio_owner_insert" on storage.objects;
 create policy "speech_audio_owner_insert" on storage.objects
@@ -195,5 +198,5 @@ create policy "speech_audio_owner_insert" on storage.objects
 drop policy if exists "speech_audio_owner_delete" on storage.objects;
 create policy "speech_audio_owner_delete" on storage.objects
   for delete to authenticated
-  using (bucket_id = 'speech-audio' and owner_id = (select auth.uid()));
+  using (bucket_id = 'speech-audio' and owner_id = (select auth.uid()::text));
 
