@@ -723,8 +723,7 @@ export async function saveCoachMemory(memory: CoachMemory): Promise<void> {
       return;
     }
     if (error.message.includes("coach_memory") || error.code === "PGRST205") {
-      console.warn("[coach] coach_memory unavailable:", error.message);
-      return;
+      throw new Error(`Coach memory is unavailable: ${error.message}`);
     }
     throw new Error(`Failed to save coach memory: ${error.message}`);
   }
@@ -865,13 +864,26 @@ export async function saveLivingProfileSystem1Intelligence(
 export async function getGrowthSummary(userId: string): Promise<GrowthSummary> {
   const reports = await listSessionReports(userId);
   if (reports.length > 0) {
-    return buildGrowthSummary(reports);
+    const summary = buildGrowthSummary(reports);
+    const memory = await getCoachMemory(userId).catch(() => null);
+    return memory
+      ? {
+          ...summary,
+          sessionsCompleted: Math.max(summary.sessionsCompleted, memory.sessionsCompleted),
+          lastSessionAt: memory.lastSessionAt ?? summary.lastSessionAt,
+          lastScenarioTitle: memory.lastScenarioTitle || summary.lastScenarioTitle,
+        }
+      : summary;
   }
 
   // Fallback: derive a thin growth view from completed practice_sessions
   const sessions = (await listSessions(userId)).filter((s) => s.completedAt);
   if (sessions.length === 0) {
-    return buildGrowthSummary([]);
+    const empty = buildGrowthSummary([]);
+    const memory = await getCoachMemory(userId).catch(() => null);
+    return memory
+      ? { ...empty, sessionsCompleted: memory.sessionsCompleted, lastSessionAt: memory.lastSessionAt, lastScenarioTitle: memory.lastScenarioTitle }
+      : empty;
   }
 
   const synthetic: SessionReport[] = sessions.map((session, index) => ({

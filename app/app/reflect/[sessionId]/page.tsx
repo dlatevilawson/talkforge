@@ -9,8 +9,10 @@ import {
   getSessionReport,
   getSpeechEvidence,
   getSession,
+  getCoachMemory,
   saveReflection,
 } from "@/lib/storage";
+import type { CoachMemory } from "@/lib/coach/types";
 import type { PracticeSession, Reflection, SessionReport } from "@/lib/types";
 import type { SpeechEvidence } from "@/lib/storage";
 
@@ -25,6 +27,7 @@ export default function ReflectPage() {
   const [existing, setExisting] = useState<Reflection | null>(null);
   const [report, setReport] = useState<SessionReport | null>(null);
   const [speech, setSpeech] = useState<SpeechEvidence | null>(null);
+  const [memory, setMemory] = useState<CoachMemory | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -34,14 +37,15 @@ export default function ReflectPage() {
     async function load() {
       try {
         const current = await getSession(params.sessionId);
-        const [reflection, loadedReport, loadedSpeech] = await Promise.all([
-          getReflection(params.sessionId), getSessionReport(params.sessionId), getSpeechEvidence(params.sessionId),
+        const [reflection, loadedReport, loadedSpeech, loadedMemory] = await Promise.all([
+          getReflection(params.sessionId), getSessionReport(params.sessionId), getSpeechEvidence(params.sessionId), getCoachMemory(current?.userId ?? ""),
         ]);
         if (cancelled) return;
         setSession(current);
         setExisting(reflection);
         setReport(loadedReport);
         setSpeech(loadedSpeech);
+        setMemory(loadedMemory);
         if (reflection?.coachSatisfaction) {
           setSatisfaction(reflection.coachSatisfaction);
         }
@@ -147,6 +151,7 @@ export default function ReflectPage() {
         <p className="text-sm text-zinc-500">Mission</p>
         <p className="mt-1 text-lg font-medium">{session.scenarioTitle}</p>
         <p className="mt-3 text-sm text-zinc-300">{report?.coachSummary || report?.breakthrough || "Your session is ready to review."}</p>
+        {memory?.lastSessionAt ? <p className="mt-2 text-sm text-zinc-500">Forge memory is current through {new Date(memory.lastSessionAt).toLocaleDateString()}: {memory.lastScenarioTitle || "your latest practice"}.</p> : null}
         {report?.biggestWeakness ? <p className="mt-2 text-sm text-zinc-400">Next adjustment: {report.biggestWeakness}</p> : null}
         <p className="mt-1 text-sm text-zinc-500">
           Conversation turns captured: {session.turns.length}

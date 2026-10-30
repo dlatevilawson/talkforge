@@ -130,9 +130,7 @@ export async function loadCoachPromptContextForUser(
     ] = await Promise.all([
       supabase
         .from("coach_memory")
-        .select(
-          "user_id, last_session_id, last_session_summary, last_scenario_title, last_session_at, sessions_completed, favorite_scenarios, past_exercises, updated_at"
-        )
+        .select("*")
         .eq("user_id", userId)
         .maybeSingle(),
       supabase
