@@ -198,5 +198,5 @@ create policy "speech_audio_owner_insert" on storage.objects
 drop policy if exists "speech_audio_owner_delete" on storage.objects;
 create policy "speech_audio_owner_delete" on storage.objects
   for delete to authenticated
-  using (bucket_id = 'speech-audio' and owner_id = (select auth.uid()));
+  using (bucket_id = 'speech-audio' and owner_id = (select auth.uid()::text));
 
