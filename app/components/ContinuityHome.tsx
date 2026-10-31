@@ -22,9 +22,11 @@ import {
 } from "@/lib/system2/home-recommendation";
 import type { LivingProfile } from "@/lib/system1/types";
 import { CLAIM_FOUNDING_PASS_CTA } from "@/lib/billing/member-copy";
-import { countCompletedSessions, getUser } from "@/lib/storage";
+import { countCompletedSessions, getCoachMemory, getUser } from "@/lib/storage";
+import type { CoachMemory } from "@/lib/coach/types";
 import { STARTER_DRILLS, starterDrillHref } from "@/lib/drills/catalog";
 import type { TodayJourney } from "@/lib/journey/types";
+import { retryCoachMemoryUpdate } from "@/lib/session";
 
 const homeCopy = APP_HOME_SCREEN_COPY;
 
@@ -77,6 +79,10 @@ async function loadLivingProfile(): Promise<{
   }
 }
 
+async function loadCoachMemory(userId: string): Promise<CoachMemory | null> {
+  return getCoachMemory(userId).catch(() => null);
+}
+
 async function loadEntitlement(): Promise<HomeEntitlement> {
   try {
     const entRes = await fetch("/api/billing/entitlement", { cache: "no-store" });
@@ -126,10 +132,26 @@ function ContinuityHomeInner() {
           userId = null;
         }
 
+        if (userId && typeof window !== "undefined") {
+          const retryKey = `talkforge:memory-retry:${userId}`;
+          const pending = window.localStorage.getItem(retryKey);
+          if (pending) {
+            try {
+              const parsed = JSON.parse(pending) as { sessionId?: string };
+              if (parsed.sessionId && (await retryCoachMemoryUpdate(parsed.sessionId))) {
+                window.localStorage.removeItem(retryKey);
+              }
+            } catch (error) {
+              console.error("[coach] canonical memory retry failed", error);
+            }
+          }
+        }
+
         const unknownHistory: HomeSessionHistory = { status: "unknown" };
-        const [history, living, access, journey] = await Promise.all([
+          const [history, living, memory, access, journey] = await Promise.all([
           userId ? loadSessionHistory(userId) : Promise.resolve(unknownHistory),
           loadLivingProfile(),
+          userId ? loadCoachMemory(userId) : Promise.resolve(null),
           loadEntitlement(),
           fetch("/api/journey/today", { cache: "no-store" }).then(async (res) => {
             if (!res.ok) return null;
@@ -155,7 +177,17 @@ function ContinuityHomeInner() {
             "Couldn’t confirm practice access. Refresh before starting training."
           );
         }
-        setHome(buildAdaptiveHome(living.profile));
+        const adaptive = buildAdaptiveHome(living.profile);
+        const currentFocus = memory?.communicationGoals?.[0] || memory?.topicsWorkingOn?.[0] || memory?.lastScenarioTitle;
+        if (currentFocus && memory?.lastSessionAt) {
+          const date = new Date(memory.lastSessionAt).toLocaleDateString();
+          adaptive.readiness.objective = currentFocus;
+          adaptive.recommendation = {
+            ...adaptive.recommendation!,
+            continuityLine: `Keep working on: ${currentFocus.replace(/[.]+$/, "")}. Last practiced ${date}.`,
+          };
+        }
+        setHome(adaptive);
       } catch {
         if (!cancelled) {
           setHome(buildAdaptiveHome(null));

@@ -9,10 +9,13 @@ import { updateDisplayName } from "@/lib/auth";
 import { IDENTITY_CHANGED_EVENT } from "@/lib/identity";
 import {
   clearAllTalkForgeData,
+  getCoachMemory,
   getProgressSummary,
   getUser,
   listSessions,
+  saveCoachMemory,
 } from "@/lib/storage";
+import type { CoachMemory } from "@/lib/coach/types";
 import { formatDuration } from "@/lib/system2/practice-history-display";
 import type { LivingProfile } from "@/lib/system1/types";
 import {
@@ -62,6 +65,8 @@ export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<TalkForgeUser | null>(null);
   const [living, setLiving] = useState<LivingProfile | null>(null);
+  const [memory, setMemory] = useState<CoachMemory | null>(null);
+  const [memoryFocus, setMemoryFocus] = useState("");
   const [tableReady, setTableReady] = useState(true);
   const [progress, setProgress] = useState<ProgressSummary | null>(null);
   const [longestSessionSeconds, setLongestSessionSeconds] = useState(0);
@@ -102,7 +107,7 @@ export default function ProfilePage() {
           return;
         }
 
-        const [summary, history, lpRes] = await Promise.all([
+        const [summary, history, lpRes, coachMemory] = await Promise.all([
           getProgressSummary(current.id),
           listSessions(current.id).then((s) =>
             s.filter((session) => session.completedAt)
@@ -113,10 +118,13 @@ export default function ProfilePage() {
               tableReady?: boolean;
             }>
           ),
+          getCoachMemory(current.id).catch(() => null),
         ]);
 
         if (cancelled) return;
         setUser(current);
+        setMemory(coachMemory);
+        setMemoryFocus(coachMemory?.communicationGoals?.[0] ?? coachMemory?.topicsWorkingOn?.[0] ?? "");
         setProgress(summary);
         let longest = 0;
         for (const session of history) {
@@ -244,6 +252,25 @@ export default function ProfilePage() {
     return data.profile ?? null;
   }
 
+  async function saveMemoryCorrection(value: string) {
+    if (!memory) return;
+    const next: CoachMemory = {
+      ...memory,
+      communicationGoals: value.trim() ? [value.trim(), ...memory.communicationGoals.filter((item) => item !== value.trim())] : memory.communicationGoals.slice(1),
+      notes: {
+        ...memory.notes,
+        memberCorrections: {
+          ...(memory.notes.memberCorrections as Record<string, unknown> | undefined),
+          communicationGoals: true,
+        },
+      },
+      updatedAt: new Date().toISOString(),
+    };
+    await saveCoachMemory(next);
+    setMemory(next);
+    setMemoryFocus(value);
+  }
+
   async function handleSelectFocus(option: TrainingFocusOption) {
     if (saving || enteringForge) return;
     setSelectedFocusId(option.id);
@@ -358,7 +385,23 @@ export default function ProfilePage() {
       {loading ? (
         <p className="mt-8 text-sm text-zinc-500">Loading Living Profile…</p>
       ) : isAuthenticatedMember ? (
-        <form onSubmit={handleSave} className="mt-8 space-y-8">
+        <>
+          {memory ? (
+            <section className="mt-8 max-w-xl space-y-4 rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a95f]">What Forge remembers</p>
+                <p className="mt-2 text-sm leading-6 text-zinc-400">Working memory from your own practice. You can correct the current focus at any time.</p>
+              </div>
+              <label className="block text-sm text-zinc-300">Current focus
+                <input value={memoryFocus} onChange={(event) => setMemoryFocus(event.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white" />
+              </label>
+              <button type="button" onClick={() => void saveMemoryCorrection(memoryFocus)} className="rounded-full border border-[#c9a95f]/40 px-4 py-2 text-xs text-[#e7d6b1]">Save correction</button>
+              {memory.lastSessionAt ? <p className="text-sm text-zinc-300">Last practice: {memory.lastScenarioTitle || "Practice"} · {new Date(memory.lastSessionAt).toLocaleDateString()}</p> : <p className="text-sm text-zinc-500">No practice history yet.</p>}
+              {memory.recentWins.slice(0, 3).map((item) => <p key={`win-${item}`} className="text-sm text-zinc-400">Win: {item}</p>)}
+              {memory.longTermChallenges.slice(0, 3).map((item) => <p key={`challenge-${item}`} className="text-sm text-zinc-400">Constraint: {item}</p>)}
+            </section>
+          ) : null}
+          <form onSubmit={handleSave} className="mt-8 space-y-8">
           {living &&
           (living.profileSource === "assessment" ||
             living.profileSource === "incomplete" ||
@@ -590,7 +633,8 @@ export default function ProfilePage() {
               .
             </p>
           </div>
-        </form>
+          </form>
+        </>
       ) : null}
 
       {isAuthenticatedMember && (

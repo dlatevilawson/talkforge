@@ -12,6 +12,7 @@ import {
   getCoachMemory,
   getLivingProfile,
   getSession,
+  getSessionReport,
   LivingProfileConflictError,
   saveCoachMemory,
   saveLivingProfileProvenance,
@@ -181,14 +182,22 @@ export async function completePracticeSession(
     completed.averageScore = report.overallScore;
     await saveSession(completed);
   }
-  await saveSessionReport(report);
-
-  // Relationship memory and shadow evaluation remain soft-fail work.
   try {
-    // Decision 064: allowlisted, server-only shadow evaluation. Fire-and-forget
-    // and never expose evaluator state or delay the member's session ending.
-    queueShadowReadinessEvaluation(completed.id);
+    await saveSessionReport(report);
+  } catch (err) {
+    // Reports and canonical memory are independent durable records. Do not
+    // strand memory when an optional report column/table is unavailable.
+    console.error("[coach] session report write failed; continuing memory update", err);
+  }
 
+  // Shadow evaluation is independent of the canonical memory write.
+  try {
+    queueShadowReadinessEvaluation(completed.id);
+  } catch (err) {
+    console.error("[readiness] shadow queue failed", err);
+  }
+
+  try {
     const existing =
       (await getCoachMemory(session.userId)) ??
       emptyCoachMemory(session.userId, options?.displayName ?? "");
@@ -204,6 +213,20 @@ export async function completePracticeSession(
     );
     await saveCoachMemory(nextMemory);
 
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(`talkforge:memory-retry:${session.userId}`);
+    }
+  } catch (err) {
+    console.error("[coach] canonical memory write failed", err);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(
+        `talkforge:memory-retry:${session.userId}`,
+        JSON.stringify({ sessionId: completed.id, updatedAt: completed.completedAt })
+      );
+    }
+  }
+
+  try {
     // Forge Law #016: session → evidence proposals on Living Profile provenance
     // only (memberConfirmed: false). Never write identity fields from experiences.
     const proposals = proposeIdentityEvidenceFromReport(report);
@@ -211,10 +234,27 @@ export async function completePracticeSession(
       await appendSessionEvidence(session.userId, proposals);
     }
   } catch (err) {
-    console.warn("[coach] failed to persist session report/memory", err);
+    console.error("[coach] failed to persist Living Profile evidence", err);
   }
 
   return completed;
+}
+
+/** Retry a failed canonical-memory write from the latest durable report. */
+export async function retryCoachMemoryUpdate(sessionId: string): Promise<boolean> {
+  const session = await getSession(sessionId);
+  if (!session?.completedAt) return false;
+  const report = (await getSessionReport(sessionId)) ?? buildSessionReport({
+    session,
+    turns: session.turns,
+    sessionNumber: 1,
+    modality: session.modality ?? "text",
+    durationSeconds: session.durationSeconds ?? null,
+  });
+  const existing = (await getCoachMemory(session.userId)) ?? emptyCoachMemory(session.userId);
+  const next = applyReportToMemory(existing, report);
+  await saveCoachMemory(next);
+  return true;
 }
 
 async function appendSessionEvidence(

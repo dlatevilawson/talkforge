@@ -48,6 +48,23 @@ function uniqPush(list: string[], value: string, max = 8): string[] {
   return next.slice(0, max);
 }
 
+type MemoryHistoryEntry = {
+  field: string;
+  value: string;
+  sourceSessionId: string;
+  observedAt: string;
+};
+
+function historyFromMemory(memory: CoachMemory): MemoryHistoryEntry[] {
+  const value = memory.notes?.sessionHistory;
+  return Array.isArray(value) ? (value as MemoryHistoryEntry[]) : [];
+}
+
+function memberCorrected(memory: CoachMemory, field: string): boolean {
+  const corrections = memory.notes?.memberCorrections;
+  return Boolean(corrections && typeof corrections === "object" && field in corrections);
+}
+
 function relativeSessionPhrase(iso: string | null | undefined): string {
   if (!iso) return "Last time";
   const t = Date.parse(iso);
@@ -64,24 +81,51 @@ function relativeSessionPhrase(iso: string | null | undefined): string {
 /**
  * Merge a completed session report into relationship memory.
  *
- * AUDIT-001 C4 / Forge Law #016: experiences must NOT write identity-adjacent
- * fields (strengths, habits, confidence, goals, wins-as-identity). Those become
- * evidence proposals via `proposeIdentityEvidenceFromReport` (lib/system1).
- *
- * This function updates Reality/continuity fields only: last session, scenario
- * history, session counts. Member-declared identity fields are left untouched.
+ * Session evidence refreshes the working memory, while member corrections win.
+ * Identity claims are never invented: every new item is tied to this report.
  */
 export function applyReportToMemory(
   memory: CoachMemory,
   report: SessionReport,
   displayName?: string
 ): CoachMemory {
+  // Completion can be retried after a transient write failure. Keep the
+  // canonical record idempotent so one session cannot duplicate history or
+  // increment the member's count twice.
+  if (memory.lastSessionId === report.sessionId) {
+    return memory;
+  }
   const scenario = report.scenarioTitle?.trim() || memory.lastScenarioTitle;
+  const observedAt = report.completedAt ?? report.createdAt;
+  const history = historyFromMemory(memory);
+  const nextHistory = [
+    ...history,
+    ...(report.breakthrough.trim()
+      ? [{ field: "recentWins", value: report.breakthrough.trim(), sourceSessionId: report.sessionId, observedAt }]
+      : []),
+    ...(report.biggestWeakness.trim()
+      ? [{ field: "longTermChallenges", value: report.biggestWeakness.trim(), sourceSessionId: report.sessionId, observedAt }]
+      : []),
+    ...(scenario
+      ? [{ field: "topicsWorkingOn", value: scenario, sourceSessionId: report.sessionId, observedAt }]
+      : []),
+  ].slice(-40);
+  const notes = { ...memory.notes, sessionHistory: nextHistory };
+  const recentWins = memberCorrected(memory, "recentWins") ? memory.recentWins : uniqPush(memory.recentWins, report.breakthrough);
+  const challenges = memberCorrected(memory, "longTermChallenges") ? memory.longTermChallenges : uniqPush(memory.longTermChallenges, report.biggestWeakness);
+  const topics = memberCorrected(memory, "topicsWorkingOn") ? memory.topicsWorkingOn : uniqPush(memory.topicsWorkingOn, scenario);
   return {
     ...memory,
     displayName: displayName?.trim() || memory.displayName,
-    // Identity-adjacent fields intentionally NOT updated from session reports:
-    // recentWins, topicsWorkingOn, biggestStrength, confidenceLevel, speakingHabits
+    recentWins,
+    longTermChallenges: challenges,
+    topicsWorkingOn: topics,
+    communicationGoals: memberCorrected(memory, "communicationGoals")
+      ? memory.communicationGoals
+      : uniqPush(memory.communicationGoals, scenario, 4),
+    biggestStrength: memberCorrected(memory, "biggestStrength")
+      ? memory.biggestStrength
+      : (report.breakthrough.trim() || memory.biggestStrength),
     favoriteScenarios: uniqPush(memory.favoriteScenarios, scenario),
     pastExercises: uniqPush(memory.pastExercises, scenario, 12),
     lastSessionId: report.sessionId,
@@ -89,6 +133,7 @@ export function applyReportToMemory(
     lastScenarioTitle: scenario,
     lastSessionAt: report.completedAt ?? report.createdAt,
     sessionsCompleted: Math.max(memory.sessionsCompleted + 1, report.sessionNumber),
+    notes,
     updatedAt: new Date().toISOString(),
   };
 }
@@ -157,8 +202,9 @@ export function buildWelcomeHint(input: {
 
 /**
  * Build coach prompt context.
- * Identity fields come exclusively from Living Profile (SSOT). CoachMemory
- * supplies last-session continuity only.
+ * Member-declared identity remains in Living Profile. CoachMemory is the
+ * canonical working-memory record for observed focus, continuity, wins, and
+ * struggles; unconfirmed provenance is never treated as identity fact.
  * Unconfirmed LP provenance is never treated as identity fact.
  */
 export function buildCoachPromptContext(
@@ -174,27 +220,31 @@ export function buildCoachPromptContext(
   const name = nickname || firstName(display);
 
   const communicationGoals = [
+    ...mem.communicationGoals,
     lp?.purposeStatement.trim() ?? "",
     ...(lp?.personalPrinciples.map((p) => p.text.trim()) ?? []),
   ]
     .filter(Boolean)
     .slice(0, 3);
 
-  const longTermChallenges = (lp?.seasons ?? [])
+  const longTermChallenges = [
+    ...mem.longTermChallenges,
+    ...(lp?.seasons ?? [])
     .map((s) => s.label.trim())
     .filter(Boolean)
-    .slice(0, 3);
+  ].slice(0, 3);
 
   const preferredCoachingStyle = lp?.preferredCoachingStyle.trim() ?? "";
 
   // Confirmed / member-declared strength only — never pending evidence
   const confirmedStrength =
-    lp?.provenance.find(
+    mem.biggestStrength.trim() ||
+    (lp?.provenance.find(
       (p) =>
         p.memberConfirmed &&
         p.fieldPath.includes("strength") &&
         p.claim.trim()
-    )?.claim ?? "";
+    )?.claim ?? "");
 
   const isReturning = mem.sessionsCompleted > 0 || recentReports.length > 0;
   const adaptiveInsight = buildAdaptiveInsight(recentReports);
