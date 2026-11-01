@@ -65,6 +65,10 @@ export function continuationGraceMsForUtterance(text?: string | null): number {
   return HANDS_FREE_CONTINUATION_GRACE_MS;
 }
 
+export function thinkingHoldBlocksResponse(thinkingHold: boolean): boolean {
+  return thinkingHold;
+}
+
 /**
  * Safety fallback when a WebRTC client does not emit output_audio_buffer.stopped.
  * The normal path reopens on that playout event; this only prevents a stuck mic.
