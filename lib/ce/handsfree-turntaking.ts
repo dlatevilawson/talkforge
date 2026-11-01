@@ -45,6 +45,25 @@ export type TurnTransition = {
  * VAD keeps chunking/transcribing, but the app owns response.create.
  */
 export const HANDS_FREE_CONTINUATION_GRACE_MS = 2_500;
+/** A clearly complete utterance can yield sooner; fragments keep the full hold. */
+export const HANDS_FREE_FINISHED_UTTERANCE_GRACE_MS = 900;
+
+const FRAGMENTARY_ENDING =
+  /\b(?:and|but|because|so|if|when|while|to|for|with|that|the|a|an|or)\s*$/i;
+
+export function continuationGraceMsForUtterance(text?: string | null): number {
+  const normalized = text?.trim() ?? "";
+  if (!normalized) return HANDS_FREE_CONTINUATION_GRACE_MS;
+  const words = normalized.match(/[a-z0-9']+/gi) ?? [];
+  const shortComplete = /^(?:yes|no|okay|ok|sure|maybe|exactly|continue|stop|help|right|that's right|thats right|not really)[.!?]?$/i.test(normalized);
+  const terminalPunctuation = /[.!?]$/.test(normalized);
+  const fragmentary = FRAGMENTARY_ENDING.test(normalized);
+  if (fragmentary) return HANDS_FREE_CONTINUATION_GRACE_MS;
+  if (shortComplete || terminalPunctuation || words.length >= 8) {
+    return HANDS_FREE_FINISHED_UTTERANCE_GRACE_MS;
+  }
+  return HANDS_FREE_CONTINUATION_GRACE_MS;
+}
 
 /**
  * Safety fallback when a WebRTC client does not emit output_audio_buffer.stopped.
