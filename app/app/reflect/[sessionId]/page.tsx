@@ -15,6 +15,7 @@ import {
 import type { CoachMemory } from "@/lib/coach/types";
 import type { PracticeSession, Reflection, SessionReport } from "@/lib/types";
 import type { SpeechEvidence } from "@/lib/storage";
+import { reflectDataIsReady } from "@/lib/reflect/reflect-readiness";
 
 export default function ReflectPage() {
   const params = useParams<{ sessionId: string }>();
@@ -29,6 +30,7 @@ export default function ReflectPage() {
   const [speech, setSpeech] = useState<SpeechEvidence | null>(null);
   const [memory, setMemory] = useState<CoachMemory | null>(null);
   const [loading, setLoading] = useState(true);
+  const [finishing, setFinishing] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -36,18 +38,46 @@ export default function ReflectPage() {
 
     async function load() {
       try {
-        const current = await getSession(params.sessionId);
-        const [reflection, loadedReport, loadedSpeech, loadedMemory] = await Promise.all([
-          getReflection(params.sessionId), getSessionReport(params.sessionId), getSpeechEvidence(params.sessionId), getCoachMemory(current?.userId ?? ""),
-        ]);
+        const sessionId = params.sessionId;
+        if (!sessionId) throw new Error("Session id is missing.");
+        const current = await getSession(sessionId);
+        if (!current) {
+          if (!cancelled) setSession(null);
+          return;
+        }
+
+        let loadedReflection: Reflection | null = null;
+        let loadedReport: SessionReport | null = null;
+        let loadedSpeech: SpeechEvidence | null = null;
+        let loadedMemory: CoachMemory | null = null;
+        let ready = false;
+        for (let attempt = 0; attempt < 8; attempt += 1) {
+          [loadedReflection, loadedReport, loadedSpeech, loadedMemory] = await Promise.all([
+            getReflection(sessionId),
+            getSessionReport(sessionId),
+            getSpeechEvidence(sessionId),
+            getCoachMemory(current.userId),
+          ]);
+          ready = reflectDataIsReady({
+            sessionId: current.id,
+            modality: current.modality ?? "voice",
+            report: loadedReport,
+            speechMetrics: loadedSpeech?.metrics ?? null,
+            memorySessionId: loadedMemory?.lastSessionId ?? null,
+          });
+          if (ready || attempt === 7) break;
+          if (!cancelled) setFinishing(true);
+          await new Promise((resolve) => setTimeout(resolve, 250));
+        }
         if (cancelled) return;
         setSession(current);
-        setExisting(reflection);
+        setExisting(loadedReflection);
         setReport(loadedReport);
         setSpeech(loadedSpeech);
         setMemory(loadedMemory);
-        if (reflection?.coachSatisfaction) {
-          setSatisfaction(reflection.coachSatisfaction);
+        setFinishing(!ready);
+        if (loadedReflection?.coachSatisfaction) {
+          setSatisfaction(loadedReflection.coachSatisfaction);
         }
       } catch (err) {
         if (!cancelled) {
@@ -150,8 +180,8 @@ export default function ReflectPage() {
       <section className="mt-8 max-w-2xl rounded-3xl border border-white/10 bg-white/5 p-6">
         <p className="text-sm text-zinc-500">Mission</p>
         <p className="mt-1 text-lg font-medium">{session.scenarioTitle}</p>
-        <p className="mt-3 text-sm text-zinc-300">{report?.coachSummary || report?.breakthrough || "Your session is ready to review."}</p>
-        {memory?.lastSessionAt ? <p className="mt-2 text-sm text-zinc-500">Forge memory is current through {new Date(memory.lastSessionAt).toLocaleDateString()}: {memory.lastScenarioTitle || "your latest practice"}.</p> : null}
+        <p className="mt-3 text-sm text-zinc-300">{finishing ? "Finishing up your session…" : report?.coachSummary || report?.breakthrough || "Your session is ready to review."}</p>
+        {finishing ? <p className="mt-2 text-sm text-amber-200/80">Finishing up your session…</p> : memory?.lastSessionAt ? <p className="mt-2 text-sm text-zinc-500">Forge memory is current through {new Date(memory.lastSessionAt).toLocaleDateString()}: {memory.lastScenarioTitle || "your latest practice"}.</p> : null}
         {report?.biggestWeakness ? <p className="mt-2 text-sm text-zinc-400">Next adjustment: {report.biggestWeakness}</p> : null}
         <p className="mt-1 text-sm text-zinc-500">
           Conversation turns captured: {session.turns.length}
@@ -162,6 +192,7 @@ export default function ReflectPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Speech evidence</p>
         {session.modality !== "voice" ? <p className="mt-3 text-sm text-zinc-300">No voice recorded for this text drill.</p> : (
           <div className="mt-4 space-y-3 text-sm text-zinc-300">
+            {finishing ? <p className="text-amber-200/80">Finishing up speech evidence…</p> : <>
             <p>Fillers: {speech?.metrics?.fillerCount ?? "Not measured"}</p>
             <p>Pace: {speech?.metrics?.paceWpm != null ? `${speech.metrics.paceWpm} WPM` : "Not measured"}</p>
             <p>Talk-time: {speech?.metrics?.memberTalkTimePct != null ? `${speech.metrics.memberTalkTimePct}%` : "Not measured"}</p>
@@ -169,6 +200,7 @@ export default function ReflectPage() {
             {speech?.audio?.replayUrl ? <audio id="speech-replay" className="w-full" controls src={speech.audio.replayUrl} /> : null}
             {speech?.fillers.length ? <div><p className="mb-2">Filler moments</p><ul className="space-y-1 text-zinc-400">{speech.fillers.map((f) => <li key={f.id}><button type="button" className="underline underline-offset-4 hover:text-white" onClick={() => { const audio = document.getElementById("speech-replay") as HTMLAudioElement | null; if (audio && f.startOffsetMs != null) { audio.currentTime = f.startOffsetMs / 1000; void audio.play(); } }}>{f.word} · {f.startOffsetMs != null ? `${Math.round(f.startOffsetMs / 1000)}s · replay` : "Not measured"}</button></li>)}</ul></div> : <p className="text-zinc-500">Filler moments: Not measured</p>}
             <p className="border-t border-white/10 pt-3">Next rep: {report?.homework || "Choose one small change to repeat next time."}</p>
+            </>}
           </div>
         )}
       </section>
