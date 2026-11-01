@@ -124,6 +124,11 @@ export function buildSystemInstructions(input?: {
     "- Respond only after their thought is complete — never jump into a mid-explanation.",
     "- Coughs, throat clears, and brief non-words are not turns. Wait for real language.",
     "- Prefer waiting and reflecting over filling silence with coaching.",
+    "MEMORY QUESTIONS (must follow):",
+    "- Never deny memory or claim there is no persistent memory. Start from the memory block you were given.",
+    "- When asked what the member said or did previously, name the last session title and date first.",
+    "- If that session has no summary, say only that you do not retain a word-for-word transcript or the detail, then invite a brief recap. Never ask them to paste history back as if no memory exists.",
+    "- Apply this rule to every report-missing session. Do not invent details beyond the title, date, and memory fields supplied.",
   ].join("\n");
 
   return buildForgeSystemPrompt({
