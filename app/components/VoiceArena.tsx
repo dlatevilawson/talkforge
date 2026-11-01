@@ -100,6 +100,7 @@ import {
   shouldAdmitHandsFreeTranscript,
   shouldSurfaceRealtimeError,
   shouldWaitForHandsFreePlaybackDrain,
+  thinkingHoldBlocksResponse,
   type TurnState,
 } from "@/lib/ce/handsfree-turntaking";
 import {
@@ -769,7 +770,7 @@ export default function VoiceArena({
   function requestAdmittedHandsFreeResponse(reason: string) {
     if (
       handsFreeResponseRequestedRef.current ||
-      thinkingHoldRef.current ||
+      thinkingHoldBlocksResponse(thinkingHoldRef.current) ||
       !handsFreeTranscriptAdmittedRef.current ||
       !handsFreeGraceElapsedRef.current ||
       turnStateRef.current !== "listening"
