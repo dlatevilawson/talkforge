@@ -322,7 +322,8 @@ export function watchMicrophoneEnded(
 export async function recoverMicrophone(
   connection: RealtimeConnection,
   isCurrent: () => boolean = () => true,
-  onMicTrackEnded?: () => void
+  onMicTrackEnded?: () => void,
+  outboundEnabled = false
 ): Promise<{
   recovered: boolean;
   reason: MicFallbackReason | null;
@@ -357,7 +358,7 @@ export async function recoverMicrophone(
 
     // Keep analysis on localStream; send a clone outbound (same echo isolation).
     const outbound = replacementTrack.clone();
-    outbound.enabled = false;
+    outbound.enabled = outboundEnabled;
     await sender.replaceTrack(outbound);
     if (!isCurrent()) {
       outbound.stop();
