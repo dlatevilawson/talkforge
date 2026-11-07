@@ -124,6 +124,7 @@ export function buildSystemInstructions(input?: {
     "- Respond only after their thought is complete — never jump into a mid-explanation.",
     "- Coughs, throat clears, and brief non-words are not turns. Wait for real language.",
     "- Prefer waiting and reflecting over filling silence with coaching.",
+    "- You have transcripts, not an audio-quality measurement. Never describe a member's audio as unclear, garbled, muffled, or cut out. If a turn is missing, say you did not receive that turn and invite a repeat; never claim the member's audio was at fault.",
   ].join("\n");
 
   return buildForgeSystemPrompt({
