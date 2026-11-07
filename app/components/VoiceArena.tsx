@@ -45,6 +45,7 @@ import {
   type MicFallbackReason,
   type RealtimeConnection,
 } from "@/lib/ce/realtime";
+import { attachWakeLockReleaseListener } from "@/lib/ce/wake-lock";
 import { outputBudgetForTurn } from "@/lib/ce/voice-economics";
 import { useArenaVoice } from "@/lib/hooks/useArenaVoice";
 import {
@@ -96,11 +97,15 @@ import {
   memberOwnsFloor,
   outboundMicOpenForState,
   reduceTurnState,
-  shouldAdmitHandsFreeTranscript,
   shouldSurfaceRealtimeError,
   shouldWaitForHandsFreePlaybackDrain,
   type TurnState,
 } from "@/lib/ce/handsfree-turntaking";
+import {
+  decideTranscriptAdmission,
+  HANDS_FREE_ADMISSION_HOLD_MS,
+} from "@/lib/ce/transcript-admission";
+import { persistSpeechAdmissionEvent } from "@/lib/speech/persistence";
 import {
   type ArenaVoiceMode,
   resolveArenaVoiceMode,
@@ -246,6 +251,12 @@ export default function VoiceArena({
   const handsFreeResponseRequestedRef = useRef(false);
   const thinkingHoldRef = useRef(false);
   const pendingHandsFreeBargeLevelRef = useRef<number | null>(null);
+  const pendingHandsFreeTranscriptRef = useRef<{
+    event: Record<string, unknown>;
+    text: string;
+    itemId: string;
+    timer: ReturnType<typeof setTimeout>;
+  } | null>(null);
   const assessmentNavigatedRef = useRef(false);
   const speechRecorderRef = useRef<SpeechRecorder | null>(null);
   const speechAudioBlobRef = useRef<Blob | null>(null);
@@ -705,6 +716,7 @@ export default function VoiceArena({
       if (!handsFreeRef.current) return;
       clearHandsFreeResponseGrace();
       handsFreeLocalTurnConfirmedRef.current = true;
+      flushPendingHandsFreeTranscript();
       // Listening audio is already streaming; local confirmation grants the
       // member logical floor ownership without clearing the captured prefix.
       const transition = applyTurn({
@@ -739,6 +751,73 @@ export default function VoiceArena({
     handsFreeGraceElapsedRef.current = false;
     handsFreeResponseRequestedRef.current = false;
     pendingHandsFreeBargeLevelRef.current = null;
+  }
+
+  function installWakeLock(lock: WakeLockSentinel) {
+    wakeLockRef.current = lock;
+    setWakeLockDenied(false);
+    attachWakeLockReleaseListener(lock, () => {
+      if (wakeLockRef.current !== lock) return;
+      wakeLockRef.current = null;
+      const phaseNow = phaseRef.current;
+      if (
+        isGuestPreview ||
+        phaseNow === "idle" ||
+        phaseNow === "momentum" ||
+        phaseNow === "error" ||
+        phaseNow === "minting"
+      ) {
+        return;
+      }
+      const wakeLock = (navigator as Navigator & {
+        wakeLock?: { request: (type: "screen") => Promise<WakeLockSentinel> };
+      }).wakeLock;
+      void wakeLock?.request("screen")
+        .then((next) => {
+          if (next) installWakeLock(next);
+        })
+        .catch(() => setWakeLockDenied(true));
+    });
+  }
+
+  function recordHandsFreeAdmission(
+    decision: "held" | "admitted" | "dropped" | "control",
+    reason: string,
+    text: string,
+    itemId?: string
+  ) {
+    const practice = practiceSessionRef.current;
+    if (practice) {
+      void persistSpeechAdmissionEvent({
+        sessionId: practice.id,
+        userId: practice.userId,
+        itemId,
+        transcriptText: text,
+        decision,
+        reason,
+      }).catch((error) => {
+        console.warn("[speech] failed to persist admission event", error);
+      });
+    }
+  }
+
+  function clearPendingHandsFreeTranscript(reason?: string) {
+    const pending = pendingHandsFreeTranscriptRef.current;
+    if (!pending) return;
+    clearTimeout(pending.timer);
+    pendingHandsFreeTranscriptRef.current = null;
+    if (reason) {
+      recordHandsFreeAdmission("dropped", reason, pending.text, pending.itemId);
+    }
+  }
+
+  function flushPendingHandsFreeTranscript() {
+    const pending = pendingHandsFreeTranscriptRef.current;
+    if (!pending) return;
+    clearTimeout(pending.timer);
+    pendingHandsFreeTranscriptRef.current = null;
+    handsFreeLocalTurnConfirmedRef.current = true;
+    handleServerEvent(pending.event);
   }
 
   function toggleThinkingHold() {
@@ -966,6 +1045,7 @@ export default function VoiceArena({
       clearGuestDurationWatch();
       clearInterruptTimers();
       clearHandsFreeResponseGrace();
+      clearPendingHandsFreeTranscript("session_unmounted_before_confirmation");
       resetHandsFreeTurnAdmission();
       clearHandsFreePlaybackDrain();
       void wakeLockRef.current?.release().catch(() => undefined);
@@ -1013,7 +1093,7 @@ export default function VoiceArena({
       }
       if (!wakeLockRef.current && typeof navigator !== "undefined" && "wakeLock" in navigator) {
         void (navigator as Navigator & { wakeLock?: { request: (type: "screen") => Promise<WakeLockSentinel> } }).wakeLock?.request("screen")
-          .then((lock) => { if (lock) wakeLockRef.current = lock; })
+          .then((lock) => { if (lock) installWakeLock(lock); })
           .catch(() => setWakeLockDenied(true));
       }
       void resumeRemoteAudio(connection);
@@ -1135,6 +1215,12 @@ export default function VoiceArena({
         setThinkingHold(true);
         clearHandsFreeResponseGrace();
         handsFreeGraceElapsedRef.current = false;
+        recordHandsFreeAdmission(
+          "control",
+          "explicit_thinking_hold",
+          finalizedFounder.text,
+          finalizedFounder.itemId
+        );
         deleteRealtimeConversationItem(connectionRef.current, finalizedFounder.itemId);
         setLiveUserDraft("");
         pushEvent("Thinking hold · Forge waiting");
@@ -1146,11 +1232,54 @@ export default function VoiceArena({
         handsFreeGraceElapsedRef.current = false;
         pushEvent("Thinking hold released by speech");
       }
-      const admitted = shouldAdmitHandsFreeTranscript({
+      const decision = decideTranscriptAdmission({
         text: finalizedFounder.text,
         locallyConfirmed: handsFreeLocalTurnConfirmedRef.current,
       });
-      if (!admitted) {
+      if (decision === "hold") {
+        clearHandsFreeResponseGrace();
+        const existing = pendingHandsFreeTranscriptRef.current;
+        if (existing) clearPendingHandsFreeTranscript("superseded_by_new_transcript");
+        recordHandsFreeAdmission(
+          "held",
+          "awaiting_local_confirmation",
+          finalizedFounder.text,
+          finalizedFounder.itemId
+        );
+        const timer = setTimeout(() => {
+          const pending = pendingHandsFreeTranscriptRef.current;
+          if (!pending || pending.itemId !== finalizedFounder.itemId) return;
+          pendingHandsFreeTranscriptRef.current = null;
+          recordHandsFreeAdmission(
+            "dropped",
+            "local_confirmation_timeout",
+            finalizedFounder.text,
+            finalizedFounder.itemId
+          );
+          deleteRealtimeConversationItem(
+            connectionRef.current,
+            finalizedFounder.itemId
+          );
+          pushEvent(
+            `Heard but not confirmed: "${finalizedFounder.text.slice(0, 48)}${
+              finalizedFounder.text.length > 48 ? "…" : ""
+            }"`
+          );
+        }, HANDS_FREE_ADMISSION_HOLD_MS);
+        pendingHandsFreeTranscriptRef.current = {
+          event,
+          text: finalizedFounder.text,
+          itemId: finalizedFounder.itemId ?? "",
+          timer,
+        };
+        pushEvent(
+          `Heard but not confirmed: "${finalizedFounder.text.slice(0, 48)}${
+            finalizedFounder.text.length > 48 ? "…" : ""
+          }"`
+        );
+        return;
+      }
+      if (decision === "drop") {
         clearHandsFreeResponseGrace();
         resetHandsFreeTurnAdmission();
         setLiveUserDraft("");
@@ -1164,13 +1293,23 @@ export default function VoiceArena({
         ) {
           applyTurn({ type: "USER_SPEECH_PAUSED", source: "server_vad" });
         }
-        pushEvent(
-          `Ignored room-audio transcript · "${finalizedFounder.text.slice(0, 32)}${
-            finalizedFounder.text.length > 32 ? "…" : ""
-          }"`
+        recordHandsFreeAdmission(
+          "dropped",
+          "non_substantive_without_local_confirmation",
+          finalizedFounder.text,
+          finalizedFounder.itemId
         );
+        pushEvent(`Ignored unconfirmed non-substantive transcript · "${finalizedFounder.text.slice(0, 32)}${
+          finalizedFounder.text.length > 32 ? "…" : ""
+        }"`);
         return;
       }
+      recordHandsFreeAdmission(
+        "admitted",
+        "local_confirmation_before_transcript",
+        finalizedFounder.text,
+        finalizedFounder.itemId
+      );
       handsFreeTranscriptAdmittedRef.current = true;
       const pendingBargeLevel = admittedHandsFreeBargeLevel({
         state: turnStateRef.current,
@@ -1580,6 +1719,7 @@ export default function VoiceArena({
     }
     startingRef.current = true;
     clearHandsFreeResponseGrace();
+    clearPendingHandsFreeTranscript("session_ended_before_confirmation");
     resetHandsFreeTurnAdmission();
     clearHandsFreePlaybackDrain();
     setMicRecoveryPending(false);
@@ -1863,8 +2003,7 @@ export default function VoiceArena({
         const wakeLock = (navigator as Navigator & { wakeLock?: { request: (type: "screen") => Promise<WakeLockSentinel> } }).wakeLock;
         if (wakeLock) {
           void wakeLock.request("screen").then((lock) => {
-            wakeLockRef.current = lock;
-            setWakeLockDenied(false);
+            installWakeLock(lock);
           }).catch(() => setWakeLockDenied(true));
         } else {
           setWakeLockDenied(true);
@@ -2043,14 +2182,19 @@ export default function VoiceArena({
     const result = await recoverMicrophone(
       connection,
       isCurrentRecovery,
-      () => noteCallInterrupted("mic_ended")
+      () => noteCallInterrupted("mic_ended"),
+      outboundMicOpenForState(turnStateRef.current)
     );
     if (!isCurrentRecovery()) return;
     setMicRecoveryPending(false);
     setMicFallbackReason(result.reason);
     if (result.recovered) {
+      const shouldOpen = outboundMicOpenForState(turnStateRef.current);
+      const before = connection.outboundAudioTracks?.[0]?.enabled ?? false;
+      setOutboundMicrophoneEnabled(connection, shouldOpen);
       setMicMode("microphone");
-      pushEvent("Microphone ready");
+      pushEvent(`Mic recovered · outbound ${before ? "on" : "off"} → ${shouldOpen ? "on" : "off"}`);
+      pushEvent(shouldOpen ? "Mic recovered — listening" : "Mic recovered");
       return;
     }
     pushEvent("Microphone still unavailable");
@@ -2081,7 +2225,8 @@ export default function VoiceArena({
       const result = await recoverMicrophone(
         connection,
         isCurrentRecovery,
-        () => noteCallInterrupted("mic_ended")
+        () => noteCallInterrupted("mic_ended"),
+        outboundMicOpenForState(turnStateRef.current)
       );
       if (!isCurrentRecovery()) return;
       const resumed = await resumeRemoteAudio(connection);
@@ -2092,6 +2237,9 @@ export default function VoiceArena({
         canRecoverLivePeer(peerNow) &&
         !shouldReconnectAfterInterrupt(peerNow)
       ) {
+        const shouldOpen = outboundMicOpenForState(turnStateRef.current);
+        const before = connection.outboundAudioTracks?.[0]?.enabled ?? false;
+        setOutboundMicrophoneEnabled(connection, shouldOpen);
         unduckRemoteForgeAudio(connection);
         callInterruptedRef.current = false;
         setCallInterrupted(false);
@@ -2101,7 +2249,8 @@ export default function VoiceArena({
         setTurnState("listening");
         setPhase("listening");
         setMicRecoveryPending(false);
-        pushEvent("Continued after interrupt");
+        pushEvent(`Mic recovered · outbound ${before ? "on" : "off"} → ${shouldOpen ? "on" : "off"}`);
+        pushEvent(shouldOpen ? "Mic recovered — listening" : "Continued after interrupt");
         return;
       }
       if (
@@ -2303,6 +2452,7 @@ export default function VoiceArena({
     void wakeLockRef.current?.release().catch(() => undefined);
     wakeLockRef.current = null;
     clearHandsFreeResponseGrace();
+    clearPendingHandsFreeTranscript("session_ended_before_confirmation");
     resetHandsFreeTurnAdmission();
     clearHandsFreePlaybackDrain();
     clearGuestDurationWatch();

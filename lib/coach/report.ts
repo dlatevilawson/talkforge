@@ -6,6 +6,7 @@ import {
 } from "@/lib/coach/metrics";
 import type { SessionReport } from "@/lib/coach/types";
 import type { ConversationTurn, PracticeSession } from "@/lib/types";
+import { isSubstantiveTranscript } from "@/lib/ce/transcript-admission";
 
 export type MomentumLike = {
   strength?: string;
@@ -59,6 +60,7 @@ export function buildSessionReport(input: {
   momentum?: MomentumLike | null;
 }): SessionReport {
   const { session, turns, sessionNumber, modality, momentum } = input;
+  const capturedSpeech = userTextsFromTurns(turns).some(isSubstantiveTranscript);
   const confidence = clampScore(
     momentum?.confidence ?? averageDimension(turns, "confidence")
   );
@@ -88,19 +90,28 @@ export function buildSessionReport(input: {
     scenarioId: session.scenarioId,
   });
 
-  const breakthrough =
+  const breakthrough = !capturedSpeech
+    ? "We didn't capture a spoken thought in this session."
+    :
     momentum?.breakthrough?.trim() ||
     momentum?.strength?.trim() ||
     "You showed up and practiced out loud.";
-  const biggestWeakness =
+  const biggestWeakness = !capturedSpeech
+    ? "No practice was captured to evaluate."
+    :
     momentum?.biggestWeakness?.trim() ||
     momentum?.improve?.trim() ||
     "Keep one concrete focus for the next rep.";
-  const homework =
+  const homework = !capturedSpeech
+    ? "Check your microphone and try the rep again."
+    :
     momentum?.homework?.trim() ||
     momentum?.nextAction?.trim() ||
     "Try one clearer opening line in your next real conversation.";
   const coachSummary =
+    !capturedSpeech
+      ? "We didn't capture a spoken thought in this session. Check your microphone and try the rep again."
+      :
     momentum?.coachSummary?.trim() ||
     [breakthrough, `Focus next: ${biggestWeakness}`, `Homework: ${homework}`]
       .filter(Boolean)
@@ -122,14 +133,14 @@ export function buildSessionReport(input: {
     sessionNumber,
     modality,
     durationSeconds,
-    overallScore,
-    confidence,
-    empathy,
-    listening,
-    clarity,
-    storytelling: clampScore(skillBoost.storytelling ?? null),
-    negotiation: clampScore(skillBoost.negotiation ?? null),
-    leadership: clampScore(skillBoost.leadership ?? null),
+    overallScore: capturedSpeech ? overallScore : null,
+    confidence: capturedSpeech ? confidence : null,
+    empathy: capturedSpeech ? empathy : null,
+    listening: capturedSpeech ? listening : null,
+    clarity: capturedSpeech ? clarity : null,
+    storytelling: capturedSpeech ? clampScore(skillBoost.storytelling ?? null) : null,
+    negotiation: capturedSpeech ? clampScore(skillBoost.negotiation ?? null) : null,
+    leadership: capturedSpeech ? clampScore(skillBoost.leadership ?? null) : null,
     questionsAsked: habits.questionsAsked,
     interruptions: habits.interruptions,
     fillerWords: habits.fillerWords,
