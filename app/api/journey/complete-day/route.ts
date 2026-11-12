@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { hasSubstantiveFounderSpeech } from "@/lib/session-substance";
 
 export async function POST(request: Request) {
   const supabase = await createServerSupabaseClient();
@@ -9,6 +10,10 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => ({}));
   if (typeof body.drillId !== "string") {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+  }
+  const hasSession = typeof body.sessionId === "string" && body.sessionId.length > 0;
+  if (!hasSession && body.textOnly !== true) {
+    return NextResponse.json({ error: "spoken_rep_required" }, { status: 400 });
   }
   const admin = createAdminSupabaseClient();
   const completedAt = typeof body.completedAt === "string" ? body.completedAt : new Date().toISOString();
@@ -24,6 +29,14 @@ export async function POST(request: Request) {
       const { data: done, error: doneError } = await admin.from("program_days").select("id").eq("program_id", body.programId).eq("drill_id", body.drillId).eq("status", "done").order("day_index", { ascending: false }).limit(1).maybeSingle();
       if (doneError) return NextResponse.json({ error: doneError.message }, { status: 500 });
       day = done;
+    }
+  }
+  if (hasSession) {
+    const { data: session, error: sessionError } = await admin.from("practice_sessions").select("id,turns").eq("id", body.sessionId).eq("user_id", user.id).maybeSingle();
+    if (sessionError) return NextResponse.json({ error: sessionError.message }, { status: 500 });
+    if (!session) return NextResponse.json({ error: "session_not_found" }, { status: 404 });
+    if (!hasSubstantiveFounderSpeech(Array.isArray(session.turns) ? session.turns : [])) {
+      return NextResponse.json({ ok: true, captured: false });
     }
   }
   const { error: completionError } = await admin.from("drill_completions").upsert({

@@ -135,6 +135,7 @@ import {
   GUEST_PREVIEW_SIGN_IN_CTA,
 } from "@/lib/forge/post-session-copy";
 import { startSpeechRecorder, type SpeechRecorder } from "@/lib/ce/speech-capture";
+import { hasRepeatedCoachTurn } from "@/lib/ce/coach-loop";
 
 type WrapStage = "coaching" | "membership";
 
@@ -250,6 +251,7 @@ export default function VoiceArena({
   const speechRecorderRef = useRef<SpeechRecorder | null>(null);
   const speechAudioBlobRef = useRef<Blob | null>(null);
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  const coachLoopHandledRef = useRef(false);
 
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState("");
@@ -957,8 +959,12 @@ export default function VoiceArena({
 
   useEffect(() => {
     mountedRef.current = true;
+    const onPageHide = () => beaconIncompleteSessionRecovery();
+    window.addEventListener("pagehide", onPageHide);
     return () => {
       mountedRef.current = false;
+      beaconIncompleteSessionRecovery();
+      window.removeEventListener("pagehide", onPageHide);
       if (joinGateTimerRef.current) {
         clearTimeout(joinGateTimerRef.current);
         joinGateTimerRef.current = null;
@@ -980,7 +986,7 @@ export default function VoiceArena({
       connectionRef.current = null;
       setLiveConnection(null);
     };
-  }, [isGuestPreview]);
+  }, [isGuestPreview, isAssessment]);
 
   useEffect(() => {
     if (isGuestPreview) return;
@@ -1099,6 +1105,23 @@ export default function VoiceArena({
           console.warn("[voice] persist session failed", err);
         });
     }
+  }
+
+  function beaconIncompleteSessionRecovery() {
+    if (isGuestPreview || isAssessment) return;
+    const practice = practiceSessionRef.current;
+    if (!practice || practice.completedAt || turnsRef.current.length === 0) return;
+    const body = JSON.stringify({ sessionId: practice.id });
+    try {
+      const beacon = new Blob([body], { type: "application/json" });
+      if (typeof navigator !== "undefined" && navigator.sendBeacon("/api/session/recover", beacon)) {
+        pushEvent("Saved turns · recovery queued");
+        return;
+      }
+    } catch {
+      // Fall through to a keepalive request where sendBeacon is unavailable.
+    }
+    void fetch("/api/session/recover", { method: "POST", headers: { "content-type": "application/json" }, body, keepalive: true }).catch(() => undefined);
   }
 
   function trackUsage(
@@ -1463,6 +1486,12 @@ export default function VoiceArena({
       if (added.role === "forge") {
         setLiveForgeDraft("");
         trackUsage("assistant_text", added.text);
+        if (!coachLoopHandledRef.current && hasRepeatedCoachTurn(next)) {
+          coachLoopHandledRef.current = true;
+          pushEvent("Coach loop detected · wrap offered");
+          void handleStop("coach_loop");
+          return;
+        }
         if (isAssessment) {
           if (looksLikeForgeAssessmentSoftClose(added.text)) {
             dispatchAssessmentEvent({
@@ -1908,6 +1937,7 @@ export default function VoiceArena({
           });
         }
         practiceSessionRef.current = practice;
+        coachLoopHandledRef.current = false;
         setSavedSessionId(practice.id);
         if (!isAssessment && voiceSessionIdRef.current) {
           saveVoiceTranscript({
@@ -2270,6 +2300,9 @@ export default function VoiceArena({
 
     setCompletionRetryPending(true);
     setCompletionError("");
+    // Expose the durable session id before the first save attempt so a
+    // transient failure still renders a reachable retry action.
+    setSavedSessionId(practice.id);
     try {
       const user = await getUser().catch(() => null);
       const conversation = voiceTurnsToConversationTurns(snapshot);
@@ -2297,7 +2330,8 @@ export default function VoiceArena({
     }
   }
 
-  async function handleStop() {
+  async function handleStop(reason = "member_end") {
+    if (phaseRef.current === "momentum") return;
     thinkingHoldRef.current = false;
     setThinkingHold(false);
     void wakeLockRef.current?.release().catch(() => undefined);
@@ -2402,7 +2436,7 @@ export default function VoiceArena({
     callInterruptedRef.current = false;
     setCallInterrupted(false);
     clearInterruptTimers();
-    pushEvent("Ended");
+    pushEvent(reason === "coach_loop" ? "Ended · repeated coach turn" : "Ended");
 
     const snapshot = [...turnsRef.current];
     setPhase("momentum");
@@ -2421,14 +2455,19 @@ export default function VoiceArena({
 
     if (!isGuestPreview) {
       try {
+        const momentumController = new AbortController();
+        const momentumTimeout = window.setTimeout(() => momentumController.abort(), 5000);
         const res = await fetch("/api/session-momentum", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: momentumController.signal,
           body: JSON.stringify({
             turns: snapshot,
             eventTitle,
           }),
         });
+        window.clearTimeout(momentumTimeout);
+        if (!res.ok) throw new Error("momentum_failed");
         const data = (await res.json()) as Momentum;
         wrap = {
           strength:
