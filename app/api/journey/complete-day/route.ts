@@ -10,6 +10,10 @@ export async function POST(request: Request) {
   if (typeof body.drillId !== "string") {
     return NextResponse.json({ error: "invalid_request" }, { status: 400 });
   }
+  const hasSession = typeof body.sessionId === "string" && body.sessionId.length > 0;
+  if (!hasSession && body.textOnly !== true) {
+    return NextResponse.json({ error: "spoken_rep_required" }, { status: 400 });
+  }
   const admin = createAdminSupabaseClient();
   const completedAt = typeof body.completedAt === "string" ? body.completedAt : new Date().toISOString();
   let day: { id: string } | null = null;
@@ -25,6 +29,11 @@ export async function POST(request: Request) {
       if (doneError) return NextResponse.json({ error: doneError.message }, { status: 500 });
       day = done;
     }
+  }
+  if (hasSession) {
+    const { data: session, error: sessionError } = await admin.from("practice_sessions").select("id").eq("id", body.sessionId).eq("user_id", user.id).maybeSingle();
+    if (sessionError) return NextResponse.json({ error: sessionError.message }, { status: 500 });
+    if (!session) return NextResponse.json({ error: "session_not_found" }, { status: 404 });
   }
   const { error: completionError } = await admin.from("drill_completions").upsert({
     day_id: day?.id ?? null,

@@ -136,6 +136,15 @@ export async function completePracticeSession(
         fillerCount: reportFillerCount,
         capture: options.speechCapture,
       });
+      if (typeof window !== "undefined" && options.speechCapture.audioBlob) {
+        // Measurement is deliberately asynchronous: completion and audio
+        // persistence remain durable even when transcription is unavailable.
+        void fetch("/api/speech/measure", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ sessionId: completed.id }),
+        });
+      }
     } catch (error) {
       // Audio is supplemental evidence; never block the core session history.
       console.warn("[speech] failed to persist evidence", error);
