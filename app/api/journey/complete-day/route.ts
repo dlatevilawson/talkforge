@@ -32,10 +32,16 @@ export async function POST(request: Request) {
     }
   }
   if (hasSession) {
-    const { data: session, error: sessionError } = await admin.from("practice_sessions").select("id,turns").eq("id", body.sessionId).eq("user_id", user.id).maybeSingle();
-    if (sessionError) return NextResponse.json({ error: sessionError.message }, { status: 500 });
+    const [{ data: session, error: sessionError }, { data: audio, error: audioError }] = await Promise.all([
+      admin.from("practice_sessions").select("id,turns").eq("id", body.sessionId).eq("user_id", user.id).maybeSingle(),
+      admin.from("speech_audio").select("session_id").eq("session_id", body.sessionId).eq("user_id", user.id).maybeSingle(),
+    ]);
+    if (sessionError || audioError) {
+      return NextResponse.json({ error: sessionError?.message ?? audioError?.message ?? "session_lookup_failed" }, { status: 500 });
+    }
     if (!session) return NextResponse.json({ error: "session_not_found" }, { status: 404 });
-    if (!hasSubstantiveFounderSpeech(Array.isArray(session.turns) ? session.turns : [])) {
+    const hasSubstantiveTurns = hasSubstantiveFounderSpeech(Array.isArray(session.turns) ? session.turns : []);
+    if (!hasSubstantiveTurns && !audio) {
       return NextResponse.json({ ok: true, captured: false });
     }
   }

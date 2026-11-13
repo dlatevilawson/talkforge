@@ -13,9 +13,9 @@ export async function persistSpeechCapture(input: {
   durationSeconds: number | null;
   fillerCount: number | null;
   capture: SpeechCapture;
-}): Promise<void> {
+}): Promise<{ audioPath: string | null }> {
   const supabase = getSupabaseClient();
-  if (!supabase) return;
+  if (!supabase) return { audioPath: null };
 
   let audioPath: string | null = null;
   if (input.capture.audioBlob) {
@@ -122,4 +122,5 @@ export async function persistSpeechCapture(input: {
     const { error } = await supabase.from("speech_filler_moments").insert(fillerRows);
     if (error) throw new Error(`Failed to persist filler moments: ${error.message}`);
   }
+  return { audioPath };
 }
