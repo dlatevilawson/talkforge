@@ -71,6 +71,7 @@ export type PracticeSession = {
   missionPrompt: string;
   startedAt: string;
   completedAt?: string;
+  lastActivityAt?: string;
   turns: ConversationTurn[];
   averageScore?: number;
   /** voice | text — defaults to text for legacy rows */

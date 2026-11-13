@@ -23,6 +23,7 @@ import {
 import type { ConversationTurn, ForgeCoaching, PracticeSession } from "./types";
 import type { TranscriptTurn } from "@/lib/ce/transcript";
 import { persistSpeechCapture } from "@/lib/speech/persistence";
+import { hasSubstantiveFounderSpeech } from "@/lib/session-substance";
 
 function createId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -89,6 +90,7 @@ export async function completePracticeSession(
   }
 ): Promise<PracticeSession> {
   const modality = options?.modality ?? session.modality ?? "text";
+  const substantiveSpeech = hasSubstantiveFounderSpeech(turns);
   const completedAt = new Date().toISOString();
   const durationSeconds =
     options?.durationSeconds ??
@@ -114,7 +116,8 @@ export async function completePracticeSession(
     ...session,
     turns,
     completedAt,
-    averageScore: averageForgeScore(turns),
+    lastActivityAt: completedAt,
+    averageScore: substantiveSpeech ? averageForgeScore(turns) : undefined,
     modality,
     durationSeconds,
   };
@@ -136,14 +139,24 @@ export async function completePracticeSession(
         fillerCount: reportFillerCount,
         capture: options.speechCapture,
       });
+      if (typeof window !== "undefined" && options.speechCapture.audioBlob) {
+        // Measurement is deliberately asynchronous: completion and audio
+        // persistence remain durable even when transcription is unavailable.
+        void fetch("/api/speech/measure", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ sessionId: completed.id }),
+        });
+      }
     } catch (error) {
       // Audio is supplemental evidence; never block the core session history.
       console.warn("[speech] failed to persist evidence", error);
     }
   }
 
-  if (completed.drillId) {
-    if (completed.programId && typeof window !== "undefined") {
+  if (completed.drillId && hasSubstantiveFounderSpeech(turns)) {
+    try {
+      if (completed.programId && typeof window !== "undefined") {
       const response = await fetch("/api/journey/complete-day", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -154,14 +167,19 @@ export async function completePracticeSession(
           completedAt,
         }),
       });
-      if (!response.ok) throw new Error("Failed to complete the training day.");
-    } else if (typeof window !== "undefined") {
+        if (!response.ok) throw new Error("Failed to complete the training day.");
+      } else if (typeof window !== "undefined") {
       const response = await fetch("/api/journey/complete-day", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ drillId: completed.drillId, sessionId: completed.id, completedAt }),
       });
-      if (!response.ok) throw new Error("Failed to save the drill completion.");
+        if (!response.ok) throw new Error("Failed to save the drill completion.");
+      }
+    } catch (error) {
+      // A journey write can fail independently. Reports and memory below are
+      // still durable; the day can be retried without losing the debrief.
+      console.error("[journey] completion failed after session save", error);
     }
   }
 
@@ -175,6 +193,19 @@ export async function completePracticeSession(
     durationSeconds,
     momentum: options?.momentum,
   });
+  if (!substantiveSpeech) {
+    report.overallScore = null;
+    report.confidence = null;
+    report.empathy = null;
+    report.listening = null;
+    report.clarity = null;
+    report.storytelling = null;
+    report.negotiation = null;
+    report.leadership = null;
+    report.breakthrough = "We didn’t capture a spoken thought in this session.";
+    report.biggestWeakness = "No practice was captured; try the rep again when your microphone is ready.";
+    report.coachSummary = `${report.breakthrough} ${report.biggestWeakness}`;
+  }
   if (
     typeof completed.averageScore !== "number" &&
     typeof report.overallScore === "number"
@@ -243,7 +274,16 @@ export async function completePracticeSession(
 /** Retry a failed canonical-memory write from the latest durable report. */
 export async function retryCoachMemoryUpdate(sessionId: string): Promise<boolean> {
   const session = await getSession(sessionId);
-  if (!session?.completedAt) return false;
+  if (!session) return false;
+  if (!session.completedAt && typeof window !== "undefined") {
+    const response = await fetch("/api/session/recover", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ sessionId }),
+    });
+    return response.ok;
+  }
+  if (!session.completedAt) return false;
   const report = (await getSessionReport(sessionId)) ?? buildSessionReport({
     session,
     turns: session.turns,
@@ -304,6 +344,7 @@ export async function persistActiveSession(
     turns,
     averageScore: averageForgeScore(turns),
     completedAt: session.completedAt,
+    lastActivityAt: new Date().toISOString(),
   };
   await saveSession(next);
   return next;

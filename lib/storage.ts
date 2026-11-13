@@ -59,6 +59,7 @@ function mapSession(row: {
   mission_prompt: string;
   started_at: string;
   completed_at: string | null;
+  last_activity_at?: string | null;
   average_score: number | null;
   turns: ConversationTurn[] | null;
   modality?: string | null;
@@ -76,6 +77,7 @@ function mapSession(row: {
     missionPrompt: row.mission_prompt,
     startedAt: row.started_at,
     completedAt: row.completed_at ?? undefined,
+    lastActivityAt: row.last_activity_at ?? undefined,
     averageScore: row.average_score ?? undefined,
     turns: Array.isArray(row.turns) ? row.turns : [],
     modality: row.modality === "voice" ? "voice" : "text",
@@ -319,7 +321,7 @@ export async function saveUser(user: TalkForgeUser): Promise<void> {
 }
 
 const SESSION_SELECT =
-  "id, user_id, scenario_id, scenario_title, mission_prompt, started_at, completed_at, average_score, turns, modality, duration_seconds, drill_id, program_id, purpose, voice_minutes";
+  "id, user_id, scenario_id, scenario_title, mission_prompt, started_at, completed_at, last_activity_at, average_score, turns, modality, duration_seconds, drill_id, program_id, purpose, voice_minutes";
 
 export async function listSessions(userId?: string): Promise<PracticeSession[]> {
   const supabase = requireSupabase();
@@ -342,6 +344,7 @@ export async function listSessions(userId?: string): Promise<PracticeSession[]> 
       error.message.includes("program_id") ||
       error.message.includes("purpose") ||
       error.message.includes("voice_minutes")
+      || error.message.includes("last_activity_at")
     ) {
       let legacy = supabase
         .from("practice_sessions")
@@ -379,6 +382,7 @@ export async function getSession(
       error.message.includes("program_id") ||
       error.message.includes("purpose") ||
       error.message.includes("voice_minutes")
+      || error.message.includes("last_activity_at")
     ) {
       const retry = await supabase
         .from("practice_sessions")
@@ -409,6 +413,7 @@ export async function saveSession(session: PracticeSession): Promise<void> {
     mission_prompt: session.missionPrompt,
     started_at: session.startedAt,
     completed_at: session.completedAt ?? null,
+    last_activity_at: session.lastActivityAt ?? session.completedAt ?? new Date().toISOString(),
     average_score: session.averageScore ?? null,
     turns: session.turns,
     modality: session.modality ?? "text",
@@ -427,7 +432,7 @@ export async function saveSession(session: PracticeSession): Promise<void> {
   const { error } = await supabase.from("practice_sessions").upsert(payload);
 
   if (error) {
-    if (error.message.includes("modality") || error.message.includes("duration")) {
+    if (error.message.includes("modality") || error.message.includes("duration") || error.message.includes("last_activity_at")) {
       const legacy = {
         id: payload.id,
         user_id: payload.user_id,
@@ -611,7 +616,9 @@ export type SpeechEvidence = {
     paceWpm: number | null;
     pauseCount: number | null;
     memberTalkTimePct: number | null;
+    measuredAt?: string | null;
   } | null;
+  measuring: boolean;
   fillers: Array<{ id: string; word: string; occurrenceIndex: number; startOffsetMs: number | null; endOffsetMs: number | null; replayUrl?: string }>;
 };
 
@@ -619,7 +626,7 @@ export async function getSpeechEvidence(sessionId: string): Promise<SpeechEviden
   const supabase = requireSupabase();
   const [{ data: audio }, { data: metrics }, { data: fillers }] = await Promise.all([
     supabase.from("speech_audio").select("storage_path,mime_type,duration_seconds").eq("session_id", sessionId).maybeSingle(),
-    supabase.from("speech_metrics").select("filler_count,filler_density_per_100_words,pace_wpm,pause_count,member_talk_time_pct").eq("session_id", sessionId).maybeSingle(),
+    supabase.from("speech_metrics").select("filler_count,filler_density_per_100_words,pace_wpm,pause_count,member_talk_time_pct,measured_at").eq("session_id", sessionId).maybeSingle(),
     supabase.from("speech_filler_moments").select("id,word,occurrence_index,start_offset_ms,end_offset_ms,replay_ref_id").eq("session_id", sessionId).order("occurrence_index"),
   ]);
   if (!audio && !metrics && !(fillers?.length)) return null;
@@ -630,7 +637,8 @@ export async function getSpeechEvidence(sessionId: string): Promise<SpeechEviden
   }
   return {
     audio: audio ? { storagePath: audio.storage_path, mimeType: audio.mime_type, durationSeconds: audio.duration_seconds, replayUrl } : null,
-    metrics: metrics ? { fillerCount: metrics.filler_count, fillerDensityPer100Words: metrics.filler_density_per_100_words, paceWpm: metrics.pace_wpm, pauseCount: metrics.pause_count, memberTalkTimePct: metrics.member_talk_time_pct } : null,
+    metrics: metrics ? { fillerCount: metrics.filler_count, fillerDensityPer100Words: metrics.filler_density_per_100_words, paceWpm: metrics.pace_wpm, pauseCount: metrics.pause_count, memberTalkTimePct: metrics.member_talk_time_pct, measuredAt: metrics.measured_at } : null,
+    measuring: Boolean(audio && (!metrics || !metrics.measured_at)),
     fillers: (fillers ?? []).map((row) => ({ id: row.id, word: row.word, occurrenceIndex: row.occurrence_index, startOffsetMs: row.start_offset_ms, endOffsetMs: row.end_offset_ms, replayUrl })),
   };
 }
