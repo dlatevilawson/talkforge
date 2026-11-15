@@ -23,6 +23,7 @@ import {
 import type { ConversationTurn, ForgeCoaching, PracticeSession } from "./types";
 import type { TranscriptTurn } from "@/lib/ce/transcript";
 import { persistSpeechCapture } from "@/lib/speech/persistence";
+import { hasAdmittedPracticeSpeech } from "@/lib/journey/completion-gate";
 
 function createId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -142,7 +143,10 @@ export async function completePracticeSession(
     }
   }
 
-  if (completed.drillId) {
+  const hasPracticeSpeech = hasAdmittedPracticeSpeech(
+    turns.map((turn) => ({ role: turn.role, text: "text" in turn ? turn.text : "" }))
+  );
+  if (completed.drillId && hasPracticeSpeech) {
     if (completed.programId && typeof window !== "undefined") {
       const response = await fetch("/api/journey/complete-day", {
         method: "POST",
