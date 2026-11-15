@@ -79,6 +79,11 @@ export default function ReflectPage() {
         if (loadedReflection?.coachSatisfaction) {
           setSatisfaction(loadedReflection.coachSatisfaction);
         }
+        if (loadedSpeech?.measuring) {
+          window.setTimeout(() => {
+            if (!cancelled) void load();
+          }, 1500);
+        }
       } catch (err) {
         if (!cancelled) {
           setError(
@@ -190,9 +195,10 @@ export default function ReflectPage() {
 
       <section className="mt-6 max-w-2xl rounded-3xl border border-white/10 bg-white/5 p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Speech evidence</p>
-        {session.modality !== "voice" ? <p className="mt-3 text-sm text-zinc-300">No voice recorded for this text drill.</p> : (
+        {!speech?.audio && session.modality !== "voice" ? <p className="mt-3 text-sm text-zinc-300">No voice recorded for this text drill.</p> : (
           <div className="mt-4 space-y-3 text-sm text-zinc-300">
-            {finishing ? <p className="text-amber-200/80">Finishing up speech evidence…</p> : <>
+            {finishing ? <p className="text-amber-200/80">Finishing up speech evidence…</p> : null}
+            {speech?.measuring ? <p className="rounded-xl border border-[#c9a95f]/30 bg-[#c9a95f]/10 px-3 py-2 text-[#f1d99b]">Measuring this spoken rep…</p> : null}
             <p>Fillers: {speech?.metrics?.fillerCount ?? "Not measured"}</p>
             <p>Pace: {speech?.metrics?.paceWpm != null ? `${speech.metrics.paceWpm} WPM` : "Not measured"}</p>
             <p>Talk-time: {speech?.metrics?.memberTalkTimePct != null ? `${speech.metrics.memberTalkTimePct}%` : "Not measured"}</p>
@@ -200,7 +206,6 @@ export default function ReflectPage() {
             {speech?.audio?.replayUrl ? <audio id="speech-replay" className="w-full" controls src={speech.audio.replayUrl} /> : null}
             {speech?.fillers.length ? <div><p className="mb-2">Filler moments</p><ul className="space-y-1 text-zinc-400">{speech.fillers.map((f) => <li key={f.id}><button type="button" className="underline underline-offset-4 hover:text-white" onClick={() => { const audio = document.getElementById("speech-replay") as HTMLAudioElement | null; if (audio && f.startOffsetMs != null) { audio.currentTime = f.startOffsetMs / 1000; void audio.play(); } }}>{f.word} · {f.startOffsetMs != null ? `${Math.round(f.startOffsetMs / 1000)}s · replay` : "Not measured"}</button></li>)}</ul></div> : <p className="text-zinc-500">Filler moments: Not measured</p>}
             <p className="border-t border-white/10 pt-3">Next rep: {report?.homework || "Choose one small change to repeat next time."}</p>
-            </>}
           </div>
         )}
       </section>
