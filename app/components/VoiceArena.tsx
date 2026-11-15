@@ -90,6 +90,7 @@ import {
 import {
   admittedHandsFreeBargeLevel,
   HANDS_FREE_CONTINUATION_GRACE_MS,
+  continuationGraceMsForUtterance,
   HANDS_FREE_PLAYBACK_DRAIN_FALLBACK_MS,
   isForgeOutputEventType,
   logTurnTransition,
@@ -99,6 +100,7 @@ import {
   shouldAdmitHandsFreeTranscript,
   shouldSurfaceRealtimeError,
   shouldWaitForHandsFreePlaybackDrain,
+  thinkingHoldBlocksResponse,
   type TurnState,
 } from "@/lib/ce/handsfree-turntaking";
 import {
@@ -245,6 +247,17 @@ export default function VoiceArena({
   const handsFreeGraceElapsedRef = useRef(false);
   const handsFreeResponseRequestedRef = useRef(false);
   const thinkingHoldRef = useRef(false);
+  const handsFreeSpeechStartedAtRef = useRef<number | null>(null);
+  const handsFreeTurnTimingRef = useRef<{
+    speechStoppedAt: number;
+    vadWaitMs: number | null;
+    graceMs: number;
+    graceElapsedAt: number | null;
+    responseCreatedAt: number | null;
+    firstAudioAt: number | null;
+    loggedAudio: boolean;
+  } | null>(null);
+  const lastHandsFreeFounderTextRef = useRef<string | null>(null);
   const pendingHandsFreeBargeLevelRef = useRef<number | null>(null);
   const assessmentNavigatedRef = useRef(false);
   const speechRecorderRef = useRef<SpeechRecorder | null>(null);
@@ -757,6 +770,7 @@ export default function VoiceArena({
   function requestAdmittedHandsFreeResponse(reason: string) {
     if (
       handsFreeResponseRequestedRef.current ||
+      thinkingHoldBlocksResponse(thinkingHoldRef.current) ||
       !handsFreeTranscriptAdmittedRef.current ||
       !handsFreeGraceElapsedRef.current ||
       turnStateRef.current !== "listening"
@@ -859,7 +873,7 @@ export default function VoiceArena({
     pushEvent("Response generated · waiting for speaker playback to finish");
   }
 
-  function armHandsFreeResponseGrace(reason: string) {
+  function armHandsFreeResponseGrace(reason: string, transcript?: string | null) {
     if (isAssessment || !handsFreeRef.current) return;
     clearHandsFreeResponseGrace();
 
@@ -869,11 +883,27 @@ export default function VoiceArena({
     });
     if (paused.to !== "listening") return;
 
+    const speechStoppedAt = Date.now();
+    const graceMs = continuationGraceMsForUtterance(
+      transcript ?? lastHandsFreeFounderTextRef.current
+    );
+    const speechStartedAt = handsFreeSpeechStartedAtRef.current;
+    handsFreeTurnTimingRef.current = {
+      speechStoppedAt,
+      vadWaitMs: speechStartedAt != null ? speechStoppedAt - speechStartedAt : null,
+      graceMs,
+      graceElapsedAt: null,
+      responseCreatedAt: null,
+      firstAudioAt: null,
+      loggedAudio: false,
+    };
     handsFreeResponseTimerRef.current = setTimeout(() => {
       handsFreeResponseTimerRef.current = null;
       if (!mountedRef.current || isAssessment || !handsFreeRef.current) return;
       if (turnStateRef.current !== "listening") return;
       handsFreeGraceElapsedRef.current = true;
+      const timing = handsFreeTurnTimingRef.current;
+      if (timing) timing.graceElapsedAt = Date.now();
       if (!handsFreeTranscriptAdmittedRef.current) {
         pushEvent(
           `Hands-free turn · grace elapsed · awaiting admitted transcript · ${reason}`
@@ -881,10 +911,10 @@ export default function VoiceArena({
         return;
       }
       requestAdmittedHandsFreeResponse(
-        `${HANDS_FREE_CONTINUATION_GRACE_MS}ms grace · ${reason}`
+        `${graceMs}ms grace · ${reason}`
       );
-    }, HANDS_FREE_CONTINUATION_GRACE_MS);
-    pushEvent(`Speech pause · waiting for continuation · ${reason}`);
+    }, graceMs);
+    pushEvent(`Speech pause · waiting ${graceMs}ms for continuation · ${reason}`);
   }
 
   function clearInterruptTimers() {
@@ -1146,6 +1176,7 @@ export default function VoiceArena({
         handsFreeGraceElapsedRef.current = false;
         pushEvent("Thinking hold released by speech");
       }
+      lastHandsFreeFounderTextRef.current = finalizedFounder.text;
       const admitted = shouldAdmitHandsFreeTranscript({
         text: finalizedFounder.text,
         locallyConfirmed: handsFreeLocalTurnConfirmedRef.current,
@@ -1192,8 +1223,15 @@ export default function VoiceArena({
       }
       if (handsFreeGraceElapsedRef.current) {
         requestAdmittedHandsFreeResponse("transcript admitted after grace");
-      } else if (thinkingHoldRef.current === false && !handsFreeResponseTimerRef.current) {
-        armHandsFreeResponseGrace("member speech after thinking hold");
+      } else if (thinkingHoldRef.current === false) {
+        // Re-arm with the admitted utterance so a clearly finished answer can
+        // yield sooner, while fragmentary speech keeps the full hold.
+        armHandsFreeResponseGrace(
+          handsFreeResponseTimerRef.current
+            ? "admitted transcript refinement"
+            : "member speech after thinking hold",
+          finalizedFounder.text
+        );
       }
     }
 
@@ -1256,6 +1294,19 @@ export default function VoiceArena({
               ? ((event.response as { id: string }).id)
               : undefined;
 
+        const timing = handsFreeTurnTimingRef.current;
+        if (timing && handsFreeRef.current && !isAssessment) {
+          timing.responseCreatedAt = Date.now();
+          console.info("[voice-turn-timing] response-created", {
+            vadWaitMs: timing.vadWaitMs,
+            continuationGraceMs: timing.graceMs,
+            modelLatencyMs:
+              timing.graceElapsedAt == null
+                ? null
+                : timing.responseCreatedAt - timing.graceElapsedAt,
+          });
+        }
+
         if (isAssessment) {
           const createdDecision = decideAssessmentResponseCreated(
             assessmentLifecycleRef.current,
@@ -1316,6 +1367,21 @@ export default function VoiceArena({
     ) {
       if (Date.now() >= ignoreForgeAudioUntilRef.current) {
         sawForgeAudioRef.current = true;
+        const timing = handsFreeTurnTimingRef.current;
+        if (timing && !timing.loggedAudio && timing.responseCreatedAt != null) {
+          timing.firstAudioAt = Date.now();
+          timing.loggedAudio = true;
+          console.info("[voice-turn-timing] first-audio", {
+            vadWaitMs: timing.vadWaitMs,
+            continuationGraceMs: timing.graceMs,
+            modelLatencyMs:
+              timing.graceElapsedAt == null
+                ? null
+                : timing.responseCreatedAt - timing.graceElapsedAt,
+            ttsLatencyMs: timing.firstAudioAt - timing.responseCreatedAt,
+            totalSilenceMs: timing.firstAudioAt - timing.speechStoppedAt,
+          });
+        }
         applyTurn({ type: "FORGE_AUDIO_DELTA" });
       }
     }
@@ -1384,6 +1450,9 @@ export default function VoiceArena({
         type: "USER_SPEECH_STARTED",
         source: "server_vad",
       });
+      if (handsFreeRef.current) {
+        handsFreeSpeechStartedAtRef.current = Date.now();
+      }
       if (
         transition.to === "user_speaking" ||
         transition.to === "interrupted"
@@ -2530,7 +2599,9 @@ export default function VoiceArena({
                 ? "Assessment ended"
                 : "Finishing assessment"
               : handsFree
-                ? voice.handsFreeMuted
+                ? handsFreeResponseTimerRef.current || turnState === "forge_thinking"
+                  ? "Forge is thinking…"
+                  : voice.handsFreeMuted
                   ? "Mic muted"
                   : voice.handsFreeLabel ?? "Speak naturally"
                 : phase === "speaking"
