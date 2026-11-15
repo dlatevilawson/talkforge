@@ -6,6 +6,29 @@ export type SpeechCapture = {
   turns: TranscriptTurn[];
 };
 
+export async function persistSpeechAdmissionEvent(input: {
+  sessionId: string;
+  userId: string;
+  itemId?: string;
+  transcriptText: string;
+  decision: "held" | "admitted" | "dropped" | "control";
+  reason: string;
+  observedAt?: string;
+}): Promise<void> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return;
+  const { error } = await supabase.from("speech_admission_events").insert({
+    session_id: input.sessionId,
+    user_id: input.userId,
+    item_id: input.itemId ?? null,
+    transcript_text: input.transcriptText,
+    decision: input.decision,
+    reason: input.reason,
+    observed_at: input.observedAt ?? new Date().toISOString(),
+  });
+  if (error) throw new Error(`Failed to persist speech admission event: ${error.message}`);
+}
+
 /** Persist only observed speech evidence. Missing telemetry stays null. */
 export async function persistSpeechCapture(input: {
   sessionId: string;

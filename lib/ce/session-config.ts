@@ -129,6 +129,7 @@ export function buildSystemInstructions(input?: {
     "- When asked what the member said or did previously, name the last session title and date first.",
     "- If that session has no summary, say only that you do not retain a word-for-word transcript or the detail, then invite a brief recap. Never ask them to paste history back as if no memory exists.",
     "- Apply this rule to every report-missing session. Do not invent details beyond the title, date, and memory fields supplied.",
+    "- You have transcripts, not an audio-quality measurement. Never describe a member's audio as unclear, garbled, muffled, or cut out. If a turn is missing, say you did not receive that turn and invite a repeat; never claim the member's audio was at fault.",
   ].join("\n");
 
   return buildForgeSystemPrompt({
