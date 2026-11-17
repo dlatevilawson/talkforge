@@ -19,6 +19,8 @@ export type Drill = {
   twoMinuteVersion: string;
   scenarioTags: string[];
   goodLooksLike: string;
+  question?: string;
+  workedExample?: string;
 };
 
 // IDs are stable so the home card, URL, and completion record refer to one drill.
@@ -37,6 +39,8 @@ export const STARTER_DRILLS: readonly Drill[] = [
     twoMinuteVersion: "Just write the sentence.",
     scenarioTags: ["general"],
     goodLooksLike: "States the point before any background.",
+    question: "What is the one thing you want the listener to remember from this conversation?",
+    workedExample: "Point: I want the team to leave with one clear next step.\nExample: After the meeting, everyone should know who owns the first action and when it starts.",
   },
   {
     id: "00000000-0000-0000-0000-000000000007",
@@ -65,6 +69,8 @@ export const STARTER_DRILLS: readonly Drill[] = [
     twoMinuteVersion: "Write the four PREP parts.",
     scenarioTags: ["interview", "pitch"],
     goodLooksLike: "A listener could identify the four parts.",
+    question: "Why should a founder practice communication every day?",
+    workedExample: "Point: A founder who practices speaking every day gets heard. One who doesn't, doesn't.\nReason: Most ideas don't fail because they're bad. They fail because nobody understood them the first time.\nExample: You walk into a meeting with a good idea but no clear sentence for it. / Someone else says it simply, and the room follows them.\nPoint: That's why I practice. So the next time it matters, the words are already there.",
   },
 ];
 

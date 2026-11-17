@@ -23,6 +23,8 @@ function mapDrill(row: Record<string, unknown>): Drill {
     twoMinuteVersion: String(row.two_minute_version),
     scenarioTags: Array.isArray(row.scenario_tags) ? row.scenario_tags.map(String) : [],
     goodLooksLike: String(row.good_looks_like),
+    question: catalog?.question,
+    workedExample: catalog?.workedExample,
   };
 }
 
