@@ -16,6 +16,7 @@ import type { CoachMemory } from "@/lib/coach/types";
 import type { PracticeSession, Reflection, SessionReport } from "@/lib/types";
 import type { SpeechEvidence } from "@/lib/storage";
 import { reflectDataIsReady } from "@/lib/reflect/reflect-readiness";
+import { shouldPollSpeechMeasurement } from "@/lib/reflect/reflect-state";
 
 export default function ReflectPage() {
   const params = useParams<{ sessionId: string }>();
@@ -31,6 +32,9 @@ export default function ReflectPage() {
   const [memory, setMemory] = useState<CoachMemory | null>(null);
   const [loading, setLoading] = useState(true);
   const [finishing, setFinishing] = useState(false);
+  const [readinessTimedOut, setReadinessTimedOut] = useState(false);
+  const [measurementTimedOut, setMeasurementTimedOut] = useState(false);
+  const measurementAttemptsRef = useRef(0);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -75,14 +79,19 @@ export default function ReflectPage() {
         setReport(loadedReport);
         setSpeech(loadedSpeech);
         setMemory(loadedMemory);
-        setFinishing(!ready);
+        setFinishing(false);
+        setReadinessTimedOut(!ready);
         if (loadedReflection?.coachSatisfaction) {
           setSatisfaction(loadedReflection.coachSatisfaction);
         }
-        if (loadedSpeech?.measuring) {
+        const measurementDisabled = loadedReport?.biggestWeakness === "Measurement is not enabled for this rep.";
+        if (loadedSpeech && shouldPollSpeechMeasurement({ hasAudio: Boolean(loadedSpeech.audio), measuredAt: loadedSpeech.metrics?.measuredAt, disabled: measurementDisabled, attempts: measurementAttemptsRef.current })) {
+          measurementAttemptsRef.current += 1;
           window.setTimeout(() => {
             if (!cancelled) void load();
           }, 1500);
+        } else if (loadedSpeech?.measuring && !measurementDisabled) {
+          setMeasurementTimedOut(true);
         }
       } catch (err) {
         if (!cancelled) {
@@ -186,7 +195,7 @@ export default function ReflectPage() {
         <p className="text-sm text-zinc-500">Mission</p>
         <p className="mt-1 text-lg font-medium">{session.scenarioTitle}</p>
         <p className="mt-3 text-sm text-zinc-300">{finishing ? "Finishing up your session…" : report?.coachSummary || report?.breakthrough || "Your session is ready to review."}</p>
-        {finishing ? <p className="mt-2 text-sm text-amber-200/80">Finishing up your session…</p> : memory?.lastSessionAt ? <p className="mt-2 text-sm text-zinc-500">Forge memory is current through {new Date(memory.lastSessionAt).toLocaleDateString()}: {memory.lastScenarioTitle || "your latest practice"}.</p> : null}
+        {readinessTimedOut ? <p className="mt-2 text-sm text-amber-200/80">Some finishing details are still unavailable, but this session is ready to review.</p> : memory?.lastSessionAt ? <p className="mt-2 text-sm text-zinc-500">Forge memory is current through {new Date(memory.lastSessionAt).toLocaleDateString()}: {memory.lastScenarioTitle || "your latest practice"}.</p> : null}
         {report?.biggestWeakness ? <p className="mt-2 text-sm text-zinc-400">Next adjustment: {report.biggestWeakness}</p> : null}
         <p className="mt-1 text-sm text-zinc-500">
           Conversation turns captured: {session.turns.length}
@@ -197,8 +206,9 @@ export default function ReflectPage() {
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Speech evidence</p>
         {!speech?.audio && session.modality !== "voice" ? <p className="mt-3 text-sm text-zinc-300">No voice recorded for this text drill.</p> : (
           <div className="mt-4 space-y-3 text-sm text-zinc-300">
-            {finishing ? <p className="text-amber-200/80">Finishing up speech evidence…</p> : null}
-            {speech?.measuring ? <p className="rounded-xl border border-[#c9a95f]/30 bg-[#c9a95f]/10 px-3 py-2 text-[#f1d99b]">Measuring this spoken rep…</p> : null}
+            {speech?.measuring && report?.biggestWeakness === "Measurement is not enabled for this rep." ? <p className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-zinc-300">Speech measurement is not enabled yet. Your recording is saved and playable; delivery numbers will appear only after measurement is approved.</p> : null}
+            {speech?.measuring && !measurementTimedOut && report?.biggestWeakness !== "Measurement is not enabled for this rep." ? <p className="rounded-xl border border-[#c9a95f]/30 bg-[#c9a95f]/10 px-3 py-2 text-[#f1d99b]">Measuring this spoken rep…</p> : null}
+            {measurementTimedOut ? <p className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-zinc-300">Speech measurement did not finish. Your recording is saved; delivery numbers remain Not measured.</p> : null}
             <p>Fillers: {speech?.metrics?.fillerCount ?? "Not measured"}</p>
             <p>Pace: {speech?.metrics?.paceWpm != null ? `${speech.metrics.paceWpm} WPM` : "Not measured"}</p>
             <p>Talk-time: {speech?.metrics?.memberTalkTimePct != null ? `${speech.metrics.memberTalkTimePct}%` : "Not measured"}</p>

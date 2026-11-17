@@ -56,6 +56,27 @@ function coachForgeHref(focus: TrainingFocusOption): string {
   return `/app/forge?${params.toString()}`;
 }
 
+type MemoryHistoryEntry = {
+  field?: string;
+  value?: string;
+  sourceSessionId?: string;
+  observedAt?: string;
+};
+
+function datedMemoryEntries(memory: CoachMemory | null, field: string): MemoryHistoryEntry[] {
+  const history = memory?.notes?.sessionHistory;
+  if (!Array.isArray(history)) return [];
+  return (history as MemoryHistoryEntry[])
+    .filter((entry) => entry.field === field && entry.value)
+    .slice()
+    .reverse()
+    .slice(0, 3);
+}
+
+function formatEvidenceDate(value: string | undefined): string {
+  return value ? new Date(value).toLocaleDateString() : "date unavailable";
+}
+
 /**
  * Living Profile surface — SSOT for member-declared identity (OWN-001).
  * Active focus selection writes LP then routes into Coach Forge.
@@ -397,8 +418,8 @@ export default function ProfilePage() {
               </label>
               <button type="button" onClick={() => void saveMemoryCorrection(memoryFocus)} className="rounded-full border border-[#c9a95f]/40 px-4 py-2 text-xs text-[#e7d6b1]">Save correction</button>
               {memory.lastSessionAt ? <p className="text-sm text-zinc-300">Last practice: {memory.lastScenarioTitle || "Practice"} · {new Date(memory.lastSessionAt).toLocaleDateString()}</p> : <p className="text-sm text-zinc-500">No practice history yet.</p>}
-              {memory.recentWins.slice(0, 3).map((item) => <p key={`win-${item}`} className="text-sm text-zinc-400">Win: {item}</p>)}
-              {memory.longTermChallenges.slice(0, 3).map((item) => <p key={`challenge-${item}`} className="text-sm text-zinc-400">Constraint: {item}</p>)}
+              {datedMemoryEntries(memory, "recentWins").map((item, index) => <p key={`win-${item.sourceSessionId ?? index}-${item.value}`} className="text-sm text-zinc-400">Win · {formatEvidenceDate(item.observedAt)} · session {item.sourceSessionId ?? "unknown"}: {item.value}</p>)}
+              {datedMemoryEntries(memory, "longTermChallenges").map((item, index) => <p key={`challenge-${item.sourceSessionId ?? index}-${item.value}`} className="text-sm text-zinc-400">Constraint · {formatEvidenceDate(item.observedAt)} · session {item.sourceSessionId ?? "unknown"}: {item.value}</p>)}
             </section>
           ) : null}
           <form onSubmit={handleSave} className="mt-8 space-y-8">
@@ -422,12 +443,16 @@ export default function ProfilePage() {
                 >
                   {living.profileSource === "incomplete"
                     ? "Not enough was captured yet"
-                    : "This conversation"}
+                    : living.profileSource === "quick_pick"
+                      ? "Member-declared starting point"
+                      : "Original assessment snapshot"}
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-zinc-400">
                   {living.profileSource === "incomplete"
                     ? "You can run this again from Home if you want a fuller picture."
-                    : "This is the conversation. Not a plan."}
+                    : living.profileSource === "quick_pick"
+                      ? `Set ${new Date(living.updatedAt).toLocaleDateString()}. This is profile context, not your latest practice session.`
+                      : `Captured ${new Date(living.updatedAt).toLocaleDateString()}. This is historical profile context, not your latest practice session.`}
                 </p>
               </div>
               {living.goals.length > 0 ? (

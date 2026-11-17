@@ -6,6 +6,8 @@ import type { Drill } from "@/lib/drills/catalog";
 import { createPracticeSession } from "@/lib/session";
 import { persistSpeechCapture } from "@/lib/speech/persistence";
 import { saveSession, saveSessionReport } from "@/lib/storage";
+import { getCoachMemory, saveCoachMemory } from "@/lib/storage";
+import { applyReportToMemory, emptyCoachMemory } from "@/lib/coach/memory";
 import { startSpeechRecorder, type SpeechRecorder } from "@/lib/ce/speech-capture";
 
 export default function TextDrillCompletion({ drill, programId }: { drill: Drill; programId: string }) {
@@ -67,21 +69,31 @@ export default function TextDrillCompletion({ drill, programId }: { drill: Drill
         scenarioId: drill.id,
         scenarioTitle: drill.name,
         missionPrompt: drill.instructions,
-        modality: "voice",
+        modality: "text",
         drillId: drill.id,
         programId,
         purpose: "drill",
       });
       const durationSeconds = Math.max(1, Math.round((Date.now() - (startedAtRef.current ?? Date.now())) / 1000));
       const completedAt = new Date().toISOString();
-      await saveSession({ ...session, completedAt, durationSeconds, modality: "voice" });
+      await saveSession({ ...session, completedAt, durationSeconds, modality: "text" });
       await persistSpeechCapture({ sessionId: session.id, userId: session.userId, durationSeconds, fillerCount: null, capture: { audioBlob: blob, turns: [] } });
       await saveSessionReport({
-        sessionId: session.id, userId: session.userId, sessionNumber: 1, modality: "voice", durationSeconds,
+        sessionId: session.id, userId: session.userId, sessionNumber: 1, modality: "text", durationSeconds,
         overallScore: null, confidence: null, empathy: null, listening: null, clarity: null, storytelling: null, negotiation: null, leadership: null,
         questionsAsked: 0, interruptions: 0, fillerWords: 0,
-        breakthrough: "Your spoken rep is saved.", biggestWeakness: "Measurement is still running.", homework: "Review the measured delivery details when they arrive.", coachSummary: "Your spoken rep is saved. Measurement is running.", transcript: [], createdAt: completedAt, scenarioTitle: drill.name, startedAt: session.startedAt, completedAt,
+        breakthrough: "Your spoken rep is saved.", biggestWeakness: "Measurement is not enabled for this rep.", homework: "Review the delivery details if measurement is enabled later.", coachSummary: "Your spoken rep is saved. Measurement is not enabled for this rep.", transcript: [], createdAt: completedAt, scenarioTitle: drill.name, startedAt: session.startedAt, completedAt,
       });
+      try {
+        const memory = (await getCoachMemory(session.userId)) ?? emptyCoachMemory(session.userId);
+        await saveCoachMemory(applyReportToMemory(memory, {
+          sessionId: session.id, userId: session.userId, sessionNumber: 1, modality: "text", durationSeconds,
+          overallScore: null, confidence: null, empathy: null, listening: null, clarity: null, storytelling: null, negotiation: null, leadership: null,
+          questionsAsked: 0, interruptions: 0, fillerWords: 0, breakthrough: "Your spoken rep is saved.", biggestWeakness: "Measurement is not enabled for this rep.", homework: "Review the delivery details if measurement is enabled later.", coachSummary: "Your spoken rep is saved. Measurement is not enabled for this rep.", transcript: [], createdAt: completedAt, scenarioTitle: drill.name, startedAt: session.startedAt, completedAt,
+        }));
+      } catch (memoryError) {
+        console.error("[coach] recorded text-rep memory update failed", memoryError);
+      }
       const completion = await fetch("/api/journey/complete-day", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ programId, drillId: drill.id, sessionId: session.id, notes, completedAt }) });
       if (!completion.ok) throw new Error("Could not complete this training day.");
       void fetch("/api/speech/measure", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sessionId: session.id }) });
@@ -116,7 +128,7 @@ export default function TextDrillCompletion({ drill, programId }: { drill: Drill
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#c9a95f]">Today’s practice · {drill.modality}</p>
       <h1 className="mt-4 text-4xl font-semibold tracking-tight">{drill.name}</h1>
       <p className="mt-3 text-zinc-400">{drill.durationMinutes} minutes · {drill.signal}</p>
-      <section className="mt-10 rounded-2xl border border-white/10 bg-white/[0.04] p-6"><p className="text-lg leading-8 text-zinc-200">{drill.instructions}</p><p className="mt-6 border-t border-white/10 pt-5 text-sm leading-6 text-zinc-400">Look for: {drill.goodLooksLike}</p></section>
+      <section className="mt-10 rounded-2xl border border-white/10 bg-white/[0.04] p-6"><p className="text-lg leading-8 text-zinc-200">{drill.instructions}</p>{drill.question ? <p className="mt-6 border-t border-white/10 pt-5 text-sm leading-6 text-zinc-200"><span className="font-semibold text-[#e7d6b1]">Question to answer:</span> {drill.question}</p> : null}{drill.workedExample ? <p className="mt-4 whitespace-pre-line rounded-xl border border-[#c9a95f]/20 bg-[#c9a95f]/5 p-4 text-sm leading-6 text-zinc-300"><span className="font-semibold text-[#e7d6b1]">Worked example:</span>{"\n"}{drill.workedExample}</p> : null}<p className="mt-6 border-t border-white/10 pt-5 text-sm leading-6 text-zinc-400">Look for: {drill.goodLooksLike}</p></section>
       <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Write your answer first, then say it aloud (optional log afterward)" className="mt-6 min-h-28 w-full rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-white outline-none focus:border-[#c9a95f]" />
       <p className="mt-4 text-sm leading-6 text-zinc-400">This drill asks you to speak your written answer aloud. Recording is explicit and is used only to measure this rep.</p>
       {micMessage ? <p className="mt-3 text-sm text-amber-200" role="status">{micMessage}</p> : null}

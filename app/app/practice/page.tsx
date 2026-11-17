@@ -122,6 +122,8 @@ export default async function VoicePage({
               How it works
             </h2>
             <p className="mt-4 text-lg leading-8 text-zinc-200">{activeDrill.instructions}</p>
+            {activeDrill.question ? <p className="mt-6 border-t border-white/10 pt-5 text-sm leading-6 text-zinc-200"><span className="font-semibold text-[#e7d6b1]">Question to answer:</span> {activeDrill.question}</p> : null}
+            {activeDrill.workedExample ? <p className="mt-4 whitespace-pre-line rounded-xl border border-[#c9a95f]/20 bg-[#c9a95f]/5 p-4 text-sm leading-6 text-zinc-300"><span className="font-semibold text-[#e7d6b1]">Worked example:</span>{"\n"}{activeDrill.workedExample}</p> : null}
             <p className="mt-6 border-t border-white/10 pt-5 text-sm leading-6 text-zinc-400">
               Look for: {activeDrill.goodLooksLike}
             </p>
