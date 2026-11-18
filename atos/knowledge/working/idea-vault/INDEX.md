@@ -3,10 +3,10 @@
 | Field | Value |
 |---|---|
 | **Document ID** | IV-INDEX |
-| **Version** | 1.16.0 |
+| **Version** | 1.17.0 |
 | **Status** | Frozen — Official working knowledge system (Step 1 Complete) |
-| **Updated** | 2026-09-23 |
-| **Entry count** | 77 |
+| **Updated** | 2026-11-17 |
+| **Entry count** | 78 |
 | **Schema** | Status · Importance · Relationships · Evidence (**frozen**) |
 
 Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [EXEC-001](../../../product/EXEC-001-talkforge-execution-plan.md)
@@ -88,7 +88,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-FEAT-008](features/IV-FEAT-008-personal-principles.md) | Personal Principles | Reviewing | Important | Medium | `features/IV-FEAT-008-personal-principles.md` |
 | [IV-FEAT-009](features/IV-FEAT-009-current-season.md) | Primary + Secondary Season | Inbox | Important | Medium | `features/IV-FEAT-009-current-season.md` |
 
-## UX Ideas (10)
+## UX Ideas (11)
 
 | ID | Title | Status | Importance | Confidence | File |
 |---|---|---|---|---|---|
@@ -102,6 +102,7 @@ Root: [README.md](README.md) · Template: [TEMPLATE.md](TEMPLATE.md) · Plan: [E
 | [IV-UX-008](ux-ideas/IV-UX-008-machine-behavior-language.md) | Machine Behavior Language | In Development | Critical | High | `ux-ideas/IV-UX-008-machine-behavior-language.md` |
 | [IV-UX-009](ux-ideas/IV-UX-009-optional-visual-training-focus.md) | Optional visual training focus (Machines picker) | In Development | Critical | High | `ux-ideas/IV-UX-009-optional-visual-training-focus.md` |
 | [IV-UX-010](ux-ideas/IV-UX-010-first-walk-member-surfaces.md) | First-walk member surfaces — Progress, LP look, mobile lock | In Development | Important | High | `ux-ideas/IV-UX-010-first-walk-member-surfaces.md` |
+| [IV-UX-011](ux-ideas/IV-UX-011-onboarding-dose-baseline-resume.md) | Onboarding dose, assessment resume, and plain-language baseline | In Development | Critical | High | `ux-ideas/IV-UX-011-onboarding-dose-baseline-resume.md` |
 
 ## AI Ideas (10)
 

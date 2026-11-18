@@ -58,6 +58,7 @@ Translate priorities into implementation phases with goal, dependencies, complex
 | D4 Canvas | Parked | — | Low | Eng | Future |
 | D5 Discovery | Parked | D1 trust | Medium | Eng | Future |
 | D6 Coach interaction | Seven-topic card grid → one anonymous private Forge preview → post-session auth/claim | IV-PROD-010 · Decision 060 · CFP-001 · CFX-001 | High | Eng | Authorized — implementation not in this governance package |
+| D7 Onboarding dose + assessment resume | Optional daily minutes, member-stated bottleneck, resumable assessment, evidence-bounded baseline, and explicit two-week re-ask | IV-UX-011 · BS-019 · Decision 060 · Decision 063 | High | Eng / Founder | In progress; code not yet merged or shipped |
 
 ## Phase E — Validate & Iterate (EXEC Steps 17–18)
 

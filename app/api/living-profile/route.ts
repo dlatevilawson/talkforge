@@ -339,6 +339,8 @@ export async function PUT(req: Request) {
       seasonLabels?: string[];
       preferredCoachingStyle?: string;
       coachingIntensity?: LivingProfile["coachingIntensity"];
+      memberDeclaredBottleneck?: string;
+      matteringConversation?: string;
       expectedVersion?: number;
     };
 

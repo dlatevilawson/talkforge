@@ -18,6 +18,7 @@ import {
 import type { CoachMemory } from "@/lib/coach/types";
 import { formatDuration } from "@/lib/system2/practice-history-display";
 import type { LivingProfile } from "@/lib/system1/types";
+import AssessmentBaselineCard from "@/app/components/AssessmentBaselineCard";
 import {
   TRAINING_FOCUS_OPTIONS,
   type TrainingFocusOption,
@@ -423,98 +424,7 @@ export default function ProfilePage() {
             </section>
           ) : null}
           <form onSubmit={handleSave} className="mt-8 space-y-8">
-          {living &&
-          (living.profileSource === "assessment" ||
-            living.profileSource === "incomplete" ||
-            living.goals.length > 0 ||
-            living.challenges.length > 0 ||
-            living.presenceScores) ? (
-            <section
-              aria-labelledby="assessment-summary-heading"
-              className="max-w-xl space-y-4 rounded-3xl border border-white/10 bg-white/[0.03] p-6"
-            >
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#c9a95f]">
-                  What we heard
-                </p>
-                <h2
-                  id="assessment-summary-heading"
-                  className="mt-2 text-xl font-semibold text-white"
-                >
-                  {living.profileSource === "incomplete"
-                    ? "Not enough was captured yet"
-                    : living.profileSource === "quick_pick"
-                      ? "Member-declared starting point"
-                      : "Original assessment snapshot"}
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-zinc-400">
-                  {living.profileSource === "incomplete"
-                    ? "You can run this again from Home if you want a fuller picture."
-                    : living.profileSource === "quick_pick"
-                      ? `Set ${new Date(living.updatedAt).toLocaleDateString()}. This is profile context, not your latest practice session.`
-                      : `Captured ${new Date(living.updatedAt).toLocaleDateString()}. This is historical profile context, not your latest practice session.`}
-                </p>
-              </div>
-              {living.goals.length > 0 ? (
-                <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">
-                    Goals
-                  </p>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-zinc-200">
-                    {living.goals.map((g) => (
-                      <li key={g}>{g}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-              {living.strengths.length > 0 ? (
-                <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">
-                    Strengths
-                  </p>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-zinc-200">
-                    {living.strengths.map((s) => (
-                      <li key={s}>{s}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-              {living.challenges.length > 0 ? (
-                <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">
-                    Challenges
-                  </p>
-                  <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-zinc-200">
-                    {living.challenges.map((c) => (
-                      <li key={c}>{c}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-              {living.presenceScores ? (
-                <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-zinc-500">
-                    Inferred presence (1–10)
-                  </p>
-                  <dl className="mt-3 grid grid-cols-2 gap-3 text-sm text-zinc-200 sm:grid-cols-3">
-                    {Object.entries(living.presenceScores).map(
-                      ([key, value]) => (
-                        <div key={key}>
-                          <dt className="capitalize text-zinc-500">{key}</dt>
-                          <dd className="mt-0.5 text-lg font-semibold text-white">
-                            {value}
-                          </dd>
-                        </div>
-                      )
-                    )}
-                  </dl>
-                  <p className="mt-2 text-xs text-zinc-500">
-                    Inferred from conversation only — not a self-rating.
-                  </p>
-                </div>
-              ) : null}
-            </section>
-          ) : null}
+          {living ? <div className="mt-8 max-w-xl"><AssessmentBaselineCard profile={living} /></div> : null}
 
           <div id="goal" className="scroll-mt-28">
             <TrainingFocusPicker

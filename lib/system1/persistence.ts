@@ -101,6 +101,7 @@ export function memberLivingProfileDbPayload(profile: LivingProfile): {
   preferred_coaching_style: string;
   mattering_conversation_ids: string[];
   provenance: LivingProfile["provenance"];
+  challenges: string[];
   updated_at: string;
 } {
   return {
@@ -113,6 +114,7 @@ export function memberLivingProfileDbPayload(profile: LivingProfile): {
     preferred_coaching_style: profile.preferredCoachingStyle,
     mattering_conversation_ids: profile.matteringConversationIds,
     provenance: profile.provenance,
+    challenges: profile.challenges,
     updated_at: profile.updatedAt,
   };
 }

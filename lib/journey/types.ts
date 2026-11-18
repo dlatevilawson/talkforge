@@ -10,6 +10,7 @@ export type TrainingPlan = {
   kind: TrainingPlanKind;
   occasionText: string;
   occasionDate: string | null;
+  dailyMinutes: 5 | 10 | 15 | null;
   startsOn: string;
   endsOn: string;
   status: TrainingPlanStatus;
@@ -26,12 +27,24 @@ export type JourneyDay = {
   drill: Drill;
 };
 
-export type TodayJourney = {
+type TodayJourneyBase = {
   plan: TrainingPlan;
   blockNumber: number;
   focusSignal: DrillSignal;
   goalText: string;
+  programId: string;
+  completedDays: number;
+  totalDays: number;
+};
+
+export type TodayJourney = TodayJourneyBase & ({
+  status: "today";
   day: JourneyDay;
   tomorrow: JourneyDay | null;
   voiceResetDate: string | null;
-};
+} | {
+  status: "block_complete";
+  day: null;
+  tomorrow: null;
+  voiceResetDate: string | null;
+});

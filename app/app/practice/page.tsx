@@ -11,6 +11,7 @@ import { findStarterDrill } from "@/lib/drills/catalog";
 import Link from "next/link";
 import { getTodayJourney } from "@/lib/journey/server";
 import TextDrillCompletion from "@/app/components/journey/TextDrillCompletion";
+import { parseAssessmentSnapshot, type AssessmentSnapshot } from "@/lib/ce/assessment-lifecycle";
 
 export default async function VoicePage({
   searchParams,
@@ -33,8 +34,10 @@ export default async function VoicePage({
   const drill = findStarterDrill(first(params.drill));
   const drillStarted = first(params.start) === "1";
   const programId = first(params.programId);
+  const modeRaw = first(params.mode);
+  const mode: CeSessionMode = modeRaw === "assessment" ? "assessment" : "practice";
   const journey = programId ? await getTodayJourney().catch(() => null) : null;
-  const activeDrill = drill ?? journey?.day.drill ?? null;
+  const activeDrill = drill ?? (journey?.status === "today" ? journey.day.drill : null);
 
   const access = await evaluatePracticeRouteAccess();
   if (!access.allowed) {
@@ -49,7 +52,22 @@ export default async function VoicePage({
     data: { user },
   } = await supabase.auth.getUser();
   let recentPracticeLine = "No prior practice session.";
+  let assessmentResumeSnapshot: AssessmentSnapshot | null = null;
+  let assessmentDailyMinutes: 5 | 10 | 15 | null = null;
   if (user) {
+    if (mode === "assessment") {
+      const [planResult, profileResult] = await Promise.all([
+        supabase.from("training_plans").select("daily_minutes").eq("member_id", user.id).eq("status", "active").maybeSingle(),
+        supabase.from("living_profiles").select("provenance").eq("user_id", user.id).maybeSingle(),
+      ]);
+      const planMinutes = planResult.data?.daily_minutes;
+      if (planMinutes === 5 || planMinutes === 10 || planMinutes === 15) assessmentDailyMinutes = planMinutes;
+      const provenance = Array.isArray(profileResult.data?.provenance) ? profileResult.data.provenance as Array<{ fieldPath?: string; claim?: string }> : [];
+      const resumeRecord = provenance.find((entry) => entry.fieldPath === "assessment_resume_snapshot");
+      if (resumeRecord?.claim) {
+        try { assessmentResumeSnapshot = parseAssessmentSnapshot(JSON.parse(resumeRecord.claim)); } catch { assessmentResumeSnapshot = null; }
+      }
+    }
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const { data: recent } = await supabase
@@ -84,7 +102,7 @@ export default async function VoicePage({
       return <EndOfFreePractice />;
     }
   }
-  const openingContext = journey
+  const openingContext = journey?.status === "today"
     ? `Today is day ${journey.day.dayIndex} of your ${journey.plan.kind === "6_week" ? "6-week" : "6-month"} plan. Today's drill is ${journey.day.drill.name}. ${journey.plan.occasionText ? `Your occasion is ${journey.plan.occasionText}${journey.plan.occasionDate ? ` on ${journey.plan.occasionDate}` : ""}.` : "There is no occasion countdown."} ${recentPracticeLine}`
     : recentPracticeLine;
 
@@ -96,10 +114,6 @@ export default async function VoicePage({
     trackRaw === "hello"
       ? trackRaw
       : "hello";
-  const modeRaw = first(params.mode);
-  const mode: CeSessionMode =
-    modeRaw === "assessment" ? "assessment" : "practice";
-
   if (activeDrill && activeDrill.modality !== "voice" && programId && journey) {
     return <TextDrillCompletion drill={activeDrill} programId={programId} />;
   }
@@ -158,6 +172,8 @@ export default async function VoicePage({
       openingContext={openingContext}
       autoStart={drillStarted}
       mode={mode}
+      assessmentResumeSnapshot={assessmentResumeSnapshot}
+      assessmentDailyMinutes={assessmentDailyMinutes}
     />
   );
 }

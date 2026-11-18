@@ -147,7 +147,7 @@ export const ASSESSMENT_GATEWAY_LADDERS: Record<
 export const ASSESSMENT_ANCHOR_QUESTIONS = [
   ASSESSMENT_GATEWAY_LADDERS.processing_retrieval.open_recall,
   "Who are you usually talking to when this gets hard?",
-  "When it breaks down, is it more that you know what you mean but can't find the words, or that the thought itself feels scrambled?",
+  "Tell me about a recent time communication went wrong. What happened?",
   "What do you notice yourself doing in those moments that you want to change?",
   "Think of the last time this happened. Were you talking to someone you knew or someone you didn't?",
   "Six weeks from now, what do you want to be able to do that you can't do comfortably today?",
@@ -310,7 +310,7 @@ export function recommendNextQuestionDifficulty(
 ): QuestionDifficulty {
   const prior = priorDifficulty ?? "open_recall";
   if (!lastUserText || !lastUserText.trim()) return prior;
-  if (looksLikeFailedRecallSignal(lastUserText)) {
+  if (looksLikeFailedRecallSignal(lastUserTexm«ëŒ+Š×ž®º+º$zzb¥æÚ±î¸Â¸­yêë¢°k¢G§¦*^t)) {
     return clampDifficulty(difficultyIndex(prior) + 1);
   }
   if (looksLikeFluentDiagnosticAnswer(lastUserText)) {
@@ -531,7 +531,7 @@ export function buildAssessmentModeObjective(): string {
     "",
     "ONE QUESTION PER TURN â€” HARD RULE (when seeking diagnostic evidence): Exactly one question mark; never bundle two asks.",
     "",
-    "CONVERSATIONAL JUDGMENT: acknowledge, clarify, teach lightly, challenge, or pace as a skilled coach would â€” serving diagnostic understanding. No mid-assessment drills. No sticky ackâ†’question templates.",
+    "CONVERSATIONAL JUDGMENT: acknowledge,m«ëŒ+Š×ž®º+º$zzb¥æÚ±î¸Â¸­yêë¢°k¢G§¦*^ clarify, teach lightly, challenge, or pace as a skilled coach would â€” serving diagnostic understanding. No mid-assessment drills. No sticky ackâ†’question templates.",
     "",
     "PLAIN LANGUAGE: everyday words. NEVER say \"communication behavior\". NEVER expose internal gateways/slots/mechanisms/Path language to the user.",
     "(Clinical / medical / identity / dignity / speak-for-user boundaries are in Forge Core â€” do not restate.)",

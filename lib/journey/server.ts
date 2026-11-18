@@ -3,6 +3,8 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { evaluatePracticeEntitlement } from "@/lib/billing/entitlements";
 import { STARTER_DRILLS, type Drill, type DrillSignal } from "@/lib/drills/catalog";
 import { generateBlockDays, planEndDate } from "./generator";
+import { evaluateBlockCompletion, nextBlockStartDate } from "./check-in";
+import { initialTrainingPlanRow } from "./daily-minutes";
 import type { JourneyDay, TodayJourney, TrainingPlan, TrainingPlanKind } from "./types";
 
 function slugify(value: string): string {
@@ -35,12 +37,14 @@ function mapPlan(row: Record<string, unknown>): TrainingPlan {
     kind: row.kind as TrainingPlanKind,
     occasionText: String(row.occasion_text ?? ""),
     occasionDate: row.occasion_date ? String(row.occasion_date) : null,
+    dailyMinutes: row.daily_minutes === 5 || row.daily_minutes === 10 || row.daily_minutes === 15 ? row.daily_minutes : null,
     startsOn: String(row.starts_on),
     endsOn: String(row.ends_on),
     status: row.status as TrainingPlan["status"],
     currentBlockNumber: Number(row.current_block_number),
   };
 }
+
 
 async function currentUserId(): Promise<string> {
   const supabase = await createServerSupabaseClient();
@@ -72,6 +76,7 @@ export async function createInitialTrainingPlan(input: {
   occasionText?: string;
   occasionDate?: string;
   focusText?: string;
+  dailyMinutes?: number | null;
 }): Promise<TrainingPlan> {
   const memberId = await currentUserId();
   const admin = createAdminSupabaseClient();
@@ -92,16 +97,7 @@ export async function createInitialTrainingPlan(input: {
   const existingPlan = existing as Record<string, unknown> | null;
   const { data: plan, error: planError } = existingPlan ? { data: existingPlan, error: null } : await admin
     .from("training_plans")
-    .insert({
-      member_id: memberId,
-      kind,
-      occasion_text: (input.occasionText ?? "").trim().slice(0, 240),
-      occasion_date: input.occasionDate || null,
-      starts_on: startsOn,
-      ends_on: planEndDate(kind, startsOn),
-      current_block_number: 1,
-      status: "active",
-    })
+    .insert(initialTrainingPlanRow({ memberId, kind, startsOn, endsOn: planEndDate(kind, startsOn), occasionText: input.occasionText, occasionDate: input.occasionDate, dailyMinutes: input.dailyMinutes }))
     .select("*")
     .single();
   if (planError || !plan) throw new Error(planError?.message ?? "Could not create training plan.");
@@ -155,22 +151,41 @@ export async function resumeTrainingPlan(planId: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+export async function updateTrainingPlanDailyMinutes(planId: string, value: unknown): Promise<void> {
+  const memberId = await currentUserId();
+  const minutes = value === null ? null : ([5, 10, 15].includes(Number(value)) ? Number(value) : 5);
+  const admin = createAdminSupabaseClient();
+  const { data, error } = await admin.from("training_plans").update({ daily_minutes: minutes }).eq("id", planId).eq("member_id", memberId).eq("status", "active").select("id").maybeSingle();
+  if (error || !data) throw new Error(error?.message ?? "Active plan not found.");
+}
+
 export async function completeBlockAndPrescribeNext(input: { planId: string; programId: string; focusSignal: DrillSignal; goalText: string }): Promise<void> {
   const memberId = await currentUserId();
   const admin = createAdminSupabaseClient();
   const { data: plan, error: planError } = await admin.from("training_plans").select("*").eq("id", input.planId).eq("member_id", memberId).single();
   if (planError || !plan) throw new Error(planError?.message ?? "Plan not found");
+  const { data: currentProgram, error: currentProgramError } = await admin
+    .from("training_programs")
+    .select("id, ends_on, status")
+    .eq("id", input.programId)
+    .eq("plan_id", input.planId)
+    .eq("status", "active")
+    .single();
+  if (currentProgramError || !currentProgram) throw new Error(currentProgramError?.message ?? "Active block not found");
+  const { data: currentDays, error: currentDaysError } = await admin.from("program_days").select("status").eq("program_id", input.programId);
+  if (currentDaysError) throw new Error(currentDaysError.message);
+  const completion = evaluateBlockCompletion((currentDays ?? []).map((day) => String(day.status)));
+  if (!completion.blockComplete || completion.totalDays < 14) throw new Error("Complete every day before starting the check-in.");
   const nextBlock = Number(plan.current_block_number) + 1;
   const totalBlocks = plan.kind === "6_week" ? 3 : 13;
-  const { error: doneError } = await admin.from("training_programs").update({ status: "completed" }).eq("id", input.programId).eq("plan_id", input.planId);
+  const { error: doneError } = await admin.from("training_programs").update({ status: "completed" }).eq("id", currentProgram.id).eq("plan_id", input.planId);
   if (doneError) throw new Error(doneError.message);
   if (nextBlock > totalBlocks) {
     const { error } = await admin.from("training_plans").update({ status: "completed" }).eq("id", input.planId);
     if (error) throw new Error(error.message);
     return;
   }
-  const start = new Date(`${new Date().toISOString().slice(0, 10)}T00:00:00Z`);
-  const startsOn = start.toISOString().slice(0, 10);
+  const startsOn = nextBlockStartDate(String(currentProgram.ends_on));
   const { data: drills, error: drillsError } = await admin.from("drills").select("*").eq("is_active", true);
   if (drillsError) throw new Error(drillsError.message);
   const generated = generateBlockDays({ startDate: startsOn, focusSignal: input.focusSignal, drills: (drills ?? []).map((row) => mapDrill(row as Record<string, unknown>)) });
@@ -198,6 +213,10 @@ export async function getTodayJourney(): Promise<TodayJourney | null> {
     drill: mapDrill((Array.isArray(row.drill) ? row.drill[0] : row.drill) as Record<string, unknown>),
   }));
   const day = mapped.find((item) => item.date >= today && item.status !== "done") ?? mapped.find((item) => item.status === "pending");
+  const base = { plan: mapPlan(plan as Record<string, unknown>), blockNumber: Number(program.block_number), focusSignal: program.focus_signal as DrillSignal, goalText: String(program.goal_text ?? ""), programId: String(program.id), completedDays: mapped.filter((item) => item.status === "done").length, totalDays: mapped.length, voiceResetDate: null };
+  if (!day && mapped.length > 0 && mapped.every((item) => item.status === "done")) {
+    return { ...base, status: "block_complete", day: null, tomorrow: null };
+  }
   if (!day) return null;
-  return { plan: mapPlan(plan as Record<string, unknown>), blockNumber: Number(program.block_number), focusSignal: program.focus_signal as DrillSignal, goalText: String(program.goal_text ?? ""), day, tomorrow: mapped.find((item) => item.dayIndex === day.dayIndex + 1) ?? null, voiceResetDate: null };
+  return { ...base, status: "today", day, tomorrow: mapped.find((item) => item.dayIndex === day.dayIndex + 1) ?? null };
 }

@@ -15,6 +15,7 @@
 | 18 | [ITERATE-001](ITERATE-001-improvement-rule.md) | Active rule |
 | F | [BILL-001](BILL-001-billing-membership.md) | In Development — Free 3 complete sessions/calendar month + Pro; Decision 060 anonymous preview excluded |
 | AC | [AC-JOURNEY-001](AC-JOURNEY-001-first-user-architecture.md) · [PHASE4B-AC](PHASE4B-AC-IMPLEMENTATION-SEQUENCE.md) | **Authorized** (Decision 060) — `/coach` seven-topic grid → exactly one anonymous private Forge preview → post-session auth/claim |
+| D7 | [IV-UX-011](../knowledge/working/idea-vault/ux-ideas/IV-UX-011-onboarding-dose-baseline-resume.md) · [BS-019](../knowledge/working/blind-spot-register/bs-019.md) | Founder-approved onboarding enhancement — implementation in progress; not shipped |
 
 Master schedule: [MASTER-ROADMAP-001](MASTER-ROADMAP-001.md)
 

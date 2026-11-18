@@ -20,6 +20,8 @@ export type MemberLivingProfileInput = {
   seasonLabels?: string[];
   preferredCoachingStyle?: string;
   coachingIntensity?: LivingProfile["coachingIntensity"];
+  memberDeclaredBottleneck?: string;
+  matteringConversation?: string;
 };
 
 function newId(prefix: string): string {
@@ -108,6 +110,19 @@ export function applyMemberLivingProfileUpdate(
     provenance.unshift(
       memberProvenance("coachingIntensity", input.coachingIntensity, now)
     );
+  }
+
+  if (typeof input.memberDeclaredBottleneck === "string") {
+    const value = input.memberDeclaredBottleneck.trim().slice(0, 500);
+    if (value && value !== current.challenges[0]) {
+      next.challenges = [value, ...current.challenges.filter((item) => item !== value)].slice(0, 8);
+      provenance.unshift(memberProvenance("challenges[0]", value, now));
+    }
+  }
+
+  if (typeof input.matteringConversation === "string") {
+    const value = input.matteringConversation.trim().slice(0, 240);
+    if (value) provenance.unshift(memberProvenance("matteringConversation", value, now));
   }
 
   if (input.principleLines) {
