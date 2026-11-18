@@ -27,6 +27,8 @@ import type { CoachMemory } from "@/lib/coach/types";
 import { STARTER_DRILLS, starterDrillHref } from "@/lib/drills/catalog";
 import type { TodayJourney } from "@/lib/journey/types";
 import { retryCoachMemoryUpdate } from "@/lib/session";
+import AssessmentBaselineCard from "@/app/components/AssessmentBaselineCard";
+import { updateDailyMinutesAction } from "@/app/actions/journey";
 
 const homeCopy = APP_HOME_SCREEN_COPY;
 
@@ -104,6 +106,7 @@ function ContinuityHomeInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const gate = searchParams.get("gate");
+  const assessmentPaused = searchParams.get("assessment") === "paused";
   const [home, setHome] = useState<AdaptiveHomeModel | null>(null);
   const [loading, setLoading] = useState(true);
   const [enteringTraining, setEnteringTraining] = useState(false);
@@ -115,6 +118,13 @@ function ContinuityHomeInner() {
     status: "unknown",
   });
   const [todayJourney, setTodayJourney] = useState<TodayJourney | null>(null);
+  const [livingProfile, setLivingProfile] = useState<LivingProfile | null>(null);
+  const [tuneOpen, setTuneOpen] = useState(false);
+  const [tuneOccasion, setTuneOccasion] = useState("");
+  const [tuneBottleneck, setTuneBottleneck] = useState("");
+  const [tuneMinutes, setTuneMinutes] = useState<5 | 10 | 15>(5);
+  const [tuneSaving, setTuneSaving] = useState(false);
+  const [tuneMessage, setTuneMessage] = useState("");
 
   useEffect(() => {
     router.prefetch("/app/practice?start=1");
@@ -164,6 +174,10 @@ function ContinuityHomeInner() {
         setSessionHistory(history);
         setEntitlement(access);
         setTodayJourney(journey);
+        setLivingProfile(living.profile);
+        setTuneOccasion(living.profile?.provenance.find((entry) => entry.fieldPath === "matteringConversation")?.claim ?? journey?.plan.occasionText ?? "");
+        setTuneBottleneck(living.profile?.challenges[0] ?? "");
+        setTuneMinutes(journey?.plan.dailyMinutes ?? 5);
         if (living.error) setLoadError(living.error);
         if (history.status === "unknown") {
           setLoadError((current) =>
@@ -249,6 +263,33 @@ function ContinuityHomeInner() {
     enterPractice(option.practiceTitle, option.mode);
   }
 
+  async function saveTunePractice(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!todayJourney?.plan.id) return;
+    setTuneSaving(true);
+    setTuneMessage("");
+    try {
+      const current = await fetch("/api/living-profile", { cache: "no-store" }).then((response) => response.json()) as { profile?: LivingProfile };
+      if (!current.profile) throw new Error("Could not load your Living Profile.");
+      const saved = await fetch("/api/living-profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ expectedVersion: current.profile.version, memberDeclaredBottleneck: tuneBottleneck, matteringConversation: tuneOccasion }),
+      });
+      if (!saved.ok) throw new Error("Could not save your practice context.");
+      const minutes = await updateDailyMinutesAction(todayJourney.plan.id, tuneMinutes);
+      if (!minutes.ok) throw new Error(minutes.message ?? "Could not save your practice time.");
+      setLivingProfile((await saved.json() as { profile: LivingProfile }).profile);
+      setTodayJourney({ ...todayJourney, plan: { ...todayJourney.plan, dailyMinutes: tuneMinutes } });
+      setTuneMessage("Your practice preferences are saved. Your current days are unchanged.");
+      setTuneOpen(false);
+    } catch (error) {
+      setTuneMessage(error instanceof Error ? error.message : "Could not save your preferences.");
+    } finally {
+      setTuneSaving(false);
+    }
+  }
+
   return (
     <section className={styles.home} aria-labelledby="coach-heading">
       {enteringTraining ? (
@@ -298,12 +339,37 @@ function ContinuityHomeInner() {
                 aria-label="Loading recommendation"
               />
             ) : isReady ? (
-              recommendation?.continuityLine
+              todayJourney?.status === "block_complete"
+                ? `Block ${todayJourney.blockNumber} complete — your check-in is ready.`
+                : recommendation?.continuityLine
             ) : (
               homeCopy.notReadySubheadline
             )}
           </p>
         </div>
+
+        {livingProfile?.profileSource === "assessment" || livingProfile?.profileSource === "incomplete" ? <div className="mb-5 max-w-xl"><AssessmentBaselineCard profile={livingProfile} /></div> : null}
+        {assessmentPaused ? <div className="mb-5 max-w-xl rounded-2xl border border-[#c9a95f]/30 bg-[#c9a95f]/[0.06] p-4 text-left"><p className="text-sm text-zinc-200">Your assessment is paused. Your answers are saved.</p><Link href="/app/practice?start=1&mode=assessment" className="mt-3 inline-flex text-sm font-semibold text-[#e7d6b1] underline">Resume at the next unanswered part</Link></div> : null}
+        {firstRun && livingProfile?.profileSource !== "assessment" && livingProfile?.profileSource !== "incomplete" ? <div className="mb-5 max-w-xl rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-left"><p className="text-sm font-medium text-zinc-100">Want a starting point before your first drill?</p><p className="mt-1 text-sm leading-5 text-zinc-400">Talk with Forge about what tends to go wrong. It is optional; today&apos;s practice stays available.</p><Link href="/app/practice?start=1&mode=assessment" className="mt-3 inline-flex text-sm font-semibold text-[#e7d6b1] underline">Start the baseline conversation</Link></div> : null}
+        {!firstRun && todayJourney && (!todayJourney.plan.dailyMinutes || !livingProfile?.challenges.length) ? (
+          <div className="mb-5 max-w-xl rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-left">
+            {!tuneOpen ? <button type="button" onClick={() => setTuneOpen(true)} className="text-sm font-medium text-[#e7d6b1]">Tune your practice <span className="text-zinc-400">(optional)</span></button> : (
+              <form onSubmit={(event) => void saveTunePractice(event)} className="space-y-4">
+                <p className="text-xs leading-5 text-zinc-400">Optional. This updates your Living Profile and daily time preference only; it does not change your current block.</p>
+                <label className="block text-sm text-zinc-300">What conversation matters most right now?
+                  <input value={tuneOccasion} onChange={(event) => setTuneOccasion(event.target.value)} maxLength={240} className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-white" />
+                </label>
+                <label className="block text-sm text-zinc-300">What still trips you up?
+                  <textarea value={tuneBottleneck} onChange={(event) => setTuneBottleneck(event.target.value)} rows={2} className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-white" />
+                </label>
+                <fieldset><legend className="text-sm text-zinc-300">Minutes a day</legend><div className="mt-2 flex gap-2">{([5, 10, 15] as const).map((minutes) => <button type="button" key={minutes} aria-pressed={tuneMinutes === minutes} onClick={() => setTuneMinutes(minutes)} className={`rounded-full border px-3 py-1.5 text-sm ${tuneMinutes === minutes ? "border-[#c9a95f] text-white" : "border-white/15 text-zinc-400"}`}>{minutes}</button>)}</div></fieldset>
+                {tuneMessage ? <p role="status" className="text-sm text-zinc-300">{tuneMessage}</p> : null}
+                <div className="flex gap-3"><button disabled={tuneSaving || !tuneBottleneck.trim()} className="rounded-full bg-[#f4f0e8] px-4 py-2 text-sm font-semibold text-black disabled:opacity-50">{tuneSaving ? "Saving…" : "Save preferences"}</button><button type="button" onClick={() => setTuneOpen(false)} className="text-sm text-zinc-400">Not now</button></div>
+              </form>
+            )}
+          </div>
+        ) : null}
+        {tuneMessage && !tuneOpen ? <p role="status" className="mb-4 text-sm text-zinc-400">{tuneMessage}</p> : null}
 
         {bounceNote || loadError ? (
           <p className="mt-4 max-w-md text-sm text-amber-100/90" role="status">
@@ -352,8 +418,12 @@ function ContinuityHomeInner() {
                 </span>
               </Link>
             </>
-          ) : todayJourney ? (
-            <JourneyTodayCard journey={todayJourney} disabled={enteringTraining} />
+            ) : todayJourney ? (
+              todayJourney.status === "block_complete" ? (
+                <JourneyBlockCompleteCard journey={todayJourney} bottleneck={livingProfile?.challenges[0] ?? ""} />
+              ) : (
+                <JourneyTodayCard journey={todayJourney} disabled={enteringTraining} />
+              )
           ) : practiceLimited ? (
             <>
               <Link href="/app/billing" className={styles.primaryAction}>
@@ -424,7 +494,7 @@ function ContinuityHomeInner() {
       <div className={styles.machineArea}>
         <div className={`${styles.status} ${isReady ? styles.readyStatus : ""}`}>
           <span className={styles.statusDot} aria-hidden="true" />
-          {loading
+        {loading
             ? "Coach preparing"
             : practiceLimited
               ? "Practice locked"
@@ -516,7 +586,19 @@ function ArrowGlyph() {
   );
 }
 
-function JourneyTodayCard({ journey, disabled }: { journey: TodayJourney; disabled: boolean }) {
+function JourneyBlockCompleteCard({ journey, bottleneck }: { journey: Extract<TodayJourney, { status: "block_complete" }>; bottleneck: string }) {
+  const params = new URLSearchParams({ planId: journey.plan.id, programId: journey.programId, block: String(journey.blockNumber), days: String(journey.completedDays), focus: journey.focusSignal, minutes: String(journey.plan.dailyMinutes ?? 5), bottleneck });
+  return (
+    <div className="mt-2 max-w-md rounded-3xl border border-[#c9a95f]/35 bg-[#c9a95f]/[0.07] p-5 text-left">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#c9a95f]">Journey checkpoint</p>
+      <h2 className="mt-3 text-2xl font-semibold text-white">Block {journey.blockNumber} complete</h2>
+      <p className="mt-3 text-sm leading-6 text-zinc-200">You finished all {journey.totalDays} days. Your check-in is ready before the next block is created.</p>
+      <Link href={`/app/check-in?${params.toString()}`} className="mt-5 inline-flex rounded-full bg-[#f4f0e8] px-5 py-3 font-semibold text-black">Start your check-in <ArrowGlyph /></Link>
+    </div>
+  );
+}
+
+function JourneyTodayCard({ journey, disabled }: { journey: Extract<TodayJourney, { status: "today" }>; disabled: boolean }) {
   const href = `/app/practice?drill=${encodeURIComponent(journey.day.drill.slug)}&programId=${encodeURIComponent(journey.day.programId)}&start=0`;
   return (
     <div className="mt-2 max-w-md rounded-3xl border border-[#c9a95f]/35 bg-[#c9a95f]/[0.07] p-5 text-left">

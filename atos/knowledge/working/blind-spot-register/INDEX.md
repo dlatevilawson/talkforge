@@ -1,7 +1,7 @@
 # Blind Spot Register — Index
 
-| **Updated** | 2026-09-11 |
-| **Count** | 18 |
+| **Updated** | 2026-11-17 |
+| **Count** | 19 |
 
 | ID | Title | Status | Severity | Related |
 |---|---|---|---|---|
@@ -23,3 +23,4 @@
 | [BS-016](bs-016.md) | Billing becomes a paywall or second identity store | Mitigating | High | IV-PROD-008 · OWN-001 · BILL-001 |
 | [BS-017](bs-017.md) | Continuous Intelligence silently Canonicalizes or Atlas becomes sovereign | Open | High | IV-AI-010 · IV-LAW-011 |
 | [BS-018](bs-018.md) | Proactive Forge outreach nags or invents undeclared events | Mitigating | High | IV-PROD-011 · MBL-001 · OWN-001 |
+| [BS-019](bs-019.md) | Baseline theater, stale answers, or accidental plan mutation | Mitigating | High | IV-UX-011 · IV-UX-009 · IV-PROD-004 · Decision 060 · Decision 063 |

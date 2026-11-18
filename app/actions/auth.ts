@@ -481,6 +481,8 @@ export async function completeOnboardingAction(
     .slice(0, 64);
   const planKindRaw = String(formData.get("planKind") ?? "6_week");
   const planKind = planKindRaw === "6_month" ? "6_month" : "6_week";
+  const dailyMinutesRaw = String(formData.get("dailyMinutes") ?? "").trim();
+  const dailyMinutes = dailyMinutesRaw === "" ? null : ([5, 10, 15].includes(Number(dailyMinutesRaw)) ? Number(dailyMinutesRaw) : 5);
   const occasionText = String(formData.get("occasionText") ?? "").trim().slice(0, 240);
   const occasionDate = String(formData.get("occasionDate") ?? "").trim().slice(0, 10);
 
@@ -571,6 +573,7 @@ export async function completeOnboardingAction(
       occasionText,
       occasionDate,
       focusText: purposeStatement || seasonLabel,
+      dailyMinutes,
     });
   } catch {
     return {

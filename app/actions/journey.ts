@@ -1,6 +1,6 @@
 "use server";
 
-import { completeBlockAndPrescribeNext, pauseTrainingPlan, resumeTrainingPlan } from "@/lib/journey/server";
+import { completeBlockAndPrescribeNext, pauseTrainingPlan, resumeTrainingPlan, updateTrainingPlanDailyMinutes } from "@/lib/journey/server";
 
 export async function pausePlanAction(planId: string): Promise<{ ok: boolean; message?: string }> {
   try { await pauseTrainingPlan(planId); return { ok: true }; }
@@ -15,4 +15,9 @@ export async function resumePlanAction(planId: string): Promise<{ ok: boolean; m
 export async function completeBlockAction(input: { planId: string; programId: string; focusSignal: "purpose" | "perspective" | "composure" | "message" | "adaptability"; goalText: string }): Promise<{ ok: boolean; message?: string }> {
   try { await completeBlockAndPrescribeNext(input); return { ok: true }; }
   catch (error) { return { ok: false, message: error instanceof Error ? error.message : "Could not prescribe next block" }; }
+}
+
+export async function updateDailyMinutesAction(planId: string, dailyMinutes: number): Promise<{ ok: boolean; message?: string }> {
+  try { await updateTrainingPlanDailyMinutes(planId, dailyMinutes); return { ok: true }; }
+  catch (error) { return { ok: false, message: error instanceof Error ? error.message : "Could not save practice time" }; }
 }

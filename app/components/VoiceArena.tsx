@@ -21,10 +21,12 @@ import {
   reduceAssessmentLifecycle,
   resolveAssessmentTurnSlot,
   startAssessmentLifecycle,
+  type AssessmentSnapshot,
   type AssessmentLifecycleEffect,
   type AssessmentLifecycleState,
   type AssessmentSlotId,
 } from "@/lib/ce/assessment-lifecycle";
+import { resumeAssessmentLifecycle } from "@/lib/ce/assessment-resume";
 import {
   applyOutputBudget,
   cancelForgeResponse,
@@ -155,6 +157,8 @@ type VoiceArenaProps = {
   mode?: CeSessionMode;
   drillId?: string;
   programId?: string;
+  assessmentResumeSnapshot?: AssessmentSnapshot | null;
+  assessmentDailyMinutes?: 5 | 10 | 15 | null;
   guestPreview?: {
     topicId: string;
     reconnectToken: string;
@@ -206,6 +210,8 @@ export default function VoiceArena({
   mode = "practice",
   drillId,
   programId,
+  assessmentResumeSnapshot = null,
+  assessmentDailyMinutes = null,
   guestPreview,
 }: VoiceArenaProps) {
   const router = useRouter();
@@ -223,7 +229,7 @@ export default function VoiceArena({
   const autoStartAttemptedRef = useRef(false);
   const beginButtonRef = useRef<HTMLButtonElement>(null);
   const assessmentLifecycleRef = useRef<AssessmentLifecycleState>(
-    isAssessment ? startAssessmentLifecycle() : createIdleAssessmentState()
+    isAssessment ? resumeAssessmentLifecycle(assessmentResumeSnapshot, assessmentDailyMinutes) : createIdleAssessmentState()
   );
   /** Closing speech was sent — next matching response.done navigates. */
   const assessmentClosingSentRef = useRef(false);
@@ -563,13 +569,10 @@ export default function VoiceArena({
 
     const life = assessmentLifecycleRef.current;
     const practiceSessionId = practiceSessionRef.current?.id ?? null;
-    const assessmentSnapshot =
-      outcome === "complete"
-        ? buildAssessmentSnapshot(life, {
-            practiceSessionId,
-            sufficient: true,
-          })
-        : null;
+    const assessmentSnapshot = buildAssessmentSnapshot(life, {
+      practiceSessionId,
+      sufficient: outcome === "complete",
+    });
     if (assessmentSnapshot) {
       // Results UI + LP write share this snapshot (Steps 6–7).
       persistAssessmentSnapshotClient(assessmentSnapshot);
@@ -603,8 +606,9 @@ export default function VoiceArena({
     setLiveConnection(null);
     setActiveVoiceSessionId(null);
 
-    if (outcome === "complete" && assessmentSnapshot) {
-      void fetch("/api/assessment/complete", {
+    if (assessmentSnapshot) {
+      try {
+        const response = await fetch("/api/assessment/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -612,14 +616,19 @@ export default function VoiceArena({
           practiceSessionId,
           assessmentSnapshot,
         }),
-      }).catch((err) => {
-        console.warn("[voice] assessment complete persist failed", err);
-      });
+        });
+        if (!response.ok) throw new Error("Assessment snapshot was not saved.");
+      } catch (err) {
+        console.error("[voice] assessment snapshot persist failed", err);
+        assessmentNavigatedRef.current = false;
+        pushEvent("Assessment pause could not be saved. Please retry before leaving.");
+        return;
+      }
     }
 
     if (outcome === "cancelled") {
       pushEvent("Assessment cancelled · returning to Coach Forge");
-      router.replace("/app/practice?start=1");
+      router.replace("/app?assessment=paused");
       return;
     }
 
@@ -1896,7 +1905,7 @@ export default function VoiceArena({
     }
     clearAssessmentTranscriptTurnTimer();
     if (isAssessment) {
-      syncAssessmentLifecycle(startAssessmentLifecycle());
+      syncAssessmentLifecycle(resumeAssessmentLifecycle(assessmentResumeSnapshot, assessmentDailyMinutes));
     } else {
       syncAssessmentLifecycle(createIdleAssessmentState());
     }
@@ -2588,7 +2597,8 @@ export default function VoiceArena({
       });
       persistAssessmentSnapshotClient(assessmentSnapshot);
       const snapshot = [...turnsRef.current];
-      void fetch("/api/assessment/complete", {
+      try {
+        const response = await fetch("/api/assessment/complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -2596,9 +2606,14 @@ export default function VoiceArena({
           practiceSessionId,
           assessmentSnapshot,
         }),
-      }).catch((err) => {
-        console.warn("[voice] assessment early-end persist failed", err);
-      });
+        });
+        if (!response.ok) throw new Error("Assessment snapshot was not saved.");
+      } catch (err) {
+        console.error("[voice] assessment early-end persist failed", err);
+        assessmentNavigatedRef.current = false;
+        pushEvent("Assessment pause could not be saved. Please retry before leaving.");
+        return;
+      }
       assessmentNavigatedRef.current = true;
       clearAssessmentTranscriptTurnTimer();
       voiceRef.current.onSessionEnd();
@@ -2616,7 +2631,7 @@ export default function VoiceArena({
       setLiveConnection(null);
       setActiveVoiceSessionId(null);
       pushEvent("Assessment ended early · incomplete results");
-      router.replace("/app/assessment/results?status=incomplete");
+      router.replace("/app/assessment/results?status=incomplete&paused=1");
       return;
     }
 

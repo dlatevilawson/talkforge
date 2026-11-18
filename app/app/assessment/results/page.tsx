@@ -15,6 +15,8 @@ import {
   buildTrainingScenarios,
   trainingScenarioPracticeHref,
 } from "@/lib/ce/assessment-training-scenarios";
+import AssessmentBaselineCard from "@/app/components/AssessmentBaselineCard";
+import type { LivingProfile } from "@/lib/system1/types";
 
 /**
  * Assessment Results — diagnostic integrity fields when diagnosis exists.
@@ -24,10 +26,13 @@ import {
 function AssessmentResultsBody() {
   const searchParams = useSearchParams();
   const statusParam = searchParams.get("status");
+  const paused = searchParams.get("paused") === "1";
   const [snapshot, setSnapshot] = useState<AssessmentSnapshot | null>(null);
+  const [profile, setProfile] = useState<LivingProfile | null>(null);
 
   useEffect(() => {
     setSnapshot(readAssessmentSnapshotClient());
+    void fetch("/api/living-profile", { cache: "no-store" }).then((response) => response.json()).then((data: { profile?: LivingProfile | null }) => setProfile(data.profile ?? null)).catch(() => undefined);
   }, []);
 
   const incomplete =
@@ -68,18 +73,20 @@ function AssessmentResultsBody() {
         </Link>
 
         <p className="mt-14 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#D4AF37]/75">
-          {incomplete ? "Assessment unfinished" : "Assessment complete"}
+          {incomplete ? (paused ? "Assessment paused" : "Assessment unfinished") : "Assessment complete"}
         </p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight">
           {incomplete
-            ? "Not enough yet for a Living Profile"
+            ? (paused ? "Your answers are saved" : "Not enough yet for a Living Profile")
             : "Baseline captured"}
         </h1>
         <p className="mt-4 max-w-md text-base leading-7 text-white/55">
           {incomplete
-            ? "Forge didn’t gather enough to write your initial communication baseline. No Living Profile was created from this pass."
+            ? (paused ? "Your assessment is paused. What you already answered is saved, and you can come back to the next unanswered part." : "We’re still learning your starting point. What you already answered is saved, and no baseline is being inferred from missing evidence.")
             : "Forge gathered enough to establish your initial communication baseline. Training recommendations below come from your diagnosis — not a generic catalog."}
         </p>
+
+        {profile && (profile.profileSource === "assessment" || profile.profileSource === "incomplete") ? <div className="mt-8"><AssessmentBaselineCard profile={profile} /></div> : null}
 
         {snapshot?.diagnosis && !incomplete ? (
           <ul className="mt-10 space-y-5">
@@ -181,7 +188,7 @@ function AssessmentResultsBody() {
               href="/app/practice?start=1&mode=assessment"
               className="inline-flex items-center justify-center rounded-full border border-white/15 px-8 py-3.5 text-sm font-semibold text-white/80 transition hover:border-white/30 hover:text-white"
             >
-              Try assessment again
+              {paused ? "Resume assessment" : "Try assessment again"}
             </Link>
           ) : null}
           <Link

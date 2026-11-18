@@ -36,6 +36,7 @@ export default function OnboardingForm({
   );
   const [selected, setSelected] = useState<TrainingFocusOption | null>(null);
   const [planKind, setPlanKind] = useState<"6_week" | "6_month">("6_week");
+  const [dailyMinutes, setDailyMinutes] = useState<"5" | "10" | "15" | "">("5");
   const firstName = displayName.split(" ")[0] || "";
 
   return (
@@ -97,6 +98,7 @@ export default function OnboardingForm({
           />
           <input type="hidden" name="preferredLanguage" value="en" />
           <input type="hidden" name="planKind" value={planKind} />
+          <input type="hidden" name="dailyMinutes" value={dailyMinutes} />
 
           <section className="rounded-3xl border border-white/10 bg-white/[0.03] p-5 sm:p-7" aria-labelledby="plan-heading">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--tf-gold)]">Your journey</p>
@@ -119,6 +121,20 @@ export default function OnboardingForm({
                 </button>
               ))}
             </div>
+            <fieldset className="mt-6">
+              <legend className="text-sm font-medium text-zinc-200">How many minutes a day?</legend>
+              <p className="mt-1 text-xs text-zinc-500">A starting preference, not a commitment. You can change it later.</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {(["5", "10", "15"] as const).map((minutes) => (
+                  <button key={minutes} type="button" onClick={() => setDailyMinutes(minutes)} aria-pressed={dailyMinutes === minutes} className={`rounded-full border px-5 py-2.5 text-sm transition ${dailyMinutes === minutes ? "border-[var(--tf-gold)] bg-[var(--tf-gold)]/[0.10] text-white" : "border-white/10 text-zinc-300 hover:border-white/25"}`}>
+                    {minutes} minutes
+                  </button>
+                ))}
+                <button type="button" onClick={() => setDailyMinutes("")} aria-pressed={dailyMinutes === ""} className={`rounded-full border px-5 py-2.5 text-sm transition ${dailyMinutes === "" ? "border-[var(--tf-gold)] bg-[var(--tf-gold)]/[0.10] text-white" : "border-white/10 text-zinc-400 hover:border-white/25"}`}>
+                  Skip for now
+                </button>
+              </div>
+            </fieldset>
             <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
               <label className="text-sm text-zinc-300">
                 Got something coming up? <span className="text-zinc-500">(optional)</span>

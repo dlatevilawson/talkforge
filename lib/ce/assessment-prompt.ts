@@ -147,7 +147,7 @@ export const ASSESSMENT_GATEWAY_LADDERS: Record<
 export const ASSESSMENT_ANCHOR_QUESTIONS = [
   ASSESSMENT_GATEWAY_LADDERS.processing_retrieval.open_recall,
   "Who are you usually talking to when this gets hard?",
-  "When it breaks down, is it more that you know what you mean but can't find the words, or that the thought itself feels scrambled?",
+  "Tell me about a recent time communication went wrong. What happened?",
   "What do you notice yourself doing in those moments that you want to change?",
   "Think of the last time this happened. Were you talking to someone you knew or someone you didn't?",
   "Six weeks from now, what do you want to be able to do that you can't do comfortably today?",
