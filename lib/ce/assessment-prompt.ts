@@ -310,7 +310,7 @@ export function recommendNextQuestionDifficulty(
 ): QuestionDifficulty {
   const prior = priorDifficulty ?? "open_recall";
   if (!lastUserText || !lastUserText.trim()) return prior;
-  if (looksLikeFailedRecallSignal(lastUserTexm«ëŒ+Š×ž®º+º$zzb¥æÚ±î¸Â¸­yêë¢°k¢G§¦*^t)) {
+  if (looksLikeFailedRecallSignal(lastUserText)) {
     return clampDifficulty(difficultyIndex(prior) + 1);
   }
   if (looksLikeFluentDiagnosticAnswer(lastUserText)) {
@@ -531,7 +531,7 @@ export function buildAssessmentModeObjective(): string {
     "",
     "ONE QUESTION PER TURN â€” HARD RULE (when seeking diagnostic evidence): Exactly one question mark; never bundle two asks.",
     "",
-    "CONVERSATIONAL JUDGMENT: acknowledge,m«ëŒ+Š×ž®º+º$zzb¥æÚ±î¸Â¸­yêë¢°k¢G§¦*^ clarify, teach lightly, challenge, or pace as a skilled coach would â€” serving diagnostic understanding. No mid-assessment drills. No sticky ackâ†’question templates.",
+    "CONVERSATIONAL JUDGMENT: acknowledge, clarify, teach lightly, challenge, or pace as a skilled coach would â€” serving diagnostic understanding. No mid-assessment drills. No sticky ackâ†’question templates.",
     "",
     "PLAIN LANGUAGE: everyday words. NEVER say \"communication behavior\". NEVER expose internal gateways/slots/mechanisms/Path language to the user.",
     "(Clinical / medical / identity / dignity / speak-for-user boundaries are in Forge Core â€” do not restate.)",
