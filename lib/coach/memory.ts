@@ -6,6 +6,7 @@ import type {
   SessionReport,
 } from "@/lib/coach/types";
 import type { LivingProfile } from "@/lib/system1/types";
+import { reportMemoryEvidence } from "@/lib/session-substance";
 
 export function emptyCoachMemory(userId: string, displayName = ""): CoachMemory {
   return {
@@ -97,22 +98,30 @@ export function applyReportToMemory(
   }
   const scenario = report.scenarioTitle?.trim() || memory.lastScenarioTitle;
   const observedAt = report.completedAt ?? report.createdAt;
+  const memoryEvidence = reportMemoryEvidence(report);
+  const hasCapturedSpeech = Boolean(memoryEvidence.breakthrough);
   const history = historyFromMemory(memory);
   const nextHistory = [
     ...history,
-    ...(report.breakthrough.trim()
-      ? [{ field: "recentWins", value: report.breakthrough.trim(), sourceSessionId: report.sessionId, observedAt }]
+    ...(memoryEvidence.breakthrough
+      ? [{ field: "recentWins", value: memoryEvidence.breakthrough, sourceSessionId: report.sessionId, observedAt }]
       : []),
-    ...(report.biggestWeakness.trim()
-      ? [{ field: "longTermChallenges", value: report.biggestWeakness.trim(), sourceSessionId: report.sessionId, observedAt }]
+    ...(memoryEvidence.biggestWeakness
+      ? [{ field: "longTermChallenges", value: memoryEvidence.biggestWeakness, sourceSessionId: report.sessionId, observedAt }]
       : []),
     ...(scenario
       ? [{ field: "topicsWorkingOn", value: scenario, sourceSessionId: report.sessionId, observedAt }]
       : []),
   ].slice(-40);
   const notes = { ...memory.notes, sessionHistory: nextHistory };
-  const recentWins = memberCorrected(memory, "recentWins") ? memory.recentWins : uniqPush(memory.recentWins, report.breakthrough);
-  const challenges = memberCorrected(memory, "longTermChallenges") ? memory.longTermChallenges : uniqPush(memory.longTermChallenges, report.biggestWeakness);
+  const recentWins =
+    !hasCapturedSpeech || memberCorrected(memory, "recentWins")
+      ? memory.recentWins
+      : uniqPush(memory.recentWins, memoryEvidence.breakthrough);
+  const challenges =
+    !hasCapturedSpeech || memberCorrected(memory, "longTermChallenges")
+      ? memory.longTermChallenges
+      : uniqPush(memory.longTermChallenges, memoryEvidence.biggestWeakness);
   const topics = memberCorrected(memory, "topicsWorkingOn") ? memory.topicsWorkingOn : uniqPush(memory.topicsWorkingOn, scenario);
   return {
     ...memory,
@@ -125,7 +134,9 @@ export function applyReportToMemory(
       : uniqPush(memory.communicationGoals, scenario, 4),
     biggestStrength: memberCorrected(memory, "biggestStrength")
       ? memory.biggestStrength
-      : (report.breakthrough.trim() || memory.biggestStrength),
+      : (memoryEvidence.breakthrough
+          ? memoryEvidence.breakthrough
+          : memory.biggestStrength),
     favoriteScenarios: uniqPush(memory.favoriteScenarios, scenario),
     pastExercises: uniqPush(memory.pastExercises, scenario, 12),
     lastSessionId: report.sessionId,
