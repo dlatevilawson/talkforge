@@ -6,7 +6,11 @@ import {
 } from "@/lib/coach/metrics";
 import type { SessionReport } from "@/lib/coach/types";
 import type { ConversationTurn, PracticeSession } from "@/lib/types";
-import { isSubstantiveTranscript } from "@/lib/ce/transcript-admission";
+import {
+  applySessionCaptureVerdict,
+  hasSubstantiveFounderSpeech,
+  isNoCaptureVerdict,
+} from "@/lib/session-substance";
 
 export type MomentumLike = {
   strength?: string;
@@ -58,23 +62,34 @@ export function buildSessionReport(input: {
   modality: "voice" | "text";
   durationSeconds?: number | null;
   momentum?: MomentumLike | null;
+  /** Caller may supply the shared decision after confirming durable audio. */
+  capturedSpeech?: boolean;
 }): SessionReport {
   const { session, turns, sessionNumber, modality, momentum } = input;
-  const capturedSpeech = userTextsFromTurns(turns).some(isSubstantiveTranscript);
+  const capturedSpeech =
+    input.capturedSpeech ?? hasSubstantiveFounderSpeech(turns);
+  const momentumContainsNoCapture = [
+    momentum?.strength,
+    momentum?.breakthrough,
+    momentum?.biggestWeakness,
+    momentum?.coachSummary,
+  ].some((value) => typeof value === "string" && isNoCaptureVerdict(value));
+  const usableMomentum =
+    capturedSpeech && momentumContainsNoCapture ? null : momentum;
   const confidence = clampScore(
-    momentum?.confidence ?? averageDimension(turns, "confidence")
+    usableMomentum?.confidence ?? averageDimension(turns, "confidence")
   );
   const clarity = clampScore(
-    momentum?.clarity ?? averageDimension(turns, "clarity")
+    usableMomentum?.clarity ?? averageDimension(turns, "clarity")
   );
   const empathy = clampScore(
-    momentum?.empathy ?? averageDimension(turns, "warmth")
+    usableMomentum?.empathy ?? averageDimension(turns, "warmth")
   );
   const listening = clampScore(
-    momentum?.listening ?? averageDimension(turns, "curiosity")
+    usableMomentum?.listening ?? averageDimension(turns, "curiosity")
   );
   const overallScore = clampScore(
-    momentum?.overallScore ??
+    usableMomentum?.overallScore ??
       session.averageScore ??
       averageDimension(turns, "score") ??
       averageOf([confidence, clarity, empathy, listening])
@@ -93,26 +108,26 @@ export function buildSessionReport(input: {
   const breakthrough = !capturedSpeech
     ? "We didn't capture a spoken thought in this session."
     :
-    momentum?.breakthrough?.trim() ||
-    momentum?.strength?.trim() ||
+    usableMomentum?.breakthrough?.trim() ||
+    usableMomentum?.strength?.trim() ||
     "You showed up and practiced out loud.";
   const biggestWeakness = !capturedSpeech
     ? "No practice was captured to evaluate."
     :
-    momentum?.biggestWeakness?.trim() ||
-    momentum?.improve?.trim() ||
+    usableMomentum?.biggestWeakness?.trim() ||
+    usableMomentum?.improve?.trim() ||
     "Keep one concrete focus for the next rep.";
   const homework = !capturedSpeech
     ? "Check your microphone and try the rep again."
     :
-    momentum?.homework?.trim() ||
-    momentum?.nextAction?.trim() ||
+    usableMomentum?.homework?.trim() ||
+    usableMomentum?.nextAction?.trim() ||
     "Try one clearer opening line in your next real conversation.";
   const coachSummary =
     !capturedSpeech
       ? "We didn't capture a spoken thought in this session. Check your microphone and try the rep again."
       :
-    momentum?.coachSummary?.trim() ||
+    usableMomentum?.coachSummary?.trim() ||
     [breakthrough, `Focus next: ${biggestWeakness}`, `Homework: ${homework}`]
       .filter(Boolean)
       .join(" ");
@@ -127,7 +142,7 @@ export function buildSessionReport(input: {
       ? Math.max(0, Math.round((ended - started) / 1000))
       : null);
 
-  return {
+  const report: SessionReport = {
     sessionId: session.id,
     userId: session.userId,
     sessionNumber,
@@ -154,22 +169,13 @@ export function buildSessionReport(input: {
     startedAt: session.startedAt,
     completedAt: session.completedAt,
   };
+  return applySessionCaptureVerdict(report, capturedSpeech);
 }
+
+export { voiceTurnsToConversationTurns } from "@/lib/voice-turn-mapping";
 
 function averageOf(values: Array<number | null>): number | null {
   const nums = values.filter((v): v is number => typeof v === "number");
   if (nums.length === 0) return null;
   return Math.round(nums.reduce((a, b) => a + b, 0) / nums.length);
-}
-
-/** Map voice transcript turns into ConversationTurn for persistence. */
-export function voiceTurnsToConversationTurns(
-  turns: Array<{ role: "founder" | "forge"; text: string }>
-): ConversationTurn[] {
-  return turns
-    .filter((t) => typeof t.text === "string" && t.text.trim())
-    .map((t) => ({
-      role: t.role === "founder" ? ("user" as const) : ("npc" as const),
-      text: t.text.trim(),
-    }));
 }

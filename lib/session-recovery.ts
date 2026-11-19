@@ -1,7 +1,10 @@
 import { applyReportToMemory, emptyCoachMemory } from "@/lib/coach/memory";
 import { buildSessionReport } from "@/lib/coach/report";
 import type { CoachMemory, SessionReport } from "@/lib/coach/types";
-import { hasSubstantiveFounderSpeech } from "@/lib/session-substance";
+import {
+  countMemberTranscriptFillers,
+  hasSubstantiveFounderSpeech,
+} from "@/lib/session-substance";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import type { ConversationTurn, PracticeSession } from "@/lib/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -53,13 +56,6 @@ function reportPayload(report: SessionReport) {
   };
 }
 
-function transcriptFillerCount(turns: ConversationTurn[]): number {
-  return turns.reduce((count, turn) => {
-    if (turn.role !== "user" && turn.role !== "npc") return count;
-    return count + (turn.text.match(/\b(?:um+|uh+|like|you know|basically)\b/gi)?.length ?? 0);
-  }, 0);
-}
-
 export async function recoverIncompleteSession(
   sessionId: string,
   userId?: string,
@@ -69,12 +65,37 @@ export async function recoverIncompleteSession(
   if (userId) query = query.eq("user_id", userId);
   const { data: row, error } = await query.maybeSingle();
   if (error) throw new Error(`Failed to load session: ${error.message}`);
-  if (!row) return { status: "not_found", sessionId, hadSubstantiveSpeech: false, audio: "missing" };
-  if (row.completed_at) return { status: "already_completed", sessionId, hadSubstantiveSpeech: hasSubstantiveFounderSpeech(Array.isArray(row.turns) ? row.turns : []), audio: "missing" };
+  if (!row) {
+    return {
+      status: "not_found",
+      sessionId,
+      hadSubstantiveSpeech: false,
+      audio: "missing",
+    };
+  }
+  const { data: audioRow, error: audioError } = await admin
+    .from("speech_audio")
+    .select("session_id")
+    .eq("session_id", sessionId)
+    .eq("user_id", String(row.user_id))
+    .maybeSingle();
+  if (audioError) throw new Error(`Failed to check recovered session audio: ${audioError.message}`);
+  const audioAvailable = Boolean(audioRow);
+  if (row.completed_at) {
+    return {
+      status: "already_completed",
+      sessionId,
+      hadSubstantiveSpeech: hasSubstantiveFounderSpeech(
+        Array.isArray(row.turns) ? row.turns : [],
+        { audioAvailable }
+      ),
+      audio: audioAvailable ? "present" : "missing",
+    };
+  }
 
   const session = mapSession(row as Record<string, unknown>);
   const turns = session.turns;
-  const substantive = hasSubstantiveFounderSpeech(turns);
+  const substantive = hasSubstantiveFounderSpeech(turns, { audioAvailable });
   const completedAt = new Date().toISOString();
   const durationSeconds = Math.max(0, Math.round((Date.parse(completedAt) - Date.parse(session.startedAt)) / 1000));
   const { count } = await admin.from("practice_sessions").select("id", { count: "exact", head: true }).eq("user_id", session.userId).not("completed_at", "is", null);
@@ -83,20 +104,23 @@ export async function recoverIncompleteSession(
   const { error: updateError } = await admin.from("practice_sessions").update({ completed_at: completedAt, duration_seconds: durationSeconds, last_activity_at: completedAt, average_score: null }).eq("id", session.id).eq("user_id", session.userId);
   if (updateError) throw new Error(`Failed to close incomplete session: ${updateError.message}`);
 
-  const report = buildSessionReport({ session: completed, turns, sessionNumber, modality: session.modality ?? "voice", durationSeconds, momentum: { strength: substantive ? undefined : "We didn’t capture a spoken thought in this session.", improve: substantive ? undefined : "No practice was captured; try the rep again when your microphone is ready.", nextAction: "Review this session and choose one small next rep." } });
-  if (!substantive) {
-    report.overallScore = null;
-    report.confidence = null;
-    report.empathy = null;
-    report.listening = null;
-    report.clarity = null;
-    report.storytelling = null;
-    report.negotiation = null;
-    report.leadership = null;
-    report.breakthrough = "We didn’t capture a spoken thought in this session.";
-    report.biggestWeakness = "No practice was captured; try the rep again when your microphone is ready.";
-    report.coachSummary = `${report.breakthrough} ${report.biggestWeakness}`;
-  }
+  const report = buildSessionReport({
+    session: completed,
+    turns,
+    sessionNumber,
+    modality: session.modality ?? "voice",
+    durationSeconds,
+    capturedSpeech: substantive,
+    momentum: {
+      strength: substantive
+        ? undefined
+        : "We didn’t capture a spoken thought in this session.",
+      improve: substantive
+        ? undefined
+        : "No practice was captured; try the rep again when your microphone is ready.",
+      nextAction: "Review this session and choose one small next rep.",
+    },
+  });
   const { error: reportError } = await admin.from("session_reports").upsert(reportPayload(report));
   if (reportError) throw new Error(`Failed to save recovered report: ${reportError.message}`);
 
@@ -109,7 +133,7 @@ export async function recoverIncompleteSession(
   // No audio blob can be invented. Preserve only the observed transcript-level
   // filler count; all audio-derived metrics remain null.
   if (session.modality === "voice") {
-    await admin.from("speech_metrics").upsert({ session_id: session.id, user_id: session.userId, filler_count: transcriptFillerCount(turns), filler_density_per_100_words: null, pace_wpm: null, pause_count: null, pause_total_ms: null, longest_pause_ms: null, member_talk_time_pct: null, member_speaking_time_ms: null, measured_at: null });
+    await admin.from("speech_metrics").upsert({ session_id: session.id, user_id: session.userId, filler_count: countMemberTranscriptFillers(turns), filler_density_per_100_words: null, pace_wpm: null, pause_count: null, pause_total_ms: null, longest_pause_ms: null, member_talk_time_pct: null, member_speaking_time_ms: null, measured_at: null });
   }
 
   if (substantive && session.drillId) {
@@ -126,7 +150,7 @@ export async function recoverIncompleteSession(
     await admin.from("drill_completions").upsert({ day_id: dayId, member_id: session.userId, drill_id: session.drillId, practice_session_id: session.id, completed_at: completedAt, notes: "Recovered from saved turns; audio was not available." }, { onConflict: "member_id,drill_id,practice_session_id" });
     if (dayId) await admin.from("program_days").update({ status: "done", completed_at: completedAt }).eq("id", dayId);
   }
-  return { status: "recovered", sessionId, hadSubstantiveSpeech: substantive, audio: "missing" };
+  return { status: "recovered", sessionId, hadSubstantiveSpeech: substantive, audio: audioAvailable ? "present" : "missing" };
 }
 
 export async function recoverStaleIncompleteSessions(

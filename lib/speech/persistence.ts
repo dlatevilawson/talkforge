@@ -1,5 +1,6 @@
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { TranscriptTurn } from "@/lib/ce/transcript";
+import { memberSpeechTurns } from "@/lib/session-substance";
 
 export type SpeechCapture = {
   audioBlob: Blob | null;
@@ -111,17 +112,21 @@ export async function persistSpeechCapture(input: {
   if (metricError) throw new Error(`Failed to persist speech metrics: ${metricError.message}`);
 
   const fillerPattern = /^(?:um+|uh+|like|you know|basically|actually|literally)$/i;
-  const fillers = input.capture.turns.flatMap((turn) =>
-    (turn.words ?? []).filter((word) => fillerPattern.test(word.word.trim())).map((word, index) => ({
-      session_id: input.sessionId,
-      user_id: input.userId,
-      word: word.word.trim().toLowerCase(),
-      occurrence_index: index,
-      start_offset_ms: word.startOffsetMs,
-      end_offset_ms: word.endOffsetMs,
-      replay_ref_id: null,
-    }))
-  );
+  const fillers = memberSpeechTurns(input.capture.turns)
+    .filter((turn) => turn.role === "founder")
+    .flatMap((turn) =>
+      (turn.words ?? [])
+        .filter((word) => fillerPattern.test(word.word.trim()))
+        .map((word, index) => ({
+          session_id: input.sessionId,
+          user_id: input.userId,
+          word: word.word.trim().toLowerCase(),
+          occurrence_index: index,
+          start_offset_ms: word.startOffsetMs,
+          end_offset_ms: word.endOffsetMs,
+          replay_ref_id: null,
+        }))
+    );
   if (fillers.length) {
     let fillerRows = fillers;
     if (audioPath) {

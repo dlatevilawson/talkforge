@@ -13,6 +13,7 @@ import {
   getLivingProfile,
   getSession,
   getSessionReport,
+  getSpeechEvidence,
   LivingProfileConflictError,
   saveCoachMemory,
   saveLivingProfileProvenance,
@@ -23,8 +24,10 @@ import {
 import type { ConversationTurn, ForgeCoaching, PracticeSession } from "./types";
 import type { TranscriptTurn } from "@/lib/ce/transcript";
 import { persistSpeechCapture } from "@/lib/speech/persistence";
-import { hasAdmittedPracticeSpeech } from "@/lib/journey/completion-gate";
-import { hasSubstantiveFounderSpeech } from "@/lib/session-substance";
+import {
+  countMemberTranscriptFillers,
+  hasSubstantiveFounderSpeech,
+} from "@/lib/session-substance";
 
 function createId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -91,7 +94,7 @@ export async function completePracticeSession(
   }
 ): Promise<PracticeSession> {
   const modality = options?.modality ?? session.modality ?? "text";
-  const substantiveSpeech = hasSubstantiveFounderSpeech(turns);
+  let capturedSpeech = hasSubstantiveFounderSpeech(turns);
   const completedAt = new Date().toISOString();
   const durationSeconds =
     options?.durationSeconds ??
@@ -118,28 +121,24 @@ export async function completePracticeSession(
     turns,
     completedAt,
     lastActivityAt: completedAt,
-    averageScore: substantiveSpeech ? averageForgeScore(turns) : undefined,
+    averageScore: capturedSpeech ? averageForgeScore(turns) : undefined,
     modality,
     durationSeconds,
   };
 
   await saveSession(completed);
 
+  let durableAudioAvailable = false;
   if (modality === "voice" && options?.speechCapture) {
     try {
-      const reportFillerCount = turns
-        .filter(
-          (turn): turn is Extract<ConversationTurn, { role: "user" | "npc" }> =>
-            turn.role === "user" || turn.role === "npc"
-        )
-        .reduce((count, turn) => count + (turn.text.match(/\b(?:um+|uh+|like|you know|basically)\b/gi)?.length ?? 0), 0);
-      await persistSpeechCapture({
+      const { audioPath } = await persistSpeechCapture({
         sessionId: completed.id,
         userId: completed.userId,
         durationSeconds,
-        fillerCount: reportFillerCount,
+        fillerCount: countMemberTranscriptFillers(turns),
         capture: options.speechCapture,
       });
+      durableAudioAvailable = Boolean(audioPath);
       if (typeof window !== "undefined" && options.speechCapture.audioBlob) {
         // Measurement is deliberately asynchronous: completion and audio
         // persistence remain durable even when transcription is unavailable.
@@ -155,10 +154,14 @@ export async function completePracticeSession(
     }
   }
 
-  const hasPracticeSpeech = hasAdmittedPracticeSpeech(
-    turns.map((turn) => ({ role: turn.role, text: "text" in turn ? turn.text : "" }))
-  );
-  if (completed.drillId && hasPracticeSpeech) {
+  capturedSpeech = hasSubstantiveFounderSpeech(turns, {
+    audioAvailable: durableAudioAvailable,
+  });
+  if (capturedSpeech && typeof completed.averageScore !== "number") {
+    completed.averageScore = averageForgeScore(turns);
+  }
+
+  if (completed.drillId && capturedSpeech) {
     try {
       if (completed.programId && typeof window !== "undefined") {
       const response = await fetch("/api/journey/complete-day", {
@@ -196,20 +199,8 @@ export async function completePracticeSession(
     modality,
     durationSeconds,
     momentum: options?.momentum,
+    capturedSpeech,
   });
-  if (!substantiveSpeech) {
-    report.overallScore = null;
-    report.confidence = null;
-    report.empathy = null;
-    report.listening = null;
-    report.clarity = null;
-    report.storytelling = null;
-    report.negotiation = null;
-    report.leadership = null;
-    report.breakthrough = "We didn’t capture a spoken thought in this session.";
-    report.biggestWeakness = "No practice was captured; try the rep again when your microphone is ready.";
-    report.coachSummary = `${report.breakthrough} ${report.biggestWeakness}`;
-  }
   if (
     typeof completed.averageScore !== "number" &&
     typeof report.overallScore === "number"
@@ -288,13 +279,21 @@ export async function retryCoachMemoryUpdate(sessionId: string): Promise<boolean
     return response.ok;
   }
   if (!session.completedAt) return false;
-  const report = (await getSessionReport(sessionId)) ?? buildSessionReport({
-    session,
-    turns: session.turns,
-    sessionNumber: 1,
-    modality: session.modality ?? "text",
-    durationSeconds: session.durationSeconds ?? null,
+  const storedReport = await getSessionReport(sessionId);
+  const speechEvidence = storedReport ? null : await getSpeechEvidence(sessionId);
+  const capturedSpeech = hasSubstantiveFounderSpeech(session.turns, {
+    audioAvailable: Boolean(speechEvidence?.audio),
   });
+  const report =
+    storedReport ??
+    buildSessionReport({
+      session,
+      turns: session.turns,
+      sessionNumber: 1,
+      modality: session.modality ?? "text",
+      durationSeconds: session.durationSeconds ?? null,
+      capturedSpeech,
+    });
   const existing = (await getCoachMemory(session.userId)) ?? emptyCoachMemory(session.userId);
   const next = applyReportToMemory(existing, report);
   await saveCoachMemory(next);
