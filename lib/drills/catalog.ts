@@ -19,8 +19,8 @@ export type Drill = {
   twoMinuteVersion: string;
   scenarioTags: string[];
   goodLooksLike: string;
-  question?: string;
-  workedExample?: string;
+  question: string;
+  workedExample: string;
 };
 
 // IDs are stable so the home card, URL, and completion record refer to one drill.
@@ -55,6 +55,8 @@ export const STARTER_DRILLS: readonly Drill[] = [
     twoMinuteVersion: "Answer 3 questions.",
     scenarioTags: ["interview", "conflict"],
     goodLooksLike: "Silence is held without filler; answers start clean.",
+    question: "What opening line will you say before holding a full three-second pause?",
+    workedExample: "Opening line: “Thanks for making time to talk.” [Hold a full three seconds of silence.] Continue: “I want to make sure we leave with one clear next step.”",
   },
   {
     id: "00000000-0000-0000-0000-000000000010",
