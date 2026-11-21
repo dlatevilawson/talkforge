@@ -1,7 +1,7 @@
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { evaluatePracticeEntitlement } from "@/lib/billing/entitlements";
-import { STARTER_DRILLS, type Drill, type DrillSignal } from "@/lib/drills/catalog";
+import { STARTER_DRILLS, type Drill, type DrillPhase, type DrillSignal } from "@/lib/drills/catalog";
 import { generateBlockDays, planEndDate } from "./generator";
 import { evaluateBlockCompletion, nextBlockStartDate } from "./check-in";
 import { initialTrainingPlanRow } from "./daily-minutes";
@@ -13,11 +13,15 @@ function slugify(value: string): string {
 
 function mapDrill(row: Record<string, unknown>): Drill {
   const catalog = STARTER_DRILLS.find((drill) => drill.name === row.name);
+  const phase = row.phase === "recognise" || row.phase === "build" || row.phase === "rehearse" || row.phase === "roleplay"
+    ? row.phase as DrillPhase
+    : null;
   return {
     id: String(row.id),
     slug: catalog?.slug ?? slugify(String(row.name)),
     name: String(row.name),
     signal: String(row.signal) as DrillSignal,
+    phase,
     instructions: String(row.instructions),
     durationMinutes: Number(row.duration_minutes),
     modality: String(row.modality) as Drill["modality"],
