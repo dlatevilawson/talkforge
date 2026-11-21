@@ -34,7 +34,8 @@
       "20261112090000_incomplete_session_recovery.sql",
       "20261117192117_add_training_plan_daily_minutes.sql",
       "20261121000236_add_drill_question_worked_examples.sql",
-      "20261121053502_deliberate_practice_rep_loop.sql"
+      "20261121053502_deliberate_practice_rep_loop.sql",
+      "20261121185507_drill_phase_sequence.sql"
     ],
     "existingProduction": [
       "20260730_upgrade_legacy_profiles.sql",
@@ -63,7 +64,8 @@
       "20261112090000_incomplete_session_recovery.sql",
       "20261117192117_add_training_plan_daily_minutes.sql",
       "20261121000236_add_drill_question_worked_examples.sql",
-      "20261121053502_deliberate_practice_rep_loop.sql"
+      "20261121053502_deliberate_practice_rep_loop.sql",
+      "20261121185507_drill_phase_sequence.sql"
     ]
   },
   "securityInvariants": {

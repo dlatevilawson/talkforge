@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Drill } from "@/lib/drills/catalog";
+import { drillPhaseLabel, type Drill } from "@/lib/drills/catalog";
 import { createPracticeSession } from "@/lib/session";
 import { persistSpeechCapture } from "@/lib/speech/persistence";
 import { saveSession, saveSessionReport } from "@/lib/storage";
@@ -128,6 +128,7 @@ export default function TextDrillCompletion({ drill, programId, repeat = false, 
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#c9a95f]">Today’s practice · {drill.modality}</p>
       <h1 className="mt-4 text-4xl font-semibold tracking-tight">{drill.name}</h1>
       <p className="mt-3 text-zinc-400">{drill.durationMinutes} minutes · {drill.signal}</p>
+      {drillPhaseLabel(drill.phase) ? <p className="mt-2 text-sm text-zinc-500">{drillPhaseLabel(drill.phase)}</p> : null}
       {target ? <p className="mt-4 rounded-xl border border-[#c9a95f]/25 bg-[#c9a95f]/10 p-4 text-sm leading-6 text-[#f1d99b]">{repeat ? "Same drill, one change: " : "Your target this rep: "}{target}</p> : null}
       <section className="mt-10 rounded-2xl border border-white/10 bg-white/[0.04] p-6"><p className="text-lg leading-8 text-zinc-200">{drill.instructions}</p>{drill.question ? <p className="mt-6 border-t border-white/10 pt-5 text-sm leading-6 text-zinc-200"><span className="font-semibold text-[#e7d6b1]">Question to answer:</span> {drill.question}</p> : null}{drill.workedExample ? <p className="mt-4 whitespace-pre-line rounded-xl border border-[#c9a95f]/20 bg-[#c9a95f]/5 p-4 text-sm leading-6 text-zinc-300"><span className="font-semibold text-[#e7d6b1]">Worked example:</span>{"\n"}{drill.workedExample}</p> : null}<p className="mt-6 border-t border-white/10 pt-5 text-sm leading-6 text-zinc-400">Look for: {drill.goodLooksLike}</p></section>
       <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Write your answer first, then say it aloud (optional log afterward)" className="mt-6 min-h-28 w-full rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-white outline-none focus:border-[#c9a95f]" />

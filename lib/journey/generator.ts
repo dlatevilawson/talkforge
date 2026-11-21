@@ -1,4 +1,4 @@
-import type { Drill, DrillSignal } from "@/lib/drills/catalog";
+import type { Drill, DrillPhase, DrillSignal } from "@/lib/drills/catalog";
 
 export type GeneratedDay = {
   dayIndex: number;
@@ -8,6 +8,7 @@ export type GeneratedDay = {
 };
 
 const SIGNALS: DrillSignal[] = ["purpose", "perspective", "composure", "message", "adaptability"];
+const PHASES: DrillPhase[] = ["recognise", "build", "rehearse", "roleplay"];
 
 function addDays(date: string, amount: number): string {
   const value = new Date(`${date}T00:00:00Z`);
@@ -27,6 +28,9 @@ export function chooseBlockDrills(
   const active = drills.filter((drill) => drill.modality !== "field");
   const occasion = occasionText.toLowerCase();
   const ranked = [...active].sort((a, b) => {
+    const aPhase = a.phase ? PHASES.indexOf(a.phase) : PHASES.length;
+    const bPhase = b.phase ? PHASES.indexOf(b.phase) : PHASES.length;
+    if (aPhase !== bPhase) return aPhase - bPhase;
     const aOccasion = occasion && a.scenarioTags.some((tag) => occasion.includes(tag)) ? 1 : 0;
     const bOccasion = occasion && b.scenarioTags.some((tag) => occasion.includes(tag)) ? 1 : 0;
     return bOccasion - aOccasion || a.difficulty - b.difficulty || a.id.localeCompare(b.id);
@@ -35,9 +39,15 @@ export function chooseBlockDrills(
   const bySignal = (signal: DrillSignal) => ranked.filter((drill) => drill.signal === signal);
   const focus = bySignal(focusSignal);
   if (focus.length === 0) throw new Error(`No active drills for focus signal ${focusSignal}`);
+  const selectedBySignal = new Map<DrillSignal, Set<string>>();
+  const remember = (drill: Drill) => {
+    const seen = selectedBySignal.get(drill.signal) ?? new Set<string>();
+    seen.add(drill.id);
+    selectedBySignal.set(drill.signal, seen);
+  };
   // The first week is a discovery week, not a two-drill loop. Use distinct
-  // library rows before any repetition, while still giving the focus signal
-  // four deliberate slots when the library supports it.
+  // library rows before any repetition. Within each skill, its distinct drills
+  // are offered in phase order; the focus signal still leads the discovery week.
   const selected: Drill[] = [];
   const used = new Set<string>();
   const addFirstWeek = (pool: Drill[]) => {
@@ -45,6 +55,7 @@ export function chooseBlockDrills(
       if (selected.length >= 7 || used.has(drill.id)) continue;
       selected.push(drill);
       used.add(drill.id);
+      remember(drill);
     }
   };
   addFirstWeek(focus);
@@ -55,18 +66,26 @@ export function chooseBlockDrills(
   // distinct path above.
   while (selected.length < 7) {
     const previous = selected.at(-1);
-    const candidate = ranked.find((drill) => drill.id !== previous?.id) ?? ranked[0];
+    const candidate = ranked.find((drill) => !used.has(drill.id))
+      ?? ranked.find((drill) => drill.id !== previous?.id)
+      ?? ranked[0];
     selected.push(candidate);
+    used.add(candidate.id);
+    remember(candidate);
   }
 
   for (let index = 7; index < 14; index += 1) {
     const signal = SIGNALS[(SIGNALS.indexOf(focusSignal) + index) % SIGNALS.length];
     const pool = bySignal(signal).length ? bySignal(signal) : ranked;
     const previous = selected.at(-1);
-    const candidate = pool.find((drill) => drill.id !== previous?.id)
+    const seenForSignal = selectedBySignal.get(signal) ?? new Set<string>();
+    const candidate = pool.find((drill) => !seenForSignal.has(drill.id) && drill.id !== previous?.id)
+      ?? pool.find((drill) => !seenForSignal.has(drill.id))
+      ?? pool.find((drill) => drill.id !== previous?.id)
       ?? ranked.find((drill) => drill.id !== previous?.id)
       ?? ranked[0];
     selected.push(candidate);
+    remember(candidate);
   }
   return selected;
 }

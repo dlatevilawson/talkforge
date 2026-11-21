@@ -7,11 +7,25 @@ export type DrillSignal =
 
 export type DrillModality = "voice" | "text" | "field";
 
+export type DrillPhase = "recognise" | "build" | "rehearse" | "roleplay";
+
+const DRILL_PHASE_LABELS: Record<DrillPhase, string> = {
+  recognise: "Recognise",
+  build: "Build",
+  rehearse: "Rehearse",
+  roleplay: "Role-play",
+};
+
+export function drillPhaseLabel(phase: DrillPhase | null | undefined): string | null {
+  return phase ? DRILL_PHASE_LABELS[phase] : null;
+}
+
 export type Drill = {
   id: string;
   slug: string;
   name: string;
   signal: DrillSignal;
+  phase: DrillPhase | null;
   instructions: string;
   durationMinutes: number;
   modality: DrillModality;
@@ -31,6 +45,7 @@ export const STARTER_DRILLS: readonly Drill[] = [
     slug: "one-sentence-point",
     name: "One-sentence point",
     signal: "purpose",
+    phase: "build",
     instructions:
       "Write the single sentence you would want quoted from this conversation. 12 words or fewer. Then read it aloud once, exactly as written.",
     durationMinutes: 3,
@@ -47,6 +62,7 @@ export const STARTER_DRILLS: readonly Drill[] = [
     slug: "three-second-rule",
     name: "The 3-second rule",
     signal: "composure",
+    phase: "rehearse",
     instructions:
       "Answer 5 coach questions. Wait a full 3 seconds of silence before each answer—count it. Do not fill the silence with “um” or “so.”",
     durationMinutes: 4,
@@ -63,6 +79,7 @@ export const STARTER_DRILLS: readonly Drill[] = [
     slug: "prep-builder",
     name: "PREP builder",
     signal: "message",
+    phase: "build",
     instructions:
       "Write one answer in PREP form: Point, Reason, Example (two lines), Point. Then say it aloud exactly as written.",
     durationMinutes: 4,

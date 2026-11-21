@@ -9,6 +9,7 @@ import { connection } from "next/server";
 import { coachTopicById } from "@/lib/assistant-coach/coach-topics";
 import Link from "next/link";
 import { getActiveDrill, getLatestDrillTarget, getTodayJourney } from "@/lib/journey/server";
+import { drillPhaseLabel } from "@/lib/drills/catalog";
 import TextDrillCompletion from "@/app/components/journey/TextDrillCompletion";
 import { parseAssessmentSnapshot, type AssessmentSnapshot } from "@/lib/ce/assessment-lifecycle";
 
@@ -148,6 +149,7 @@ export default async function VoicePage({
           <p className="mt-3 text-zinc-400">
             {activeDrill.durationMinutes} minutes · {activeDrill.signal} · difficulty {activeDrill.difficulty}
           </p>
+          {drillPhaseLabel(activeDrill.phase) ? <p className="mt-2 text-sm text-zinc-500">{drillPhaseLabel(activeDrill.phase)}</p> : null}
           {targetForRep ? <p className="mt-4 rounded-xl border border-[#c9a95f]/25 bg-[#c9a95f]/10 p-4 text-sm leading-6 text-[#f1d99b]">{repeat ? "Same drill, one change: " : "Your target this rep: "}{targetForRep}</p> : null}
           <section className="mt-10 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
             <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-[#d7b56a]">
