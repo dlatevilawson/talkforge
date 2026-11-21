@@ -10,7 +10,7 @@ import { getCoachMemory, saveCoachMemory } from "@/lib/storage";
 import { applyReportToMemory, emptyCoachMemory } from "@/lib/coach/memory";
 import { startSpeechRecorder, type SpeechRecorder } from "@/lib/ce/speech-capture";
 
-export default function TextDrillCompletion({ drill, programId }: { drill: Drill; programId: string }) {
+export default function TextDrillCompletion({ drill, programId, repeat = false, repeatDayId, target }: { drill: Drill; programId?: string; repeat?: boolean; repeatDayId?: string; target?: string | null }) {
   const router = useRouter();
   const recorderRef = useRef<SpeechRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -94,7 +94,7 @@ export default function TextDrillCompletion({ drill, programId }: { drill: Drill
       } catch (memoryError) {
         console.error("[coach] recorded text-rep memory update failed", memoryError);
       }
-      const completion = await fetch("/api/journey/complete-day", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ programId, drillId: drill.id, sessionId: session.id, notes, completedAt }) });
+      const completion = await fetch("/api/journey/complete-day", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ programId, drillId: drill.id, sessionId: session.id, notes, completedAt, ...(repeat && repeatDayId ? { repeat: true, repeatDayId } : {}) }) });
       if (!completion.ok) throw new Error("Could not complete this training day.");
       void fetch("/api/speech/measure", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sessionId: session.id }) });
       router.push(`/app/reflect/${session.id}`);
@@ -113,7 +113,7 @@ export default function TextDrillCompletion({ drill, programId }: { drill: Drill
       setSaving(false);
       return;
     }
-    const response = await fetch("/api/journey/complete-day", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ programId, drillId: drill.id, notes, textOnly: true }) });
+    const response = await fetch("/api/journey/complete-day", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ programId, drillId: drill.id, notes, textOnly: true, ...(repeat && repeatDayId ? { repeat: true, repeatDayId } : {}) }) });
     if (!response.ok) {
       setError("Could not save this text-only rep. Try again.");
       setSaving(false);
@@ -128,6 +128,7 @@ export default function TextDrillCompletion({ drill, programId }: { drill: Drill
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#c9a95f]">Today’s practice · {drill.modality}</p>
       <h1 className="mt-4 text-4xl font-semibold tracking-tight">{drill.name}</h1>
       <p className="mt-3 text-zinc-400">{drill.durationMinutes} minutes · {drill.signal}</p>
+      {target ? <p className="mt-4 rounded-xl border border-[#c9a95f]/25 bg-[#c9a95f]/10 p-4 text-sm leading-6 text-[#f1d99b]">{repeat ? "Same drill, one change: " : "Your target this rep: "}{target}</p> : null}
       <section className="mt-10 rounded-2xl border border-white/10 bg-white/[0.04] p-6"><p className="text-lg leading-8 text-zinc-200">{drill.instructions}</p>{drill.question ? <p className="mt-6 border-t border-white/10 pt-5 text-sm leading-6 text-zinc-200"><span className="font-semibold text-[#e7d6b1]">Question to answer:</span> {drill.question}</p> : null}{drill.workedExample ? <p className="mt-4 whitespace-pre-line rounded-xl border border-[#c9a95f]/20 bg-[#c9a95f]/5 p-4 text-sm leading-6 text-zinc-300"><span className="font-semibold text-[#e7d6b1]">Worked example:</span>{"\n"}{drill.workedExample}</p> : null}<p className="mt-6 border-t border-white/10 pt-5 text-sm leading-6 text-zinc-400">Look for: {drill.goodLooksLike}</p></section>
       <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Write your answer first, then say it aloud (optional log afterward)" className="mt-6 min-h-28 w-full rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-white outline-none focus:border-[#c9a95f]" />
       <p className="mt-4 text-sm leading-6 text-zinc-400">This drill asks you to speak your written answer aloud. Recording is explicit and is used only to measure this rep.</p>

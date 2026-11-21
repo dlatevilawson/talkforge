@@ -7,9 +7,8 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { coachTopicById } from "@/lib/assistant-coach/coach-topics";
-import { findStarterDrill } from "@/lib/drills/catalog";
 import Link from "next/link";
-import { getTodayJourney } from "@/lib/journey/server";
+import { getActiveDrill, getLatestDrillTarget, getTodayJourney } from "@/lib/journey/server";
 import TextDrillCompletion from "@/app/components/journey/TextDrillCompletion";
 import { parseAssessmentSnapshot, type AssessmentSnapshot } from "@/lib/ce/assessment-lifecycle";
 
@@ -25,19 +24,34 @@ export default async function VoicePage({
     topic?: string | string[];
     drill?: string | string[];
     programId?: string | string[];
+    target?: string | string[];
+    repeat?: string | string[];
+    repeatDayId?: string | string[];
+    briefed?: string | string[];
   }>;
 }) {
   await connection();
   const params = await searchParams;
   const title = first(params.title);
   const coachTopic = coachTopicById(first(params.topic));
-  const drill = findStarterDrill(first(params.drill));
+  const drill = await getActiveDrill(first(params.drill));
   const drillStarted = first(params.start) === "1";
   const programId = first(params.programId);
+  const repeat = first(params.repeat) === "1";
+  const repeatDayId = first(params.repeatDayId);
+  const carriedTarget = first(params.target)?.trim() || "";
+  const briefed = first(params.briefed) === "1";
   const modeRaw = first(params.mode);
   const mode: CeSessionMode = modeRaw === "assessment" ? "assessment" : "practice";
   const journey = programId ? await getTodayJourney().catch(() => null) : null;
   const activeDrill = drill ?? (journey?.status === "today" ? journey.day.drill : null);
+  const targetForRep = activeDrill
+    ? carriedTarget || await getLatestDrillTarget({ drillId: activeDrill.id, signal: activeDrill.signal }).catch(() => null)
+    : null;
+
+  if (repeat && programId && !repeatDayId) {
+    return <main className="min-h-screen bg-[#07070a] px-6 py-16 text-zinc-100"><div className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/[0.04] p-6"><h1 className="text-xl font-semibold">This repeat is not linked to its program day</h1><p className="mt-3 text-sm leading-6 text-zinc-400">Return to the debrief and try again. Your plan day has not changed.</p><Link href="/app" className="mt-5 inline-flex text-sm underline">Back home</Link></div></main>;
+  }
 
   const access = await evaluatePracticeRouteAccess();
   if (!access.allowed) {
@@ -114,11 +128,14 @@ export default async function VoicePage({
     trackRaw === "hello"
       ? trackRaw
       : "hello";
-  if (activeDrill && activeDrill.modality !== "voice" && programId && journey) {
-    return <TextDrillCompletion drill={activeDrill} programId={programId} />;
+  if (activeDrill && activeDrill.modality !== "voice" && ((programId && journey) || repeat)) {
+    return <TextDrillCompletion drill={activeDrill} programId={programId} repeat={repeat} repeatDayId={repeatDayId} target={targetForRep} />;
   }
 
-  if (activeDrill && !drillStarted) {
+  if (activeDrill && (!drillStarted || (repeat && !briefed))) {
+    const startHref = repeat
+      ? `/app/practice?drill=${encodeURIComponent(activeDrill.id)}&start=1&repeat=1&briefed=1&target=${encodeURIComponent(targetForRep ?? "")}${programId ? `&programId=${encodeURIComponent(programId)}` : ""}${repeatDayId ? `&repeatDayId=${encodeURIComponent(repeatDayId)}` : ""}`
+      : "/app/practice?drill=" + encodeURIComponent(activeDrill.id) + "&programId=" + encodeURIComponent(programId ?? "") + "&start=1";
     return (
       <main className="min-h-screen bg-[#07070a] px-6 py-16 text-zinc-100">
         <div className="mx-auto max-w-xl">
@@ -131,6 +148,7 @@ export default async function VoicePage({
           <p className="mt-3 text-zinc-400">
             {activeDrill.durationMinutes} minutes · {activeDrill.signal} · difficulty {activeDrill.difficulty}
           </p>
+          {targetForRep ? <p className="mt-4 rounded-xl border border-[#c9a95f]/25 bg-[#c9a95f]/10 p-4 text-sm leading-6 text-[#f1d99b]">{repeat ? "Same drill, one change: " : "Your target this rep: "}{targetForRep}</p> : null}
           <section className="mt-10 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
             <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-[#d7b56a]">
               How it works
@@ -144,10 +162,10 @@ export default async function VoicePage({
           </section>
           <div className="mt-8 flex items-center gap-4">
             <Link
-              href={"/app/practice?drill=" + encodeURIComponent(activeDrill.id) + "&programId=" + encodeURIComponent(programId ?? "") + "&start=1"}
+              href={startHref}
               className="rounded-full bg-[#f4f0e8] px-6 py-3 font-semibold text-black"
             >
-              Start drill
+              {repeat ? "Start repeat" : "Start drill"}
             </Link>
             <Link href="/app" className="text-sm text-zinc-400 underline-offset-4 hover:underline">
               Back home
@@ -168,7 +186,8 @@ export default async function VoicePage({
           : coachTopic?.context ?? first(params.success)
       }
       drillId={activeDrill?.id}
-    programId={programId}
+      programId={programId}
+      repeatDayId={repeat ? repeatDayId : undefined}
       openingContext={openingContext}
       autoStart={drillStarted}
       mode={mode}

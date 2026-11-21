@@ -91,6 +91,7 @@ export async function completePracticeSession(
     durationSeconds?: number | null;
     displayName?: string;
     speechCapture?: { audioBlob: Blob | null; turns: TranscriptTurn[] };
+    repeatDayId?: string;
   }
 ): Promise<PracticeSession> {
   const modality = options?.modality ?? session.modality ?? "text";
@@ -172,6 +173,7 @@ export async function completePracticeSession(
           drillId: completed.drillId,
           sessionId: completed.id,
           completedAt,
+          ...(options?.repeatDayId ? { repeat: true, repeatDayId: options.repeatDayId } : {}),
         }),
       });
         if (!response.ok) throw new Error("Failed to complete the training day.");
@@ -179,7 +181,7 @@ export async function completePracticeSession(
       const response = await fetch("/api/journey/complete-day", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ drillId: completed.drillId, sessionId: completed.id, completedAt }),
+        body: JSON.stringify({ drillId: completed.drillId, sessionId: completed.id, completedAt, ...(options?.repeatDayId ? { repeat: true, repeatDayId: options.repeatDayId } : {}) }),
       });
         if (!response.ok) throw new Error("Failed to save the drill completion.");
       }

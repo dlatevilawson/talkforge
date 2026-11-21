@@ -9,6 +9,8 @@ import {
   getSessionReport,
   getSpeechEvidence,
   getSession,
+  getDrillCompletionTarget,
+  getPriorDrillTarget,
   getCoachMemory,
   saveReflection,
 } from "@/lib/storage";
@@ -17,6 +19,7 @@ import type { PracticeSession, Reflection, SessionReport } from "@/lib/types";
 import type { SpeechEvidence } from "@/lib/storage";
 import { reflectDataIsReady } from "@/lib/reflect/reflect-readiness";
 import { shouldPollSpeechMeasurement } from "@/lib/reflect/reflect-state";
+import { repeatDrillHref, resolveRepTarget } from "@/lib/journey/rep-target";
 
 export default function ReflectPage() {
   const params = useParams<{ sessionId: string }>();
@@ -30,6 +33,8 @@ export default function ReflectPage() {
   const [report, setReport] = useState<SessionReport | null>(null);
   const [speech, setSpeech] = useState<SpeechEvidence | null>(null);
   const [memory, setMemory] = useState<CoachMemory | null>(null);
+  const [completionTarget, setCompletionTarget] = useState<{ dayId: string | null; nextTarget: string | null } | null>(null);
+  const [priorTarget, setPriorTarget] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [finishing, setFinishing] = useState(false);
   const [readinessTimedOut, setReadinessTimedOut] = useState(false);
@@ -54,6 +59,10 @@ export default function ReflectPage() {
         let loadedReport: SessionReport | null = null;
         let loadedSpeech: SpeechEvidence | null = null;
         let loadedMemory: CoachMemory | null = null;
+        const loadedCompletionTarget = await getDrillCompletionTarget(sessionId);
+        const loadedPriorTarget = current.drillId
+          ? await getPriorDrillTarget({ userId: current.userId, drillId: current.drillId, sessionId, before: current.startedAt })
+          : null;
         let ready = false;
         for (let attempt = 0; attempt < 8; attempt += 1) {
           [loadedReflection, loadedReport, loadedSpeech, loadedMemory] = await Promise.all([
@@ -79,6 +88,8 @@ export default function ReflectPage() {
         setReport(loadedReport);
         setSpeech(loadedSpeech);
         setMemory(loadedMemory);
+        setCompletionTarget(loadedCompletionTarget);
+        setPriorTarget(loadedPriorTarget);
         setFinishing(false);
         setReadinessTimedOut(!ready);
         if (loadedReflection?.coachSatisfaction) {
@@ -117,8 +128,8 @@ export default function ReflectPage() {
     const wentWell = wentWellRef.current?.value.trim() ?? "";
     const improveNext = improveRef.current?.value.trim() ?? "";
 
-    if (!wentWell || !improveNext) {
-      setError("Add a short reflection in both fields before continuing.");
+    if (!wentWell) {
+      setError("Add a short note about what went well before continuing.");
       return;
     }
 
@@ -131,15 +142,48 @@ export default function ReflectPage() {
         sessionId: session.id,
         userId: user.id,
         wentWell,
-        improveNext,
+        improveNext: resolveRepTarget(improveNext, report?.biggestWeakness) || "",
         coachSatisfaction: satisfaction,
         createdAt: new Date().toISOString(),
       });
+      if (session.drillId) await saveNextTarget(session.drillId, session.id, resolveRepTarget(improveNext, report?.biggestWeakness) || "");
       router.push("/app?from=reflection");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to save reflection."
       );
+      setSaving(false);
+    }
+  }
+
+  async function saveNextTarget(drillId: string, sessionId: string, target: string) {
+    const response = await fetch("/api/journey/complete-day", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ targetOnly: true, drillId, sessionId, nextTarget: target }),
+    });
+    if (!response.ok) throw new Error("Could not save your target for the next rep.");
+  }
+
+  async function handleRepeat() {
+    if (!session?.drillId) return;
+    const target = resolveRepTarget(improveRef.current?.value, report?.biggestWeakness) || "";
+    if (!target) {
+      setError("Add one target before repeating this drill.");
+      return;
+    }
+    if (session.programId && !completionTarget?.dayId) {
+      setError("This session is not linked to a program day, so it cannot be repeated as part of the plan.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      await saveNextTarget(session.drillId, session.id, target);
+      const drillSlug = session.scenarioTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      router.push(repeatDrillHref({ drillSlug, target, programId: session.programId, dayId: completionTarget?.dayId ?? undefined }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not start the repeat.");
       setSaving(false);
     }
   }
@@ -197,6 +241,7 @@ export default function ReflectPage() {
         <p className="mt-3 text-sm text-zinc-300">{finishing ? "Finishing up your session…" : report?.coachSummary || report?.breakthrough || "Your session is ready to review."}</p>
         {readinessTimedOut ? <p className="mt-2 text-sm text-amber-200/80">Some finishing details are still unavailable, but this session is ready to review.</p> : memory?.lastSessionAt ? <p className="mt-2 text-sm text-zinc-500">Forge memory is current through {new Date(memory.lastSessionAt).toLocaleDateString()}: {memory.lastScenarioTitle || "your latest practice"}.</p> : null}
         {report?.biggestWeakness ? <p className="mt-2 text-sm text-zinc-400">Next adjustment: {report.biggestWeakness}</p> : null}
+        {priorTarget ? <p className="mt-2 text-sm text-zinc-300">Your target was: {priorTarget}</p> : null}
         <p className="mt-1 text-sm text-zinc-500">
           Conversation turns captured: {session.turns.length}
         </p>
@@ -246,7 +291,7 @@ export default function ReflectPage() {
             key={`improve-${existing?.createdAt ?? "new"}`}
             ref={improveRef}
             rows={4}
-            defaultValue={existing?.improveNext ?? ""}
+            defaultValue={existing?.improveNext ?? report?.biggestWeakness ?? ""}
             disabled={saving}
             className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm leading-6 text-white outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-400 disabled:opacity-60"
             placeholder="Choose one concrete improvement to practice outside the app."
@@ -297,6 +342,7 @@ export default function ReflectPage() {
           >
             Skip for now
           </Link>
+          {session.drillId ? <button type="button" onClick={() => void handleRepeat()} disabled={saving} className="rounded-full border border-[#c9a95f]/40 px-6 py-3 text-sm font-semibold text-[#f1d99b] hover:bg-[#c9a95f]/10 disabled:opacity-60">{saving ? "Preparing repeat…" : "Repeat this drill"}</button> : null}
         </div>
       </form>
     </>

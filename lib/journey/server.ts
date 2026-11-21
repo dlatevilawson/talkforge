@@ -220,3 +220,36 @@ export async function getTodayJourney(): Promise<TodayJourney | null> {
   if (!day) return null;
   return { ...base, status: "today", day, tomorrow: mapped.find((item) => item.dayIndex === day.dayIndex + 1) ?? null };
 }
+
+export async function getActiveDrill(idOrSlug: string | undefined): Promise<Drill | null> {
+  if (!idOrSlug) return null;
+  const starter = STARTER_DRILLS.find((drill) => drill.id === idOrSlug || drill.slug === idOrSlug);
+  if (starter) return starter;
+  const admin = createAdminSupabaseClient();
+  const { data, error } = await admin.from("drills").select("*").eq("is_active", true);
+  if (error) throw new Error(error.message);
+  const row = (data ?? []).find((candidate) => String(candidate.id) === idOrSlug || slugify(String(candidate.name)) === idOrSlug);
+  return row ? mapDrill(row as Record<string, unknown>) : null;
+}
+
+export async function getLatestDrillTarget(input: { drillId: string; signal: DrillSignal }): Promise<string | null> {
+  const memberId = await currentUserId();
+  const admin = createAdminSupabaseClient();
+  const { data: completions, error } = await admin.from("drill_completions")
+    .select("drill_id, next_target, completed_at")
+    .eq("member_id", memberId)
+    .not("next_target", "is", null)
+    .order("completed_at", { ascending: false })
+    .limit(50);
+  if (error) throw new Error(error.message);
+  const rows = (completions ?? []).filter((row) => typeof row.next_target === "string" && row.next_target.trim());
+  const exact = rows.find((row) => row.drill_id === input.drillId);
+  if (exact) return String(exact.next_target).trim();
+  if (rows.length === 0) return null;
+  const drillIds = [...new Set(rows.map((row) => String(row.drill_id)))];
+  const { data: drills, error: drillsError } = await admin.from("drills").select("id, signal").in("id", drillIds);
+  if (drillsError) throw new Error(drillsError.message);
+  const matchingIds = new Set((drills ?? []).filter((drill) => drill.signal === input.signal).map((drill) => String(drill.id)));
+  const sameSignal = rows.find((row) => matchingIds.has(String(row.drill_id)));
+  return sameSignal ? String(sameSignal.next_target).trim() : null;
+}

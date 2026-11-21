@@ -475,6 +475,48 @@ export async function saveDrillCompletion(input: {
   }
 }
 
+export type DrillCompletionTarget = { dayId: string | null; nextTarget: string | null };
+
+export async function getDrillCompletionTarget(sessionId: string): Promise<DrillCompletionTarget | null> {
+  const supabase = requireSupabase();
+  const { data, error } = await supabase.from("drill_completions")
+    .select("day_id, next_target")
+    .eq("practice_session_id", sessionId)
+    .maybeSingle();
+  if (error) throw new Error(`Failed to load drill target: ${error.message}`);
+  return data ? { dayId: data.day_id, nextTarget: data.next_target } : null;
+}
+
+export async function getPriorDrillTarget(input: {
+  userId: string;
+  drillId: string;
+  sessionId: string;
+  before: string;
+}): Promise<string | null> {
+  const supabase = requireSupabase();
+  const { data: rows, error } = await supabase.from("drill_completions")
+    .select("drill_id, next_target, completed_at")
+    .eq("member_id", input.userId)
+    .neq("practice_session_id", input.sessionId)
+    .not("next_target", "is", null)
+    .lt("completed_at", input.before)
+    .order("completed_at", { ascending: false })
+    .limit(50);
+  if (error) throw new Error(`Failed to load prior drill target: ${error.message}`);
+  const candidates = rows ?? [];
+  const exact = candidates.find((row) => row.drill_id === input.drillId);
+  if (typeof exact?.next_target === "string" && exact.next_target.trim()) return exact.next_target.trim();
+  const { data: currentDrill, error: drillError } = await supabase.from("drills").select("signal").eq("id", input.drillId).maybeSingle();
+  if (drillError || !currentDrill) return null;
+  const drillIds = [...new Set(candidates.map((row) => String(row.drill_id)))];
+  if (!drillIds.length) return null;
+  const { data: drills, error: signalsError } = await supabase.from("drills").select("id, signal").in("id", drillIds);
+  if (signalsError) throw new Error(`Failed to load drill signals: ${signalsError.message}`);
+  const sameSignalIds = new Set((drills ?? []).filter((drill) => drill.signal === currentDrill.signal).map((drill) => String(drill.id)));
+  const sameSignal = candidates.find((row) => sameSignalIds.has(String(row.drill_id)));
+  return typeof sameSignal?.next_target === "string" && sameSignal.next_target.trim() ? sameSignal.next_target.trim() : null;
+}
+
 export async function countCompletedSessions(userId: string): Promise<number> {
   const supabase = requireSupabase();
   const { count, error } = await supabase
