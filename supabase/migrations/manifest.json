@@ -33,7 +33,7 @@
       "20261107090000_speech_admission_events.sql",
       "20261112090000_incomplete_session_recovery.sql",
       "20261117192117_add_training_plan_daily_minutes.sql",
-      "20261120090000_add_drill_question_worked_examples.sql"
+      "20261121000236_add_drill_question_worked_examples.sql"
     ],
     "existingProduction": [
       "20260730_upgrade_legacy_profiles.sql",
@@ -61,7 +61,7 @@
       "20261107090000_speech_admission_events.sql",
       "20261112090000_incomplete_session_recovery.sql",
       "20261117192117_add_training_plan_daily_minutes.sql",
-      "20261120090000_add_drill_question_worked_examples.sql"
+      "20261121000236_add_drill_question_worked_examples.sql"
     ]
   },
   "securityInvariants": {
