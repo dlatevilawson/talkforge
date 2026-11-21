@@ -157,6 +157,7 @@ type VoiceArenaProps = {
   mode?: CeSessionMode;
   drillId?: string;
   programId?: string;
+  repeatDayId?: string;
   assessmentResumeSnapshot?: AssessmentSnapshot | null;
   assessmentDailyMinutes?: 5 | 10 | 15 | null;
   guestPreview?: {
@@ -210,6 +211,7 @@ export default function VoiceArena({
   mode = "practice",
   drillId,
   programId,
+  repeatDayId,
   assessmentResumeSnapshot = null,
   assessmentDailyMinutes = null,
   guestPreview,
@@ -2541,6 +2543,7 @@ export default function VoiceArena({
           audioBlob: speechAudioBlobRef.current,
           turns: snapshot,
         },
+        repeatDayId,
       });
       practiceSessionRef.current = completed;
       setSavedSessionId(completed.id);
