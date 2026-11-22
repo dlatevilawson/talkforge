@@ -74,8 +74,7 @@ function CheckInForm() {
       setSaving(false);
       return;
     }
-    router.push("/app");
-    router.refresh();
+    window.location.assign("/app");
   }
 
   return (

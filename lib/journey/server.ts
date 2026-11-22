@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { evaluatePracticeEntitlement } from "@/lib/billing/entitlements";
 import { STARTER_DRILLS, type Drill, type DrillPhase, type DrillSignal } from "@/lib/drills/catalog";
 import { generateBlockDays, planEndDate } from "./generator";
-import { evaluateBlockCompletion, nextBlockStartDate } from "./check-in";
+import { evaluateBlockCompletion, nextBlockStartDate, resolveCompletedBlockRetry } from "./check-in";
 import { initialTrainingPlanRow } from "./daily-minutes";
 import type { JourneyDay, TodayJourney, TrainingPlan, TrainingPlanKind } from "./types";
 
@@ -163,19 +163,32 @@ export async function updateTrainingPlanDailyMinutes(planId: string, value: unkn
   if (error || !data) throw new Error(error?.message ?? "Active plan not found.");
 }
 
-export async function completeBlockAndPrescribeNext(input: { planId: string; programId: string; focusSignal: DrillSignal; goalText: string }): Promise<void> {
+export async function completeBlockAndPrescribeNext(input: { planId: string; programId: string; focusSignal: DrillSignal; goalText: string }): Promise<{ alreadyComplete: boolean }> {
   const memberId = await currentUserId();
   const admin = createAdminSupabaseClient();
   const { data: plan, error: planError } = await admin.from("training_plans").select("*").eq("id", input.planId).eq("member_id", memberId).single();
   if (planError || !plan) throw new Error(planError?.message ?? "Plan not found");
   const { data: currentProgram, error: currentProgramError } = await admin
     .from("training_programs")
-    .select("id, ends_on, status")
+    .select("id, block_number, ends_on, status")
     .eq("id", input.programId)
     .eq("plan_id", input.planId)
-    .eq("status", "active")
-    .single();
-  if (currentProgramError || !currentProgram) throw new Error(currentProgramError?.message ?? "Active block not found");
+    .maybeSingle();
+  if (currentProgramError || !currentProgram) throw new Error("Active block not found.");
+  if (currentProgram.status === "completed") {
+    const nextBlockNumber = Number(currentProgram.block_number) + 1;
+    const { data: existingNextBlock, error: existingNextBlockError } = await admin
+      .from("training_programs")
+      .select("id")
+      .eq("plan_id", input.planId)
+      .eq("block_number", nextBlockNumber)
+      .maybeSingle();
+    if (existingNextBlockError) throw new Error("Could not verify the next training block.");
+    const retry = resolveCompletedBlockRetry(String(currentProgram.status), existingNextBlock);
+    if (retry.kind === "reuse") return { alreadyComplete: true };
+    throw new Error("This block is already complete, but its next block is not available.");
+  }
+  if (currentProgram.status !== "active") throw new Error("Active block not found.");
   const { data: currentDays, error: currentDaysError } = await admin.from("program_days").select("status").eq("program_id", input.programId);
   if (currentDaysError) throw new Error(currentDaysError.message);
   const completion = evaluateBlockCompletion((currentDays ?? []).map((day) => String(day.status)));
@@ -187,7 +200,7 @@ export async function completeBlockAndPrescribeNext(input: { planId: string; pro
   if (nextBlock > totalBlocks) {
     const { error } = await admin.from("training_plans").update({ status: "completed" }).eq("id", input.planId);
     if (error) throw new Error(error.message);
-    return;
+    return { alreadyComplete: false };
   }
   const startsOn = nextBlockStartDate(String(currentProgram.ends_on));
   const { data: drills, error: drillsError } = await admin.from("drills").select("*").eq("is_active", true);
@@ -199,6 +212,7 @@ export async function completeBlockAndPrescribeNext(input: { planId: string; pro
   if (daysError) throw new Error(daysError.message);
   const { error: updateError } = await admin.from("training_plans").update({ current_block_number: nextBlock }).eq("id", input.planId);
   if (updateError) throw new Error(updateError.message);
+  return { alreadyComplete: false };
 }
 
 export async function getTodayJourney(): Promise<TodayJourney | null> {
